@@ -18,11 +18,14 @@
 //
 //addText(605,906,605,906,684,438)
 
+const DEFAULT_OFFSET = 25;
+const MODE = 'TRANSFORM';
+//const MODE = 'MEDIABOX';
+//const MODE = 'COMICBOOK';
 
 function margins_wtf(){
     print("what?");
 }
-
 
 function transform_page(page, offset){
     page.setTransformMatrix([1, 0, 0, 1, offset, 0]);
@@ -51,44 +54,73 @@ function process_pdf(pdf, offset){
         shift_page_mediabox(pdf.getPage(i), offset);
         offset = -offset;
     }
-    //pdf.saveAs('/tmp/test.pdf');
 }
 
 
-function shift_margins(pdfedit, filename, offset){
+function shift_margins(pdfedit, filename, offset_s){
+
+    var offset = parseFloat(offset_s);
+    if (isNaN(offset)){
+        print ("offset not set or unreadable ('" + offset_s + "' -> '" + offset +"'), using default of " + DEFAULT_OFFSET);
+        offset = DEFAULT_OFFSET;
+    }
+
+    /* Rather than overwrite the file, copy it first to a similar name
+    and work on that ("saveas" doesn't work) */
+    var newfilename;
     if (filename == undefined){
-        filename = '/tmp/test-src.pdf';
-        Process.execute("cp original/farsi-wk-homa.pdf " + filename);
+        newfilename = '/tmp/test-src.pdf';
+        filename = '/home/douglas/fm-data/pdf-tests/original/farsi-wk-homa.pdf';
     }
-    if (offset == undefined){
-        offset = 25;
+    else {
+        var re = /^(.+)\.pdf$/i;
+        var m = re.search(filename);
+        if (m == -1){
+            print(filename + " doesn't look like a pdf filename");
+            exit(1);
+        }
+        newfilename = re.cap(1) + '-' + MODE + '.pdf';
     }
-    var pdf = pdfedit.loadPdf(filename, 1);
-    process_pdf(pdf, offset);
-    //pdf.saveAs('/tmp/test2.pdf');
+    Process.execute("cp " + filename + ' ' + newfilename);
+
+
+    var pdf = pdfedit.loadPdf(newfilename, 1);
+
+    if (MODE == 'TRANSFORM')
+        process_pdf(pdf, offset, transform_page);
+    else if (MODE == 'MEDIABOX')
+        process_pdf(pdf, offset, shift_page_mediabox);
     pdf.save();
     pdf.unloadPdf();
 }
 
 
+/* This file gets executed *twice*: once as it gets loaded and again
+ as it gets "called". The first time it recieves an extra command line
+ parameter -- the name of the "function", which is the name of the
+ script (or an abbreviation thereof).
+
+ So to do things only once, we count parameters and only do anything
+ if there are 0 or 2.
+ */
+
+
 print("in shift_margins");
+
 var p = parameters();
 
 if (p.length == 2){
     shift_margins(this, p[0], p[1]);
 }
 else if (p.length == 0){
-    //no parameters given
+    //no parameters given -- use the test example.
     shift_margins(this);
 }
 else {
     print("not processing with " + (p.length) + " parameters");
 }
 
-
-/* if 1 or 3 parameters, one of them is the name of the 'function' and
- this will wheel around again.*/
-
+/*debug*/
 for (var i = 0; i < p.length; i++){
     print(p[i]);
 }
