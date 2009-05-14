@@ -1,6 +1,6 @@
 // Console: shift_margins
 // Description: shift margins left and right
-// Parameters: [input file] [margin]
+/**** The preceding lines are pdfedit magic! do not remove them! ***/
 
 /*
  * Shift pages alternately left or right, and add page numbers in the
@@ -11,34 +11,21 @@
  *
  */
 
-//to get the filename:
-//string takeParameter()
-//
-//also .onLoad()
-//
-//addText(605,906,605,906,684,438)
-
 const DEFAULT_OFFSET = 25;
+/* FLOSS Manuals default book size at lulu: 'Comicbook', 6.625" x 10.25" */
 const COMIC_WIDTH = (6.625 * 72);
 const COMIC_HEIGHT = (10.25 * 72);
 
 const DEFAULT_DIR = 'LTR';
 
-
 //const DEFAULT_MODE = 'TRANSFORM';
 //const DEFAULT_MODE = 'MEDIABOX';
 const DEFAULT_MODE = 'COMICBOOK';
-
-function margins_wtf(){
-    print("what?");
-}
 
 
 function transform_page(page, offset){
     page.setTransformMatrix([1, 0, 0, 1, offset, 0]);
 }
-
-
 
 function rotate_page180(page){
     /* From the PDF reference:
@@ -70,10 +57,9 @@ function shift_page_mediabox(page, offset, width, height){
     var h = box[3] - box[1];
 
     if (width || height){
-        //print("resizing from " + w + ", " + h + " to " + width + ", " + height);
-        //print("x, y = " + x + ", " + y + "; dw, dh =  " + (width - w) + ", " + (height - h));
         /*resize each page, so put the mediabox out and up by half of
-        the difference */
+        the difference.
+         XXX should the page really be centred vertically? */
         x -= 0.5 * (width - w);
         y -= 0.5 * (height - h);
         w = width;
@@ -84,15 +70,102 @@ function shift_page_mediabox(page, offset, width, height){
 }
 
 
-
-/*
-for (i=1; i<= pages; i++){
- var offset = (i &1) * 50 - 25;
- var page = document.getPage(i);
- var box = page.mediabox();
- page.setMediabox(offset, box[1], box[2] + offset -box[0], box[3]);
+/** Add text line */
+function puttext (op,txt) {
+	var operands = createIPropertyArray ();
+	operands.append (createString(txt));
+	op.pushBack (createOperator("Tj",operands),op.getLastOperator());
 }
-         */
+/** End text */
+function putendtext (op) {
+	var operands = createIPropertyArray ();
+	op.pushBack (createOperator("ET",operands),op.getLastOperator());
+}
+
+/** Restore graphical state. */
+function putendq (op) {
+	var operands = createIPropertyArray ();
+	op.pushBack( createOperator("Q",operands), op.getLastOperator());
+}
+
+
+var convertors = {
+    a: createArray,
+    b: createBool,
+    //c: createCompositeOperator,
+    d: createDict,
+    o: createEmptyOperator,
+    i: createInt,
+    N: createName,
+    O: createOperator,
+    n: createReal,
+    r: createRef,
+    s: createString
+};
+
+
+function iprop_array(pattern){
+    var array = createIPropertyArray();
+    for (i = 1; i < arguments.length; i++){
+        var s = pattern.charAt(i - 1);
+        var arg = arguments[i];
+        var op = convertors[s](arg);
+        array.append(op);
+    }
+    return array;
+}
+
+
+
+function add_page_number(page, number, dir){
+    var box = page.mediabox();
+    var y = box[1] + 20;
+    var x;
+
+    if ((number & 1) == (dir == 'RTL')){
+        x = box[0] + 20;
+    }
+    else {
+        x = box[2] - 40;
+    }
+
+    var q = createCompositeOperator("q","Q");
+    var BT = createCompositeOperator("BT","ET");
+
+    q.pushBack(BT, q);
+
+    var fonts = page.getFontIdsAndNames();
+    /* how do we know which is the right one?!
+     * oh well... */
+
+    var Tf_ops = iprop_array('Nn', fonts[0], 12);
+    BT.pushBack(createOperator("Tf", Tf_ops), BT.getLastOperator());
+
+    var ops = iprop_array('nn', x, y);
+    op.pushBack(createOperator("Td", ops), op.getLastOperator());
+
+    puttext(BT,text);
+    putendtext(BT);
+    putendq(q);
+
+    var ops = createPdfOperatorStack();
+    ops.append(q);
+    page.prependContentStream(ops);
+}
+
+
+function number_pdf_pages(pdf, dir){
+    var pages = pdf.getPageCount();
+    var i;
+    for (i = 1; i <= pages; i++){
+        add_page_number(pdf.getPage(i), i);
+    }
+}
+
+
+//addText(605,906,605,906,684,438)
+
+
 
 function process_pdf(pdf, offset, func, width, height){
     var pages = pdf.getPageCount();
@@ -135,6 +208,9 @@ function shift_margins(pdfedit, offset_s, filename, mode, dir){
     Process.execute("cp " + filename + ' ' + newfilename);
 
     var pdf = pdfedit.loadPdf(newfilename, 1);
+
+    /* add on page numbers */
+    number_pdf_pages(pdf, dir);
 
 
     /* RTL book have gutter on the other side */
