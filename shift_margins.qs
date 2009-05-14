@@ -178,6 +178,11 @@ function process_pdf(pdf, offset, func, width, height){
 
 
 function shift_margins(pdfedit, offset_s, filename, mode, dir){
+    print("got " + arguments.length + " arguments: ");
+    for (var i = 0; i < arguments.length; i++){
+        print(arguments[i]);
+    }
+
     var offset = parseFloat(offset_s);
     if (isNaN(offset)){
         print ("offset not set or unreadable ('" + offset_s + "' -> '" + offset +"'), using default of " + DEFAULT_OFFSET);
@@ -195,6 +200,7 @@ function shift_margins(pdfedit, offset_s, filename, mode, dir){
     if (filename == undefined){
         newfilename = '/tmp/test-src.pdf';
         filename = '/home/douglas/fm-data/pdf-tests/original/farsi-wk-homa.pdf';
+        print("using default filenamer of " + newfilename);
     }
     else {
         var re = /^(.+)\.pdf$/i;
@@ -221,9 +227,6 @@ function shift_margins(pdfedit, offset_s, filename, mode, dir){
     }
 
 
-
-
-
     if (mode == 'TRANSFORM')
         process_pdf(pdf, offset, transform_page);
     else if (mode == 'MEDIABOX')
@@ -245,17 +248,27 @@ function shift_margins(pdfedit, offset_s, filename, mode, dir){
 
  The first real parameter is the offset (a number), so it is easy to
  detect the spurious "function" parameter and do nothing in that case.
- */
+
+*/
 
 print("in shift_margins");
 
 var p = parameters();
 
 if (p.length == 0 || ! p[0].startsWith("shi")){
-    for (var i = 0; i < p.length; i++){
+    var i;
+    for (i = 0; i < p.length; i++){
         print(p[i]);
     }
-    shift_margins(this, p[0], p[1], p[2], p[3]);
+
+    /* There is no _apply_ method for functions in QSA !!  and
+     * indexing past the end of an array is an error.  So fill it out
+     * with some undefineds to fake variadic calling.
+     */
+    for (i = 0; i < 5; i++){
+        p.push(undefined);
+    }
+    shift_margins(this, p[0], p[1], p[2], p[3], p[4]);
 }
 else {
     print("skipping first round");
