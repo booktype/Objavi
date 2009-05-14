@@ -64,29 +64,11 @@ function shift_page_mediabox(page, offset, width, height){
         y -= 0.5 * (height - h);
         w = width;
         h = height;
-        print("now x, y = " + x + ", " + y);
+        //print("now x, y = " + x + ", " + y);
     }
     page.setMediabox(x - offset, y, x + w - offset, y + h);
 }
 
-
-/** Add text line */
-function puttext (op,txt) {
-	var operands = createIPropertyArray ();
-	operands.append (createString(txt));
-	op.pushBack (createOperator("Tj",operands),op.getLastOperator());
-}
-/** End text */
-function putendtext (op) {
-	var operands = createIPropertyArray ();
-	op.pushBack (createOperator("ET",operands),op.getLastOperator());
-}
-
-/** Restore graphical state. */
-function putendq (op) {
-	var operands = createIPropertyArray ();
-	op.pushBack( createOperator("Q",operands), op.getLastOperator());
-}
 
 
 var convertors = {
@@ -103,8 +85,8 @@ var convertors = {
     s: createString
 };
 
-
 function iprop_array(pattern){
+    print("doing " + arguments);
     var array = createIPropertyArray();
     for (i = 1; i < arguments.length; i++){
         var s = pattern.charAt(i - 1);
@@ -116,37 +98,61 @@ function iprop_array(pattern){
 }
 
 
-
 function add_page_number(page, number, dir){
     var box = page.mediabox();
-    var y = box[1] + 20;
+    var y = box[1] + 10;
     var x;
 
     if ((number & 1) == (dir == 'RTL')){
-        x = box[0] + 20;
+        x = box[0] + 100;
     }
     else {
-        x = box[2] - 40;
+        x = box[2] - 120;
     }
 
-    var q = createCompositeOperator("q","Q");
-    var BT = createCompositeOperator("BT","ET");
+    var text = number.toString();
 
-    q.pushBack(BT, q);
+    var q = createCompositeOperator("q", "Q");
+    var BT = createCompositeOperator("BT", "ET");
+
+
+    page.addSystemType1Font("Helvetica");
 
     var fonts = page.getFontIdsAndNames();
     /* how do we know which is the right one?!
+     * And why won't user added fonts work?
+     *
      * oh well... */
+    var font = 'PDFEDIT_F1';
 
-    var Tf_ops = iprop_array('Nn', fonts[0], 12);
-    BT.pushBack(createOperator("Tf", Tf_ops), BT.getLastOperator());
 
-    var ops = iprop_array('nn', x, y);
-    op.pushBack(createOperator("Td", ops), op.getLastOperator());
+    print(fonts);
+    print(variables());
 
-    puttext(BT,text);
-    putendtext(BT);
-    putendq(q);
+    //var init_ctm = iprop_array('nnnnnn', 1, 0, 0, 1, 0, 0);
+    //createOperator("cm", iprop_array('nnnnnn', 16.66667, 0, 0, -16.66667, -709.01015, 11344.83908));
+    //var old_ctm = page.get
+    //var cm = transformationMatrixDiv(Variant oldCTM, init_ctm);
+    var cm = createOperator("cm", iprop_array('nnnnnn', 16.66667, 0, 0, -16.66667, -709.01015, 11344.83908));
+
+    var rg = createOperator("rg", iprop_array('nnn', 1, 0, 0));
+    var tf = createOperator("Tf", iprop_array('Nn', font, 20));
+    var tm = createOperator("Tm", iprop_array('nnnnnn', 1, 0, 0, 1, 0, 0));
+    var td = createOperator("Td", iprop_array('nn', x, y));
+    var tj = createOperator("Tj", iprop_array('s', text));
+    var et = createOperator("ET", iprop_array());
+    var end_q = createOperator("Q", iprop_array());
+
+    BT.pushBack(rg, BT);
+    BT.pushBack(tf, rg);
+    BT.pushBack(tm, tf);
+    BT.pushBack(td, tf);
+    BT.pushBack(tj, td);
+    BT.pushBack(et, tj);
+
+    q.pushBack(cm, q);
+    q.pushBack(BT, cm);
+    q.pushBack(end_q, BT);
 
     var ops = createPdfOperatorStack();
     ops.append(q);
