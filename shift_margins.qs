@@ -154,6 +154,29 @@ function add_page_number(page, number, dir){
 }
 
 
+run( "pdfoperator.qs" );
+function add_page_number2(page, number, dir){
+    var box = page.mediabox();
+    var y = box[1] + 20;
+    var x;
+    if ((number & 1) == (dir == 'RTL')){
+        x = box[0] + 20;
+    }
+    else {
+        x = box[2] - 100;
+    }
+
+    var text = "hello" + number.toString();
+
+    /* how do we know which is the right one?!
+     * oh well... */
+    var font = page.getFontIdsAndNames()[0];
+
+    x = 0; y = 0;
+    operatorAddTextLine(text, x, y, font, 20);
+}
+
+
 function number_pdf_pages(pdf, dir){
     var pages = pdf.getPageCount();
     var i;
