@@ -125,15 +125,14 @@ function add_page_number(page, number, dir){
      * oh well... */
     var font = 'PDFEDIT_F1';
 
-
     print(fonts);
-    print(variables());
+
 
     //var init_ctm = iprop_array('nnnnnn', 1, 0, 0, 1, 0, 0);
     //createOperator("cm", iprop_array('nnnnnn', 16.66667, 0, 0, -16.66667, -709.01015, 11344.83908));
     //var old_ctm = page.get
     //var cm = transformationMatrixDiv(Variant oldCTM, init_ctm);
-    var cm = createOperator("cm", iprop_array('nnnnnn', 16.66667, 0, 0, -16.66667, -709.01015, 11344.83908));
+    //var cm = createOperator("cm", iprop_array('nnnnnn', 16.66667, 0, 0, -16.66667, -709.01015, 11344.83908));
 
     var rg = createOperator("rg", iprop_array('nnn', 1, 0, 0));
     var tf = createOperator("Tf", iprop_array('Nn', font, 20));
@@ -150,13 +149,33 @@ function add_page_number(page, number, dir){
     BT.pushBack(tj, td);
     BT.pushBack(et, tj);
 
-    q.pushBack(cm, q);
-    q.pushBack(BT, cm);
+    q.pushBack(BT, q);
+    //q.pushBack(cm, q);
     q.pushBack(end_q, BT);
 
-    var ops = createPdfOperatorStack();
-    ops.append(q);
-    page.prependContentStream(ops);
+
+    var stream = page.getContentStream(0);
+
+    var iter = stream.getFirstOperator().iterator();
+    var op;
+    do {
+        op = iter.current();
+        if (op.getName() == 'cm'){
+            print("found cm operator " + op);
+            //need to step back one
+            iter.prev();
+            op = iter.current();
+            break;
+        }
+    } while (iter.next());
+
+    //op.setPrev(q);
+    stream.insertOperator(op, q);
+
+    //var ops = createPdfOperatorStack();
+    //ops.append(q);
+    //page.prependContentStream(ops);
+
 }
 
 
