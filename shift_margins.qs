@@ -39,6 +39,14 @@ function rotate_page180(page){
      *
      * but the rotation is about the 0,0 axis: ie the top left.
      * So addin the width and height is necessary.
+     *
+     * There is *also* a Rotate key in the page or document dictionary
+     * that can be used to rotate in multiples of 90 degrees. But I did
+     * not find that first, and it fails mysteriously in pdfedit.
+     *
+     *     var d = page.getDictionary();
+     *     d.add('Rotate', createInt(180));
+     *
      */
     var box = page.mediabox();
     print("box is " + box);
@@ -46,7 +54,6 @@ function rotate_page180(page){
     angle = Math.PI ;
     var c = Math.cos(angle);
     var s = Math.sin(angle);
-    //page.setTransformMatrix([1, 0, 0, 1, box[2], -box[3]]);
     page.setTransformMatrix([c, s, -s, c, box[2], box[3]]);
 }
 
@@ -72,6 +79,21 @@ function shift_page_mediabox(page, offset, width, height){
 }
 
 
+/*
+ * Helper functions for creating pdf operators. You can create an
+ * IPropertyArray or a PdfOperator like this:
+ *
+ * var array = iprop_array("Nnns", "Name", 1, 1.2, "string"); var rg =
+ * operator('rg', "nnn", 0, 1, 0);
+ *
+ * where the first argument to operator and the second to iprop_array
+ * is a template (ala Python's C interface) that determines the
+ * interpretation of subsequent parameters. Common keys are 'n' for
+ * (floaing point) number, 's' for string, 'N' for name, 'i' for
+ * integer. See the convertors object below.
+ *
+ *
+ */
 
 var convertors = {
     a: createArray,
@@ -178,42 +200,9 @@ function add_page_number(page, number, dir){
         }
     } while (iter.next());
 
-    //op.setPrev(q);
-
-
     stream.insertOperator(op, q);
-
-
-    //print(tj.getBBox());
-
-    //var ops = createPdfOperatorStack();
-    //ops.append(q);
-    //page.prependContentStream(ops);
-
 }
 
-
-run( "pdfoperator.qs" );
-function add_page_number2(page, number, dir){
-    var box = page.mediabox();
-    var y = box[1] + 20;
-    var x;
-    if ((number & 1) == (dir == 'RTL')){
-        x = box[0] + 20;
-    }
-    else {
-        x = box[2] - 100;
-    }
-
-    var text = "hello" + number.toString();
-
-    /* how do we know which is the right one?!
-     * oh well... */
-    var font = page.getFontIdsAndNames()[0];
-
-    x = 0; y = 0;
-    operatorAddTextLine(text, x, y, font, 20);
-}
 
 
 function number_pdf_pages(pdf, dir){
@@ -223,10 +212,6 @@ function number_pdf_pages(pdf, dir){
         add_page_number(pdf.getPage(i), i, dir);
     }
 }
-
-
-//addText(605,906,605,906,684,438)
-
 
 
 function process_pdf(pdf, offset, func, width, height){
@@ -276,6 +261,7 @@ function shift_margins(pdfedit, offset_s, filename, mode, dir){
     Process.execute("cp " + filename + ' ' + newfilename);
 
     var pdf = pdfedit.loadPdf(newfilename, 1);
+
 
     /* add on page numbers */
     number_pdf_pages(pdf, dir);
