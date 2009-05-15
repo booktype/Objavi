@@ -220,7 +220,7 @@ function number_pdf_pages(pdf, dir){
     var pages = pdf.getPageCount();
     var i;
     for (i = 1; i <= pages; i++){
-        add_page_number(pdf.getPage(i), i);
+        add_page_number(pdf.getPage(i), i, dir);
     }
 }
 
