@@ -16,6 +16,8 @@ const DEFAULT_OFFSET = 25;
 const COMIC_WIDTH = (6.625 * 72);
 const COMIC_HEIGHT = (10.25 * 72);
 
+const PAGE_NUMBER_SIZE = 12;
+
 const DEFAULT_DIR = 'LTR';
 
 //const DEFAULT_MODE = 'TRANSFORM';
@@ -97,46 +99,44 @@ function iprop_array(pattern){
     return array;
 }
 
+function operator(op){
+    var array = iprop_array(arguments.slice(1));
+    return createOperator(op, array);
+}
+
 
 function add_page_number(page, number, dir){
     var box = page.mediabox();
-    var y = box[1] + 10;
-    var x;
-
-    if ((number & 1) == (dir == 'RTL')){
-        x = box[0] + 100;
-    }
-    else {
-        x = box[2] - 120;
-    }
-
     var text = number.toString();
+
+    /* It would be nice to know the bounding box of the page number,
+     but it is not rendered during this process, so we have to guess.
+     All Helvetica numerals are the same width (approximately N shape)
+     so I'll assume 0.6ish.
+     */
+
+    var h = PAGE_NUMBER_SIZE;
+    var w = text.length * 0.6 * h;
+
+    var y = box[1] + 20 - h * 0.5;
+    var x = box[0] + 60;
+
+    if ((number & 1) == (dir != 'RTL')){
+        x = box[2] - x - w;
+    }
+
 
     var q = createCompositeOperator("q", "Q");
     var BT = createCompositeOperator("BT", "ET");
 
-
+    /* it would be nice to use the book's font, but it seems not to
+    work for unknown reasons.  */
     page.addSystemType1Font("Helvetica");
+    var font = page.getFontId("Helvetica"); // probably 'PDFEDIT_F1'
 
-    var fonts = page.getFontIdsAndNames();
-    /* how do we know which is the right one?!
-     * And why won't user added fonts work?
-     *
-     * oh well... */
-    var font = 'PDFEDIT_F1';
-
-    print(fonts);
-
-
-    //var init_ctm = iprop_array('nnnnnn', 1, 0, 0, 1, 0, 0);
-    //createOperator("cm", iprop_array('nnnnnn', 16.66667, 0, 0, -16.66667, -709.01015, 11344.83908));
-    //var old_ctm = page.get
-    //var cm = transformationMatrixDiv(Variant oldCTM, init_ctm);
-    //var cm = createOperator("cm", iprop_array('nnnnnn', 16.66667, 0, 0, -16.66667, -709.01015, 11344.83908));
-
-    var rg = createOperator("rg", iprop_array('nnn', 1, 0, 0));
-    var tf = createOperator("Tf", iprop_array('Nn', font, 20));
-    var tm = createOperator("Tm", iprop_array('nnnnnn', 1, 0, 0, 1, 0, 0));
+    var rg = createOperator("rg", iprop_array('nnn', 0.5, 0, 0));
+    var tf = createOperator("Tf", iprop_array('Nn', font, h));
+    //var tm = createOperator("Tm", iprop_array('nnnnnn', 1, 0, 0, 1, 0, 0));
     var td = createOperator("Td", iprop_array('nn', x, y));
     var tj = createOperator("Tj", iprop_array('s', text));
     var et = createOperator("ET", iprop_array());
@@ -144,18 +144,27 @@ function add_page_number(page, number, dir){
 
     BT.pushBack(rg, BT);
     BT.pushBack(tf, rg);
-    BT.pushBack(tm, tf);
+    //BT.pushBack(tm, tf);
     BT.pushBack(td, tf);
     BT.pushBack(tj, td);
     BT.pushBack(et, tj);
 
     q.pushBack(BT, q);
-    //q.pushBack(cm, q);
     q.pushBack(end_q, BT);
 
+    //print(tj.getBBox());
+
+    /* Webkit applies a transformation matrix so it can write the pdf
+     * using its native axes.  That means, to use the default grid we
+     * need to either insert the page number before the webkit matrix,
+     * or apply an inverse.  The inverse looks like:
+     *
+     * createOperator("cm", iprop_array('nnnnnn', 16.66667, 0, 0, -16.66667, -709.01015, 11344.83908));
+     *
+     * but it is simpler to jump in first.
+     */
 
     var stream = page.getContentStream(0);
-
     var iter = stream.getFirstOperator().iterator();
     var op;
     do {
@@ -170,7 +179,12 @@ function add_page_number(page, number, dir){
     } while (iter.next());
 
     //op.setPrev(q);
+
+
     stream.insertOperator(op, q);
+
+
+    //print(tj.getBBox());
 
     //var ops = createPdfOperatorStack();
     //ops.append(q);
