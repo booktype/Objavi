@@ -49,7 +49,7 @@ function rotate_page180(page){
      *
      */
     var box = page.mediabox();
-    print("box is " + box);
+    //print("box is " + box);
 
     angle = Math.PI ;
     var c = Math.cos(angle);
@@ -92,7 +92,6 @@ function shift_page_mediabox(page, offset, width, height){
  * (floaing point) number, 's' for string, 'N' for name, 'i' for
  * integer. See the convertors object below.
  *
- *
  */
 
 var convertors = {
@@ -106,11 +105,12 @@ var convertors = {
     O: createOperator,
     n: createReal,
     r: createRef,
-    s: createString
+    s: createString,
+    z: function(x){ return x; } //for pre-existing object, no processing.
 };
 
 function iprop_array(pattern){
-    print("doing " + arguments);
+    //print("doing " + arguments);
     var array = createIPropertyArray();
     for (i = 1; i < arguments.length; i++){
         var s = pattern.charAt(i - 1);
@@ -147,7 +147,6 @@ function add_page_number(page, number, dir){
         x = box[2] - x - w;
     }
 
-
     var q = createCompositeOperator("q", "Q");
     var BT = createCompositeOperator("BT", "ET");
 
@@ -158,7 +157,6 @@ function add_page_number(page, number, dir){
 
     var rg = createOperator("rg", iprop_array('nnn', 0.5, 0, 0));
     var tf = createOperator("Tf", iprop_array('Nn', font, h));
-    //var tm = createOperator("Tm", iprop_array('nnnnnn', 1, 0, 0, 1, 0, 0));
     var td = createOperator("Td", iprop_array('nn', x, y));
     var tj = createOperator("Tj", iprop_array('s', text));
     var et = createOperator("ET", iprop_array());
@@ -166,7 +164,6 @@ function add_page_number(page, number, dir){
 
     BT.pushBack(rg, BT);
     BT.pushBack(tf, rg);
-    //BT.pushBack(tm, tf);
     BT.pushBack(td, tf);
     BT.pushBack(tj, td);
     BT.pushBack(et, tj);
@@ -174,7 +171,6 @@ function add_page_number(page, number, dir){
     q.pushBack(BT, q);
     q.pushBack(end_q, BT);
 
-    //print(tj.getBBox());
 
     /* Webkit applies a transformation matrix so it can write the pdf
      * using its native axes.  That means, to use the default grid we
@@ -192,7 +188,7 @@ function add_page_number(page, number, dir){
     do {
         op = iter.current();
         if (op.getName() == 'cm'){
-            print("found cm operator " + op);
+            //print("found cm operator " + op);
             //need to step back one
             iter.prev();
             op = iter.current();
