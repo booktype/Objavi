@@ -5,15 +5,17 @@ import cgi
 import re
 from urllib2 import urlopen
 from getopt import gnu_getopt
+from subprocess import Popen, check_call
 
-import lxml
+import lxml.etree, lxml.html
 
 
-ENV = os.environ()
-SERVER_NAME = ENV.get('SERVER_NAME', 'en.flossmanuals.net')
+SERVER_NAME = os.environ.get('SERVER_NAME', 'en.flossmanuals.net')
 
 TOC_URL = "http://%s/pub/%%s/_index/TOC.txt" % SERVER_NAME
 BOOK_URL = "http://%s/bin/view/%%s/_all?skin=text" % SERVER_NAME
+ADD_TEMPLATE = False
+
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
 # functions to validate their values. (None means no validation).
@@ -39,17 +41,20 @@ def parse_args():
     """
     query = cgi.FieldStorage()
     options, args = gnu_getopt(sys.argv[1:], '', [x + '=' for x in ARG_VALIDATORS])
+    print options
     options = dict(options)
-
+    print options
     data = {}
     for key, validator in ARG_VALIDATORS.items():
-        value = query.getfirst(key, options.get(key, None))
+        value = query.getfirst(key, options.get('--' + key, None))
+        print key, value
         if value is not None:
             if validator is not None and not validator(value):
                 log("argument '%s' is not valid ('%s')" % (key, value))
                 continue
             data[key] = value
 
+    print data
     return data
 
 
@@ -71,13 +76,14 @@ def toc_reader(name):
     f = urlopen(TOC_URL % name)
     while True:
         try:
-            yield (f.next(), f.next(), f.next())
+            yield (f.next().strip(), f.next().strip(), f.next().strip())
         except StopIteration:
             break
     f.close()
 
 
-ADD_TEMPLATE = False
+
+
 
 def get_book(name, tidy=True):
     """Fetch and parse the raw html of the book.  If tidy is true
@@ -97,11 +103,24 @@ def get_book(name, tidy=True):
     return tree
 
 
-def make_pdf(htmltree):
-    data = []
-    current_heading = 1
-    num_heading = 0
-    chapters = []
+def make_pdf(htmltree, bookid):
+    """Make a pdf of the HTML, using webkit"""
+    html_file = '/tmp/%s.html' % bookid
+    pdf_file = '/tmp/%s.pdf' % bookid
+    html_text = lxml.etree.tostring(htmltree, encoding='utf-8', method="html")
+    f = open(html_file, 'w')
+    f.write(html_text)
+    f.close()
+    
+    check_call(['wkhtmltopdf', '-s', 'B5', html_file, pdf_file])
+    
+    
+    #check_call(['pdfedit', '-s', 'shift_margins', 'shift_margins',
+    #           '20', 'original/farsi-wk-narrow-scheherazadehe.pdf', 'COMICBOOK', 'RTL'])
+
+
+
+
 
 def find_page(element, start=1):
     """Search through the main PDF and retunr the page on which the
@@ -125,7 +144,7 @@ def make_contents(htmltree, toc):
     page_num = 1
     subsections = [] # for the subsection heading pages.
 
-    headings =  htmltree.cssselect('h1')
+    headings = htmltree.cssselect('h1')
 
     for status, chapter_url, text in toc:
         # status is
@@ -144,11 +163,12 @@ def make_contents(htmltree, toc):
             page_num = find_page(h1, page_num)
             contents.append(row_tmpl % (chapter, title, page_num))
             #put a bold number at the beginning of the h1
-            initial = h1.makeelement("strong", Class="initial")
-            h1.insert(0, initial)
-            initial.tail = h1.text
-            initial.text = "%s." % chapter
-            h1.text = ''
+            ## #XXX this has to go below! in add_section_titles!
+            ## initial = h1.makeelement("strong", Class="initial")
+            ## h1.insert(0, initial)
+            ## initial.tail = h1.text
+            ## initial.text = "%s." % chapter
+            ## h1.text = ''
 
             chapter += 1
 
@@ -163,14 +183,53 @@ def make_contents(htmltree, toc):
     #return doc
 
 
+def add_section_titles(htmltree, toc):
+    headings = iter(htmltree.cssselect('h1'))
+    chapter = 1
+    section = None
+    
+    
+    for status, chapter_url, text in toc:
+        if status == '1' and section is not None:
+            #  chapter heading
+            h1 = headings.next()
+            title = h1.text_content()            
+            item = h1.makeelement('div', Class='chapter')
+            
+            item.text = title
+            section.append(item)
+            if not section.getnext(): #XXX how to tell that the section has not been placed?
+                h1.addprevious(section)
+
+            #put a bold number at the beginning of the h1
+            initial = h1.makeelement("strong", Class="initial")
+            h1.insert(0, initial)
+            initial.tail = h1.text
+            initial.text = "%s." % chapter
+            h1.text = ''
+            chapter += 1
+
+                            
+        elif status == '0':
+            section = htmltree.makeelement('div', Class="subsection")
+            # it would be natural to use h1 here, but that would muck
+            # up the h1 iterator. (original Pisa Objavi uses <h0>).
+            heading = section.makeelement('div', Class="subsection-heading")
+            heading.text = text
+
+
 
 if __name__ == '__main__':
     args = parse_args()
-    web_name = args['webHome']
+    web_name = args['webName']
+
     htmltree = get_book(web_name)
-    pdfname = make_pdf(htmltree)
+    toc = list(toc_reader(web_name))
+
+    add_section_titles(htmltree, toc)
     
-    toc = toc_reader(web_name)
+    pdfname = make_pdf(htmltree, web_name)
+    
     contents = make_contents(htmltree, toc)
 
 
