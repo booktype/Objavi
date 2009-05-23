@@ -15,7 +15,7 @@ SERVER_NAME = os.environ.get('SERVER_NAME', 'en.flossmanuals.net')
 
 TOC_URL = "http://%s/pub/%%s/_index/TOC.txt" % SERVER_NAME
 BOOK_URL = "http://%s/bin/view/%%s/_all?skin=text" % SERVER_NAME
-ADD_TEMPLATE = False
+ADD_TEMPLATE = True
 
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
@@ -105,10 +105,10 @@ def get_book(name, tidy=True):
     f = urlopen(BOOK_URL % name)
     html = f.read()
     if ADD_TEMPLATE:
-        html = ('<html><head>\n<title>book</title>\n'
-                '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >'
+        html = ('<html><head>\n<title>%s</title>\n'
+                '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
                 '</head>\n<body>\n'
-                '%s\n</body></html>') % html
+                '%s\n</body></html>') % (name, html)
     f.close()
     tree = lxml.html.document_fromstring(html)
     tree.make_links_absolute(BOOK_URL % name)
