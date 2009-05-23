@@ -247,6 +247,27 @@ def make_contents(htmltree, toc):
             log("mystery TOC line: %s %s %s" % (status, chapter_url, text))
 
     doc = '\n'.join(headers) + '\n'.join(contents) + footer
+    return doc
+
+
+def make_preamble(htmltree, toc):
+    title = get_title(html_tree)
+    contents = make_contents(htmltree, toc)
+
+    html = ('<html><head>\n'
+            '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
+            '</head>\n<body>\n'
+            '<h1 class="frontpage">%s</h1>'
+            '%s\n'            
+            '%s\n</body></html>') % (title, copyright, contents)
+    
+    
+
+    fn = save_tempfile(html, suffix='.html')
+    
+    
+
+
 def _add_initial_number(e, n):
     """Put a styled chapter number n at the beginning of element e."""
     initial = e.makeelement("strong", Class="initial")
