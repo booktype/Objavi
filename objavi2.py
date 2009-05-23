@@ -342,16 +342,25 @@ def add_css(htmltree, css):
 
 
 if __name__ == '__main__':
-    args = parse_args()
-    web_name = args['webName']
+    try:
+        args = parse_args()
+        web_name = args['webName']
 
-    htmltree = get_book(web_name)
-    toc = list(toc_reader(web_name))
+        #make_pdf_cached(web_name)
+        #sys.exit()
 
-    add_section_titles(htmltree, toc)
-    
-    pdfname = make_pdf(htmltree, web_name)
-    
-    contents = make_contents(htmltree, toc)
 
+        htmltree = get_book(web_name)
+        toc = list(toc_reader(web_name))
+
+        add_section_titles(htmltree, toc)
+        add_css(htmltree, args['css'])
+
+        pdfname = make_pdf(htmltree, web_name)
+        preamble = make_preamble(htmltree, toc)
+
+    finally:
+        # clean up temp files
+        for fn in _files_to_rm:
+            os.remove(fn)
 
