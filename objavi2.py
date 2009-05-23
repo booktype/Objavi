@@ -313,6 +313,32 @@ def add_section_titles(htmltree, toc):
             heading = lxml.etree.SubElement(section, 'div', Class="subsection-heading")
             heading.text = text
 
+def add_css(htmltree, css):
+    """If css looks like a url, use it as a stylesheet link.
+    Otherwise it is the CSS itself, which is saved to a temporary file
+    and linked to."""
+    if not re.match(r'^http://\S+$', css):
+        fn = save_tempfile(css, suffix='.css')
+        url = 'file://' + fn
+    else:
+        url = css
+
+    #find the head
+    head = None
+    for child in htmltree:
+        if child.tag == head:
+            head = child
+            break
+    if head is None:
+        head = htmltree.makeelement('head')
+        htmltree.insert(0, head)
+
+    link = lxml.etree.SubElement(head, 'link', rel='stylesheet', type='text/css', href=url)
+
+
+
+
+
 
 
 if __name__ == '__main__':
