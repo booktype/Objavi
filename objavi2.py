@@ -211,7 +211,7 @@ def make_contents(htmltree, toc):
     page_num = 1
     subsections = [] # for the subsection heading pages.
 
-    headings = htmltree.cssselect('h1')
+    headings = iter(htmltree.cssselect('h1'))
 
     for status, chapter_url, text in toc:
         # status is
