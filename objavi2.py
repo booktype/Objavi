@@ -3,6 +3,7 @@
 import os, sys
 import cgi
 import re
+import tempfile
 from urllib2 import urlopen
 from getopt import gnu_getopt
 from subprocess import Popen, check_call
@@ -29,6 +30,18 @@ ARG_VALIDATORS = {
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
+
+_files_to_rm = []
+
+def save_tempfile(data, **kwargs):
+    """Save the data in a tempfile and put the filename on the
+    clean-up list.  A sensible keyword argument might be
+    suffix='.css'."""
+    fh, fn = tempfile.mkstemp(**kwargs)
+    os.write(fh, data)
+    os.close(fh)
+    _files_to_rm.append(fn)
+    return os.path.abspath(fn)
 
 def log(*messages):
     for m in messages:
