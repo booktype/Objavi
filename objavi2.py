@@ -287,28 +287,30 @@ def add_section_titles(htmltree, toc):
         if status == '1' and section is not None:
             #  chapter heading
             h1 = headings.next()
-            title = h1.text_content()            
+            title = h1.text_content()
             item = h1.makeelement('div', Class='chapter')
-            
             item.text = title
+            _add_initial_number(item, chapter)
+
             section.append(item)
-            if not section.getnext(): #XXX how to tell that the section has not been placed?
+
+
+            if not section.getparent(): #XXX how to tell that the section has not been placed?
+                print "placing section"
                 h1.addprevious(section)
+            else:
+                print "NOT placing section"
 
             #put a bold number at the beginning of the h1
-            initial = h1.makeelement("strong", Class="initial")
-            h1.insert(0, initial)
-            initial.tail = h1.text
-            initial.text = "%s." % chapter
-            h1.text = ''
+            _add_initial_number(h1, chapter)
             chapter += 1
 
-                            
+
         elif status == '0':
             section = htmltree.makeelement('div', Class="subsection")
             # it would be natural to use h1 here, but that would muck
             # up the h1 iterator. (original Pisa Objavi uses <h0>).
-            heading = section.makeelement('div', Class="subsection-heading")
+            heading = lxml.etree.SubElement(section, 'div', Class="subsection-heading")
             heading.text = text
 
 
