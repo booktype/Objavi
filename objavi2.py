@@ -116,22 +116,76 @@ def get_book(name, tidy=True):
     return tree
 
 
-def make_pdf(htmltree, bookid):
+class PageSettings:
+    def __init__(self, **kwargs):
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+    def wkcommand(self, html, pdf):
+        m = [str(x) for x in self.wkmargins]
+        cmd = ['wkhtmltopdf', '-s', self.wksize,
+               '-T', m[0], '-R', m[1], '-B', m[2], '-L', m[3],
+               html, pdf
+               ]
+        log(cmd)
+        return cmd
+
+    def shiftcommand(self, pdf):
+        return ['pdfedit', '-s', 'shift_margins', 'shift_margins',
+               str(self.shift), pdf, self.name]
+
+
+    def output_name(self, input_name):
+        """replicate the name mangling performed by shift_margins.qs
+        pdfedit script."""
+        #XXX should just pass in name to pdfedit
+        if hasattr(self, 'dir'):
+            return '%s-%s-%s.pdf' % (input_name[:-4], self.name, self.dir)
+        return '%s-%s.pdf' % (input_name[:-4], self.name)
+
+
+
+
+
+SIZE_MODES = {
+    'COMICBOOK' : PageSettings(name='COMICBOOK',
+                               wksize='B5',
+                               wkmargins=[20, 30, 20, 30],
+                               shift=20,
+                               )
+}
+
+
+
+def make_pdf(htmltree, bookid, size='COMICBOOK'):
     """Make a pdf of the HTML, using webkit"""
+    settings = SIZE_MODES[size]
+
     html_file = '/tmp/%s.html' % bookid
-    pdf_file = '/tmp/%s.pdf' % bookid
-    html_text = lxml.etree.tostring(htmltree, encoding='utf-8', method="html")
+    pdf_raw = '/tmp/%s.pdf' % bookid
+    pdf_shifted = settings.output_name(pdf_raw)
+
+    html_text = lxml.etree.tostring(htmltree, method="html")
     f = open(html_file, 'w')
     f.write(html_text)
     f.close()
-    
-    check_call(['wkhtmltopdf', '-s', 'B5', html_file, pdf_file])
-    
-    
-    #check_call(['pdfedit', '-s', 'shift_margins', 'shift_margins',
-    #           '20', 'original/farsi-wk-narrow-scheherazadehe.pdf', 'COMICBOOK', 'RTL'])
+
+    #XXX need to calculate size, not assume all pages will be the
+    #same. Probably it is better to start with a bigger page (A4
+    #perhaps) and set margins in.
+    check_call(settings.wkcommand(html_file, pdf_raw))
+    check_call(settings.shiftcommand(pdf_raw))
 
 
+def make_pdf_cached(bookid, size='COMICBOOK'):
+    #Assume the html is already there
+    """Make a pdf of the HTML, using webkit"""
+    settings = SIZE_MODES[size]
+    html_file = '/tmp/%s.html' % bookid
+    pdf_raw = '/tmp/%s.pdf' % bookid
+    pdf_shifted = settings.output_name(pdf_raw)
+    check_call(settings.wkcommand(html_file, pdf_raw))
+    check_call(settings.shiftcommand(pdf_raw))
 
 
 
