@@ -17,6 +17,7 @@ TOC_URL = "http://%s/pub/%%s/_index/TOC.txt" % SERVER_NAME
 BOOK_URL = "http://%s/bin/view/%%s/_all?skin=text" % SERVER_NAME
 ADD_TEMPLATE = True
 
+DEFAULT_CSS = 'file://' + os.path.abspath('default.css')
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
 # functions to validate their values. (None means no validation).
@@ -316,11 +317,13 @@ def add_section_titles(htmltree, toc):
             heading = lxml.etree.SubElement(section, 'div', Class="subsection-heading")
             heading.text = text
 
-def add_css(htmltree, css):
+def add_css(htmltree, css=None):
     """If css looks like a url, use it as a stylesheet link.
     Otherwise it is the CSS itself, which is saved to a temporary file
     and linked to."""
-    if not re.match(r'^http://\S+$', css):
+    if css is None:
+        url = DEFAULT_CSS
+    elif not re.match(r'^http://\S+$', css):
         fn = save_tempfile(css, suffix='.css')
         url = 'file://' + fn
     else:
@@ -340,10 +343,6 @@ def add_css(htmltree, css):
 
 
 
-
-
-
-
 if __name__ == '__main__':
     try:
         args = parse_args()
@@ -352,12 +351,11 @@ if __name__ == '__main__':
         #make_pdf_cached(web_name)
         #sys.exit()
 
-
         htmltree = get_book(web_name)
         toc = list(toc_reader(web_name))
 
         add_section_titles(htmltree, toc)
-        add_css(htmltree, args['css'])
+        add_css(htmltree, args.get('css'))
 
         pdfname = make_pdf(htmltree, web_name)
         preamble = make_preamble(htmltree, toc)
