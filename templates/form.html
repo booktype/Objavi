@@ -1,0 +1,70 @@
+<html>
+  <head>
+    <title>OBJAVI!</title>
+    <meta  name="robots" content="noindex" /> 
+
+    <link rel="icon" href="http://www.flossmanuals.net/pub/TWiki//FlossSkin2/fl2.ico" type="image/x-icon" /> 
+    <link rel="shortcut icon" href="http://www.flossmanuals.net/pub/TWiki/FlossSkin2/fl2.ico" type="image/x-icon" />            
+
+    <link rel="stylesheet" href="http://www.flossmanuals.net/pub/TWiki/FlossSkin2/typography_cover.css" type="text/css" media="screen" />
+    <link rel="stylesheet" href="objavi.css" type="text/css" media="screen" />
+  
+  </head>
+  <body>
+    <div id="header">
+      <img id="header_imagemap" width="465" height="95" alt="FlossManuals menu" src="http://www.flossmanuals.net/pub/TWiki/FlossSkin2/objavib_entireheader4.gif" border="0" />
+    </div>
+
+    <form action="" method="POST">
+        <div class="ds-contentcontainer" id="main">
+          <img src="http://www.flossmanuals.net/pub/TWiki/FlossSkin2/objavib.gif" />
+          <p>
+            This is the BETA publisher for FLOSS Manuals. Using OBJAVI you can export your manual to print ready source for upload and sale on Lulu.com
+          </p>
+          <p>
+            All design is managed by CSS. You can alter the CSS in the below text box and the PDF will be formatted accordingly. </p><p>This site is for testing only. 
+          </p>
+          
+          <p>
+            Choose Manual : 
+            <select name="webName">%(option_list)s</select>
+          </p>
+          
+          <p>
+            Text for Title page :<br />
+            <input type="text" name="title" />
+          </p>
+          
+          <p>
+            Header Text :<br />
+            <input type="text" name="header" />
+          </p>
+
+          <p>
+            License :
+            <br />
+            <input type="text" name="license" value="GPL"/>
+          </p>
+
+          <p>
+            ISBN Number (optional) :
+            <br />
+            <input type="text" name="isbn" />
+          </p>
+          
+          <p>
+            CSS
+            <br />
+            <textarea name="css" cols="60" rows="20">
+              %(css)s     
+            </textarea>
+            <br/>
+            <button>OBJAVI!</button>
+          </p>
+          
+        </div>
+        
+    </form>
+  
+  </body>
+</html>

@@ -1,0 +1,54 @@
+
+img {
+    display: block;
+}
+
+* {
+    margin: 0
+}
+
+body
+{
+    margin:0;
+    padding:0;
+    background-image: url("http://www.flossmanuals.net/pub/TWiki/FlossSkin2/background.gif")
+    color: black;
+}
+
+#header
+{
+    position: absolute;
+    top: 23px;
+    width: 100%;
+    background-image: url('http://www.flossmanuals.net/pub/TWiki/FlossSkin2/header_bg.gif');
+    background-position: 600px 0px; /* this places the orange background at
+                                       an offset, making sure it doesn't underlap the left side of the gif */
+    background-repeat: no-repeat;
+}
+
+#header_imagemap
+{
+    margin-left: 352px;
+    border: 0px
+}
+
+#main {
+    position: absolute;
+    left: 270px;
+    top: 130px;
+}
+
+
+
+
+h1 {
+    color: #ff7f00;
+}
+
+h2 {
+    color: #ff7f00;
+}
+
+h3 {
+    color: #000000;
+}
