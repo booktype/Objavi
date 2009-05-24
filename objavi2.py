@@ -111,7 +111,8 @@ def get_book(name, tidy=True):
                 '%s\n</body></html>') % (name, html)
     f.close()
     tree = lxml.html.document_fromstring(html)
-    tree.make_links_absolute(BOOK_URL % name)
+    if tidy:
+        tree.make_links_absolute(BOOK_URL % name)
 
     return tree
 
