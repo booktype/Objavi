@@ -126,19 +126,115 @@ function operator(op){
     return createOperator(op, array);
 }
 
+/* roman_number(number) -> lowercase roman number + approximate width */
+function roman_number(number){
+    var data = [
+        'm', 1000,
+        'd', 500,
+        'c', 100,
+        'l', 50,
+        'x', 10,
+        'v', 5,
+        'i', 1
+    ];
 
-function add_page_number(page, number, dir){
+    var i;
+    var s = '';
+    for (i = 0; i < data.length; i += 2){
+        var value = data[i + 1];
+        var letter = data[i];
+        while (number > value){
+            s += letter;
+            number -= value;
+        }
+    }
+
+    var subs = [
+        'dcccc', 'cm',
+        'cccc', 'cd',
+        'lxxxx', 'xc',
+        'xxxx', 'xl',
+        'viiii', 'ix',
+        'iiii', 'iv'
+    ];
+    for (i = 0; i < subs.length; i+= 2){
+        s = s.replace(subs[i], subs[i + 1]);
+    }
+
+    var widths = {
+        m: 0.9,
+        d: 0.6,
+        c: 0.6,
+        l: 0.6,
+        x: 0.6,
+        v: 0.6,
+        i: 0.3
+    };
+
+    var w = 0;
+    for (i = 0; i < s.length; i++){
+        w += widths[s.charAt(i)];
+    }
+
+    return s, w;
+}
+
+
+/* change_number_charset(number, charset) -> unicode numeral + approx. width
+ farsi =  '۰۱۲۳۴۵۶۷۸۹';
+ arabic = '٠١٢٣٤٥٦٧٨٩';
+ */
+function change_number_charset(number, charset){
+    var charsets = {
+        arabic: ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'],
+        farsi:  ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹']
+    };
+    if (charset == undefined)
+        charset = 'arabic';
+    var numerals = charsets[charset];
+    var west = number.toString();
+    var i;
+    var s = '';
+    for (i = 0; i < west.length; i++){
+        var c = west.charAt(i);
+        s += numerals[parseInt(c)];
+    }
+    //lazy guess at width
+    var w = 0.6 * s.length;
+    return {
+        text: s,
+        width: w
+    };
+}
+
+
+function add_page_number(page, number, dir, style){
     var box = page.mediabox();
-    var text = number.toString();
-
-    /* It would be nice to know the bounding box of the page number,
-     but it is not rendered during this process, so we have to guess.
-     All Helvetica numerals are the same width (approximately N shape)
-     so I'll assume 0.6ish.
-     */
-
+    var w;
+    var text;
     var h = PAGE_NUMBER_SIZE;
-    var w = text.length * 0.6 * h;
+
+
+    if (style == 'roman'){
+        var n = roman_number(number);
+        text = n.text;
+        w = n.width * h;
+    }
+    else if (style == 'arabic' || style == 'farsi'){
+        var n = change_number_charset(number, style);
+        text = n.text;
+        w = n.width * h;
+    }
+    else { //style == 'latin'
+        text = number.toString();
+
+        /* It would be nice to know the bounding box of the page number,
+         but it is not rendered during this process, so we have to guess.
+         All Helvetica numerals are the same width (approximately N shape)
+         so I'll assume 0.6ish.
+         */
+        w = text.length * 0.6 * h;
+    }
 
     var y = box[1] + 20 - h * 0.5;
     var x = box[0] + 60;
@@ -201,11 +297,11 @@ function add_page_number(page, number, dir){
 
 
 
-function number_pdf_pages(pdf, dir){
+function number_pdf_pages(pdf, dir, number_style){
     var pages = pdf.getPageCount();
     var i;
     for (i = 1; i <= pages; i++){
-        add_page_number(pdf.getPage(i), i, dir);
+        add_page_number(pdf.getPage(i), i, dir, number_style);
     }
 }
 
@@ -220,7 +316,7 @@ function process_pdf(pdf, offset, func, width, height){
 }
 
 
-function shift_margins(pdfedit, offset_s, filename, mode, dir){
+function shift_margins(pdfedit, offset_s, filename, mode, dir, number_style){
     print("got " + arguments.length + " arguments: ");
     for (var i = 0; i < arguments.length; i++){
         print(arguments[i]);
@@ -260,8 +356,7 @@ function shift_margins(pdfedit, offset_s, filename, mode, dir){
 
 
     /* add on page numbers */
-    number_pdf_pages(pdf, dir);
-
+    number_pdf_pages(pdf, dir, number_style);
 
     /* RTL book have gutter on the other side */
     /*rotate the file if RTL*/
@@ -309,10 +404,10 @@ if (p.length == 0 || ! p[0].startsWith("shi")){
      * indexing past the end of an array is an error.  So fill it out
      * with some undefineds to fake variadic calling.
      */
-    for (i = 0; i < 5; i++){
+    for (i = 0; i < 6; i++){
         p.push(undefined);
     }
-    shift_margins(this, p[0], p[1], p[2], p[3], p[4]);
+    shift_margins(this, p[0], p[1], p[2], p[3], p[4], p[5]);
 }
 else {
     print("skipping first round");
