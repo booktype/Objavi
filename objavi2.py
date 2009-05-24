@@ -146,9 +146,12 @@ class PageSettings:
 
 
 
-
-
 SIZE_MODES = {
+    # name      --> should be the same as the key
+    # wksize    --> the size name for wkhtml2pdf
+    # wkmargins --> margins for wkhtml2pdf (css style, clockwise from top)
+    # shift     --> how many points to shift each page left or right.
+
     'COMICBOOK' : PageSettings(name='COMICBOOK',
                                wksize='B5',
                                wkmargins=[20, 30, 20, 30],
