@@ -134,9 +134,10 @@ class PageSettings:
         log(cmd)
         return cmd
 
-    def shiftcommand(self, pdf):
+    def shiftcommand(self, pdf, numbers='latin'):
+        #numbers should be 'latin', 'roman', or 'arabic'
         return ['pdfedit', '-s', 'shift_margins', 'shift_margins',
-               str(self.shift), pdf, self.name]
+               str(self.shift), pdf, self.name, numbers]
 
 
     def output_name(self, input_name):
@@ -164,7 +165,7 @@ SIZE_MODES = {
 
 
 
-def make_pdf(htmltree, bookid, size='COMICBOOK'):
+def make_pdf(htmltree, bookid, size='COMICBOOK', numbers='latin'):
     """Make a pdf of the HTML, using webkit"""
     settings = SIZE_MODES[size]
 
@@ -181,7 +182,7 @@ def make_pdf(htmltree, bookid, size='COMICBOOK'):
     #same. Probably it is better to start with a bigger page (A4
     #perhaps) and set margins in.
     check_call(settings.wkcommand(html_file, pdf_raw))
-    check_call(settings.shiftcommand(pdf_raw))
+    check_call(settings.shiftcommand(pdf_raw, numbers))
 
 
 def make_pdf_cached(bookid, size='COMICBOOK'):
