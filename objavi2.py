@@ -258,21 +258,20 @@ def make_contents(htmltree, toc):
     return doc
 
 
-def make_preamble(htmltree, toc):
-    title = get_title(html_tree)
+
+def make_preamble(htmltree, toc, title):
+
     contents = make_contents(htmltree, toc)
 
     html = ('<html><head>\n'
             '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
             '</head>\n<body>\n'
             '<h1 class="frontpage">%s</h1>'
-            '%s\n'
+            '<div class="copyright">%s</div>\n'
             '%s\n</body></html>') % (title, copyright, contents)
 
-
-
     fn = save_tempfile(html, suffix='.html')
-
+    
 
 
 
@@ -334,17 +333,26 @@ def add_css(htmltree, css=None):
     else:
         url = css
 
-    #find the head
-    head = None
+    #find the head -- it's probably first child but lets not assume.
     for child in htmltree:
         if child.tag == head:
             head = child
             break
-    if head is None:
+    else:
         head = htmltree.makeelement('head')
         htmltree.insert(0, head)
 
     link = lxml.etree.SubElement(head, 'link', rel='stylesheet', type='text/css', href=url)
+
+
+def get_title(htmltree, args):
+    if 'title' in args:
+        return args['title']
+    headings = htmltree.cssselect('title')
+    if headings:
+        return headings[0].text_content()
+    #oh well
+    return 'A Manual About ' + args.get('webName', 'Something')
 
 
 
@@ -356,6 +364,8 @@ if __name__ == '__main__':
         #make_pdf_cached(web_name)
         #sys.exit()
 
+        title = get_title(html_tree, args)
+
         htmltree = get_book(web_name)
         toc = list(toc_reader(web_name))
 
@@ -363,7 +373,7 @@ if __name__ == '__main__':
         add_css(htmltree, args.get('css'))
 
         pdfname = make_pdf(htmltree, web_name)
-        preamble = make_preamble(htmltree, toc)
+        preamble = make_preamble(htmltree, toc, title)
 
     finally:
         # clean up temp files
