@@ -279,7 +279,9 @@ def _add_initial_number(e, n):
     """Put a styled chapter number n at the beginning of element e."""
     initial = e.makeelement("strong", Class="initial")
     e.insert(0, initial)
-    initial.tail = ' ' + e.text
+    initial.tail = ' '
+    if e.text is not None:
+        initial.tail += e.text
     e.text = ''
     initial.text = "%s." % n
 
