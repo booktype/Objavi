@@ -1,0 +1,48 @@
+body {
+  font-family: 'Gillius ADF';
+}
+
+.chapter{ 
+  color: #aa0;
+}
+
+h1 .initial{  
+  color: #a0a;
+  font-size: 2em;
+}
+
+.subsection{            
+  display: block; 
+  page-break-before: right; 
+  page-break-after: always;
+  text-transform: uppercase;
+  font-size: 20pt;
+}
+
+.subsection .initial {
+  font-size: 1em;
+  color: #0a0;
+}
+
+.subsection-heading{            
+  font-size: 36pt;
+  font-weight: bold;
+}
+
+
+table.toc { 
+  font-size: 22pt; 
+}
+
+h1 { 
+  text-transform: uppercase;
+  page-break-before: always; 
+}
+
+h2 { 
+  text-transform: uppercase;
+}
+
+table {
+  float: none;
+}
