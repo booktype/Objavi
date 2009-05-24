@@ -102,7 +102,6 @@ def toc_reader(name):
 def get_book(name, tidy=True):
     """Fetch and parse the raw html of the book.  If tidy is true
     (default) links in the document will be made absolute."""
-    #XXX use lxml
     f = urlopen(BOOK_URL % name)
     html = f.read()
     if ADD_TEMPLATE:
@@ -110,6 +109,9 @@ def get_book(name, tidy=True):
                 '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
                 '</head>\n<body>\n'
                 '%s\n</body></html>') % (name, html)
+    f.close()
+    f = open('/tmp/%s-RAW.html' % name, 'w')
+    f.write(html)
     f.close()
     tree = lxml.html.document_fromstring(html)
     if tidy:
