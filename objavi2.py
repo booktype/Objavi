@@ -262,14 +262,14 @@ def make_preamble(htmltree, toc):
             '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
             '</head>\n<body>\n'
             '<h1 class="frontpage">%s</h1>'
-            '%s\n'            
+            '%s\n'
             '%s\n</body></html>') % (title, copyright, contents)
-    
-    
+
+
 
     fn = save_tempfile(html, suffix='.html')
-    
-    
+
+
 
 
 def _add_initial_number(e, n):
@@ -285,8 +285,7 @@ def add_section_titles(htmltree, toc):
     headings = iter(htmltree.cssselect('h1'))
     chapter = 1
     section = None
-    
-    
+
     for status, chapter_url, text in toc:
         if status == '1' and section is not None:
             #  chapter heading
