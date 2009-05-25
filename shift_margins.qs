@@ -143,7 +143,7 @@ function roman_number(number){
     for (i = 0; i < data.length; i += 2){
         var value = data[i + 1];
         var letter = data[i];
-        while (number > value){
+        while (number >= value){
             s += letter;
             number -= value;
         }
