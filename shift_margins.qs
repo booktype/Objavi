@@ -210,34 +210,35 @@ function change_number_charset(number, charset){
     };
 }
 
+function latin_number(number){
+    var text = number.toString();
+    /* It would be nice to know the bounding box of the page number,
+     but it is not rendered during this process, so we have to guess.
+     All Helvetica numerals are the same width (approximately N shape)
+     so I'll assume 0.6ish.
+     */
+    return {
+        text: text,
+        width: text.length * 0.6
+    };
+}
+
+var stringifiers = {
+    roman:  roman_number,
+    arabic: change_number_charset,
+    farsi:  change_number_charset,
+    latin:  latin_number
+};
 
 function add_page_number(page, number, dir, style){
+    if (! style in stringifiers){
+        style = 'latin';
+    }
     var box = page.mediabox();
-    var w;
-    var text;
     var h = PAGE_NUMBER_SIZE;
-
-
-    if (style == 'roman'){
-        var n = roman_number(number);
-        text = n.text;
-        w = n.width * h;
-    }
-    else if (style == 'arabic' || style == 'farsi'){
-        var n = change_number_charset(number, style);
-        text = n.text;
-        w = n.width * h;
-    }
-    else { //style == 'latin'
-        text = number.toString();
-
-        /* It would be nice to know the bounding box of the page number,
-         but it is not rendered during this process, so we have to guess.
-         All Helvetica numerals are the same width (approximately N shape)
-         so I'll assume 0.6ish.
-         */
-        w = text.length * 0.6 * h;
-    }
+    var n = stringifiers[style](number, style);
+    var text = n.text;
+    var w = n.width * h;
 
     var y = box[1] + 20 - h * 0.5;
     var x = box[0] + 60;
