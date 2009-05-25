@@ -30,10 +30,6 @@ h1 .initial{
 }
 
 
-table.toc { 
-  font-size: 22pt; 
-}
-
 h1 { 
   text-transform: uppercase;
   page-break-before: always; 
@@ -46,3 +42,41 @@ h2 {
 table {
   float: none;
 }
+
+h1.frontpage{
+  font-size: 64pt;
+  text-align: center;
+  page-break-after: always;
+  page-break-before: avoid; 
+}
+
+div.copyright{
+  border: 1px solid #999;
+  padding: 1em;
+}
+
+table.toc {
+  /*border: 1px dotted #999;*/
+  font-size: 18pt; 
+}
+}
+
+td.chapter {
+  padding-left: 2em;
+  text-align: right;
+}
+
+td.pagenumber {
+  text-align: right;  
+}
+
+td.section {
+  font-size: 1.1em;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+p, ul, ol {
+  page-break-inside: avoid;
+}
+
