@@ -337,7 +337,7 @@ def add_css(htmltree, css=None):
 
     #find the head -- it's probably first child but lets not assume.
     for child in htmltree:
-        if child.tag == head:
+        if child.tag == 'head':
             head = child
             break
     else:
@@ -345,7 +345,7 @@ def add_css(htmltree, css=None):
         htmltree.insert(0, head)
 
     link = lxml.etree.SubElement(head, 'link', rel='stylesheet', type='text/css', href=url)
-
+    return url
 
 def get_title(htmltree, args):
     if 'title' in args:
@@ -357,6 +357,8 @@ def get_title(htmltree, args):
     return 'A Manual About ' + args.get('webName', 'Something')
 
 
+def copyright():
+    return "copyright goes here"
 
 def concat_pdfs(name, *args):
     """Join all the named pdfs together into one and save it as <name>"""
@@ -374,16 +376,19 @@ if __name__ == '__main__':
         #make_pdf_cached(web_name)
         #sys.exit()
 
-        title = get_title(html_tree, args)
 
         htmltree = get_book(web_name)
         toc = list(toc_reader(web_name))
 
+        title = get_title(htmltree, args)
+
         add_section_titles(htmltree, toc)
+        css_url = add_css(htmltree, args.get('css'))
+
         pdfname = make_body_pdf(htmltree, web_name)
         preamble = make_preamble_pdf(htmltree, toc, title, css_url)
+
         final = concat_pdfs('/tmp/%s-final.pdf' % web_name, preamble, pdfname)
-        add_css(htmltree, args.get('css'))
 
 
     finally:
