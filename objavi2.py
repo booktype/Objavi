@@ -199,14 +199,14 @@ def find_page(element, start=1):
     return start + random.randrange(1,4)
 
 def make_contents(htmltree, toc):
-    header_tmpl = '<h1>%s</h1><table class="toc">\n'
+    header = '<h1>Table of Contents</h1><table class="toc">\n'
     row_tmpl = ('<tr><td class="chapter">%s</td><td class="title">%s</td>'
-                '<td class="page_num">%s</td></tr>\n')
-    section_tmpl = ('<tr><td></td><td class="section" colspan="2">%s</td></tr>\n')
-    footer = '\n</table><small>TOC ends here</small>'
+                '<td class="pagenumber">%s</td></tr>\n')
+    section_tmpl = ('<tr><td class="section" colspan="3">%s</td></tr>\n')
+    footer = '\n</table>'
 
     contents = []
-    headers = []
+
 
     chapter = 1
     page_num = 1
@@ -222,12 +222,9 @@ def make_contents(htmltree, toc):
         #
         # chapter_url is twiki name of the chapter
         # text is a human readable name of the chapter.
-        if status == '2':
-            headers.append(header_tmpl % text)
-
-        elif status == '1':
+        if status == '1':
             h1 = headings.next()
-            title = h1.text_content()
+            title = h1.text_content().split('.', 1)[1]
             page_num = find_page(h1, page_num)
             contents.append(row_tmpl % (chapter, title, page_num))
             #put a bold number at the beginning of the h1
