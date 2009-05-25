@@ -361,6 +361,14 @@ def get_title(htmltree, args):
 
 
 
+def concat_pdfs(name, *args):
+    """Join all the named pdfs together into one and save it as <name>"""
+    cmd = ['pdftk']
+    cmd.extend(args)
+    cmd += ['cat', 'output', name]
+    check_call(cmd)
+
+
 if __name__ == '__main__':
     try:
         args = parse_args()
@@ -377,6 +385,7 @@ if __name__ == '__main__':
         add_section_titles(htmltree, toc)
         pdfname = make_body_pdf(htmltree, web_name)
         preamble = make_preamble_pdf(htmltree, toc, title, css_url)
+        final = concat_pdfs('/tmp/%s-final.pdf' % web_name, preamble, pdfname)
         add_css(htmltree, args.get('css'))
 
 
