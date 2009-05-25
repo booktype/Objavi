@@ -23,7 +23,7 @@ const DEFAULT_DIR = 'LTR';
 //const DEFAULT_MODE = 'TRANSFORM';
 //const DEFAULT_MODE = 'MEDIABOX';
 const DEFAULT_MODE = 'COMICBOOK';
-
+const DEFAULT_NUMBER_STYLE = 'roman';
 
 function transform_page(page, offset){
     page.setTransformMatrix([1, 0, 0, 1, offset, 0]);
@@ -179,7 +179,10 @@ function roman_number(number){
         w += widths[s.charAt(i)];
     }
 
-    return s, w;
+    return {
+        text: s,
+        width: w
+    };
 }
 
 
@@ -231,7 +234,8 @@ var stringifiers = {
 };
 
 function add_page_number(page, number, dir, style){
-    if (! style in stringifiers){
+    print(' ' + number + ' ' +  dir + ' ' + style);
+    if (! style in stringifiers || style == undefined){
         style = 'latin';
     }
     var box = page.mediabox();
@@ -301,11 +305,25 @@ function add_page_number(page, number, dir, style){
 
 
 
-function number_pdf_pages(pdf, dir, number_style){
+function number_pdf_pages(pdf, dir, number_style, number_start){
     var pages = pdf.getPageCount();
     var i;
-    for (i = 1; i <= pages; i++){
-        add_page_number(pdf.getPage(i), i, dir, number_style);
+    var offset = 0;
+    if (number_start.charAt(0) == '_')
+        number_start = '-' + number_start.substring(1);
+    
+    var start = parseInt(number_start) || 1;
+    if (start < 0){
+        /*count down (-start) pages before beginning */
+        offset = -start;
+        start = 1;
+    }
+    else {
+        /* start numbering at (start) */
+        offset = 1 - start;
+    }
+    for (i = start; i <= pages - offset; i++){
+        add_page_number(pdf.getPage(i + offset), i, dir, number_style);
     }
 }
 
@@ -320,7 +338,7 @@ function process_pdf(pdf, offset, func, width, height){
 }
 
 
-function shift_margins(pdfedit, offset_s, filename, mode, dir, number_style){
+function shift_margins(pdfedit, offset_s, filename, mode, dir, number_style, number_start){
     print("got " + arguments.length + " arguments: ");
     for (var i = 0; i < arguments.length; i++){
         print(arguments[i]);
@@ -336,6 +354,8 @@ function shift_margins(pdfedit, offset_s, filename, mode, dir, number_style){
     mode = mode.upper();
     dir = dir || DEFAULT_DIR;
     dir = dir.upper();
+    number_style = number_style || DEFAULT_NUMBER_STYLE;
+    number_style = number_style.lower();
 
     /* Rather than overwrite the file, copy it first to a similar name
     and work on that ("saveas" doesn't work) */
@@ -360,7 +380,9 @@ function shift_margins(pdfedit, offset_s, filename, mode, dir, number_style){
 
 
     /* add on page numbers */
-    number_pdf_pages(pdf, dir, number_style);
+    if (number_style != 'none'){
+        number_pdf_pages(pdf, dir, number_style, number_start);
+    }
 
     /* RTL book have gutter on the other side */
     /*rotate the file if RTL*/
@@ -408,10 +430,10 @@ if (p.length == 0 || ! p[0].startsWith("shi")){
      * indexing past the end of an array is an error.  So fill it out
      * with some undefineds to fake variadic calling.
      */
-    for (i = 0; i < 6; i++){
+    for (i = 0; i < 9; i++){
         p.push(undefined);
     }
-    shift_margins(this, p[0], p[1], p[2], p[3], p[4], p[5]);
+    shift_margins(this, p[0], p[1], p[2], p[3], p[4], p[5], p[6]);
 }
 else {
     print("skipping first round");
