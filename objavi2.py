@@ -167,26 +167,15 @@ SIZE_MODES = {
                                )
 }
 
-
-
-def make_pdf(htmltree, bookid, size='COMICBOOK', numbers='latin'):
-    """Make a pdf of the HTML, using webkit"""
+def make_pdf(html_file, pdf_file, size='COMICBOOK', numbers='latin', dir='LTR', number_start=1):
+    """Make a pdf of the named html file, using webkit.  Returns a
+    filename for the finished PDF."""
     settings = SIZE_MODES[size]
+    check_call(settings.wkcommand(html_file, pdf_file))
+    check_call(settings.shiftcommand(pdf_file, numbers=numbers,
+                                     dir=dir, number_start=number_start))
+    return settings.output_name(pdf_file)
 
-    html_file = '/tmp/%s.html' % bookid
-    pdf_raw = '/tmp/%s.pdf' % bookid
-    pdf_shifted = settings.output_name(pdf_raw)
-
-    html_text = lxml.etree.tostring(htmltree, method="html")
-    f = open(html_file, 'w')
-    f.write(html_text)
-    f.close()
-
-    #XXX need to calculate size, not assume all pages will be the
-    #same. Probably it is better to start with a bigger page (A4
-    #perhaps) and set margins in.
-    check_call(settings.wkcommand(html_file, pdf_raw))
-    check_call(settings.shiftcommand(pdf_raw, numbers))
 
 
 def make_pdf_cached(bookid, size='COMICBOOK'):
@@ -258,24 +247,36 @@ def make_contents(htmltree, toc):
         else:
             log("mystery TOC line: %s %s %s" % (status, chapter_url, text))
 
-    doc = '\n'.join(headers) + '\n'.join(contents) + footer
+    doc = header + '\n'.join(contents) + footer
     return doc
 
 
+def make_body_pdf(htmltree, bookid, size='COMICBOOK', numbers='latin'):
+    """Make a pdf of the HTML, using webkit"""
+    html_file = '/tmp/%s.html' % bookid
+    pdf_file = '/tmp/%s.pdf' % bookid
+    html_text = lxml.etree.tostring(htmltree, method="html")
+    f = open(html_file, 'w')
+    f.write(html_text)
+    f.close()    
+    return make_pdf(html_file, pdf_file, size='COMICBOOK', numbers='latin')
 
-def make_preamble(htmltree, toc, title):
+
+def make_preamble_pdf(htmltree, toc, title, css):
 
     contents = make_contents(htmltree, toc)
 
     html = ('<html><head>\n'
             '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
+            '<link rel="stylesheet" href="%s" />\n'
             '</head>\n<body>\n'
             '<h1 class="frontpage">%s</h1>'
             '<div class="copyright">%s</div>\n'
-            '%s\n</body></html>') % (title, copyright, contents)
+            '<div class="contents">%s</div>\n</body></html>') % (css, title, copyright(), contents)
 
-    fn = save_tempfile(html, suffix='.html')
-    
+    html_file = save_tempfile(html, suffix='.html')
+    pdf_file = html_file[:-5] + '.pdf' 
+    return make_pdf(html_file, pdf_file, size='COMICBOOK', numbers='roman', number_start=-2)
 
 
 
@@ -374,10 +375,10 @@ if __name__ == '__main__':
         toc = list(toc_reader(web_name))
 
         add_section_titles(htmltree, toc)
+        pdfname = make_body_pdf(htmltree, web_name)
+        preamble = make_preamble_pdf(htmltree, toc, title, css_url)
         add_css(htmltree, args.get('css'))
 
-        pdfname = make_pdf(htmltree, web_name)
-        preamble = make_preamble(htmltree, toc, title)
 
     finally:
         # clean up temp files
