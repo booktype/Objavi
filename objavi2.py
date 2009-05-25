@@ -133,14 +133,16 @@ class PageSettings:
                '-T', m[0], '-R', m[1], '-B', m[2], '-L', m[3],
                html, pdf
                ]
-        log(cmd)
+        log(' '.join(cmd))
         return cmd
 
-    def shiftcommand(self, pdf, numbers='latin'):
+    def shiftcommand(self, pdf, dir='LTR', numbers='latin', number_start=1):
         #numbers should be 'latin', 'roman', or 'arabic'
-        return ['pdfedit', '-s', 'shift_margins', 'shift_margins',
-               str(self.shift), pdf, self.name, numbers]
-
+        number_start = str(number_start).replace('-', '_')        
+        cmd = ['pdfedit', '-s', 'shift_margins', 'shift_margins',
+               str(self.shift), pdf, self.name, dir, numbers, number_start]
+        log(' '.join(cmd))
+        return cmd
 
     def output_name(self, input_name):
         """replicate the name mangling performed by shift_margins.qs
