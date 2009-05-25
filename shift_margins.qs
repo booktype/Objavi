@@ -161,11 +161,14 @@ function roman_number(number){
         s = s.replace(subs[i], subs[i + 1]);
     }
 
+    /* Try to take into account variable widths.
+     * XXX these numbers are made up, and font-specific.
+     */
     var widths = {
         m: 0.9,
         d: 0.6,
         c: 0.6,
-        l: 0.6,
+        l: 0.3,
         x: 0.6,
         v: 0.6,
         i: 0.3
