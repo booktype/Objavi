@@ -39,6 +39,8 @@ def save_tempfile(data, **kwargs):
     clean-up list.  A sensible keyword argument might be
     suffix='.css'."""
     fh, fn = tempfile.mkstemp(**kwargs)
+    if isinstance(data, unicode):
+        data = data.encode('utf8', 'ignore')
     os.write(fh, data)
     os.close(fh)
     _files_to_rm.append(fn)
