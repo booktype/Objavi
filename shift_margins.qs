@@ -150,10 +150,6 @@ function iprop_array(pattern){
     return array;
 }
 
-function operator(op){
-    var array = iprop_array(arguments.slice(1));
-    return createOperator(op, array);
-}
 
 /* roman_number(number) -> lowercase roman number + approximate width */
 function roman_number(number){
