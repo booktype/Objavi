@@ -87,6 +87,27 @@ function  prepend_content(page, content, prepended_op){
 
     stream.insertOperator(op, content);
 }
+
+
+function grow_and_shift_page(page, offset, width, height){
+    //get the box size in order to recentre (i.e. add half width & height delta)
+    var box = page.mediabox();
+    var x = box[0];
+    var y = box[1];
+    var w = box[2] - box[0];
+    var h = box[3] - box[1];
+
+    page.setMediabox(x, y, x + width, y + height);
+
+    var dx = offset + (width - w) * 0.5;
+    var dy = (height - h) * 0.5;
+
+    var cm = createOperator("cm", iprop_array('nnnnnn', 1, 0, 0, 1, dx, dy));
+    prepend_content(page, cm, 'q');
+}
+
+
+
 function shift_page_mediabox(page, offset, width, height){
     var box = page.mediabox();
     var x = box[0];
