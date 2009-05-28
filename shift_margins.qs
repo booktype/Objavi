@@ -58,6 +58,35 @@ function rotate_page180(page){
 }
 
 
+function  prepend_content(page, content, prepended_op){
+    /* Webkit applies a transformation matrix so it can write the pdf
+     * using its native axes.  That means, to use the default grid we
+     * need to either insert the page number before the webkit matrix,
+     * or apply an inverse.  The inverse looks like:
+     *
+     * createOperator("cm", iprop_array('nnnnnn', 16.66667, 0, 0, -16.66667, -709.01015, 11344.83908));
+     *
+     * but it is simpler to jump in first.
+     *
+     * XXX warning: the order in which these things are applied can matter.
+     */
+    if (prepended_op == undefined)
+        prepended_op = 'cm';
+
+    var stream = page.getContentStream(0);
+    var iter = stream.getFirstOperator().iterator();
+    var op;
+    do {
+        op = iter.current();
+        if (op.getName() == prepended_op){
+            iter.prev();
+            op = iter.current();
+            break;
+        }
+    } while (iter.next());
+
+    stream.insertOperator(op, content);
+}
 function shift_page_mediabox(page, offset, width, height){
     var box = page.mediabox();
     var x = box[0];
@@ -275,32 +304,7 @@ function add_page_number(page, number, dir, style){
     q.pushBack(BT, q);
     q.pushBack(end_q, BT);
 
-
-    /* Webkit applies a transformation matrix so it can write the pdf
-     * using its native axes.  That means, to use the default grid we
-     * need to either insert the page number before the webkit matrix,
-     * or apply an inverse.  The inverse looks like:
-     *
-     * createOperator("cm", iprop_array('nnnnnn', 16.66667, 0, 0, -16.66667, -709.01015, 11344.83908));
-     *
-     * but it is simpler to jump in first.
-     */
-
-    var stream = page.getContentStream(0);
-    var iter = stream.getFirstOperator().iterator();
-    var op;
-    do {
-        op = iter.current();
-        if (op.getName() == 'cm'){
-            //print("found cm operator " + op);
-            //need to step back one
-            iter.prev();
-            op = iter.current();
-            break;
-        }
-    } while (iter.next());
-
-    stream.insertOperator(op, q);
+    prepend_content(page, q, 'cm');
 }
 
 
