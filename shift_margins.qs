@@ -330,9 +330,8 @@ function number_pdf_pages(pdf, dir, number_style, number_start){
     var pages = pdf.getPageCount();
     var i;
     var offset = 0;
-    if (number_start.charAt(0) == '_')
+    if (number_start != undefined && number_start.charAt(0) == '_')
         number_start = '-' + number_start.substring(1);
-    
     var start = parseInt(number_start) || 1;
     if (start < 0){
         /*count down (-start) pages before beginning */
