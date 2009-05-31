@@ -334,13 +334,11 @@ function add_page_number(page, number, dir, style){
 
 
 
-function number_pdf_pages(pdf, dir, number_style, number_start){
+function number_pdf_pages(pdf, dir, number_style, start){
     var pages = pdf.getPageCount();
     var i;
     var offset = 0;
-    if (number_start != undefined && number_start.charAt(0) == '_')
-        number_start = '-' + number_start.substring(1);
-    var start = parseInt(number_start) || 1;
+    start = start || 1;
     if (start < 0){
         /*count down (-start) pages before beginning */
         offset = -start;
@@ -366,6 +364,36 @@ function process_pdf(pdf, func, data){
     }
 }
 
+function parse_options(parameters, options, convertors){
+    /* split parameters on the first '=' and return a mapping object.
+     * a mapping of default options can be passed in. */
+    if (options == undefined)
+        options = {};
+    if (convertors == undefined)
+        convertors = {};
 
+    var i;
+    for (i = 0; i < parameters.length; i++){
+        var p = parameters[i];
+        if (p == '-h' || p == '--help')
+            commandline_help(options);
 
+        var split = p.indexOf('=');
+        var key = p.subString(0, split);
+        var value = p.subString(split + 1);
+        if (key in convertors)
+            options[key] = convertors[key](value);
+        else
+            options[key] = value;
+    }
+    return options;
+}
 
+function commandline_help(options){
+    print("options are:");
+    var padding = "                   ";
+    for (var o in options){
+        print(o + padding.subString(0, padding.length - o.length) + '[' + options[o] + ']');
+    }
+    exit(0);
+}

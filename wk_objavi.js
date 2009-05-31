@@ -20,32 +20,47 @@ function get_page_inverse_transform(page){
 
 function onConsoleStart() {
     print("in wk_objavi");
-
     var p = parameters();
-    var offset = parseFloat(p[0]);
-    if (isNaN(offset)){
-        print ("offset not set or unreadable ('" + p[0] + "' -> '" + offset +"'), using default of " + DEFAULT_OFFSET);
-        offset = DEFAULT_OFFSET;
-    }
-    var filename = p[1];
-    var mode = p[2] || DEFAULT_MODE;
-    mode = mode.upper();
-    var dir = p[3] || DEFAULT_DIR;
-    dir = dir.upper();
-    var number_style = p[4] || DEFAULT_NUMBER_STYLE;
-    number_style = number_style.lower();
-    var number_start = p[5];
+
+    var convertors = {
+        offset: function(x){
+            x = parseFloat(x);
+            if (isNaN(x))
+                throw('offset should be a number!');
+            return x;
+        },
+        mode: function(x){return x.upper();},
+        dir: function(x){return x.upper();},
+        number_style: function(x){return x.lower();},
+        number_start: function(x){
+            x = parseInt(x);
+            if (isNaN(x))
+                throw('number_start should be an integer!');
+            return x || 1;
+        }
+    };
+    var options = {
+        offset: DEFAULT_OFFSET,
+        mode:   DEFAULT_MODE,
+        dir:    DEFAULT_DIR,
+        number_style: DEFAULT_NUMBER_STYLE,
+        number_start: '1',
+        filename: '',
+        width: COMIC_WIDTH,
+        height: COMIC_HEIGHT
+    };
+
+    options = parse_options(options, convertors);
 
     /* Rather than overwrite the file, copy it first to a similar name
     and work on that ("saveas" doesn't work) */
     var re = /^(.+)\.pdf$/i;
-    var m = re.search(filename);
+    var m = re.search(options.filename);
     if (m == -1){
-        print(filename + " doesn't look like a pdf filename");
-        exit(1);
+        throw(options.filename + " doesn't look like a pdf filename");
     }
     var newfilename = re.cap(1) + '-' + mode + '.pdf';
-    Process.execute("cp " + filename + ' ' + newfilename);
+    Process.execute("cp " + options.filename + ' ' + newfilename);
 
     var pdf = this.loadPdf(newfilename, 1);
 
@@ -58,40 +73,41 @@ function onConsoleStart() {
     process_pdf(pdf, add_transformation, detransform);
 
 
-    adjust_for_direction(pdf, offset, dir);
+    adjust_for_direction(pdf, options.offset, options.dir);
 
     flip = function(){
         this.offset = -this.offset;
     };
 
-    if (mode == 'TRANSFORM')
-        process_pdf(pdf, transform_page, {offset: offset,
-                                          dir: dir,
-                                          flip:flip});
-    else if (mode == 'MEDIABOX')
-        process_pdf(pdf, shift_page_mediabox, {offset: offset,
-                                               flip:flip});
-    else if (mode == 'COMICBOOK')
-    process_pdf(pdf, shift_page_mediabox, {offset: offset,
-                                           flip:flip,
-                                           width: COMIC_WIDTH,
-                                           height: COMIC_HEIGHT});
+    if (mode == 'TRANSFORM'){
+        /* resize first */
+        process_pdf(pdf, shift_page_mediabox, {offset: 0,
+                                               width: options.width,
+                                               height: options.height
+                                              });
+        process_pdf(pdf, transform_page, {offset: options.offset,
+                                          dir: options.dir,
+                                          flip: flip
+                                         });
+    }
+    else if (mode == 'COMICBOOK'){
+        process_pdf(pdf, shift_page_mediabox, {offset: options.offset,
+                                               flip: flip,
+                                               width: options.width,
+                                               height: options.height
+                                              });
 
+    }
 
     /* add on page numbers */
-    if (number_style != 'none'){
-        number_pdf_pages(pdf, dir, number_style, number_start);
+    if (options.number_style != 'none'){
+        number_pdf_pages(pdf, options.dir,
+                         options.number_style, options.number_start);
     }
 
     pdf.save();
     pdf.unloadPdf();
 }
-
-
-
-
-
-
 
 
 
