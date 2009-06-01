@@ -22,7 +22,6 @@ function get_page_inverse_transform(page){
 
 function onConsoleStart() {
     print("in wk_objavi");
-    var p = parameters();
 
     var convertors = {
         offset: function(x){
@@ -80,8 +79,7 @@ function onConsoleStart() {
 
     adjust_for_direction(pdf, options.offset, options.dir);
 
-
-    if (mode == 'TRANSFORM'){
+    if (options.mode == 'TRANSFORM'){
         /* resize first */
         process_pdf(pdf, shift_page_mediabox, {offset: 0,
                                                width: options.width,
