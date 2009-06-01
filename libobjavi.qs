@@ -290,7 +290,7 @@ var stringifiers = {
     latin:  latin_number
 };
 
-function add_page_number(page, number, dir, style){
+function add_page_number(page, number, dir, style, preceding_operators){
     print(' ' + number + ' ' +  dir + ' ' + style);
     if (! style in stringifiers || style == undefined){
         style = 'latin';
@@ -329,6 +329,15 @@ function add_page_number(page, number, dir, style){
     BT.pushBack(tj, td);
     BT.pushBack(et, tj);
 
+    /*If given extra operators, push them in first */
+    if (0 && preceding_operators != undefined){
+        print('' + preceding_operators[0]);
+        var i;
+        for (i = 0; i < preceding_operators.length; i++){
+            q.pushBack(preceding_operators[i], q);
+        }
+    }
+
     q.pushBack(BT, q);
     q.pushBack(end_q, BT);
 
@@ -337,7 +346,7 @@ function add_page_number(page, number, dir, style){
 
 
 
-function number_pdf_pages(pdf, dir, number_style, start){
+function number_pdf_pages(pdf, dir, number_style, start, preceding_operators){
     var pages = pdf.getPageCount();
     var i;
     var offset = 0;
@@ -352,7 +361,7 @@ function number_pdf_pages(pdf, dir, number_style, start){
         offset = 1 - start;
     }
     for (i = start; i <= pages - offset; i++){
-        add_page_number(pdf.getPage(i + offset), i, dir, number_style);
+        add_page_number(pdf.getPage(i + offset), i, dir, number_style, preceding_operators);
     }
 }
 
