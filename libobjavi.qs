@@ -1,7 +1,3 @@
-// Console: shift_margins
-// Description: shift margins left and right
-/**** The preceding lines are pdfedit magic! do not remove them! ***/
-
 /*
  * Shift pages alternately left or right, and add page numbers in the
  * outer corners.
