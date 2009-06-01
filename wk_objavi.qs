@@ -102,7 +102,9 @@ function onConsoleStart() {
     /* add on page numbers */
     if (options.number_style != 'none'){
         number_pdf_pages(pdf, options.dir,
-                         options.number_style, options.number_start);
+                         options.number_style, options.number_start,
+                         [detransform]
+                        );
     }
 
     pdf.save();
