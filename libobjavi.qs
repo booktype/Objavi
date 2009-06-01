@@ -341,7 +341,10 @@ function add_page_number(page, number, dir, style, preceding_operators){
     q.pushBack(BT, q);
     q.pushBack(end_q, BT);
 
-    prepend_content(page, q, 'cm');
+    var ops = createPdfOperatorStack();
+    ops.append(q);
+    page.appendContentStream(ops);
+    //prepend_content(page, q, 'cm');
 }
 
 
