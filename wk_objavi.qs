@@ -80,9 +80,6 @@ function onConsoleStart() {
 
     adjust_for_direction(pdf, options.offset, options.dir);
 
-    flip = function(){
-        this.offset = -this.offset;
-    };
 
     if (mode == 'TRANSFORM'){
         /* resize first */
