@@ -13,7 +13,9 @@ function get_page_inverse_transform(page){
     var stream = page.getContentStream(page.getContentStreamCount() - 1);
     var op = stream.getLastOperator();
     //from /usr/share/pdfedit/pdfoperator.qs
-    return get_cmToDetransformation(page, op);
+    var transform = get_cmToDetransformation(page, op);
+    var transform = getDetransformationMatrix(page, op);
+    return transform;
 }
 
 
@@ -73,9 +75,8 @@ function onConsoleStart() {
      * it is probably [16.66667, 0, 0, -16.66667, -709.01015, 11344.83908]
      * for all pages.
      */
-    var detransform = get_page_inverse_transform(pdf.getFirstPage());
-    process_pdf(pdf, add_transformation, detransform);
-
+    var t = get_page_inverse_transform(pdf.getFirstPage());
+    var detransform = createOperator("cm", iprop_array('nnnnnn', t[0], t[1], t[2], t[3], t[4], t[5]));
 
     adjust_for_direction(pdf, options.offset, options.dir);
 
