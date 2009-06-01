@@ -46,6 +46,7 @@ function onConsoleStart() {
         number_style: DEFAULT_NUMBER_STYLE,
         number_start: '1',
         filename: '',
+        output_filename: undefined,
         width: COMIC_WIDTH,
         height: COMIC_HEIGHT
     };
@@ -59,7 +60,10 @@ function onConsoleStart() {
     if (m == -1){
         throw(options.filename + " doesn't look like a pdf filename");
     }
-    var newfilename = re.cap(1) + '-' + mode + '.pdf';
+    var newfilename = options.output_filename;
+    if (newfilename == undefined)
+        newfilename = re.cap(1) + '-' + options.mode + '.pdf';
+
     Process.execute("cp " + options.filename + ' ' + newfilename);
 
     var pdf = this.loadPdf(newfilename, 1);
