@@ -374,8 +374,8 @@ function process_pdf(pdf, func, data){
     var i;
     for (i = 1; i <= pages; i++){
         func(pdf.getPage(i), data);
-        if (data != undefined && data.flip != undefined)
-            data.flip(i);
+        if (data != undefined && data.flip)
+            data[data.flip] = -data[data.flip];
     }
 }
 

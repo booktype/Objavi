@@ -87,12 +87,12 @@ function onConsoleStart() {
                                               });
         process_pdf(pdf, transform_page, {offset: options.offset,
                                           dir: options.dir,
-                                          flip: flip
+                                          flip: "offset"
                                          });
     }
-    else if (mode == 'COMICBOOK'){
+    else if (options.mode == 'COMICBOOK'){
         process_pdf(pdf, shift_page_mediabox, {offset: options.offset,
-                                               flip: flip,
+                                               flip: "offset",
                                                width: options.width,
                                                height: options.height
                                               });
