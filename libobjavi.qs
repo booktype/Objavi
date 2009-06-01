@@ -387,15 +387,16 @@ function parse_options(parameters, options, convertors){
     if (convertors == undefined)
         convertors = {};
 
+    print(parameters + '');
     var i;
     for (i = 0; i < parameters.length; i++){
         var p = parameters[i];
-        if (p == '-h' || p == '--help')
+        if (p == 'h' || p == 'help')
             commandline_help(options);
 
         var split = p.indexOf('=');
-        var key = p.subString(0, split);
-        var value = p.subString(split + 1);
+        var key = p.substring(0, split);
+        var value = p.substring(split + 1);
         if (key in convertors)
             options[key] = convertors[key](value);
         else
@@ -408,7 +409,7 @@ function commandline_help(options){
     print("options are:");
     var padding = "                   ";
     for (var o in options){
-        print(o + padding.subString(0, padding.length - o.length) + '[' + options[o] + ']');
+        print(o + padding.substring(0, padding.length - o.length) + '[' + options[o] + ']');
     }
     exit(0);
 }

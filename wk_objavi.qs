@@ -51,7 +51,7 @@ function onConsoleStart() {
         height: COMIC_HEIGHT
     };
 
-    options = parse_options(options, convertors);
+    options = parse_options(parameters(), options, convertors);
 
     /* Rather than overwrite the file, copy it first to a similar name
     and work on that ("saveas" doesn't work) */
