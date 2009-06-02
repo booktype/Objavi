@@ -12,14 +12,14 @@ const DEFAULT_OFFSET = 25;
 const COMIC_WIDTH = (6.625 * 72);
 const COMIC_HEIGHT = (10.25 * 72);
 
-const PAGE_NUMBER_SIZE = 12;
+const PAGE_NUMBER_SIZE = 11;
 
 const DEFAULT_DIR = 'LTR';
 
 //const DEFAULT_MODE = 'TRANSFORM';
 //const DEFAULT_MODE = 'MEDIABOX';
 const DEFAULT_MODE = 'COMICBOOK';
-const DEFAULT_NUMBER_STYLE = 'roman';
+const DEFAULT_NUMBER_STYLE = 'latin';
 
 function transform_page(page, offset){
     page.setTransformMatrix([1, 0, 0, 1, offset, 0]);
@@ -316,7 +316,7 @@ function add_page_number(page, number, dir, style, preceding_operators){
     page.addSystemType1Font("Helvetica");
     var font = page.getFontId("Helvetica"); // probably 'PDFEDIT_F1'
 
-    var rg = createOperator("rg", iprop_array('nnn', 0.5, 0, 0));
+    var rg = createOperator("rg", iprop_array('nnn', 0, 0, 0));
     var tf = createOperator("Tf", iprop_array('Nn', font, h));
     var td = createOperator("Td", iprop_array('nn', x, y));
     var tj = createOperator("Tj", iprop_array('s', text));
