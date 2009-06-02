@@ -162,6 +162,7 @@ SIZE_MODES = {
 
     'COMICBOOK' : PageSettings(name='COMICBOOK',
                                wksize='B5',
+                               wknumberpos=[50, 40], #points, after page resize, from corner
                                wkmargins=[20, 30, 20, 30],
                                shift=20,
                                )

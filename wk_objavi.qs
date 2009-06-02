@@ -33,6 +33,8 @@ function onConsoleStart() {
         mode: function(x){return x.upper();},
         dir: function(x){return x.upper();},
         number_style: function(x){return x.lower();},
+        number_bottom: number_check(parseFloat, 'number_bottom'),
+        number_margin: number_check(parseFloat, 'number_margin'),
         number_start: function(x){
             x = parseInt(x);
             if (isNaN(x))
@@ -45,6 +47,8 @@ function onConsoleStart() {
         mode:   DEFAULT_MODE,
         dir:    DEFAULT_DIR,
         number_style: DEFAULT_NUMBER_STYLE,
+        number_bottom: 20,
+        number_margin: 60,
         number_start: '1',
         filename: '',
         output_filename: undefined,
@@ -101,9 +105,8 @@ function onConsoleStart() {
 
     /* add on page numbers */
     if (options.number_style != 'none'){
-        number_pdf_pages(pdf, options.dir,
-                         options.number_style, options.number_start,
-                         [detransform]
+        number_pdf_pages(pdf, options.dir, options.number_style,
+                         options.number_start, options.number_margin, options.number_bottom
                         );
     }
 

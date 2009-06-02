@@ -290,8 +290,9 @@ var stringifiers = {
     latin:  latin_number
 };
 
-function add_page_number(page, number, dir, style, preceding_operators){
-    print(' ' + number + ' ' +  dir + ' ' + style);
+function add_page_number(page, number, dir, style, margin, bottom,
+                         preceding_operators){
+    //print(' ' + number + ' ' +  dir + ' ' + style);
     if (! style in stringifiers || style == undefined){
         style = 'latin';
     }
@@ -301,11 +302,11 @@ function add_page_number(page, number, dir, style, preceding_operators){
     var text = n.text;
     var w = n.width * h;
 
-    var y = box[1] + 20 - h * 0.5;
-    var x = box[0] + 60;
+    var y = box[1] + bottom;
+    var x = box[0] + margin;
 
     if ((number & 1) == (dir != 'RTL')){
-        x = box[2] - x - w;
+        x = box[2] - margin - w;
     }
 
     var q = createCompositeOperator("q", "Q");
@@ -349,7 +350,9 @@ function add_page_number(page, number, dir, style, preceding_operators){
 
 
 
-function number_pdf_pages(pdf, dir, number_style, start, preceding_operators){
+function number_pdf_pages(pdf, dir, number_style, start,
+                          margin, bottom,
+                          preceding_operators){
     var pages = pdf.getPageCount();
     var i;
     var offset = 0;
@@ -364,7 +367,8 @@ function number_pdf_pages(pdf, dir, number_style, start, preceding_operators){
         offset = 1 - start;
     }
     for (i = start; i <= pages - offset; i++){
-        add_page_number(pdf.getPage(i + offset), i, dir, number_style, preceding_operators);
+        add_page_number(pdf.getPage(i + offset), i, dir, number_style,
+                        margin, bottom, preceding_operators);
     }
 }
 
