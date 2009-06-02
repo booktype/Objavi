@@ -18,38 +18,42 @@ function get_page_inverse_transform(page){
     return transform;
 }
 
+function number_check(parser, name, default_value){
+    return function(s){
+        var x = parser(s);
+        if (isNaN(x) && name)
+            throw(name + ' should be a number! (not "' + s + '")');
+        if (default_value != undefined)
+            return x || default_value;
+        return x;
+    };
+}
+
 
 
 function onConsoleStart() {
     print("in wk_objavi");
 
     var convertors = {
-        offset: function(x){
-            x = parseFloat(x);
-            if (isNaN(x))
-                throw('offset should be a number!');
-            return x;
-        },
+        offset: number_check(parseFloat, 'offset'),
         mode: function(x){return x.upper();},
         dir: function(x){return x.upper();},
         number_style: function(x){return x.lower();},
+        number_start: number_check(parseInt, 'number_start', 1),
         number_bottom: number_check(parseFloat, 'number_bottom'),
         number_margin: number_check(parseFloat, 'number_margin'),
-        number_start: function(x){
-            x = parseInt(x);
-            if (isNaN(x))
-                throw('number_start should be an integer!');
-            return x || 1;
-        }
+        width: number_check(parseFloat, 'width'),
+        height: number_check(parseFloat, 'height')
     };
+
     var options = {
         offset: DEFAULT_OFFSET,
         mode:   DEFAULT_MODE,
         dir:    DEFAULT_DIR,
         number_style: DEFAULT_NUMBER_STYLE,
+        number_start: 1,
         number_bottom: 20,
         number_margin: 60,
-        number_start: '1',
         filename: '',
         output_filename: undefined,
         width: COMIC_WIDTH,

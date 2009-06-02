@@ -137,10 +137,21 @@ class PageSettings:
         return cmd
 
     def shiftcommand(self, pdf, dir='LTR', numbers='latin', number_start=1):
+        # XXX everything MUST be sanitised before getting here.
         #numbers should be 'latin', 'roman', or 'arabic'
         number_start = str(number_start).replace('-', '_')        
-        cmd = ['pdfedit', '-s', 'shift_margins', 'shift_margins',
-               str(self.shift), pdf, self.name, dir, numbers, number_start]
+        cmd = ['pdfedit', '-s', 'wk_objavi.qs',
+               'dir=%s' % dir,
+               'filename=%s' % pdf,
+               'mode=%s' % self.name,
+               'number_start=%s' % number_start,
+               'number_style=%s' % numbers,
+               'number_bottom=%s' % self.wknumberpos[1],
+               'number_margin=%s' % self.wknumberpos[0],
+               'offset=%s' % self.shift,
+               #output_filename
+               #height, width  -- set by 'mode'
+               ]
         log(' '.join(cmd))
         return cmd
 
@@ -162,8 +173,8 @@ SIZE_MODES = {
 
     'COMICBOOK' : PageSettings(name='COMICBOOK',
                                wksize='B5',
+                               wkmargins=[20, 30, 20, 30], #mm
                                wknumberpos=[50, 40], #points, after page resize, from corner
-                               wkmargins=[20, 30, 20, 30],
                                shift=20,
                                )
 }
