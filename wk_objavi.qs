@@ -82,8 +82,8 @@ function onConsoleStart() {
      * it is probably [16.66667, 0, 0, -16.66667, -709.01015, 11344.83908]
      * for all pages.
      */
-    var t = get_page_inverse_transform(pdf.getFirstPage());
-    var detransform = createOperator("cm", iprop_array('nnnnnn', t[0], t[1], t[2], t[3], t[4], t[5]));
+    //var t = get_page_inverse_transform(pdf.getFirstPage());
+    //var detransform = createOperator("cm", iprop_array('nnnnnn', t[0], t[1], t[2], t[3], t[4], t[5]));
 
     adjust_for_direction(pdf, options.offset, options.dir);
 

@@ -345,7 +345,6 @@ function add_page_number(page, number, dir, style, margin, bottom,
     var ops = createPdfOperatorStack();
     ops.append(q);
     page.appendContentStream(ops);
-    //prepend_content(page, q, 'cm');
 }
 
 
@@ -356,7 +355,8 @@ function number_pdf_pages(pdf, dir, number_style, start,
     var pages = pdf.getPageCount();
     var i;
     var offset = 0;
-    start = start || 1;
+    print("numbers start at " + start + "; offset is " + offset + "sum = " + (start + offset));
+    start = parseInt(start) || 1;
     if (start < 0){
         /*count down (-start) pages before beginning */
         offset = -start;
