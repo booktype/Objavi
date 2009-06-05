@@ -5,16 +5,13 @@ import cgi
 import re
 from getopt import gnu_getopt
 
-import lxml.etree, lxml.html
-
-from fmbook import log, Book
-
+FORM_TEMPLATE = os.path.abspath('templates/form.html')
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
 # functions to validate their values. (None means no validation).
 ARG_VALIDATORS = {
     "webName": lambda x: '/' not in x and '..' not in x,
-    "css": None,
+    "css": None, # an url, empty (for default), or css content
     "title": None,
     "header": None,
     "isbn": None,
@@ -23,7 +20,6 @@ ARG_VALIDATORS = {
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
-
 
 def parse_args():
     """Read and validate CGI or commandline arguments, putting the
@@ -49,12 +45,45 @@ def parse_args():
     return data
 
 
+def get_server_list(default=None):
+    #how to get server list?
+    pass 
+
+
+def get_book_list(server, default=None):
+    #need to go via http to get list
+    pass 
+
+
+
+def show_form(args, server, webname):
+    f = open(FORM_TEMPLATE)
+    template = f.read()
+    f.close()
+
+    server_list = get_server_list(default=server)
+    book_options = get_book_list(server, default=webname)
+
+    css = get_default_css()
+
+    print "Content-type: text/css; charset=utf-8\n"
+    print template % dict( (x, __dict__[x]) for x in
+                           ('css', 'book_options', 'server_options'))
+
+
+
 if __name__ == '__main__':
     args = parse_args()
     webname = args['webName']        
     server = args.get('server',
                       os.environ.get('SERVER_NAME', 'en.flossmanuals.net'))
+
+    if not webname or not server:
+        show_form(args, server, webname)
+        sys.exit()
     
+    from fmbook import log, Book
+
     book = Book(webname, server)
     book.load()
     
