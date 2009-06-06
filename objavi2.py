@@ -5,6 +5,8 @@ import cgi
 import re
 from getopt import gnu_getopt
 
+from fmbook import log, Book, SIZE_MODES, POINT2MM
+
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
@@ -17,6 +19,7 @@ ARG_VALIDATORS = {
     "isbn": None,
     "license": None,
     "server": None,
+    "booksize": SIZE_MODES.__contains__
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
@@ -47,13 +50,19 @@ def parse_args():
 
 def get_server_list(default=None):
     #how to get server list?
-    pass 
+    pass
 
 
 def get_book_list(server, default=None):
     #need to go via http to get list
-    pass 
+    pass
 
+def get_size_list(server, default=None):
+    #order by increasing areal size.
+    ordered = [x[1] for x in
+               sorted((v.area, v) for v in SIZE_MODES.values())]
+    return [v.name, '%s (%dmm x %dmm)' % (v.name, v.mmsize[0], v.mmsize[1])
+            for v in ordered]
 
 
 def show_form(args, server, webname):
@@ -63,6 +72,7 @@ def show_form(args, server, webname):
 
     server_list = get_server_list(default=server)
     book_options = get_book_list(server, default=webname)
+    size_options = get_size_list()
 
     css = get_default_css()
 
@@ -77,13 +87,16 @@ if __name__ == '__main__':
     webname = args['webName']        
     server = args.get('server',
                       os.environ.get('SERVER_NAME', 'en.flossmanuals.net'))
+    size = args.get('booksize')
 
     if not webname or not server:
+        show_form(args, server, webname, size)
         show_form(args, server, webname)
         sys.exit()
     
     from fmbook import log, Book
 
+    book = Book(webname, server, size)
     book = Book(webname, server)
     book.load()
     

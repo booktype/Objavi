@@ -11,6 +11,7 @@ import lxml.etree, lxml.html
 
 import lxml, lxml.html, lxml.etree
 
+POINT_2_MM = 0.35277777777777777
 
 KEEP_TEMP_FILES=True
 
@@ -61,6 +62,8 @@ class PageSettings:
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
+        self.mmsize = [x * POINT_2_MM for x in self.pointsize]
+        self.area = self.pointsize[0] * self.pointsize[1]
 
     def wkcommand(self, html, pdf):
         m = [str(x) for x in self.wkmargins]
@@ -116,6 +119,7 @@ SIZE_MODES = {
                                wkmargins=[20, 30, 20, 30], #mm
                                wknumberpos=[50, 40], #points, after page resize, from corner
                                shift=20,
+                               pointsize=((6.625 * 72), (10.25 * 72)),
                                )
 }
 
@@ -412,9 +416,6 @@ class Book(object):
                 #oh well
                 self.title = 'A Manual About ' + self.webname
         return self.title
-
-
-
 
 
 
