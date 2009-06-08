@@ -98,7 +98,7 @@ class PageSettings:
                'number_bottom=%s' % self.wknumberpos[1],
                'number_margin=%s' % self.wknumberpos[0],
                'offset=%s' % self.shift,
-               #output_filename
+               'engine=%s' % engine,
                #height, width  -- set by 'mode'
                ]
         log(' '.join(cmd))
@@ -135,8 +135,8 @@ def make_pdf(html_file, pdf_file, size='COMICBOOK', numbers='latin',
     filename for the finished PDF."""
     settings = SIZE_MODES[size]
     check_call(settings.pdfcommand(html_file, pdf_file, engine))
-    check_call(settings.shiftcommand(pdf_file, numbers=numbers,
-                                     dir=dir, number_start=number_start, inplace=True))
+    check_call(settings.shiftcommand(pdf_file, numbers=numbers, dir=dir,
+                                     number_start=number_start, inplace=inplace, engine=engine))
     if inplace:
         return pdf_file
     return settings.output_name(pdf_file)

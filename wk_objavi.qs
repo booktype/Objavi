@@ -57,7 +57,8 @@ function onConsoleStart() {
         filename: '',
         output_filename: undefined,
         width: COMIC_WIDTH,
-        height: COMIC_HEIGHT
+        height: COMIC_HEIGHT,
+        engine: DEFAULT_ENGINE
     };
 
     options = parse_options(parameters(), options, convertors);

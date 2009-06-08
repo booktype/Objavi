@@ -20,6 +20,7 @@ const DEFAULT_DIR = 'LTR';
 //const DEFAULT_MODE = 'MEDIABOX';
 const DEFAULT_MODE = 'COMICBOOK';
 const DEFAULT_NUMBER_STYLE = 'latin';
+const DEFAULT_ENGINE = 'webkit';
 
 function transform_page(page, offset){
     page.setTransformMatrix([1, 0, 0, 1, offset, 0]);
