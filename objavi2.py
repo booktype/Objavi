@@ -14,6 +14,7 @@ FORM_TEMPLATE = os.path.abspath('templates/form.html')
 ARG_VALIDATORS = {
     "webName": lambda x: '/' not in x and '..' not in x,
     "css": None, # an url, empty (for default), or css content
+    "engine": ENGINES.__contains__,
     "title": None,
     "header": None,
     "isbn": None,
@@ -88,6 +89,7 @@ if __name__ == '__main__':
     server = args.get('server',
                       os.environ.get('SERVER_NAME', 'en.flossmanuals.net'))
     size = args.get('booksize')
+    engine = args.get('engine')
 
     if not webname or not server:
         show_form(args, server, webname, size)
@@ -105,5 +107,5 @@ if __name__ == '__main__':
 
     book.add_section_titles()
 
-    book.make_pdf()
+    book.make_pdf(engine)
 

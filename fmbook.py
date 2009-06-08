@@ -65,7 +65,7 @@ class PageSettings:
         self.mmsize = [x * POINT_2_MM for x in self.pointsize]
         self.area = self.pointsize[0] * self.pointsize[1]
 
-    def wkcommand(self, html, pdf):
+    def _webkit_command(self, html, pdf):
         m = [str(x) for x in self.wkmargins]
         cmd = ['wkhtmltopdf', '-s', self.wksize,
                '-T', m[0], '-R', m[1], '-B', m[2], '-L', m[3],
@@ -74,15 +74,20 @@ class PageSettings:
         log(' '.join(cmd))
         return cmd
 
-    def shiftcommand(self, pdf, dir='LTR', numbers='latin', number_start=1, inplace=False):
+    def pdfcommand(self, html, pdf, engine='webkit'):
+        func = getattr(self, '_%s_command' % engine)
+        return func(self, html, pdf)
+
+
+    def shiftcommand(self, pdf, dir='LTR', numbers='latin', number_start=1,
+                     inplace=False, engine='webkit'):
         # XXX everything MUST be sanitised before getting here.
         #numbers should be 'latin', 'roman', or 'arabic'
-        number_start = str(number_start).replace('-', '_')
         if inplace:
             outfile = filename
         else:
             outfile = self.output_name
-        
+
         cmd = ['pdfedit', '-s', 'wk_objavi.qs',
                'dir=%s' % dir,
                'filename=%s' % pdf,
@@ -124,11 +129,12 @@ SIZE_MODES = {
 }
 
 
-def make_pdf(html_file, pdf_file, size='COMICBOOK', numbers='latin', dir='LTR', number_start=1, inplace=False):
+def make_pdf(html_file, pdf_file, size='COMICBOOK', numbers='latin',
+             dir='LTR', number_start=1, inplace=False, engine='webkit'):
     """Make a pdf of the named html file, using webkit.  Returns a
     filename for the finished PDF."""
     settings = SIZE_MODES[size]
-    check_call(settings.wkcommand(html_file, pdf_file))
+    check_call(settings.pdfcommand(html_file, pdf_file, engine))
     check_call(settings.shiftcommand(pdf_file, numbers=numbers,
                                      dir=dir, number_start=number_start, inplace=True))
     if inplace:
@@ -142,7 +148,7 @@ def make_pdf_cached(bookid, size='COMICBOOK'):
     html_file = '/tmp/%s.html' % bookid
     pdf_raw = '/tmp/%s.pdf' % bookid
     pdf_shifted = settings.output_name(pdf_raw)
-    check_call(settings.wkcommand(html_file, pdf_raw))
+    check_call(settings.pdfcommand(html_file, pdf_raw))
     check_call(settings.shiftcommand(pdf_raw))
 
 def concat_pdfs(name, *args):
@@ -172,7 +178,7 @@ class Book(object):
 
         self.book_url = BOOK_URL % (self.server, self.webname)
         self.toc_url = TOC_URL % (self.server, self.webname)
-        
+
 
     def __del__(self):
         if not KEEP_TEMP_FILES:
