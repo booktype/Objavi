@@ -14,13 +14,13 @@ FORM_TEMPLATE = os.path.abspath('templates/form.html')
 ARG_VALIDATORS = {
     "webName": lambda x: '/' not in x and '..' not in x,
     "css": None, # an url, empty (for default), or css content
+    "title": lambda x: len(x) < 999
+    "header": None, # the copyright text?
+    "isbn": lambda x: x.isdigit() and len(x) == 13
+    "license": lambda x: len(x) < 999999
+    "server": re.compile(r'^([\w-]+\.?)+$').match,
     "engine": ENGINES.__contains__,
-    "title": None,
-    "header": None,
-    "isbn": None,
-    "license": None,
-    "server": None,
-    "booksize": SIZE_MODES.__contains__
+    "booksize": SIZE_MODES.__contains__,
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
