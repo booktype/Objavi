@@ -71,10 +71,9 @@ def show_form(args, server, webname):
     template = f.read()
     f.close()
 
-    server_list = get_server_list(default=server)
+    server_options = get_server_list(default=server)
     book_options = get_book_list(server, default=webname)
     size_options = get_size_list()
-
     css = get_default_css()
 
     print "Content-type: text/css; charset=utf-8\n"
@@ -85,7 +84,7 @@ def show_form(args, server, webname):
 
 if __name__ == '__main__':
     args = parse_args()
-    webname = args['webName']        
+    webname = args['webName']
     server = args.get('server',
                       os.environ.get('SERVER_NAME', 'en.flossmanuals.net'))
     size = args.get('booksize')
@@ -93,15 +92,11 @@ if __name__ == '__main__':
 
     if not webname or not server:
         show_form(args, server, webname, size)
-        show_form(args, server, webname)
         sys.exit()
-    
-    from fmbook import log, Book
 
     book = Book(webname, server, size)
-    book = Book(webname, server)
     book.load()
-    
+
     book.set_title(args.get('title'))
     book.add_css(args.get('css'))
 
