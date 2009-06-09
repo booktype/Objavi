@@ -2,12 +2,12 @@ body {
   font-family: 'Gillius ADF';
 }
 
-.chapter{ 
-  color: #aa0;
+.chapter{
+  color: #000;
 }
 
-h1 .initial{  
-  color: #a0a;
+h1 .initial{
+  color: #000;
   font-size: 2em;
 }
 
@@ -21,7 +21,7 @@ h1 .initial{
 
 .subsection .initial {
   font-size: 1em;
-  color: #0a0;
+  color: #000;
 }
 
 .subsection-heading{            
