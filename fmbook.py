@@ -339,7 +339,7 @@ class Book(object):
         text = []
         for line in f:
             line = line.strip()
-            if line == '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^':
+            if line == '-=-=- Magic Page Separating Line Not Found In Any Books -=-=-':
                 if page:
                     yield(page, ' '.join(text))
                 page = int(f.next())
