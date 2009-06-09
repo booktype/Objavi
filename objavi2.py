@@ -33,20 +33,19 @@ def parse_args():
     """
     query = cgi.FieldStorage()
     options, args = gnu_getopt(sys.argv[1:], '', [x + '=' for x in ARG_VALIDATORS])
-    print options
     options = dict(options)
-    print options
+    log(options)    
     data = {}
     for key, validator in ARG_VALIDATORS.items():
         value = query.getfirst(key, options.get('--' + key, None))
-        print key, value
+        log('%s: %s' % (key, value), debug='STARTUP')
         if value is not None:
             if validator is not None and not validator(value):
                 log("argument '%s' is not valid ('%s')" % (key, value))
                 continue
             data[key] = value
 
-    print data
+    log(data, debug='STARTUP')
     return data
 
 

@@ -20,9 +20,21 @@ BOOK_URL = "http://%s/bin/view/%s/_all?skin=text"
 
 DEFAULT_CSS = 'file://' + os.path.abspath('default.css')
 
-def log(*messages):
-    for m in messages:
-        print >> sys.stderr, m
+DEBUG_MODES = ('STARTUP',
+               #'INDEX',
+               #'PDFEDIT',
+               #'PDFGEN',
+               'HTMLGEN',
+               )
+DEBUG_ALL = False
+
+def log(*messages, **kwargs):
+    """Send the messages to the appropriate place (stderr, or syslog).
+    If a <debug> keyword is specified, the message is only printed if
+    its value ias in the global DEBUG_MODES."""
+    if 'debug' not in kwargs or DEBUG_ALL or kwargs['debug'] in DEBUG_MODES:
+        for m in messages:
+            print >> sys.stderr, m
 
 def _add_initial_number(e, n):
     """Put a styled chapter number n at the beginning of element e."""
@@ -326,7 +338,7 @@ class Book(object):
         number which the element probably occurs."""
         text = ' '.join(element.text_content().strip().lower().split())
         for p in pages:
-            print "looking for '%s' in page %s below:\n%s" % (text, p[0], p[1])
+            log("looking for '%s' in page %s below:\n%s" % (text, p[0], p[1]), debug='INDEX')
             if (not page_initial and text in p[1]) or p[1].startswith(text):
                 return p[0]
 
@@ -392,18 +404,18 @@ class Book(object):
             if t.is_chapter() and section is not None:
                 h1 = headings.next()
                 item = h1.makeelement('div', Class='chapter')
-                print h1.title
+                log(h1.title, debug='HTMLGEN')
                 item.text = h1.title
                 _add_initial_number(item, chapter)
 
                 section.append(item)
 
                 if not section_placed:
-                    print "placing section"
+                    log("placing section", debug='HTMLGEN')
                     h1.addprevious(section)
                     section_placed = True
                 else:
-                    print "NOT placing section"
+                    log("NOT placing section", debug='HTMLGEN')                    
 
                 #put a bold number at the beginning of the h1
                 _add_initial_number(h1, chapter)
