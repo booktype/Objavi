@@ -3,9 +3,10 @@
 import os, sys
 import cgi
 import re
+from urllib2 import urlopen
 from getopt import gnu_getopt
 
-from fmbook import log, Book, SIZE_MODES, ENGINES
+from fmbook import log, Book, SIZE_MODES, ENGINES, DEFAULT_CSS
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
 
@@ -49,9 +50,9 @@ def parse_args():
     return data
 
 
-def get_server_list(default=None):
+def get_server_list():
     #how to get server list?
-    return [
+    return sorted([
         'en.flossmanuals.net',        
         'fr.flossmanuals.net',
         'translate.flossmanuals.net',
@@ -68,17 +69,23 @@ def get_server_list(default=None):
         #'flossmanuals.org',
         #'www.flossmanuals.org',
         #'cal.flossmanuals.net',
-        ]
+        ])
 
 
-def get_book_list(server, default=None):
+def get_book_list(server):
     #need to go via http to get list
     #http://en.flossmanuals.net/bin/view/TWiki/TWikiWebsTable?skin=text
     #http://en.flossmanuals.net/bin/view/TWiki/WebLeftBarWebsList?skin=text
-    #
-    pass
+    items = []
+    url = 'http://%s/bin/view/TWiki/WebLeftBarWebsList?skin=text' % server
+    #XXX should use lxml
+    f = urlopen(url)
+    s = f.read()
+    f.close()
+    return sorted(re.findall(r'/bin/view/(\w+)', s))
 
-def get_size_list(server, default=None):
+
+def get_size_list():
     #order by increasing areal size.
     ordered = [x[1] for x in
                sorted((v.area, v) for v in SIZE_MODES.values())]
@@ -86,20 +93,44 @@ def get_size_list(server, default=None):
             for v in ordered]
 
 
-def show_form(args, server, webname):
+def optionise(items, default=None):
+    options = []
+    for x in items:
+        if isinstance(x, str):
+            if x == default:
+                options.append('<option selected="selected">%s</option>' % x)
+            else:
+                options.append('<option>%s</option>' % x)
+        else:
+            # couple: value, name
+            if x[0] == default:
+                options.append('<option selected="selected" value="%s">%s</option>' % x)
+            else:
+                options.append('<option value="%s">%s</option>' % x)
+                
+    return '\n'.join(options)
+
+def get_default_css(server=None):
+    f = open(DEFAULT_CSS[7:])
+    s = f.read()
+    f.close()
+    return s
+
+    
+
+def show_form(args, server, webname, size='COMICBOOK', engine='webkit'):
     f = open(FORM_TEMPLATE)
     template = f.read()
     f.close()
-
-    server_options = get_server_list(default=server)
-    book_options = get_book_list(server, default=webname)
-    size_options = get_size_list()
-    css = get_default_css()
+    d = {
+        'server_options': optionise(get_server_list(), default=server),
+        'book_options': optionise(get_book_list(server), default=webname),
+        'size_options': optionise(get_size_list(), default=size),
+        'css': get_default_css(),
+    }
 
     print "Content-type: text/css; charset=utf-8\n"
-    print template % dict( (x, __dict__[x]) for x in
-                           ('css', 'book_options', 'server_options'))
-
+    print template % d
 
 
 if __name__ == '__main__':
@@ -110,7 +141,7 @@ if __name__ == '__main__':
     size = args.get('booksize')
     engine = args.get('engine')
 
-    if not webname or not server:
+    if not webname or not server or not engine:
         show_form(args, server, webname, size)
         sys.exit()
 
