@@ -128,9 +128,14 @@ SIZE_MODES = {
                                )
 }
 
+ENGINES = {
+    'webkit' : [],
+}
+
 
 def make_pdf(html_file, pdf_file, size='COMICBOOK', numbers='latin',
-             dir='LTR', number_start=1, inplace=False, engine='webkit'):
+             dir='LTR', number_start=1, inplace=False, engine='webkit',
+             index=True):
     """Make a pdf of the named html file, using webkit.  Returns a
     filename for the finished PDF."""
     settings = SIZE_MODES[size]
@@ -180,7 +185,10 @@ class Book(object):
 
         self.book_url = BOOK_URL % (self.server, self.webname)
         self.toc_url = TOC_URL % (self.server, self.webname)
-
+        if pagesize is not None:
+            self.pagesize = pagesize
+        if engine is not None:
+            self.engine = engine
 
     def __del__(self):
         if not KEEP_TEMP_FILES:
@@ -224,7 +232,7 @@ class Book(object):
         html_text = lxml.etree.tostring(self.tree, method="html")
         self.save_data(self.body_html_file, html_text)
         return make_pdf(self.body_html_file, self.body_pdf_file,
-                        size=self.pdf_size, numbers=self.page_numbers, inplace=True)
+                        size=self.pagesize, numbers=self.page_numbers, inplace=True, engine=self.engine)
 
 
     def make_preamble_pdf(self):

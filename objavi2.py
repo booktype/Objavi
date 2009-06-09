@@ -5,12 +5,13 @@ import cgi
 import re
 from getopt import gnu_getopt
 
-from fmbook import log, Book, SIZE_MODES, POINT2MM
+from fmbook import log, Book, SIZE_MODES, ENGINES
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
 # functions to validate their values. (None means no validation).
+
 ARG_VALIDATORS = {
     "webName": lambda x: '/' not in x and '..' not in x,
     "css": None, # an url, empty (for default), or css content
@@ -114,7 +115,8 @@ if __name__ == '__main__':
         show_form(args, server, webname, size)
         sys.exit()
 
-    book = Book(webname, server, size)
+    book = Book(webname, server,
+                pagesize=size, engine=engine)
     book.load()
 
     book.set_title(args.get('title'))
