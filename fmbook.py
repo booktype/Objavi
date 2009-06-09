@@ -76,7 +76,7 @@ class PageSettings:
 
     def pdfcommand(self, html, pdf, engine='webkit'):
         func = getattr(self, '_%s_command' % engine)
-        return func(self, html, pdf)
+        return func(html, pdf)
 
 
     def shiftcommand(self, pdf, dir='LTR', numbers='latin', number_start=1,
@@ -84,7 +84,7 @@ class PageSettings:
         # XXX everything MUST be sanitised before getting here.
         #numbers should be 'latin', 'roman', or 'arabic'
         if inplace:
-            outfile = filename
+            outfile = pdf
         else:
             outfile = self.output_name
 
@@ -162,11 +162,13 @@ def concat_pdfs(name, *args):
 
 
 class Book(object):
-    pdf_size = 'COMICBOOK'
+    pagesize = 'COMICBOOK'
     page_numbers = 'latin'
     preamble_page_numbers = 'roman'
+    engine= 'webkit'
 
-    def __init__(self, webname, server):
+    def __init__(self, webname, server,
+                 pagesize=None, engine=None):
         self.webname = webname
         self.server = server
         self.workdir = tempfile.mkdtemp(prefix=webname)

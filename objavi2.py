@@ -14,10 +14,10 @@ FORM_TEMPLATE = os.path.abspath('templates/form.html')
 ARG_VALIDATORS = {
     "webName": lambda x: '/' not in x and '..' not in x,
     "css": None, # an url, empty (for default), or css content
-    "title": lambda x: len(x) < 999
+    "title": lambda x: len(x) < 999,
     "header": None, # the copyright text?
-    "isbn": lambda x: x.isdigit() and len(x) == 13
-    "license": lambda x: len(x) < 999999
+    "isbn": lambda x: x.isdigit() and len(x) == 13,
+    "license": lambda x: len(x) < 999999,
     "server": re.compile(r'^([\w-]+\.?)+$').match,
     "engine": ENGINES.__contains__,
     "booksize": SIZE_MODES.__contains__,
@@ -62,7 +62,7 @@ def get_size_list(server, default=None):
     #order by increasing areal size.
     ordered = [x[1] for x in
                sorted((v.area, v) for v in SIZE_MODES.values())]
-    return [v.name, '%s (%dmm x %dmm)' % (v.name, v.mmsize[0], v.mmsize[1])
+    return [(v.name, '%s (%dmm x %dmm)' % (v.name, v.mmsize[0], v.mmsize[1]))
             for v in ordered]
 
 
@@ -102,5 +102,5 @@ if __name__ == '__main__':
 
     book.add_section_titles()
 
-    book.make_pdf(engine)
+    book.make_pdf()
 
