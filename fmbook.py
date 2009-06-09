@@ -311,6 +311,8 @@ class Book(object):
             tree.make_links_absolute(self.book_url)
         self.tree = tree
         self.headings = [x for x in tree.cssselect('h1')]
+        if self.headings:
+            self.headings[0].set('class', "first-heading")
         #self.heading_texts = [x.textcontent() for x in self.headings]
         for h1 in self.headings:
             h1.title = h1.text_content().strip()
