@@ -80,7 +80,7 @@ class PageSettings:
 
 
     def shiftcommand(self, pdf, dir='LTR', numbers='latin', number_start=1,
-                     inplace=False, engine='webkit'):
+                     inplace=False, engine='webkit', index=True):
         # XXX everything MUST be sanitised before getting here.
         #numbers should be 'latin', 'roman', or 'arabic'
         if inplace:
@@ -99,6 +99,7 @@ class PageSettings:
                'number_margin=%s' % self.wknumberpos[0],
                'offset=%s' % self.shift,
                'engine=%s' % engine,
+               'index=%s' % index,
                #height, width  -- set by 'mode'
                ]
         log(' '.join(cmd))
@@ -141,7 +142,8 @@ def make_pdf(html_file, pdf_file, size='COMICBOOK', numbers='latin',
     settings = SIZE_MODES[size]
     check_call(settings.pdfcommand(html_file, pdf_file, engine))
     check_call(settings.shiftcommand(pdf_file, numbers=numbers, dir=dir,
-                                     number_start=number_start, inplace=inplace, engine=engine))
+                                     number_start=number_start, inplace=inplace,
+                                     engine=engine, index=index))
     if inplace:
         return pdf_file
     return settings.output_name(pdf_file)
@@ -179,6 +181,7 @@ class Book(object):
         self.workdir = tempfile.mkdtemp(prefix=webname)
         self.body_html_file = self.filepath('body.html')
         self.body_pdf_file = self.filepath('body.pdf')
+        self.body_index_file = self.filepath('body.pdf.index')
         self.preamble_html_file = self.filepath('preamble.html')
         self.preamble_pdf_file = self.filepath('preamble.pdf')
         self.pdf_file = self.filepath('final.pdf')
@@ -244,10 +247,10 @@ class Book(object):
                 '<h1 class="frontpage">%s</h1>'
                 '<div class="copyright">%s</div>\n'
                 '<div class="contents">%s</div>\n</body></html>'
-                ) % (self.css, self.title, self.copyright(), contents)
+                ) % (self.css_url, self.title, self.copyright(), contents)
         self.save_data(self.preamble_html_file, html)
-        return make_pdf(self.preamble_html_file, self.preamble_pdf_file, size=self.pdf_size,
-                        numbers=self.preamble_page_numbers, number_start=-2, inplace=True)
+        return make_pdf(self.preamble_html_file, self.preamble_pdf_file, size=self.pagesize,
+                        numbers=self.preamble_page_numbers, number_start=-2, inplace=True, engine=self.engine, index=False)
 
 
     def make_pdf(self):
@@ -310,20 +313,40 @@ class Book(object):
         self.headings = [x for x in tree.cssselect('h1')]
         #self.heading_texts = [x.textcontent() for x in self.headings]
         for h1 in self.headings:
-            h1.title = h1.text_content()
+            h1.title = h1.text_content().strip()
 
     def load(self):
         self.load_book()
         self.load_toc()
 
-    def find_page(self, element, start=1):
-        """Search through the main PDF and return the page on which the
-        element occurs.  If start is given, the search begins on that
-        page."""
-        #XXX do it really.
-        import random
-        return start + random.randrange(1,4)
+    def find_page(self, element, pages, page_initial=True):
+        """Search through a page_text_iterator and return the page
+        number which the element probably occurs."""
+        text = ' '.join(element.text_content().strip().lower().split())
+        for p in pages:
+            print "looking for '%s' in page %s below:\n%s" % (text, p[0], p[1])
+            if (not page_initial and text in p[1]) or p[1].startswith(text):
+                return p[0]
 
+
+    def page_text_iterator(self):
+        """Return the text found in the pdf, one page at a time,
+        transformed to lowercase."""
+        f = open(self.body_index_file)
+        page = 0
+        text = []
+        for line in f:
+            line = line.strip()
+            if line == '^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^':
+                if page:
+                    yield(page, ' '.join(text))
+                page = int(f.next())
+                text = []
+            else:
+                text.append(' '.join(line.lower().split()))
+
+        yield(page, ' '.join(text))
+        f.close()
 
 
     def make_contents(self):
@@ -340,11 +363,12 @@ class Book(object):
         subsections = [] # for the subsection heading pages.
 
         headings = iter(self.headings)
+        pages = self.page_text_iterator()
 
         for t in self.toc:
             if t.is_chapter():
                 h1 = headings.next()
-                page_num = self.find_page(h1, page_num)
+                page_num = self.find_page(h1, pages)
                 contents.append(row_tmpl % (chapter, h1.title, page_num))
                 chapter += 1
             elif t.is_section():

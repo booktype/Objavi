@@ -384,6 +384,32 @@ function process_pdf(pdf, func, data){
     }
 }
 
+
+
+function save_text_index(pdf, filename){
+    //create an index file for finding chapter page numbers
+    var pages = pdf.getPageCount();
+    //open file
+    var outfile = new File(filename);
+    outfile.open(File.WriteOnly);
+
+    var write = function(x){
+        outfile.write(x + '\n');
+    };
+
+    for (var i = 1; i <= pages; i++){
+        write('\n-=-=- Magic Page Separating Line Not Found In Any Books -=-=-');
+        write(i);
+        write((pdf.getPage(i).getText()));
+    }
+
+    outfile.close();
+}
+
+
+
+
+
 function parse_options(parameters, options, convertors){
     /* split parameters on the first '=' and return a mapping object.
      * a mapping of default options can be passed in. */

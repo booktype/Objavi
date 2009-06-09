@@ -43,7 +43,8 @@ function onConsoleStart() {
         number_bottom: number_check(parseFloat, 'number_bottom'),
         number_margin: number_check(parseFloat, 'number_margin'),
         width: number_check(parseFloat, 'width'),
-        height: number_check(parseFloat, 'height')
+        height: number_check(parseFloat, 'height'),
+        index: function(x){return x.lower();}
     };
 
     var options = {
@@ -58,7 +59,8 @@ function onConsoleStart() {
         output_filename: undefined,
         width: COMIC_WIDTH,
         height: COMIC_HEIGHT,
-        engine: DEFAULT_ENGINE
+        engine: DEFAULT_ENGINE,
+        index: 'true'
     };
 
     options = parse_options(parameters(), options, convertors);
@@ -110,6 +112,11 @@ function onConsoleStart() {
     }
 
     pdf.save();
+
+    if (options.index == 'true'){
+        save_text_index(pdf, newfilename+'.index');
+    }
+
     pdf.unloadPdf();
 }
 
