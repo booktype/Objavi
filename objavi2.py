@@ -51,11 +51,31 @@ def parse_args():
 
 def get_server_list(default=None):
     #how to get server list?
-    pass
+    return [
+        'en.flossmanuals.net',        
+        'fr.flossmanuals.net',
+        'translate.flossmanuals.net',
+        'nl.flossmanuals.net',
+        'bn.flossmanuals.net',
+        'fa.flossmanuals.net',
+        #'clean.flossmanuals.net',
+        #'42.flossmanuals.net',
+        #'trac.flossmanuals.net',
+        #'dev.flossmanuals.net',
+        #'flossmanuals.net',
+        #'irc.flossmanuals.net',
+        #'www.flossmanuals.net',
+        #'flossmanuals.org',
+        #'www.flossmanuals.org',
+        #'cal.flossmanuals.net',
+        ]
 
 
 def get_book_list(server, default=None):
     #need to go via http to get list
+    #http://en.flossmanuals.net/bin/view/TWiki/TWikiWebsTable?skin=text
+    #http://en.flossmanuals.net/bin/view/TWiki/WebLeftBarWebsList?skin=text
+    #
     pass
 
 def get_size_list(server, default=None):
