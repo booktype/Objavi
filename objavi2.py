@@ -24,6 +24,7 @@ ARG_VALIDATORS = {
     "server": re.compile(r'^([\w-]+\.?)+$').match,
     "engine": ENGINES.__contains__,
     "booksize": SIZE_MODES.__contains__,
+    "cgi-context": lambda x: x.lower() in '1true0false',
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
@@ -129,8 +130,6 @@ def show_form(args, server, webname, size='COMICBOOK', engine='webkit'):
         'size_options': optionise(get_size_list(), default=size),
         'css': get_default_css(),
     }
-
-    print "Content-type: text/css; charset=utf-8\n"
     print template % d
 
 
