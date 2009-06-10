@@ -356,7 +356,7 @@ class Book(object):
         self.load_book()
         self.load_toc()
 
-    def find_page(self, element, pages, page_initial=True):
+    def find_page(self, element, pages, page_initial=False):
         """Search through a page_text_iterator and return the page
         number which the element probably occurs."""
         text = ' '.join(element.text_content().strip().lower().split())
