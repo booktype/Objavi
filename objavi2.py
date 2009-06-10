@@ -190,3 +190,4 @@ if __name__ == '__main__':
 
     book.make_pdf()
 
+    book.notify_watcher('finished')

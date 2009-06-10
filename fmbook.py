@@ -194,10 +194,21 @@ class Book(object):
     preamble_page_numbers = 'roman'
     engine= 'webkit'
 
+    def notify_watcher(self, message=None):
+        if self.watcher:
+            if  message is None:
+                #message is the name of the caller
+                import traceback
+                message = traceback.extract_stack(None, 2)[0][2]
+                log("notify_watcher called by '%s'" % message)
+            self.watcher(message)
+
+
     def __init__(self, webname, server,
-                 pagesize=None, engine=None):
+                 pagesize=None, engine=None, watcher=None):
         self.webname = webname
         self.server = server
+        self.watcher = watcher
         self.workdir = tempfile.mkdtemp(prefix=webname)
         self.body_html_file = self.filepath('body.html')
         self.body_pdf_file = self.filepath('body.pdf')
@@ -212,6 +223,7 @@ class Book(object):
             self.pagesize = pagesize
         if engine is not None:
             self.engine = engine
+        self.notify_watcher()
 
     def __del__(self):
         if not KEEP_TEMP_FILES:
@@ -254,9 +266,9 @@ class Book(object):
         """Make a pdf of the HTML, using webkit"""
         html_text = lxml.etree.tostring(self.tree, method="html")
         self.save_data(self.body_html_file, html_text)
-        return make_pdf(self.body_html_file, self.body_pdf_file,
-                        size=self.pagesize, numbers=self.page_numbers, inplace=True, engine=self.engine)
-
+        make_pdf(self.body_html_file, self.body_pdf_file,
+                 size=self.pagesize, numbers=self.page_numbers, inplace=True, engine=self.engine)
+        self.notify_watcher()
 
     def make_preamble_pdf(self):
         contents = self.make_contents()
@@ -269,14 +281,15 @@ class Book(object):
                 '<div class="contents">%s</div>\n</body></html>'
                 ) % (self.css_url, self.title, self.copyright(), contents)
         self.save_data(self.preamble_html_file, html)
-        return make_pdf(self.preamble_html_file, self.preamble_pdf_file, size=self.pagesize,
-                        numbers=self.preamble_page_numbers, number_start=-2, inplace=True, engine=self.engine, index=False)
-
+        make_pdf(self.preamble_html_file, self.preamble_pdf_file, size=self.pagesize,
+                 numbers=self.preamble_page_numbers, number_start=-2, inplace=True, engine=self.engine, index=False)
+        self.notify_watcher()
 
     def make_pdf(self):
         self.make_body_pdf()
         self.make_preamble_pdf()
         concat_pdfs(self.pdf_file, self.preamble_pdf_file, self.body_pdf_file)
+        self.notify_watcher('concatenated_pdfs')
         #and move it into place (what place?)
 
 
@@ -311,7 +324,7 @@ class Book(object):
             except StopIteration:
                 break
         f.close()
-
+        self.notify_watcher()
 
     def load_book(self, tidy=True):
         """Fetch and parse the raw html of the book.  If tidy is true
@@ -336,6 +349,8 @@ class Book(object):
         #self.heading_texts = [x.textcontent() for x in self.headings]
         for h1 in self.headings:
             h1.title = h1.text_content().strip()
+        self.notify_watcher()
+
 
     def load(self):
         self.load_book()
@@ -399,9 +414,8 @@ class Book(object):
                 log("mystery TOC item: %s" % t)
 
         doc = header + '\n'.join(contents) + footer
+        self.notify_watcher()
         return doc
-
-
 
     def add_section_titles(self):
         headings = iter(self.headings)
@@ -438,7 +452,7 @@ class Book(object):
                 heading = lxml.etree.SubElement(section, 'div', Class="subsection-heading")
                 heading.text = t.title
 
-
+        self.notify_watcher()
 
 
     def add_css(self, css=None):
@@ -465,6 +479,7 @@ class Book(object):
 
         link = lxml.etree.SubElement(head, 'link', rel='stylesheet', type='text/css', href=url)
         self.css_url = url
+        self.notify_watcher()
         return url
 
     def set_title(self, title=None):
