@@ -1,0 +1,43 @@
+<html>
+  <head>
+    <title>OBJAVI!</title>
+    <meta  name="robots" content="noindex" />
+    <link rel="icon" href="http://www.flossmanuals.net/pub/TWiki//FlossSkin2/fl2.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="/static/objavi.css" type="text/css" media="screen" />
+  </head>
+
+  <body>
+    <div id="main">
+      <h1>OBJAVI! generating %(webname)s manual!</h1>
+      
+      <p>
+        OBJAVI is working...
+      </p>
+      <ol class="tasklist">
+        <li id="__init__">Initialise the book</li>
+        <li id="load_book">Fetch the book</li>
+        <li id="load_toc">Fetch TOC metadata</li>
+        <li id="add_css">Add css</li>
+        <li id="add_section_titles">Add section titles</li>
+        <li id="make_body_pdf">Generate the main pdf</li>
+        <li id="make_contents">Calculate Table of Contents</li>
+        <li id="make_preamble_pdf">Generate preamble pdf</li>
+        <li id="concatenated_pdfs">concatenate the pdfs</li>
+        <li id="finished">Finished!</li>
+      </ol>
+      
+      <p class="oncomplete">
+        <a href="%(webname)s.pdf">Download the completed manual</a>
+      </p>
+
+    </div>
+
+    <script src="/static/jquery.js"></script>
+    <script src="/static/progress.js"></script>
+      
+<!-- 
+    After this comes a series of update script tags, as the server
+    does stuff.
+    The script eventually adds </body></html> for good form. 
+-->
+

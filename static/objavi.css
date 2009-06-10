@@ -38,9 +38,6 @@ body
     top: 130px;
 }
 
-
-
-
 h1 {
     color: #ff7f00;
 }
@@ -51,4 +48,13 @@ h2 {
 
 h3 {
     color: #000000;
+}
+
+
+.tasklist li {
+  color: #ccc;
+}
+
+.oncomplete {
+  display: none;
 }

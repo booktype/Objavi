@@ -9,6 +9,7 @@ from getopt import gnu_getopt
 from fmbook import log, Book, SIZE_MODES, ENGINES, DEFAULT_CSS
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
+PROGRESS_TEMPLATE = os.path.abspath('templates/progress.html')
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
 # functions to validate their values. (None means no validation).
@@ -133,20 +134,53 @@ def show_form(args, server, webname, size='COMICBOOK', engine='webkit'):
     print template % d
 
 
+def make_progress_page(webname):
+    f = open(PROGRESS_TEMPLATE)
+    template = f.read()
+    f.close()
+    d = {
+        'webname': webname,
+    }
+    print template % d
+    def progress_notifier(message):
+        print ('<script type="text/javascript">\n'
+               'objavi_show_progress("%s");\n'
+               '</script>' % message
+               )
+        if message == 'finished':
+            print '</body></html>'
+        sys.stdout.flush()
+    return progress_notifier
+
+def print_progress(message):
+    print '******* got message "%s"' %message
+    
+
 if __name__ == '__main__':
     args = parse_args()
-    webname = args['webName']
-    server = args.get('server',
-                      os.environ.get('SERVER_NAME', 'en.flossmanuals.net'))
+    webname = args.get('webName')
+    server = args.get('server', 'en.flossmanuals.net')
     size = args.get('booksize')
     engine = args.get('engine')
 
-    if not webname or not server or not engine:
-        show_form(args, server, webname, size)
+    cgi_context = 'SERVER_NAME' in os.environ or args.get('cgi-context', 'NO').lower() in '1true'
+
+    if not webname or not server:
+        if cgi_context:
+            print "Content-type: text/html; charset=utf-8\n"
+            show_form(args, server, webname, size)
+        else:
+            print __doc__
         sys.exit()
 
+    if cgi_context:
+        print "Content-type: text/html; charset=utf-8\n"        
+        progress_bar = make_progress_page(webname)
+    else:
+        progress_bar = print_progress
+        
     book = Book(webname, server,
-                pagesize=size, engine=engine)
+                pagesize=size, engine=engine, watcher=progress_bar)
     book.load()
 
     book.set_title(args.get('title'))
