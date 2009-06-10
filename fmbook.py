@@ -5,7 +5,7 @@ import os, sys
 import tempfile
 import re
 from urllib2 import urlopen
-from subprocess import Popen, check_call
+from subprocess import Popen, check_call, PIPE
 
 import lxml.etree, lxml.html
 
@@ -152,10 +152,18 @@ def make_pdf(html_file, pdf_file, size='COMICBOOK', numbers='latin',
     """Make a pdf of the named html file, using webkit.  Returns a
     filename for the finished PDF."""
     settings = SIZE_MODES[size]
-    check_call(settings.pdfcommand(html_file, pdf_file, engine))
-    check_call(settings.shiftcommand(pdf_file, numbers=numbers, dir=dir,
-                                     number_start=number_start, inplace=inplace,
-                                     engine=engine, index=index))
+    p = Popen(settings.pdfcommand(html_file, pdf_file, engine), stdout=PIPE, stderr=PIPE)
+    out, err = p.communicate()
+    if out or err:
+        log("pdf generation produced\n", out, err)
+
+    p = Popen(settings.shiftcommand(pdf_file, numbers=numbers, dir=dir,
+                                    number_start=number_start, inplace=inplace,
+                                    engine=engine, index=index), stdout=PIPE, stderr=PIPE)
+    out, err = p.communicate()
+    if out or err:
+        log("pdf generation produced\n", out, err)
+    
     if inplace:
         return pdf_file
     return settings.output_name(pdf_file)
