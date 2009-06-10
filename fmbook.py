@@ -463,7 +463,7 @@ class Book(object):
         if css is None:
             url = DEFAULT_CSS
         elif not re.match(r'^http://\S+$', css):
-            fn = save_tempfile('objavi.css', css)
+            fn = self.save_tempfile('objavi.css', css)
             url = 'file://' + fn
         else:
             url = css
