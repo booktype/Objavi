@@ -18,7 +18,7 @@ KEEP_TEMP_FILES=True
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 BOOK_URL = "http://%s/bin/view/%s/_all?skin=text"
 
-DEFAULT_CSS = 'file://' + os.path.abspath('default.css')
+DEFAULT_CSS = 'file://' + os.path.abspath('static/default.css')
 
 DEBUG_MODES = ('STARTUP',
                #'INDEX',
