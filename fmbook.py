@@ -163,7 +163,7 @@ def make_pdf(html_file, pdf_file, size='COMICBOOK', numbers='latin',
     out, err = p.communicate()
     if out or err:
         log("pdf generation produced\n", out, err)
-    
+
     if inplace:
         return pdf_file
     return settings.output_name(pdf_file)
@@ -437,7 +437,7 @@ class Book(object):
                     h1.addprevious(section)
                     section_placed = True
                 else:
-                    log("NOT placing section", debug='HTMLGEN')                    
+                    log("NOT placing section", debug='HTMLGEN')
 
                 #put a bold number at the beginning of the h1
                 _add_initial_number(h1, chapter)

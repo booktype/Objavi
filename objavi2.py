@@ -37,7 +37,7 @@ def parse_args():
     query = cgi.FieldStorage()
     options, args = gnu_getopt(sys.argv[1:], '', [x + '=' for x in ARG_VALIDATORS])
     options = dict(options)
-    log(options)    
+    log(options)
     data = {}
     for key, validator in ARG_VALIDATORS.items():
         value = query.getfirst(key, options.get('--' + key, None))
@@ -55,7 +55,7 @@ def parse_args():
 def get_server_list():
     #how to get server list?
     return sorted([
-        'en.flossmanuals.net',        
+        'en.flossmanuals.net',
         'fr.flossmanuals.net',
         'translate.flossmanuals.net',
         'nl.flossmanuals.net',
@@ -81,6 +81,7 @@ def get_book_list(server):
     items = []
     url = 'http://%s/bin/view/TWiki/WebLeftBarWebsList?skin=text' % server
     #XXX should use lxml
+    log(url)
     f = urlopen(url)
     s = f.read()
     f.close()
@@ -109,7 +110,7 @@ def optionise(items, default=None):
                 options.append('<option selected="selected" value="%s">%s</option>' % x)
             else:
                 options.append('<option value="%s">%s</option>' % x)
-                
+
     return '\n'.join(options)
 
 def get_default_css(server=None):
@@ -118,7 +119,7 @@ def get_default_css(server=None):
     f.close()
     return s
 
-    
+
 
 def show_form(args, server, webname, size='COMICBOOK', engine='webkit'):
     f = open(FORM_TEMPLATE)
@@ -153,7 +154,7 @@ def make_progress_page(webname):
 
 def print_progress(message):
     print '******* got message "%s"' %message
-    
+
 
 if __name__ == '__main__':
     args = parse_args()
@@ -173,11 +174,11 @@ if __name__ == '__main__':
         sys.exit()
 
     if cgi_context:
-        print "Content-type: text/html; charset=utf-8\n"        
+        print "Content-type: text/html; charset=utf-8\n"
         progress_bar = make_progress_page(webname)
     else:
         progress_bar = print_progress
-        
+
     book = Book(webname, server,
                 pagesize=size, engine=engine, watcher=progress_bar)
     book.load()
