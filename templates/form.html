@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>OBJAVI!</title>
+    <title>OBJAVI! II</title>
     <meta  name="robots" content="noindex" />
     <link rel="icon" href="http://www.flossmanuals.net/pub/TWiki//FlossSkin2/fl2.ico" type="image/x-icon" />
     <link rel="stylesheet" href="/static/objavi.css" type="text/css" media="screen" />
@@ -16,58 +16,100 @@
           css to define styles.
         </p>
 
-        <p>
-          Which FLOSS Manuals server?:
-          <select name="server">%(server_options)s</select>
-        </p>
-
-          <p>
-            Choose Manual:
+        <table><tbody>
+            <tr>
+              <td>
+                FLOSS Manuals server
+              </td>
+              <td>
+                <select name="server">%(server_options)s</select>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Manual
+              </td>
+              <td>
             <select name="webName">%(book_options)s</select>
-          </p>
-
-          <p>
-            Book size:
+              </td>
+            </tr>
+            <tr class="advanced">
+              <td>
+            Page size
+              </td>
+              <td>
             <select name="booksize">%(size_options)s</select>
-          </p>
-
-          <p>
-            Text for Title page :<br />
+              </td>
+            </tr>
+            <tr>
+              <td>
+            Front page title<br />
+              </td>
+              <td>
             <input type="text" name="title" />
-          </p>
-
-          <p>
-            Header Text :<br />
+              </td>
+            </tr>
+            <tr>
+              <td>
+            Header Text <br />
+              </td>
+              <td>
             <input type="text" name="header" />
-          </p>
-
-          <p>
-            License :
-            <br />
+              </td>
+            </tr>
+            <tr>
+              <td>
+            License
+              </td>
+              <td>
             <input type="text" name="license" value="GPL"/>
-          </p>
-
-          <p>
-            ISBN Number (optional) :
-            <br />
+              </td>
+            </tr>
+            <tr class="advanced">
+              <td>
+            ISBN Number (optional)
+              </td>
+              <td>
             <input type="text" name="isbn" />
-          </p>
-
-          <p>
+              </td>
+            </tr>
+            <tr>
+              <td>
             CSS
-            <br />
+              </td>
+              <td>
+                <select name="css-method">
+                  <option value='default'>Server default</option>
+                  <option value='url'>URL</option>
+                  <option value='text'>Custom</option>
+                </select>
+              </td>
+            </tr>
+            <tr class="advanced">
+              <td>
+                CSS URL
+              </td>
+              <td>
+            <input type="text" name="css-url" />
+              </td>
+            </tr>
+            <tr id="css-textarea">
+              <td colspan="2">
             <textarea name="css" cols="60" rows="20">
 %(css)s
             </textarea>
-            <br/>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="2">
             <button>OBJAVI!</button>
-          </p>
-
-
+          </td>
+              </tr>
+            </tbody>
+          </table>
 
         </div>
 
     </form>
-
   </body>
 </html>

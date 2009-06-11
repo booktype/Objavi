@@ -1,11 +1,4 @@
 
-img {
-    display: block;
-}
-
-* {
-    margin: 0
-}
 
 body
 {
@@ -15,27 +8,8 @@ body
     color: black;
 }
 
-#header
-{
-    position: absolute;
-    top: 23px;
-    width: 100%;
-    background-image: url('http://www.flossmanuals.net/pub/TWiki/FlossSkin2/header_bg.gif');
-    background-position: 600px 0px; /* this places the orange background at
-                                       an offset, making sure it doesn't underlap the left side of the gif */
-    background-repeat: no-repeat;
-}
-
-#header_imagemap
-{
-    margin-left: 352px;
-    border: 0px
-}
-
 #main {
-    position: absolute;
-    left: 270px;
-    top: 130px;
+  margin: 0 100px;
 }
 
 h1 {
@@ -50,11 +24,18 @@ h3 {
     color: #000000;
 }
 
-
 .tasklist li {
   color: #ccc;
 }
 
 .oncomplete {
   display: none;
+}
+
+input[type=text] {
+  width: 400px;
+}
+
+textarea {
+  width:600px;
 }
