@@ -7,7 +7,7 @@
   </head>
 
   <body>
-    <form action="" method="POST">
+    <form action="" method="POST" id="obform" name="obform">
     <div id="main">
         <h1>OBJAVI! The FLOSS Manuals PDF publisher</h1>
 
@@ -16,84 +16,79 @@
           css to define styles.
         </p>
 
-        <table><tbody>
+        <table class="form" id="form"><tbody>
             <tr>
               <td>
-                FLOSS Manuals server
-              </td>
-              <td>
+                <label for="server">FLOSS Manuals server</label>
+              </td><td>
                 <select name="server">%(server_options)s</select>
               </td>
             </tr>
             <tr>
               <td>
-                Manual
-              </td>
-              <td>
+                <label for="webName">Manual</label>
+              </td><td>
             <select name="webName">%(book_options)s</select>
               </td>
             </tr>
-            <tr class="advanced">
+            <tr>
               <td>
-            Page size
+                <label for="title">Book title</label>
               </td>
               <td>
-            <select name="booksize">%(size_options)s</select>
+                <input type="text" name="title" />
               </td>
             </tr>
             <tr>
               <td>
-            Front page title<br />
-              </td>
-              <td>
-            <input type="text" name="title" />
-              </td>
-            </tr>
-            <tr>
-              <td>
-            Header Text <br />
-              </td>
-              <td>
-            <input type="text" name="header" />
-              </td>
-            </tr>
-            <tr>
-              <td>
-            License
-              </td>
-              <td>
+                <label for="license">License</label>
+              </td><td>
             <input type="text" name="license" value="GPL"/>
               </td>
             </tr>
-            <tr class="advanced">
-              <td>
-            ISBN Number (optional)
-              </td>
-              <td>
-            <input type="text" name="isbn" />
-              </td>
-            </tr>
             <tr>
               <td>
-            CSS
+                <label for="header">Header Text</label>
               </td>
               <td>
-                <select name="css-method">
+                <input type="text" name="header" />
+              </td>
+            </tr>
+            <tr class="advanced">
+              <td>
+                <label for="booksize">Page size</label>
+              </td><td>
+            <select name="booksize">%(size_options)s</select>
+              </td>
+            </tr>
+            <tr class="advanced">
+              <td>
+                <label for="isbn">ISBN Number (optional)</label>
+              </td><td>
+                <input type="text" name="isbn" />
+              </td>
+            </tr>
+            <tr class="advanced">
+              <td>
+                <label for="css-control">CSS</label>
+              </td><td>
+                <select name="css-control">
                   <option value='default'>Server default</option>
                   <option value='url'>URL</option>
                   <option value='text'>Custom</option>
                 </select>
               </td>
             </tr>
-            <tr class="advanced">
+          </tbody>
+          <tbody id="css-options">
+            <tr class="advanced css-url">
               <td>
-                CSS URL
-              </td>
-              <td>
-            <input type="text" name="css-url" />
+                <label for="css">CSS URL</label>
+              </td><td>
+            <input type="text" name="css" />
               </td>
             </tr>
-            <tr id="css-textarea">
+            <tr id="css-textarea" class="css-textarea advanced">
               <td colspan="2">
             <textarea name="css" cols="60" rows="20">
 %(css)s
@@ -111,5 +106,10 @@
         </div>
 
     </form>
+    <script src="/static/jquery.js"></script>
+    <script src="/static/form.js"></script>
+
+
+
   </body>
 </html>

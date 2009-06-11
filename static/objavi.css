@@ -1,15 +1,16 @@
 
-
 body
 {
     margin:0;
     padding:0;
-    background-image: url("http://www.flossmanuals.net/pub/TWiki/FlossSkin2/background.gif")
+    background-image: url("http://www.flossmanuals.net/pub/TWiki/FlossSkin2/background.gif");
     color: black;
 }
 
 #main {
-  margin: 0 100px;
+  margin: 15px 100px;
+  padding: 15px;
+  background: white;
 }
 
 h1 {
@@ -39,3 +40,9 @@ input[type=text] {
 textarea {
   width:600px;
 }
+
+.gone {
+  display: none;
+}
+
+
