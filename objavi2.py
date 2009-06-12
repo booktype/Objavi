@@ -22,7 +22,7 @@ ARG_VALIDATORS = {
     "header": None, # the copyright text?
     "isbn": lambda x: x.isdigit() and len(x) == 13,
     "license": lambda x: len(x) < 999999, #should be a codename?
-    "server": re.compile(r'^([\w-]+\.?)+$').match,
+    "server": SERVER_DEFAULTS.__contains__,
     "engine": ENGINES.__contains__,
     "booksize": PAGE_SETTINGS.__contains__,
     "cgi-context": lambda x: x.lower() in '1true0false',
@@ -54,7 +54,6 @@ def parse_args():
     return data
 
 def get_server_list():
-    #how to get server list?
     return sorted(SERVER_DEFAULTS.keys())
 
 
