@@ -6,7 +6,8 @@ import re
 from urllib2 import urlopen
 from getopt import gnu_getopt
 
-from fmbook import log, Book, SIZE_MODES, ENGINES, DEFAULT_CSS
+from fmbook import log, Book
+from fmbook import SIZE_MODES, ENGINES, DEFAULT_CSS, SERVER_DEFAULTS
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
 PROGRESS_TEMPLATE = os.path.abspath('templates/progress.html')
@@ -99,7 +100,7 @@ def optionise(items, default=None):
 def get_default_css(server=None):
     if server not in SERVER_DEFAULTS:
         server == 'default'
-    f = open(SERVER_DEFAULTS[server]['css']) 
+    f = open(SERVER_DEFAULTS[server]['css'])
     s = f.read()
     f.close()
     return s
