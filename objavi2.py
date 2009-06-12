@@ -114,6 +114,7 @@ def show_form(args, server, webname, size='COMICBOOK', engine='webkit'):
         'server_options': optionise(get_server_list(), default=server),
         'book_options': optionise(get_book_list(server), default=webname),
         'size_options': optionise(get_size_list(), default=size),
+        'engines': optionise(ENGINES.keys(), default='webkit'),
         'css': get_default_css(server),
     }
     print template % d
