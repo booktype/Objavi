@@ -183,7 +183,7 @@ class Book(object):
         self.default_css = defaults['css']
         self.lang = defaults['lang']
         self.dir  = defaults['dir']
-        
+
         self.body_html_file = self.filepath('body.html')
         self.body_pdf_file = self.filepath('body.pdf')
         self.body_index_file = self.filepath('body.pdf.index')
@@ -259,9 +259,9 @@ class Book(object):
         self.notify_watcher()
 
     def make_pdf(self):
-        
+
         # now the Xvfb server is needed. make sure it has had long enough to get going
-        self.wait_for_xvfb()        
+        self.wait_for_xvfb()
         self.make_body_pdf()
         self.make_preamble_pdf()
         concat_pdfs(self.pdf_file, self.preamble_pdf_file, self.body_pdf_file)
@@ -270,7 +270,7 @@ class Book(object):
 
     def publish_pdf(self):
         os.rename(self.filepath('final.pdf'), self.publish_file)
-        self.notify_watcher()        
+        self.notify_watcher()
 
 
     def copyright(self):
@@ -521,7 +521,7 @@ class Book(object):
     def wait_for_xvfb(self):
         if hasattr(self, 'xvfb'):
             d = self.xvfb_ready_time - time.time()
-            if d > 0:            
+            if d > 0:
                 sleep(d)
                 self.notify_watcher()
 
@@ -531,14 +531,14 @@ class Book(object):
         check_call(['xauth', 'remove', self.xserver_no])
         p = self.xvfb
         os.kill(p.pid, 15)
-        for i in range(10):            
+        for i in range(10):
             if p.poll() is not None:
                 break
             time.sleep(0.2)
         else:
             log("Xvfb would not die! kill -9! kill -9!")
             os.kill(p.pid, 9)
-        
+
     def cleanup(self):
         self.cleanup_x()
         if not KEEP_TEMP_FILES:
@@ -548,5 +548,5 @@ class Book(object):
         else:
             log("NOT removing '%s', containing the following files:" % self.workdir)
             log(*os.listdir(self.workdir))
-            
+
         self.notify_watcher()
