@@ -3,7 +3,7 @@ PDF"""
 
 import os, sys
 import tempfile
-import re
+import re, time
 from urllib2 import urlopen
 from subprocess import Popen, check_call, PIPE
 
@@ -18,16 +18,15 @@ KEEP_TEMP_FILES=True
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 BOOK_URL = "http://%s/bin/view/%s/_all?skin=text"
 PUBLISH_URL = "/books/"
-PUBLISH_PATH = "%s/books/" % os.environ['DOCUMENT_ROOT']
 
 
 DEFAULT_CSS = 'file://' + os.path.abspath('static/default.css')
 
-DEBUG_MODES = ('STARTUP',
+DEBUG_MODES = (#'STARTUP',
                #'INDEX',
                #'PDFEDIT',
                #'PDFGEN',
-               'HTMLGEN',
+               #'HTMLGEN',
                )
 DEBUG_ALL = False
 
@@ -220,6 +219,9 @@ class Book(object):
         self.preamble_html_file = self.filepath('preamble.html')
         self.preamble_pdf_file = self.filepath('preamble.pdf')
         self.pdf_file = self.filepath('final.pdf')
+        self.publish_name = '%s-%s-%s.pdf' % (self.webname, self.lang, time.strftime('%Y.%M.%D-%H.%m.%s'))
+
+        self.publish_file = os.path.join(PUBLISH_PATH, self.publish_name)
 
         self.book_url = BOOK_URL % (self.server, self.webname)
         self.toc_url = TOC_URL % (self.server, self.webname)
@@ -522,9 +524,8 @@ class Book(object):
 
         #mcookie(1) eats into /dev/random, so avoid that
         from hashlib import md5
-        from time import time
         f = open('/dev/urandom')
-        m = md5("%r %r %r %r %r" % (self, os.environ, os.getpid(), time(), f.read(32)))
+        m = md5("%r %r %r %r %r" % (self, os.environ, os.getpid(), time.time(), f.read(32)))
         f.close()
         mcookie = m.hexdigest()
 
@@ -534,21 +535,21 @@ class Book(object):
                            '-screen', '0', '1024x768x24',
                            '-extension', 'Composite',
                            '-kb',
-                           '-nolisten', 'tcp'
+                           '-nolisten', 'tcp',
                            ])
 
 
         # We need to wait a bit before the Xvfb is ready.  but the
         # downloads are so slow that that probaby doesn't matter
 
-        self.xvfb_ready_time = time() + 2
+        self.xvfb_ready_time = time.time() + 2
 
         os.environ['DISPLAY'] = self.xserver_no
         log(self.xserver_no)
 
     def wait_for_xvfb(self):
         if hasattr(self, 'xvfb'):
-            d = self.xvfb_ready_time - time()
+            d = self.xvfb_ready_time - time.time()
             if d > 0:            
                 sleep(d)
                 self.notify_watcher()
