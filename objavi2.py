@@ -52,27 +52,9 @@ def parse_args():
     log(data, debug='STARTUP')
     return data
 
-
 def get_server_list():
     #how to get server list?
-    return sorted([
-        'en.flossmanuals.net',
-        'fr.flossmanuals.net',
-        'translate.flossmanuals.net',
-        'nl.flossmanuals.net',
-        'bn.flossmanuals.net',
-        'fa.flossmanuals.net',
-        #'clean.flossmanuals.net',
-        #'42.flossmanuals.net',
-        #'trac.flossmanuals.net',
-        #'dev.flossmanuals.net',
-        #'flossmanuals.net',
-        #'irc.flossmanuals.net',
-        #'www.flossmanuals.net',
-        #'flossmanuals.org',
-        #'www.flossmanuals.org',
-        #'cal.flossmanuals.net',
-        ])
+    return sorted(SERVER_DEFAULTS.keys())
 
 
 def get_book_list(server):
@@ -115,7 +97,9 @@ def optionise(items, default=None):
     return '\n'.join(options)
 
 def get_default_css(server=None):
-    f = open(DEFAULT_CSS[7:])
+    if server not in SERVER_DEFAULTS:
+        server == 'default'
+    f = open(SERVER_DEFAULTS[server]['css']) 
     s = f.read()
     f.close()
     return s
@@ -130,7 +114,7 @@ def show_form(args, server, webname, size='COMICBOOK', engine='webkit'):
         'server_options': optionise(get_server_list(), default=server),
         'book_options': optionise(get_book_list(server), default=webname),
         'size_options': optionise(get_size_list(), default=size),
-        'css': get_default_css(),
+        'css': get_default_css(server),
     }
     print template % d
 
