@@ -78,15 +78,12 @@ class PageSettings:
         func = getattr(self, '_%s_command' % engine)
         return func(html, pdf)
 
-
     def shiftcommand(self, pdf, dir='LTR', numbers='latin', number_start=1,
-                     inplace=False, engine='webkit', index=True):
+                     outfile=None, engine='webkit', index=True):
         # XXX everything MUST be sanitised before getting here.
         #numbers should be 'latin', 'roman', or 'arabic'
-        if inplace:
+        if outfile is None:
             outfile = pdf
-        else:
-            outfile = self.output_name
 
         cmd = ['pdfedit', '-s', 'wk_objavi.qs',
                'dir=%s' % dir,
@@ -105,47 +102,26 @@ class PageSettings:
         log(' '.join(cmd))
         return cmd
 
-    def output_name(self, input_name):
-        """replicate the name mangling performed by shift_margins.qs
-        pdfedit script."""
-        #XXX should just pass in name to pdfedit
-        if hasattr(self, 'dir'):
-            return '%s-%s-%s.pdf' % (input_name[:-4], self.name, self.dir)
-        return '%s-%s.pdf' % (input_name[:-4], self.name)
 
+    def make_pdf(self, html_file, pdf_file, size='COMICBOOK', numbers='latin',
+                 dir='LTR', number_start=1, engine='webkit',
+                 index=True):
+        """Make a pdf of the named html file, using webkit.  Returns a
+        filename for the finished PDF."""
+        p = Popen(self.pdfcommand(html_file, pdf_file, engine), stdout=PIPE, stderr=PIPE)
+        out, err = p.communicate()
+        if out or err:
+            log("pdf generation produced\n", out, err)
 
-def make_pdf(html_file, pdf_file, size='COMICBOOK', numbers='latin',
-             dir='LTR', number_start=1, inplace=False, engine='webkit',
-             index=True):
-    """Make a pdf of the named html file, using webkit.  Returns a
-    filename for the finished PDF."""
-    settings = PageSettings(**SIZE_MODES[size])
-    p = Popen(settings.pdfcommand(html_file, pdf_file, engine), stdout=PIPE, stderr=PIPE)
-    out, err = p.communicate()
-    if out or err:
-        log("pdf generation produced\n", out, err)
-
-    p = Popen(settings.shiftcommand(pdf_file, numbers=numbers, dir=dir,
-                                    number_start=number_start, inplace=inplace,
+        p = Popen(self.shiftcommand(pdf_file, numbers=numbers, dir=dir,
+                                    number_start=number_start,
                                     engine=engine, index=index), stdout=PIPE, stderr=PIPE)
+        out, err = p.communicate()
+        if out or err:
+            log("pdf generation produced\n", out, err)
+
+
 PAGE_SETTINGS = dict((k, PageSettings(**v)) for k, v in PAGE_SIZE_DATA.iteritems())
-    out, err = p.communicate()
-    if out or err:
-        log("pdf generation produced\n", out, err)
-
-    if inplace:
-        return pdf_file
-    return settings.output_name(pdf_file)
-
-def make_pdf_cached(bookid, size='COMICBOOK'):
-    #Assume the html is already there
-    """Make a pdf of the HTML, using webkit"""
-    settings = SIZE_MODES[size]
-    html_file = '/tmp/%s.html' % bookid
-    pdf_raw = '/tmp/%s.pdf' % bookid
-    pdf_shifted = settings.output_name(pdf_raw)
-    check_call(settings.pdfcommand(html_file, pdf_raw))
-    check_call(settings.shiftcommand(pdf_raw))
 
 def concat_pdfs(name, *args):
     """Join all the named pdfs together into one and save it as <name>"""
@@ -199,6 +175,8 @@ class Book(object):
         self.toc_url = TOC_URL % (self.server, self.webname)
         if pagesize is not None:
             self.pagesize = pagesize
+        self.maker = PAGE_SETTINGS[self.pagesize]
+
         if engine is not None:
             self.engine = engine
         self.notify_watcher()
@@ -240,23 +218,23 @@ class Book(object):
         """Make a pdf of the HTML, using webkit"""
         html_text = lxml.etree.tostring(self.tree, method="html")
         self.save_data(self.body_html_file, html_text)
-        make_pdf(self.body_html_file, self.body_pdf_file,
-                 size=self.pagesize, numbers=self.page_numbers, inplace=True, engine=self.engine)
+        self.maker.make_pdf(self.body_html_file, self.body_pdf_file, dir=self.dir,
+                 size=self.pagesize, numbers=self.page_numbers, engine=self.engine)
         self.notify_watcher()
 
     def make_preamble_pdf(self):
         contents = self.make_contents()
-        html = ('<html><head>\n'
+        html = ('<html dir="%s"><head>\n'
                 '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
                 '<link rel="stylesheet" href="%s" />\n'
                 '</head>\n<body>\n'
                 '<h1 class="frontpage">%s</h1>'
                 '<div class="copyright">%s</div>\n'
                 '<div class="contents">%s</div>\n</body></html>'
-                ) % (self.css_url, self.title, self.copyright(), contents)
+                ) % (self.dir, self.css_url, self.title, self.copyright(), contents)
         self.save_data(self.preamble_html_file, html)
-        make_pdf(self.preamble_html_file, self.preamble_pdf_file, size=self.pagesize,
-                 numbers=self.preamble_page_numbers, number_start=-2, inplace=True, engine=self.engine, index=False)
+        self.maker.make_pdf(self.preamble_html_file, self.preamble_pdf_file, size=self.pagesize, dir=self.dir,
+                            numbers=self.preamble_page_numbers, number_start=-2, engine=self.engine, index=False)
         self.notify_watcher()
 
     def make_pdf(self):
@@ -313,10 +291,10 @@ class Book(object):
         f = urlopen(self.book_url)
         html = f.read()
         f.close()
-        html = ('<html><head>\n<title>%s</title>\n'
+        html = ('<html dir="%s"><head>\n<title>%s</title>\n'
                 '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
                 '</head>\n<body>\n'
-                '%s\n</body></html>') % (self.webname, html)
+                '%s\n</body></html>') % (self.dir, self.webname, html)
 
         self.save_tempfile('raw.html', html)
 
