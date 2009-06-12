@@ -283,6 +283,9 @@ class Book(object):
         self.notify_watcher()
 
     def make_pdf(self):
+        
+        # now the Xvfb server is needed. make sure it has had long enough to get going
+        self.wait_for_xvfb()        
         self.make_body_pdf()
         self.make_preamble_pdf()
         concat_pdfs(self.pdf_file, self.preamble_pdf_file, self.body_pdf_file)
@@ -536,6 +539,12 @@ class Book(object):
         os.environ['DISPLAY'] = self.xserver_no
         log(self.xserver_no)
 
+    def wait_for_xvfb(self):
+        if hasattr(self, 'xvfb'):
+            d = self.xvfb_ready_time - time()
+            if d > 0:            
+                sleep(d)
+                self.notify_watcher()
 
     def cleanup_x(self):
         if not hasattr(self, 'xvfb'):
