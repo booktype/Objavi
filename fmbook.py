@@ -131,8 +131,6 @@ def concat_pdfs(name, *args):
     check_call(cmd)
 
 
-
-
 class Book(object):
     pagesize = 'COMICBOOK'
     page_numbers = 'latin'
@@ -240,7 +238,6 @@ class Book(object):
         self.notify_watcher()
 
     def make_pdf(self):
-
         # now the Xvfb server is needed. make sure it has had long enough to get going
         self.wait_for_xvfb()
         self.make_body_pdf()
@@ -454,9 +451,6 @@ class Book(object):
                 #oh well
                 self.title = 'A Manual About ' + self.webname
         return self.title
-
-
-
 
     def spawn_x(self):
         #Find an unused server number (in case two cgis are running at once)
