@@ -17,6 +17,9 @@ KEEP_TEMP_FILES=True
 
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 BOOK_URL = "http://%s/bin/view/%s/_all?skin=text"
+PUBLISH_URL = "/books/"
+PUBLISH_PATH = "%s/books/" % os.environ['DOCUMENT_ROOT']
+
 
 DEFAULT_CSS = 'file://' + os.path.abspath('static/default.css')
 
@@ -291,6 +294,10 @@ class Book(object):
         concat_pdfs(self.pdf_file, self.preamble_pdf_file, self.body_pdf_file)
         self.notify_watcher('concatenated_pdfs')
         #and move it into place (what place?)
+
+    def publish_pdf(self):
+        os.rename(self.filepath('final.pdf'), self.publish_file)
+        self.notify_watcher()        
 
 
     def copyright(self):
