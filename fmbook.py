@@ -10,7 +10,7 @@ from subprocess import Popen, check_call, PIPE
 import lxml.etree, lxml.html
 import lxml, lxml.html, lxml.etree
 
-from config import SIZE_MODES, SERVER_DEFAULTS, POINT_2_MM, KEEP_TEMP_FILES
+from config import PAGE_SIZE_DATA, SERVER_DEFAULTS, POINT_2_MM, KEEP_TEMP_FILES
 from config import ENGINES, DEBUG_MODES, TOC_URL, PUBLISH_URL, BOOK_URL, DEBUG_ALL
 
 DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
@@ -128,6 +128,7 @@ def make_pdf(html_file, pdf_file, size='COMICBOOK', numbers='latin',
     p = Popen(settings.shiftcommand(pdf_file, numbers=numbers, dir=dir,
                                     number_start=number_start, inplace=inplace,
                                     engine=engine, index=index), stdout=PIPE, stderr=PIPE)
+PAGE_SETTINGS = dict((k, PageSettings(**v)) for k, v in PAGE_SIZE_DATA.iteritems())
     out, err = p.communicate()
     if out or err:
         log("pdf generation produced\n", out, err)

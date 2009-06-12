@@ -7,7 +7,7 @@ from urllib2 import urlopen
 from getopt import gnu_getopt
 
 from fmbook import log, Book
-from fmbook import SIZE_MODES, ENGINES, DEFAULT_CSS, SERVER_DEFAULTS
+from fmbook import PAGE_SETTINGS, ENGINES, SERVER_DEFAULTS
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
 PROGRESS_TEMPLATE = os.path.abspath('templates/progress.html')
@@ -24,7 +24,7 @@ ARG_VALIDATORS = {
     "license": lambda x: len(x) < 999999, #should be a codename?
     "server": re.compile(r'^([\w-]+\.?)+$').match,
     "engine": ENGINES.__contains__,
-    "booksize": SIZE_MODES.__contains__,
+    "booksize": PAGE_SETTINGS.__contains__,
     "cgi-context": lambda x: x.lower() in '1true0false',
     "mode": str.isalnum,
 }
@@ -75,7 +75,7 @@ def get_book_list(server):
 def get_size_list():
     #order by increasing areal size.
     ordered = [x[1] for x in
-               sorted((v.area, v) for v in SIZE_MODES.values())]
+               sorted((v.area, v) for v in PAGE_SETTINGS.values())]
     return [(v.name, '%s (%dmm x %dmm)' % (v.name, v.mmsize[0], v.mmsize[1]))
             for v in ordered]
 

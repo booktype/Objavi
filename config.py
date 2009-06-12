@@ -57,7 +57,7 @@ DEBUG_MODES = (#'STARTUP',
                )
 DEBUG_ALL = False
 
-SIZE_MODES = {
+PAGE_SIZE_DATA = {
     # name      --> should be the same as the key
     # wksize    --> the size name for wkhtml2pdf
     # wkmargins --> margins for wkhtml2pdf (css style, clockwise from top)
