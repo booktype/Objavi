@@ -497,3 +497,53 @@ class Book(object):
 
 
 
+    def spawn_x(self):
+        #Find an unused server number (in case two cgis are running at once)
+        import random
+        while True:
+            servernum = random.randrange(50, 500)
+            if not os.path.exists('/tmp/.X%s-lock' % servernum):
+                break
+
+        self.xserver_no = ':%s' % servernum
+
+        authfile = self.filepath('Xauthority')
+        os.environ['XAUTHORITY'] = authfile
+
+        xvfbargs = "-screen 0 1024x768x24 -extension Composite"
+        listentcp = "-nolisten tcp"
+
+        #mcookie(1) eats into /dev/random, so avoid that
+        from hashlib import md5
+        from time import time
+        f = open('/dev/urandom')
+        m = md5("%r %r %r %r %r" % (self, os.environ, os.getpid(), time(), f.read(32)))
+        f.close()
+        mcookie = m.hexdigest()
+
+        check_call(['xauth', 'add', self.xserver_no, '.', mcookie])
+
+        self.xvfb = Popen(['Xvfb', self.xserver_no,
+                           '-screen', '0', '1024x768x24',
+                           '-extension', 'Composite',
+                           '-kb',
+                           '-nolisten', 'tcp'
+                           ])
+
+
+        # We need to wait a bit before the Xvfb is ready.  but the
+        # downloads are so slow that that probaby doesn't matter
+
+        self.xvfb_ready_time = time() + 2
+
+        os.environ['DISPLAY'] = self.xserver_no
+        log(self.xserver_no)
+
+
+    def cleanup_x(self):
+        if not hasattr(self, 'xvfb'):
+            return
+        check_call(['xauth', 'remove', self.xserver_no])
+        self.xvfb.kill()
+
+

@@ -179,8 +179,13 @@ if __name__ == '__main__':
     else:
         progress_bar = print_progress
 
-    book = Book(webname, server,
-                pagesize=size, engine=engine, watcher=progress_bar)
+    book = Book(webname, server, pagesize=size, engine=engine,
+                watcher=progress_bar
+                )
+    
+    if cgi_context:
+        book.spawn_x()
+    
     book.load()
 
     book.set_title(args.get('title'))
