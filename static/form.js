@@ -36,6 +36,10 @@ function css_mode_switch(){
     }
 }
 
+function load_booklist(){
+    var server = $("#server").val();
+    $("#webName").load("?server=" + server + "&mode=booklist");
+}
 
 
 function onload(){
@@ -46,6 +50,8 @@ function onload(){
     }
 
     $("#toggle-advanced").click(toggle_advanced);
+
+    $("#server").change(load_booklist);
 
     $("#css-control").change(css_mode_switch);
     $('#css-textarea-row').addClass("css-gone");

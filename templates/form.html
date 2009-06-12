@@ -11,7 +11,7 @@
     <div id="main">
         <h1>OBJAVI! The FLOSS Manuals PDF publisher</h1>
 
-        <p>
+        <p id="intro">
           OBJAVI will create a print ready PDF of your manual, using
           css to define styles.
         </p>
@@ -21,14 +21,14 @@
               <td>
                 <label for="server">FLOSS Manuals server</label>
               </td><td>
-                <select name="server">%(server_options)s</select>
+                <select name="server" id="server">%(server_options)s</select>
               </td>
             </tr>
             <tr>
               <td>
                 <label for="webName">Manual</label>
               </td><td>
-            <select name="webName">%(book_options)s</select>
+            <select name="webName" id="webName">%(book_options)s</select>
               </td>
             </tr>
             <tr>

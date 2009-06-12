@@ -25,6 +25,7 @@ ARG_VALIDATORS = {
     "engine": ENGINES.__contains__,
     "booksize": SIZE_MODES.__contains__,
     "cgi-context": lambda x: x.lower() in '1true0false',
+    "mode": str.isalnum,
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
@@ -156,25 +157,31 @@ def print_progress(message):
     print '******* got message "%s"' %message
 
 
+
 if __name__ == '__main__':
     args = parse_args()
     webname = args.get('webName')
     server = args.get('server', 'en.flossmanuals.net')
     size = args.get('booksize')
     engine = args.get('engine')
+    mode = args.get('mode')
 
     cgi_context = 'SERVER_NAME' in os.environ or args.get('cgi-context', 'NO').lower() in '1true'
+    if cgi_context:
+        print "Content-type: text/html; charset=utf-8\n"
+
+    if mode == 'booklist':
+        print optionise(get_book_list(server), default=webname)
+        sys.exit()
 
     if not webname or not server:
         if cgi_context:
-            print "Content-type: text/html; charset=utf-8\n"
             show_form(args, server, webname, size)
         else:
             print __doc__
         sys.exit()
 
     if cgi_context:
-        print "Content-type: text/html; charset=utf-8\n"
         progress_bar = make_progress_page(webname)
     else:
         progress_bar = print_progress
@@ -182,10 +189,10 @@ if __name__ == '__main__':
     book = Book(webname, server, pagesize=size, engine=engine,
                 watcher=progress_bar
                 )
-    
+
     if cgi_context:
         book.spawn_x()
-    
+
     book.load()
 
     book.set_title(args.get('title'))
