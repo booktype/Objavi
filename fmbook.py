@@ -188,13 +188,15 @@ class Book(object):
 
     def __getattr__(self, attr):
         """catch unloaded books and load them"""
-        log('fetching %s from %s...' % (attr, self.server))
+        log('looking for missing attribute "%s"' % (attr))        
         if attr == 'tree':
             self.load_book()
             return self.tree
         if attr == 'toc':
             self.load_toc()
             return self.toc
+        raise AttributeError("no such member: '%s'" % attr)
+
 
     def filepath(self, fn):
         return os.path.join(self.workdir, fn)
@@ -499,6 +501,7 @@ class Book(object):
 
     def wait_for_xvfb(self):
         if hasattr(self, 'xvfb'):
+            print "xvfb is %r" % self.xvfb
             d = self.xvfb_ready_time - time.time()
             if d > 0:
                 sleep(d)
