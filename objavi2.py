@@ -15,12 +15,12 @@ PROGRESS_TEMPLATE = os.path.abspath('templates/progress.html')
 # functions to validate their values. (None means no validation).
 
 ARG_VALIDATORS = {
-    "webName": lambda x: '/' not in x and '..' not in x,
+    "webName": str.isalnum,
     "css": None, # an url, empty (for default), or css content
     "title": lambda x: len(x) < 999,
     "header": None, # the copyright text?
     "isbn": lambda x: x.isdigit() and len(x) == 13,
-    "license": lambda x: len(x) < 999999,
+    "license": lambda x: len(x) < 999999, #should be a codename?
     "server": re.compile(r'^([\w-]+\.?)+$').match,
     "engine": ENGINES.__contains__,
     "booksize": SIZE_MODES.__contains__,
