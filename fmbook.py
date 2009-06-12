@@ -8,69 +8,13 @@ from urllib2 import urlopen
 from subprocess import Popen, check_call, PIPE
 
 import lxml.etree, lxml.html
-
 import lxml, lxml.html, lxml.etree
 
-POINT_2_MM = 0.35277777777777777
+from config import SIZE_MODES, SERVER_DEFAULTS, POINT_2_MM, KEEP_TEMP_FILES
+from config import ENGINES, DEBUG_MODES, TOC_URL, PUBLISH_URL, BOOK_URL, DEBUG_ALL
 
-KEEP_TEMP_FILES=True
-
-TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
-BOOK_URL = "http://%s/bin/view/%s/_all?skin=text"
-PUBLISH_URL = "/books/"
 DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
-
 PUBLISH_PATH = "%s/books/" % DOC_ROOT
-
-#XXX could be reading these in from a config file, which can be edited
-#by a cgi script
-
-#DEFAULT_CSS = 'file://' + os.path.abspath('static/default.css')
-SERVER_DEFAULTS = {
-    'en.flossmanuals.net': {
-        'css': 'static/en.flossmanuals.net.css',
-        'lang': 'en',
-        'dir': 'LTR',
-        },
-    'fr.flossmanuals.net': {
-        'css': 'static/fr.flossmanuals.net.css',
-        'lang': 'fr',
-        'dir': 'LTR',
-        },
-    'translate.flossmanuals.net': {
-        'css': 'static/translate.flossmanuals.net.css',
-        'lang': 'translate',
-        'dir': 'LTR',
-        },
-    'nl.flossmanuals.net': {
-        'css': 'static/nl.flossmanuals.net.css',
-        'lang': 'nl',
-        'dir': 'LTR',
-        },
-    'bn.flossmanuals.net': {
-        'css': 'static/bn.flossmanuals.net.css',
-        'lang': 'bn',
-        'dir': 'LTR',
-        },
-    'fa.flossmanuals.net': {
-        'css': 'static/fa.flossmanuals.net.css',
-        'lang': 'fa',
-        'dir': 'RTL',
-        },
-    'default': {
-        'css': 'static/default.css',
-        'lang': 'en',
-        'dir': 'LTR',
-        },
-}
-
-DEBUG_MODES = (#'STARTUP',
-               #'INDEX',
-               #'PDFEDIT',
-               #'PDFGEN',
-               #'HTMLGEN',
-               )
-DEBUG_ALL = False
 
 def log(*messages, **kwargs):
     """Send the messages to the appropriate place (stderr, or syslog).
@@ -170,32 +114,12 @@ class PageSettings:
         return '%s-%s.pdf' % (input_name[:-4], self.name)
 
 
-SIZE_MODES = {
-    # name      --> should be the same as the key
-    # wksize    --> the size name for wkhtml2pdf
-    # wkmargins --> margins for wkhtml2pdf (css style, clockwise from top)
-    # shift     --> how many points to shift each page left or right.
-
-    'COMICBOOK' : PageSettings(name='COMICBOOK',
-                               wksize='B5',
-                               wkmargins=[20, 30, 20, 30], #mm
-                               wknumberpos=[50, 40], #points, after page resize, from corner
-                               shift=20,
-                               pointsize=((6.625 * 72), (10.25 * 72)),
-                               )
-}
-
-ENGINES = {
-    'webkit' : [],
-}
-
-
 def make_pdf(html_file, pdf_file, size='COMICBOOK', numbers='latin',
              dir='LTR', number_start=1, inplace=False, engine='webkit',
              index=True):
     """Make a pdf of the named html file, using webkit.  Returns a
     filename for the finished PDF."""
-    settings = SIZE_MODES[size]
+    settings = PageSettings(**SIZE_MODES[size])
     p = Popen(settings.pdfcommand(html_file, pdf_file, engine), stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
     if out or err:
