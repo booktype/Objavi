@@ -193,6 +193,7 @@ class Book(object):
     page_numbers = 'latin'
     preamble_page_numbers = 'roman'
     engine= 'webkit'
+    _try_cleanup_on_del = True
 
     def notify_watcher(self, message=None):
         if self.watcher:
@@ -226,13 +227,9 @@ class Book(object):
         self.notify_watcher()
 
     def __del__(self):
-        if not KEEP_TEMP_FILES:
-            for fn in os.listdir(self.workdir):
-                os.remove(os.path.join(self.workdir, fn))
-            os.rmdir(self.workdir)
-        else:
-            log("NOT removing '%s', containing the following files:" % self.workdir)
-            log(*os.listdir(self.workdir))
+        if os.path.exists(self.workdir) and self._try_cleanup_on_del:
+            self._try_cleanup_on_del = False #or else you can get in bad cycles
+            self.cleanup()
 
     def __getattr__(self, attr):
         """catch unloaded books and load them"""
@@ -544,6 +541,24 @@ class Book(object):
         if not hasattr(self, 'xvfb'):
             return
         check_call(['xauth', 'remove', self.xserver_no])
-        self.xvfb.kill()
-
-
+        p = self.xvfb
+        os.kill(p.pid, 15)
+        for i in range(10):            
+            if p.poll() is not None:
+                break
+            time.sleep(0.2)
+        else:
+            log("Xvfb would not die! kill -9! kill -9!")
+            os.kill(p.pid, 9)
+        
+    def cleanup(self):
+        self.cleanup_x()
+        if not KEEP_TEMP_FILES:
+            for fn in os.listdir(self.workdir):
+                os.remove(os.path.join(self.workdir, fn))
+            os.rmdir(self.workdir)
+        else:
+            log("NOT removing '%s', containing the following files:" % self.workdir)
+            log(*os.listdir(self.workdir))
+            
+        self.notify_watcher()
