@@ -1,0 +1,37 @@
+<VirtualHost *:80>
+	ServerAdmin webmaster@localhost
+	ServerName po
+
+	DocumentRoot /home/douglas/objavi2
+	<Directory />
+		Options FollowSymLinks
+		AllowOverride None
+	</Directory>
+	<Directory /home/douglas/objavi2/>
+		Options +All +ExecCGI
+		AllowOverride None
+		Order deny,allow
+                Deny from all
+                Allow from 127.0.0.0/255.0.0.0 ::1/128		
+		AddHandler cgi-script .py	       		
+	</Directory>
+
+	ErrorLog /var/log/apache2/objavi-error.log
+
+	# Possible values include: debug, info, notice, warn, error, crit,
+	# alert, emerg.
+	LogLevel warn
+
+	CustomLog /var/log/apache2/objavi-access.log combined
+	ScriptLog /tmp/objavi-cgi.log 
+
+    Alias /doc/ "/usr/share/doc/"
+    <Directory "/usr/share/doc/">
+        Options Indexes MultiViews FollowSymLinks
+        AllowOverride None
+        Order deny,allow
+        Deny from all
+        Allow from 127.0.0.0/255.0.0.0 ::1/128
+    </Directory>
+
+</VirtualHost>
