@@ -18,9 +18,51 @@ KEEP_TEMP_FILES=True
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 BOOK_URL = "http://%s/bin/view/%s/_all?skin=text"
 PUBLISH_URL = "/books/"
+DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
 
+PUBLISH_PATH = "%s/books/" % DOC_ROOT
 
-DEFAULT_CSS = 'file://' + os.path.abspath('static/default.css')
+#XXX could be reading these in from a config file, which can be edited
+#by a cgi script
+
+#DEFAULT_CSS = 'file://' + os.path.abspath('static/default.css')
+SERVER_DEFAULTS = {
+    'en.flossmanuals.net': {
+        'css': 'static/en.flossmanuals.net.css',
+        'lang': 'en',
+        'dir': 'LTR',
+        },
+    'fr.flossmanuals.net': {
+        'css': 'static/fr.flossmanuals.net.css',
+        'lang': 'fr',
+        'dir': 'LTR',
+        },
+    'translate.flossmanuals.net': {
+        'css': 'static/translate.flossmanuals.net.css',
+        'lang': 'translate',
+        'dir': 'LTR',
+        },
+    'nl.flossmanuals.net': {
+        'css': 'static/nl.flossmanuals.net.css',
+        'lang': 'nl',
+        'dir': 'LTR',
+        },
+    'bn.flossmanuals.net': {
+        'css': 'static/bn.flossmanuals.net.css',
+        'lang': 'bn',
+        'dir': 'LTR',
+        },
+    'fa.flossmanuals.net': {
+        'css': 'static/fa.flossmanuals.net.css',
+        'lang': 'fa',
+        'dir': 'RTL',
+        },
+    'default': {
+        'css': 'static/default.css',
+        'lang': 'en',
+        'dir': 'LTR',
+        },
+}
 
 DEBUG_MODES = (#'STARTUP',
                #'INDEX',
@@ -213,6 +255,11 @@ class Book(object):
         self.server = server
         self.watcher = watcher
         self.workdir = tempfile.mkdtemp(prefix=webname)
+        defaults = SERVER_DEFAULTS.get(server, SERVER_DEFAULTS['default'])
+        self.default_css = defaults['css']
+        self.lang = defaults['lang']
+        self.dir  = defaults['dir']
+        
         self.body_html_file = self.filepath('body.html')
         self.body_pdf_file = self.filepath('body.pdf')
         self.body_index_file = self.filepath('body.pdf.index')
@@ -470,7 +517,7 @@ class Book(object):
         and linked to."""
         htmltree = self.tree
         if css is None:
-            url = DEFAULT_CSS
+            url = 'file://' + os.path.abspath(self.default_css)
         elif not re.match(r'^http://\S+$', css):
             fn = self.save_tempfile('objavi.css', css)
             url = 'file://' + fn
