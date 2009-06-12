@@ -7,7 +7,7 @@
   </head>
 
   <body>
-    <form action="" method="POST" id="obform" name="obform">
+    <form action="" method="GET" id="obform" name="obform">
     <div id="main">
         <h1>OBJAVI! The FLOSS Manuals PDF publisher</h1>
 
@@ -68,29 +68,30 @@
                 <input type="text" name="isbn" />
               </td>
             </tr>
+
             <tr class="advanced">
               <td>
                 <label for="css-control">CSS</label>
               </td><td>
-                <select name="css-control">
-                  <option value='default'>Server default</option>
+                <select name="css-control" id="css-control">
+                  <option value='default' selected="selected">Server default</option>
                   <option value='url'>URL</option>
-                  <option value='text'>Custom</option>
+                  <option value='textarea'>Custom</option>
                 </select>
               </td>
             </tr>
-          </tbody>
-          <tbody id="css-options">
-            <tr class="advanced css-url">
+
+
+            <tr class="advanced" id="css-url-row">
               <td>
                 <label for="css">CSS URL</label>
               </td><td>
-            <input type="text" name="css" />
+            <input type="text" name="css" id="css-url-data" />
               </td>
             </tr>
-            <tr id="css-textarea" class="css-textarea advanced">
+            <tr class="advanced" id="css-textarea-row">
               <td colspan="2">
-            <textarea name="css" cols="60" rows="20">
+            <textarea name="css" cols="60" rows="20" id="css-textarea-data">
 %(css)s
             </textarea>
               </td>

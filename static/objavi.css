@@ -44,5 +44,10 @@ textarea {
 .gone {
   display: none;
 }
+.css-gone {
+  display: none;
+}
 
-
+#toggle-advanced {
+  color: #b00;
+}

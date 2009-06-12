@@ -14,14 +14,27 @@ function toggle_advanced(){
 
 
 function css_mode_switch(){
+    var v = $("#css-control").val();
 
+    function on(s){
+        $('#css-' + s + '-row').removeClass("css-gone");
+        $('#css-' + s + '-data').removeAttr('disabled');
+    }
+    function off(s){
+        $('#css-' + s + '-data').attr('disabled', 'disabled');
+        $('#css-' + s + '-row').addClass("css-gone");
+    }
 
+    if (v == 'default'){
+        off('textarea');
+        off('url');
+    }
+    else {
+        var not_v = (v == 'url') ? 'textarea' : 'url';
+        on(v);
+        off(not_v);
+    }
 }
-
-
-
-
-
 
 
 
@@ -33,6 +46,11 @@ function onload(){
     }
 
     $("#toggle-advanced").click(toggle_advanced);
+
+    $("#css-control").change(css_mode_switch);
+    $('#css-textarea-row').addClass("css-gone");
+    $('#css-url-row').addClass("css-gone");
+
 }
 
 
