@@ -42,6 +42,7 @@ function load_booklist(){
 }
 
 
+
 function onload(){
     $(".advanced").addClass("gone");
 

@@ -51,3 +51,9 @@ textarea {
 #toggle-advanced {
   color: #b00;
 }
+
+#book-link {
+  color: #00b;
+  size: 1.5em;
+  font-weight: bold;
+}

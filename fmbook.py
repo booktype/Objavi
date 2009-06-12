@@ -10,9 +10,11 @@ from subprocess import Popen, check_call, PIPE
 import lxml.etree, lxml.html
 import lxml, lxml.html, lxml.etree
 
-from config import PAGE_SIZE_DATA, SERVER_DEFAULTS, POINT_2_MM, KEEP_TEMP_FILES
+from config import PAGE_SIZE_DATA, SERVER_DEFAULTS, DEFAULT_SERVER
+from config import POINT_2_MM, KEEP_TEMP_FILES, TMPDIR
 from config import ENGINES, DEBUG_MODES, TOC_URL, PUBLISH_URL, BOOK_URL, DEBUG_ALL
 
+TMPDIR = os.path.abspath(TMPDIR)
 DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
 PUBLISH_PATH = "%s/books/" % DOC_ROOT
 
@@ -148,13 +150,14 @@ class Book(object):
             self.watcher(message)
 
 
-    def __init__(self, webname, server,
+    def __init__(self, webname, server, bookname,
                  pagesize=None, engine=None, watcher=None):
+        log("*** Starting new book %s ***" % bookname)
         self.webname = webname
         self.server = server
         self.watcher = watcher
-        self.workdir = tempfile.mkdtemp(prefix=webname)
-        defaults = SERVER_DEFAULTS.get(server, SERVER_DEFAULTS['default'])
+        self.workdir = tempfile.mkdtemp(prefix=webname, dir=TMPDIR)
+        defaults = SERVER_DEFAULTS.get(server, SERVER_DEFAULTS[DEFAULT_SERVER])
         self.default_css = defaults['css']
         self.lang = defaults['lang']
         self.dir  = defaults['dir']
@@ -165,9 +168,10 @@ class Book(object):
         self.preamble_html_file = self.filepath('preamble.html')
         self.preamble_pdf_file = self.filepath('preamble.pdf')
         self.pdf_file = self.filepath('final.pdf')
-        self.publish_name = '%s-%s-%s.pdf' % (self.webname, self.lang, time.strftime('%Y.%M.%D-%H.%m.%s'))
 
+        self.publish_name = bookname
         self.publish_file = os.path.join(PUBLISH_PATH, self.publish_name)
+        self.publish_url = os.path.join(PUBLISH_URL, self.publish_name)
 
         self.book_url = BOOK_URL % (self.server, self.webname)
         self.toc_url = TOC_URL % (self.server, self.webname)
@@ -186,7 +190,7 @@ class Book(object):
 
     def __getattr__(self, attr):
         """catch unloaded books and load them"""
-        log('looking for missing attribute "%s"' % (attr))        
+        #log('looking for missing attribute "%s"' % (attr))
         if attr == 'tree':
             self.load_book()
             return self.tree
@@ -247,6 +251,7 @@ class Book(object):
         #and move it into place (what place?)
 
     def publish_pdf(self):
+        log(self.filepath('final.pdf'), self.publish_file)
         os.rename(self.filepath('final.pdf'), self.publish_file)
         self.notify_watcher()
 
@@ -465,9 +470,6 @@ class Book(object):
         authfile = self.filepath('Xauthority')
         os.environ['XAUTHORITY'] = authfile
 
-        xvfbargs = "-screen 0 1024x768x24 -extension Composite"
-        listentcp = "-nolisten tcp"
-
         #mcookie(1) eats into /dev/random, so avoid that
         from hashlib import md5
         f = open('/dev/urandom')
@@ -495,7 +497,6 @@ class Book(object):
 
     def wait_for_xvfb(self):
         if hasattr(self, 'xvfb'):
-            print "xvfb is %r" % self.xvfb
             d = self.xvfb_ready_time - time.time()
             if d > 0:
                 sleep(d)
@@ -506,10 +507,13 @@ class Book(object):
             return
         check_call(['xauth', 'remove', self.xserver_no])
         p = self.xvfb
+        log("trying to kill Xvfb %s" % p.pid)
         os.kill(p.pid, 15)
         for i in range(10):
             if p.poll() is not None:
+                log("%s died with %s" % (p.pid, p.poll()))
                 break
+            log("%s not dead yet" % p.pid)
             time.sleep(0.2)
         else:
             log("Xvfb would not die! kill -9! kill -9!")

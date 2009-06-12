@@ -2,12 +2,12 @@
 """Make a pdf from the specified book."""
 import os, sys
 import cgi
-import re
+import re, time
 from urllib2 import urlopen
 from getopt import gnu_getopt
 
 from fmbook import log, Book
-from fmbook import PAGE_SETTINGS, ENGINES, SERVER_DEFAULTS
+from fmbook import PAGE_SETTINGS, ENGINES, SERVER_DEFAULTS, DEFAULT_SERVER
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
 PROGRESS_TEMPLATE = os.path.abspath('templates/progress.html')
@@ -98,7 +98,7 @@ def optionise(items, default=None):
 
 def get_default_css(server=None):
     if server not in SERVER_DEFAULTS:
-        server == 'default'
+        server == DEFAULT_SERVER
     f = open(SERVER_DEFAULTS[server]['css'])
     s = f.read()
     f.close()
@@ -120,12 +120,13 @@ def show_form(args, server, webname, size='COMICBOOK', engine='webkit'):
     print template % d
 
 
-def make_progress_page(webname):
+def make_progress_page(webname, bookname):
     f = open(PROGRESS_TEMPLATE)
     template = f.read()
     f.close()
     d = {
         'webname': webname,
+        'bookname': bookname,
     }
     print template % d
     def progress_notifier(message):
@@ -141,7 +142,10 @@ def make_progress_page(webname):
 def print_progress(message):
     print '******* got message "%s"' %message
 
-
+def make_book_name(webname, server):
+    lang = SERVER_DEFAULTS.get(server, SERVER_DEFAULTS[DEFAULT_SERVER])['lang']
+    return '%s-%s-%s.pdf' % (webname, lang,
+                             time.strftime('%Y.%M.%d-%H.%m.%S'))
 
 if __name__ == '__main__':
     args = parse_args()
@@ -150,6 +154,8 @@ if __name__ == '__main__':
     size = args.get('booksize')
     engine = args.get('engine')
     mode = args.get('mode')
+
+    bookname = make_book_name(webname, server)
 
     cgi_context = 'SERVER_NAME' in os.environ or args.get('cgi-context', 'NO').lower() in '1true'
     if cgi_context:
@@ -167,11 +173,11 @@ if __name__ == '__main__':
         sys.exit()
 
     if cgi_context:
-        progress_bar = make_progress_page(webname)
+        progress_bar = make_progress_page(webname, bookname)
     else:
         progress_bar = print_progress
 
-    book = Book(webname, server, pagesize=size, engine=engine,
+    book = Book(webname, server, bookname, pagesize=size, engine=engine,
                 watcher=progress_bar
                 )
 

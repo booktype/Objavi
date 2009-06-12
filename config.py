@@ -2,6 +2,7 @@
 POINT_2_MM = 0.35277777777777777
 
 KEEP_TEMP_FILES=True
+TMPDIR = 'tmp'
 
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 BOOK_URL = "http://%s/bin/view/%s/_all?skin=text"
@@ -10,6 +11,7 @@ PUBLISH_URL = "/books/"
 #XXX could be reading these in from a config file, which can be edited
 #by a cgi script
 
+DEFAULT_SERVER = 'en.flossmanuals.net'
 #DEFAULT_CSS = 'file://' + os.path.abspath('static/default.css')
 SERVER_DEFAULTS = {
     'en.flossmanuals.net': {
@@ -41,11 +43,6 @@ SERVER_DEFAULTS = {
         'css': 'static/fa.flossmanuals.net.css',
         'lang': 'fa',
         'dir': 'RTL',
-        },
-    'default': {
-        'css': 'static/default.css',
-        'lang': 'en',
-        'dir': 'LTR',
         },
 }
 
