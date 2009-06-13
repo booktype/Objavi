@@ -146,7 +146,7 @@ def make_book_name(webname, server):
     lang = SERVER_DEFAULTS.get(server, SERVER_DEFAULTS[DEFAULT_SERVER])['lang']
     webname = ''.join(x for x in webname if x.isalnum())
     return '%s-%s-%s.pdf' % (webname, lang,
-                             time.strftime('%Y.%M.%d-%H.%m.%S'))
+                             time.strftime('%Y.%m.%d-%H.%M.%S'))
 
 if __name__ == '__main__':
     args = parse_args()
