@@ -1,1 +1,94 @@
-default.css
+body {
+  font-family: "Nazli";
+  background: #000;
+  color: #000;
+}
+
+.chapter{
+  color: #000;
+}
+
+h1 .initial{
+  color: #000;
+  font-size: 2em;
+}
+
+.subsection{
+  display: block;
+  page-break-before: always;
+/*  page-break-after: always;*/
+  text-transform: uppercase;
+  font-size: 20pt;
+}
+
+body .subsection:first-child{
+  page-break-before: avoid;
+}
+
+
+.subsection .initial {
+  font-size: 1em;
+  color: #000;
+}
+
+.subsection-heading{
+  font-size: 36pt;
+  font-weight: bold;
+}
+
+
+h1 {
+  text-transform: uppercase;
+  page-break-before: always;
+}
+
+/*h1.first-heading {
+  page-break-before: avoid;
+}*/
+
+
+h2 {
+  text-transform: uppercase;
+}
+
+table {
+  float: none;
+}
+
+h1.frontpage{
+  font-size: 64pt;
+  text-align: center;
+  page-break-after: always;
+  page-break-before: avoid;
+}
+
+div.copyright{
+  border: 1px solid #999;
+  padding: 1em;
+}
+
+table.toc {
+  /*border: 1px dotted #999;*/
+  font-size: 17pt;
+}
+}
+
+td.chapter {
+  padding-left: 2em;
+  text-align: right;
+}
+
+td.pagenumber {
+  text-align: right;
+}
+
+td.section {
+  font-size: 1.1em;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+p, ul, ol {
+  page-break-inside: avoid;
+}
+
