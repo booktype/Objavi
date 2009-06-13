@@ -156,7 +156,8 @@ class Book(object):
         self.webname = webname
         self.server = server
         self.watcher = watcher
-        self.workdir = tempfile.mkdtemp(prefix=webname, dir=TMPDIR)
+        self.workdir = tempfile.mkdtemp(prefix=bookname, dir=TMPDIR)
+        os.chmod(self.workdir, 0755)
         defaults = SERVER_DEFAULTS.get(server, SERVER_DEFAULTS[DEFAULT_SERVER])
         self.default_css = defaults['css']
         self.lang = defaults['lang']

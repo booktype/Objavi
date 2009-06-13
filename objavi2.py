@@ -16,7 +16,7 @@ PROGRESS_TEMPLATE = os.path.abspath('templates/progress.html')
 # functions to validate their values. (None means no validation).
 
 ARG_VALIDATORS = {
-    "webName": str.isalnum,
+    "webName": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah 
     "css": None, # an url, empty (for default), or css content
     "title": lambda x: len(x) < 999,
     "header": None, # the copyright text?
@@ -68,7 +68,7 @@ def get_book_list(server):
     f = urlopen(url)
     s = f.read()
     f.close()
-    return sorted(re.findall(r'/bin/view/(\w+)', s))
+    return sorted(re.findall(r'/bin/view/([\w/]+)/WebHome', s))
 
 
 def get_size_list():
@@ -144,6 +144,7 @@ def print_progress(message):
 
 def make_book_name(webname, server):
     lang = SERVER_DEFAULTS.get(server, SERVER_DEFAULTS[DEFAULT_SERVER])['lang']
+    webname = ''.join(x for x in webname if x.isalnum())
     return '%s-%s-%s.pdf' % (webname, lang,
                              time.strftime('%Y.%M.%d-%H.%m.%S'))
 
@@ -155,7 +156,6 @@ if __name__ == '__main__':
     engine = args.get('engine')
     mode = args.get('mode')
 
-    bookname = make_book_name(webname, server)
 
     cgi_context = 'SERVER_NAME' in os.environ or args.get('cgi-context', 'NO').lower() in '1true'
     if cgi_context:
@@ -172,6 +172,8 @@ if __name__ == '__main__':
             print __doc__
         sys.exit()
 
+    # so we're making a book.
+    bookname = make_book_name(webname, server)
     if cgi_context:
         progress_bar = make_progress_page(webname, bookname)
     else:
