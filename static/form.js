@@ -38,7 +38,12 @@ function css_mode_switch(){
 
 function load_booklist(){
     var server = $("#server").val();
-    $("#webName").load("?server=" + server + "&mode=booklist");
+    var w = $("#webName");
+    var webName = w.val();
+    w.attr('disabled', 'disabled');
+    w.load("?server=" + server + "&webName=" + webName + "&mode=booklist",
+           undefined, function(){w.removeAttr('disabled');}
+    );
 }
 
 
@@ -57,7 +62,8 @@ function onload(){
     $("#css-control").change(css_mode_switch);
     $('#css-textarea-row').addClass("css-gone");
     $('#css-url-row').addClass("css-gone");
-
+    //load the booklist for the selected server
+    load_booklist();
 }
 
 
