@@ -107,21 +107,20 @@ class PageSettings:
 
     def make_pdf(self, html_file, pdf_file, size='COMICBOOK', numbers='latin',
                  dir='LTR', number_start=1, engine='webkit',
-                 index=True):
+                 index=True, notify=log):
         """Make a pdf of the named html file, using webkit.  Returns a
         filename for the finished PDF."""
         p = Popen(self.pdfcommand(html_file, pdf_file, engine), stdout=PIPE, stderr=PIPE)
         out, err = p.communicate()
-        if out or err:
-            log("pdf generation produced\n", out, err)
-
+        log("pdf generation produced\nstdout:%s\nstderr:%s" %(out, err))
+        notify("generate_pdf")
+        #XXX perhaps separate cropping from shifting and numbering.
         p = Popen(self.shiftcommand(pdf_file, numbers=numbers, dir=dir,
                                     number_start=number_start,
                                     engine=engine, index=index), stdout=PIPE, stderr=PIPE)
         out, err = p.communicate()
-        if out or err:
-            log("pdf generation produced\n", out, err)
-
+        log("pdfedit produced\nstdout:%s\nstderr:%s" %(out, err))
+        notify("number_pdf")
 
 PAGE_SETTINGS = dict((k, PageSettings(**v)) for k, v in PAGE_SIZE_DATA.iteritems())
 
@@ -224,7 +223,8 @@ class Book(object):
         html_text = lxml.etree.tostring(self.tree, method="html")
         self.save_data(self.body_html_file, html_text)
         self.maker.make_pdf(self.body_html_file, self.body_pdf_file, dir=self.dir,
-                 size=self.pagesize, numbers=self.page_numbers, engine=self.engine)
+                            size=self.pagesize, numbers=self.page_numbers, engine=self.engine,
+                            notify=self.notify_watcher)
         self.notify_watcher()
 
     def make_preamble_pdf(self):
