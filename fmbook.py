@@ -413,8 +413,9 @@ class Book(object):
                 # section Element complains when you try to ask it whether it
                 # has been placed (though it does know)
                 section_placed = False
-                heading = lxml.etree.SubElement(section, 'div', Class="subsection-heading")
-                heading.text = t.title
+                heading = lxml.html.fragment_fromstring(t.title, create_parent='div')
+                heading.set("Class", "subsection-heading")
+                section.append(heading)
 
         self.notify_watcher()
 
