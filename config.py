@@ -8,6 +8,8 @@ TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 BOOK_URL = "http://%s/bin/view/%s/_all?skin=text"
 PUBLISH_URL = "/books/"
 
+CHAPTER_COOKIE = 'fiqrabyxvi'
+
 #XXX could be reading these in from a config file, which can be edited
 #by a cgi script
 

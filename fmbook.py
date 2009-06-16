@@ -11,7 +11,7 @@ import lxml.etree, lxml.html
 import lxml, lxml.html, lxml.etree
 
 from config import PAGE_SIZE_DATA, SERVER_DEFAULTS, DEFAULT_SERVER
-from config import POINT_2_MM, KEEP_TEMP_FILES, TMPDIR
+from config import POINT_2_MM, KEEP_TEMP_FILES, TMPDIR, CHAPTER_COOKIE
 from config import ENGINES, DEBUG_MODES, TOC_URL, PUBLISH_URL, BOOK_URL, DEBUG_ALL
 
 TMPDIR = os.path.abspath(TMPDIR)
@@ -35,6 +35,15 @@ def _add_initial_number(e, n):
         initial.tail += e.text
     e.text = ''
     initial.text = "%s." % n
+
+def _add_chapter_cookie(e, n):
+    """add magic hidden text to help with contents generation"""
+    cookie = e.makeelement("span", Class="heading-cookie", dir="ltr",
+                           style="font-size:1pt; font-color: #fff;") #also: opacity: 0
+    cookie.text = CHAPTER_COOKIE + str(n)
+    e.title = cookie.text
+    e.append(cookie)
+        
 
 
 class TocItem:
@@ -320,14 +329,14 @@ class Book(object):
         self.load_book()
         self.load_toc()
 
-    def find_page(self, element, pages, page_initial=False):
+    def find_page(self, element, pages):
         """Search through a page_text_iterator and return the page
         number which the element probably occurs."""
-        text = ' '.join(element.text_content().strip().lower().split())
-        for p in pages:
-            log("looking for '%s' in page %s below:\n%s" % (text, p[0], p[1]), debug='INDEX')
-            if (not page_initial and text in p[1]) or p[1].startswith(text):
-                return p[0]
+        text = element.title
+        for pagenum, content in pages:
+            log("looking for '%s' in page %s below:\n%s" % (text, pagenum, content), debug='INDEX')
+            if text in content:
+                return pagenum
 
 
     def page_text_iterator(self):
@@ -340,13 +349,13 @@ class Book(object):
             line = line.strip()
             if line == '-=-=- Magic Page Separating Line Not Found In Any Books -=-=-':
                 if page:
-                    yield(page, ' '.join(text))
+                    yield(page, ''.join(text))
                 page = int(f.next())
                 text = []
             else:
-                text.append(' '.join(line.lower().split()))
+                text.extend(line.lower().split())
 
-        yield(page, ' '.join(text))
+        yield(page, ''.join(text))
         f.close()
 
 
@@ -403,10 +412,10 @@ class Book(object):
                 else:
                     log("NOT placing section", debug='HTMLGEN')
 
-                #put a bold number at the beginning of the h1
+                #put a bold number at the beginning of the h1, and a hidden cookie at the end.
                 _add_initial_number(h1, chapter)
+                _add_chapter_cookie(h1, chapter)
                 chapter += 1
-
 
             elif t.is_section():
                 section = self.tree.makeelement('div', Class="subsection")
