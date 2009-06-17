@@ -12,7 +12,8 @@ TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 BOOK_URL = "http://%s/bin/view/%s/_all?skin=text"
 PUBLISH_URL = "/books/"
 
-CHAPTER_COOKIE = 'fiqrabyxvi'
+#leave out vowels so as to avoid accidental words, and punctuation for bidi consistency
+CHAPTER_COOKIE_CHARS = 'bcdfghjklmnpqrstvwxyz'
 
 #XXX could be reading these in from a config file, which can be edited
 #by a cgi script

@@ -4,6 +4,7 @@ PDF"""
 import os, sys
 import tempfile
 import re, time
+import random
 from urllib2 import urlopen
 from subprocess import Popen, check_call, PIPE
 
@@ -11,7 +12,7 @@ import lxml.etree, lxml.html
 import lxml, lxml.html, lxml.etree
 
 from config import PAGE_SIZE_DATA, SERVER_DEFAULTS, DEFAULT_SERVER
-from config import POINT_2_MM, KEEP_TEMP_FILES, TMPDIR, CHAPTER_COOKIE
+from config import POINT_2_MM, KEEP_TEMP_FILES, TMPDIR, CHAPTER_COOKIE_CHARS
 from config import ENGINES, DEBUG_MODES, TOC_URL, PUBLISH_URL, BOOK_URL, DEBUG_ALL
 
 TMPDIR = os.path.abspath(TMPDIR)
@@ -38,12 +39,12 @@ def _add_initial_number(e, n):
     e.text = ''
     initial.text = "%s." % n
 
-def _add_chapter_cookie(e, n):
+def _add_chapter_cookie(e):
     """add magic hidden text to help with contents generation"""
     cookie = e.makeelement("span", Class="heading-cookie", dir="ltr",
-                           style="font-size:3pt; color: #fff; display: block;"
+                           style="font-size:6pt; color: #fff; display: block;"
                            " width:0pt; height:0pt; margin:0; padding:0; float:right")
-    cookie.text = CHAPTER_COOKIE + str(n)
+    cookie.text = ''.join(random.choice(CHAPTER_COOKIE_CHARS) for x in range(8))
     e.cookie = cookie.text
     e.addnext(cookie)
 
@@ -480,7 +481,7 @@ class Book(object):
 
                 #put a bold number at the beginning of the h1, and a hidden cookie at the end.
                 _add_initial_number(h1, chapter)
-                _add_chapter_cookie(h1, chapter)
+                _add_chapter_cookie(h1)
                 chapter += 1
 
             elif t.is_section():
