@@ -406,25 +406,12 @@ class Book(object):
             if text in content:
                 return pagenum
 
-
     def page_text_iterator(self):
         """Return the text found in the pdf, one page at a time,
         transformed to lowercase."""
-        f = open(self.body_index_file)
-        page = 0
-        text = []
-        for line in f:
-            line = line.strip()
-            if line == '-=-=- Magic Page Separating Line Not Found In Any Books -=-=-':
-                if page:
-                    yield(page, ''.join(text))
-                page = int(f.next())
-                text = []
-            else:
-                text.extend(line.lower().split())
+        for i, p in enumerate(self.text_pages):
+            yield(i + 1, p)
 
-        yield(page, ''.join(text))
-        f.close()
 
 
     def make_contents(self):
