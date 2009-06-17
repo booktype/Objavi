@@ -69,6 +69,17 @@ class TocItem:
         return '<toc: %s>' %  ', '.join('%s: %s' % x for x in self.__dict__.iteritems())
 
 
+def run(cmd):
+    try:
+        p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        out, err = p.communicate()
+    except Exception:
+        log("Failed on command: %r" % cmd)
+        raise
+    log("%s\n%s returned %s and produced\nstdout:%s\nstderr:%s" %
+        (' '.join(cmd), cmd[0], p.poll(), out, err))
+
+
 class PageSettings:
     def __init__(self, **kwargs):
         for k, v in kwargs.items():
@@ -138,7 +149,19 @@ def concat_pdfs(name, *args):
     cmd = ['pdftk']
     cmd.extend(args)
     cmd += ['cat', 'output', name]
-    check_call(cmd)
+    run(cmd)
+
+def index_pdf(pdf, text=None):
+    """Use pdftotext to extract utf-8 text from a pdf, using ^L to
+    separate pages."""
+    if text is None:
+        text = pdf + '.index.txt'
+    cmd = ['pdftotext',
+           #'-layout', #keeps more original formatting 
+           pdf,
+           text]
+    run(cmd)
+    return text
 
 
 class Book(object):
