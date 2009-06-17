@@ -4,6 +4,16 @@ body {
   color: #000;
 }
 
+
+.unseen{ 
+  z-index: -66;
+  margin-left: -1000pt;
+}
+
+.heading-cookie { 
+  z-index: -67;
+}
+
 .chapter{
   color: #000;
 }

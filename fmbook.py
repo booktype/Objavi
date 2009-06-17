@@ -42,11 +42,12 @@ def _add_initial_number(e, n):
 def _add_chapter_cookie(e):
     """add magic hidden text to help with contents generation"""
     cookie = e.makeelement("span", Class="heading-cookie", dir="ltr",
-                           style="font-size:6pt; color: #fff; display: block;"
-                           " width:0pt; height:0pt; margin:0; padding:0; float:right")
+                           style="font-size:6pt; color: #fff;"
+                           )
     cookie.text = ''.join(random.choice(CHAPTER_COOKIE_CHARS) for x in range(8))
     e.cookie = cookie.text
-    e.addnext(cookie)
+    #e.addnext(cookie)
+    e.append(cookie)
 
 
 class TocItem:
@@ -319,7 +320,8 @@ class Book(object):
                 '<h1 class="frontpage">%s</h1>'
                 '<div class="copyright">%s</div>\n'
                 '<div class="contents">%s</div>\n'
-                '<div style="page-break-after: always; color:white">%s</div></body></html>'
+                '<div style="page-break-after: always; color:#ff0" class="unseen">.'
+                '<!--%s--></div></body></html>'
                 ) % (self.dir, self.css_url, self.title, self.copyright(),
                      contents, self.title)
         self.save_data(self.preamble_html_file, html)
@@ -393,7 +395,8 @@ class Book(object):
         html = ('<html dir="%s"><head>\n<title>%s</title>\n'
                 '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
                 '</head>\n<body>\n'
-                '%s\n<div style="page-break-before: always; color:#fff">'
+                '%s\n'
+                '<div style="page-break-before: always; color:#ff0;" class="unseen">'
                 'A FLOSSManuals book</div>\n</body></html>'
                 ) % (self.dir, self.webname, html)
 
@@ -506,14 +509,18 @@ class Book(object):
         """If css looks like a url, use it as a stylesheet link.
         Otherwise it is the CSS itself, which is saved to a temporary file
         and linked to."""
+        log("css is %r" % css)
         htmltree = self.tree
-        if css is None:
+        if css is None or not css.strip():
             url = 'file://' + os.path.abspath(self.default_css)
         elif not re.match(r'^http://\S+$', css):
             fn = self.save_tempfile('objavi.css', css)
             url = 'file://' + fn
         else:
             url = css
+        #XXX for debugging and perhaps sensible anyway
+        #url = url.replace('file:///home/douglas/objavi2', '')
+
 
         #find the head -- it's probably first child but lets not assume.
         for child in htmltree:
