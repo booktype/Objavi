@@ -30,6 +30,32 @@ function number_check(parser, name, default_value){
 }
 
 
+const OPERATIONS = {
+    adjust_for_direction: 1,
+    resize: 2,
+    transform: 4,
+    shift: 8,
+    page_numbers: 16,
+    index: 32,
+    all: 0xffff
+};
+
+const DEFAULT_OPERATION = OPERATIONS.all;
+
+function convert_operation(x){
+    if (! x){
+        x = 'all';
+    }
+    var words = x.lower().split(',');
+    var ops = 0;
+    for (var i = 0; i < words.length; i++){
+        var op = OPERATIONS[words[i]];
+        if (op)
+            ops |= op;
+    }
+    return ops;
+}
+
 
 function onConsoleStart() {
     print("in wk_objavi");
@@ -44,7 +70,7 @@ function onConsoleStart() {
         number_margin: number_check(parseFloat, 'number_margin'),
         width: number_check(parseFloat, 'width'),
         height: number_check(parseFloat, 'height'),
-        index: function(x){return x.lower();}
+        operation: convert_operation
     };
 
     var options = {
@@ -60,7 +86,8 @@ function onConsoleStart() {
         width: COMIC_WIDTH,
         height: COMIC_HEIGHT,
         engine: DEFAULT_ENGINE,
-        index: 'true'
+        index: 'false',
+        operation: DEFAULT_OPERATION
     };
 
     options = parse_options(parameters(), options, convertors);
@@ -72,8 +99,6 @@ function onConsoleStart() {
     if (m == -1){
         throw(options.filename + " doesn't look like a pdf filename");
     }
-
-
     var newfilename = options.output_filename;
     if (newfilename == undefined)
         newfilename = re.cap(1) + '-' + options.mode + '.pdf';
@@ -82,40 +107,45 @@ function onConsoleStart() {
 
     var pdf = this.loadPdf(newfilename, 1);
 
-    adjust_for_direction(pdf, options.offset, options.dir);
+    var operations = options.operation;
+    function doing_op(op){
+        return operations & OPERATIONS[op];
+    }
 
-    if (options.mode == 'TRANSFORM'){
-        /* resize first */
+    if (doing_op('adjust_for_direction')){
+        adjust_for_direction(pdf, options.offset, options.dir);
+    }
+
+    if (doing_op('resize')){
         process_pdf(pdf, shift_page_mediabox, {offset: 0,
                                                width: options.width,
                                                height: options.height
                                               });
+    }
+    if (doing_op('transform')){
         process_pdf(pdf, transform_page, {offset: options.offset,
                                           dir: options.dir,
                                           flip: "offset"
                                          });
     }
-    else if (options.mode == 'COMICBOOK'){
+    if (doing_op('shift')){
         process_pdf(pdf, shift_page_mediabox, {offset: options.offset,
                                                flip: "offset",
                                                width: options.width,
                                                height: options.height
                                               });
-
     }
-
-    /* add on page numbers */
-    if (options.number_style != 'none'){
+    if (doing_op('page_numbers') &&
+        options.number_style != 'none'){
         number_pdf_pages(pdf, options.dir, options.number_style,
                          options.number_start, options.number_margin, options.number_bottom
                         );
     }
-
-    pdf.save();
-
-    if (options.index == 'true'){
+    if (doing_op('index')){
         save_text_index(pdf, newfilename+'.index');
     }
+
+    pdf.save();
 
     pdf.unloadPdf();
 }
