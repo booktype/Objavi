@@ -67,7 +67,7 @@ def get_book_list(server):
     in that many seconds, rather it will be read from disk.
     """        
     if BOOK_LIST_CACHE:
-       cache_name = os.path.join(BOOK_LIST_CACHE_DIR, '%s.booklist' %s server)
+       cache_name = os.path.join(BOOK_LIST_CACHE_DIR, '%s.booklist' % server)
        if (os.path.exists(cache_name) and
            os.stat(cache_name).st_mtime + BOOK_LIST_CACHE > time.time()):
            f = open(cache_name)
