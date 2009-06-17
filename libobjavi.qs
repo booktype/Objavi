@@ -384,6 +384,16 @@ function process_pdf(pdf, func, data){
     }
 }
 
+function even_pages(pdf){
+    /* if the pdf has an odd number of pages, cut one off the end.
+     * The pdf generator should have made an extra page in case this is necessary.
+     */
+
+    var pages = pdf.getPageCount();
+    if (pages & 1){
+        pdf.removePage(pages); //one-based numbering
+    }
+}
 
 
 function save_text_index(pdf, filename){

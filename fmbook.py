@@ -111,7 +111,7 @@ class PageSettings:
                'dir=%s' % dir,
                'filename=%s' % pdf,
                'output_filename=%s' % pdf,
-               'operation=adjust_for_direction,resize,shift',
+               'operation=adjust_for_direction,resize,shift,even_pages',
                'size=%s' % self.name,
                'offset=%s' % self.shift,
                ]
@@ -315,8 +315,10 @@ class Book(object):
                 '</head>\n<body>\n'
                 '<h1 class="frontpage">%s</h1>'
                 '<div class="copyright">%s</div>\n'
-                '<div class="contents">%s</div>\n</body></html>'
-                ) % (self.dir, self.css_url, self.title, self.copyright(), contents)
+                '<div class="contents">%s</div>\n'
+                '<div style="page-break-after: always; color:white">%s</div></body></html>'
+                ) % (self.dir, self.css_url, self.title, self.copyright(),
+                     contents, self.title)
         self.save_data(self.preamble_html_file, html)
 
         self.maker.make_raw_pdf(self.preamble_html_file, self.preamble_pdf_file,
@@ -388,7 +390,9 @@ class Book(object):
         html = ('<html dir="%s"><head>\n<title>%s</title>\n'
                 '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
                 '</head>\n<body>\n'
-                '%s\n</body></html>') % (self.dir, self.webname, html)
+                '%s\n<div style="page-break-before: always; color:#fff">'
+                'A FLOSSManuals book</div>\n</body></html>'
+                ) % (self.dir, self.webname, html)
 
         self.save_tempfile('raw.html', html)
 

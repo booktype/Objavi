@@ -37,6 +37,8 @@ const OPERATIONS = {
     shift: 8,
     page_numbers: 16,
     index: 32,
+    even_pages: 64,
+
     all: 0xffff
 };
 
@@ -86,7 +88,7 @@ function onConsoleStart() {
         width: COMIC_WIDTH,
         height: COMIC_HEIGHT,
         engine: DEFAULT_ENGINE,
-        index: 'false',
+        even_pages: 'true',
         operation: DEFAULT_OPERATION
     };
 
@@ -107,9 +109,16 @@ function onConsoleStart() {
 
     var pdf = this.loadPdf(newfilename, 1);
 
-    var operations = options.operation;
+
     function doing_op(op){
-        return operations & OPERATIONS[op];
+        var ret = options.operation & OPERATIONS[op];
+        if (ret)
+            print("doing " + op);
+        return ret;
+    }
+
+    if (doing_op('even_pages')){
+        even_pages(pdf);
     }
 
     if (doing_op('adjust_for_direction')){
