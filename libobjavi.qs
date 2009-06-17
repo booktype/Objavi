@@ -136,9 +136,8 @@ function shift_page_mediabox(page, data){
 function add_transformation(page, data){
     var t = data.transform;
     var cm = createOperator("cm", iprop_array('nnnnnn', t[0], t[1], t[2], t[3], t[4], t[5], t[6]));
-
-
 }
+
 
 
 /*

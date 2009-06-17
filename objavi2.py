@@ -196,6 +196,9 @@ if __name__ == '__main__':
     else:
         progress_bar = print_progress
 
+    #XXX could use 'with Book() as book': to makesure cleanup happens
+    # (or try ... finally)
+
     book = Book(webname, server, bookname, pagesize=size, engine=engine,
                 watcher=progress_bar
                 )
