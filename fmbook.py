@@ -97,53 +97,66 @@ class PageSettings:
         log(' '.join(cmd))
         return cmd
 
-    def pdfcommand(self, html, pdf, engine='webkit'):
+    def make_raw_pdf(self, html, pdf, engine='webkit'):
         func = getattr(self, '_%s_command' % engine)
-        return func(html, pdf)
+        cmd = func(html, pdf)
+        run(cmd)
 
-    def shiftcommand(self, pdf, dir='LTR', numbers='latin', number_start=1,
-                     outfile=None, engine='webkit', index=True):
-        # XXX everything MUST be sanitised before getting here.
-        #numbers should be 'latin', 'roman', or 'arabic'
-        if outfile is None:
-            outfile = pdf
-
+    def reshape_pdf(self, pdf, dir='LTR'):
+        """Spin the pdf for RTL text, resize it to the right size, and shift the gutter left and right"""
         cmd = ['pdfedit', '-s', 'wk_objavi.qs',
                'dir=%s' % dir,
                'filename=%s' % pdf,
-               'output_filename=%s' % outfile,
-               'mode=%s' % self.name,
+               'output_filename=%s' % pdf,
+               'operation=adjust_for_direction,resize,shift',
+               'size=%s' % self.name,
+               'offset=%s' % self.shift,
+               ]
+        run(cmd)
+
+    def _number_pdf(self, pdf, size='COMICBOOK', numbers='latin',
+                    dir='LTR', number_start=1, engine='webkit'):        
+        cmd = ['pdfedit', '-s', 'wk_objavi.qs',
+               'operation=page_numbers',
+               'dir=%s' % dir,
+               'filename=%s' % pdf,
+               'output_filename=%s' % pdf,
+               'size=%s' % self.name,
                'number_start=%s' % number_start,
                'number_style=%s' % numbers,
-               'number_bottom=%s' % self.wknumberpos[1],
-               'number_margin=%s' % self.wknumberpos[0],
-               'offset=%s' % self.shift,
-               'engine=%s' % engine,
-               'index=%s' % index,
-               #height, width  -- set by 'mode'
+               'number_bottom=%s' % self.numberpos[1],
+               'number_margin=%s' % self.numberpos[0],
                ]
-        log(' '.join(cmd))
-        return cmd
+        run(cmd)
+
+    def number_pdf(self, pdf, pages, **kwargs):
+        if pages <= PDFEDIT_MAX_PAGES:
+            self._number_pdf(pdf, **kwargs)
+        else:
+            # section_size must be even
+            sections = pages // PDFEDIT_MAX_PAGES + 1
+            section_size = (pages // sections + 2) & ~1
+
+            pdf_sections = []
+            s = kwargs.pop('number_start', 1)            
+            while s < pages:
+                e = min(s + section_size - 1, pages)
+                pdf_section = '%s-%s-%s.pdf' % (pdf[:-4], s, e)
+                run(['pdftk',
+                     pdf,
+                     'cat',
+                     '%s-%s' % (s, e),
+                     'output',
+                     pdf_section,
+                     ])
+                self._number_pdf(pdf_section, number_start=s, **kwargs)
+                pdf_sections.append(pdf_section)
+                s = e + 1
+
+            concat_pdfs(pdf, *pdf_sections)
 
 
-    def make_pdf(self, html_file, pdf_file, size='COMICBOOK', numbers='latin',
-                 dir='LTR', number_start=1, engine='webkit',
-                 index=True, notify=log):
-        """Make a pdf of the named html file, using webkit.  Returns a
-        filename for the finished PDF."""
-        p = Popen(self.pdfcommand(html_file, pdf_file, engine), stdout=PIPE, stderr=PIPE)
-        out, err = p.communicate()
-        log("pdf generation produced\nstdout:%s\nstderr:%s" %(out, err))
-        notify("generate_pdf")
-        #XXX perhaps separate cropping from shifting and numbering.
-        p = Popen(self.shiftcommand(pdf_file, numbers=numbers, dir=dir,
-                                    number_start=number_start,
-                                    engine=engine, index=index), stdout=PIPE, stderr=PIPE)
-        out, err = p.communicate()
-        log("pdfedit produced\nstdout:%s\nstderr:%s" %(out, err))
-        notify("number_pdf")
-
-PAGE_SETTINGS = dict((k, PageSettings(**v)) for k, v in PAGE_SIZE_DATA.iteritems())
+PAGE_SETTINGS = dict((k, PageSettings(k, **v)) for k, v in PAGE_SIZE_DATA.iteritems())
 
 def concat_pdfs(name, *args):
     """Join all the named pdfs together into one and save it as <name>"""
