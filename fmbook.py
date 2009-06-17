@@ -81,9 +81,10 @@ def run(cmd):
 
 
 class PageSettings:
-    def __init__(self, **kwargs):
+    def __init__(self, name, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)
+        self.name = name
         self.mmsize = [x * POINT_2_MM for x in self.pointsize]
         self.area = self.pointsize[0] * self.pointsize[1]
 

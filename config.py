@@ -62,12 +62,17 @@ PAGE_SIZE_DATA = {
     # wkmargins --> margins for wkhtml2pdf (css style, clockwise from top)
     # shift     --> how many points to shift each page left or right.
 
-    'COMICBOOK' : dict(name='COMICBOOK',
-                       wksize='B5',
+    'COMICBOOK' : dict(wksize='B5',
                        wkmargins=[20, 30, 20, 30], #mm
-                       wknumberpos=[50, 40], #points, after page resize, from corner
+                       numberpos=[50, 40], #points, after page resize, from corner
                        shift=20,
                        pointsize=((6.625 * 72), (10.25 * 72)),
+                       ),
+    'COMICBOOK2' : dict(wksize='A4',
+                        wkmargins=[45, 45, 45, 45], #mm
+                        numberpos=[50, 40], #points, after page resize, from corner
+                        shift=20,
+                        pointsize=((6.625 * 72), (10.25 * 72)),
                        )
 }
 
