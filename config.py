@@ -52,12 +52,13 @@ SERVER_DEFAULTS = {
         },
 }
 
-DEBUG_MODES = (#'STARTUP',
-               #'INDEX',
-               #'PDFEDIT',
-               #'PDFGEN',
-               #'HTMLGEN',
-               )
+DEBUG_MODES = (
+    #'STARTUP',
+    #'INDEX',
+    #'PDFEDIT',
+    #'PDFGEN',
+    #'HTMLGEN',
+    )
 DEBUG_ALL = False
 
 PAGE_SIZE_DATA = {

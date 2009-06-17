@@ -18,7 +18,7 @@ PROGRESS_TEMPLATE = os.path.abspath('templates/progress.html')
 # functions to validate their values. (None means no validation).
 
 ARG_VALIDATORS = {
-    "webName": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah 
+    "webName": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah
     "css": None, # an url, empty (for default), or css content
     "title": lambda x: len(x) < 999,
     "header": None, # the copyright text?
