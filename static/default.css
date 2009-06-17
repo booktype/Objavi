@@ -70,8 +70,9 @@ div.copyright{
 table.toc {
   /*border: 1px dotted #999;*/
   font-size: 17pt;
+  width: 95%;
 }
-}
+
 
 td.chapter {
   padding-left: 2em;
