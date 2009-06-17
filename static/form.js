@@ -60,8 +60,7 @@ function onload(){
     $("#server").change(load_booklist);
 
     $("#css-control").change(css_mode_switch);
-    $('#css-textarea-row').addClass("css-gone");
-    $('#css-url-row').addClass("css-gone");
+    css_mode_switch(); 
     //load the booklist for the selected server
     load_booklist();
 }

@@ -9,7 +9,7 @@ from getopt import gnu_getopt
 from fmbook import log, Book
 from fmbook import PAGE_SETTINGS, ENGINES, SERVER_DEFAULTS, DEFAULT_SERVER
 
-from config import BOOK_LIST_CACHE
+from config import BOOK_LIST_CACHE, BOOK_LIST_CACHE_DIR
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
 PROGRESS_TEMPLATE = os.path.abspath('templates/progress.html')
@@ -172,7 +172,6 @@ if __name__ == '__main__':
     size = args.get('booksize')
     engine = args.get('engine')
     mode = args.get('mode')
-
 
     cgi_context = 'SERVER_NAME' in os.environ or args.get('cgi-context', 'NO').lower() in '1true'
     if cgi_context:

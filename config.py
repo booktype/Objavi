@@ -6,14 +6,14 @@ TMPDIR = 'tmp'
 
 #keep book lists around for this time without refetching
 BOOK_LIST_CACHE = 3600 * 2
-BOOK_LIST_CACH_DIR = 'cache'
+BOOK_LIST_CACHE_DIR = 'cache'
 
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 BOOK_URL = "http://%s/bin/view/%s/_all?skin=text"
 PUBLISH_URL = "/books/"
 
 #leave out vowels so as to avoid accidental words, and punctuation for bidi consistency
-CHAPTER_COOKIE_CHARS = 'bcdfghjklmnpqrstvwxyz'
+CHAPTER_COOKIE_CHARS = 'BCDFGHJKLMNPQRSTVWXYZ'
 
 #XXX could be reading these in from a config file, which can be edited
 #by a cgi script
