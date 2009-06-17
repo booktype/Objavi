@@ -572,7 +572,11 @@ class Book(object):
 
         self.xvfb = Popen(['Xvfb', self.xserver_no,
                            '-screen', '0', '1024x768x24',
-                           '-extension', 'Composite',
+                           '-pixdepths', '32',
+                           #'-blackpixel', '0',
+                           #'-whitepixel', str(2 ** 24 -1),
+                           #'+extension', 'Composite',
+                           '-dpi', '96',
                            '-kb',
                            '-nolisten', 'tcp',
                            ])
