@@ -41,11 +41,11 @@ def _add_initial_number(e, n):
 def _add_chapter_cookie(e, n):
     """add magic hidden text to help with contents generation"""
     cookie = e.makeelement("span", Class="heading-cookie", dir="ltr",
-                           style="font-size:1pt; font-color: #fff;") #also: opacity: 0
+                           style="font-size:3pt; color: #fff; display: block;"
+                           " width:0pt; height:0pt; margin:0; padding:0; float:right")
     cookie.text = CHAPTER_COOKIE + str(n)
-    e.title = cookie.text
-    e.append(cookie)
-        
+    e.cookie = cookie.text
+    e.addnext(cookie)
 
 
 class TocItem:
@@ -212,7 +212,7 @@ class Book(object):
 
         self.body_html_file = self.filepath('body.html')
         self.body_pdf_file = self.filepath('body.pdf')
-        self.body_index_file = self.filepath('body.pdf.index')
+        self.body_index_file = self.filepath('body.txt')
         self.preamble_html_file = self.filepath('preamble.html')
         self.preamble_pdf_file = self.filepath('preamble.pdf')
         self.pdf_file = self.filepath('final.pdf')
@@ -279,7 +279,7 @@ class Book(object):
         self.text_pages = s.split("\f")
         #there is sometimes (probably always) an unwanted ^L at the end
         if self.text_pages[-1].strip() == '':
-            self.text_pages.pop()        
+            self.text_pages.pop()
         return len(self.text_pages)
 
     def make_body_pdf(self):
@@ -409,9 +409,9 @@ class Book(object):
         self.load_toc()
 
     def find_page(self, element, pages):
-        """Search through a page_text_iterator and return the page
+        """Search through a page iterator and return the page
         number which the element probably occurs."""
-        text = element.title
+        text = element.cookie
         for pagenum, content in pages:
             log("looking for '%s' in page %s below:\n%s" % (text, pagenum, content), debug='INDEX')
             if text in content:
