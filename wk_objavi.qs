@@ -42,7 +42,7 @@ const OPERATIONS = {
     all: 0xffff
 };
 
-const DEFAULT_OPERATION = OPERATIONS.all;
+const DEFAULT_OPERATION = 0;
 
 function convert_operation(x){
     if (! x){
@@ -128,7 +128,8 @@ function onConsoleStart() {
     if (doing_op('resize')){
         process_pdf(pdf, shift_page_mediabox, {offset: 0,
                                                width: options.width,
-                                               height: options.height
+                                               height: options.height,
+                                               flip: undefined
                                               });
     }
     if (doing_op('transform')){
