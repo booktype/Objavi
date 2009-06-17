@@ -17,6 +17,8 @@ from config import ENGINES, DEBUG_MODES, TOC_URL, PUBLISH_URL, BOOK_URL, DEBUG_A
 TMPDIR = os.path.abspath(TMPDIR)
 DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
 PUBLISH_PATH = "%s/books/" % DOC_ROOT
+PDFEDIT_MAX_PAGES = 50
+
 
 def log(*messages, **kwargs):
     """Send the messages to the appropriate place (stderr, or syslog).
@@ -115,7 +117,7 @@ class PageSettings:
         run(cmd)
 
     def _number_pdf(self, pdf, size='COMICBOOK', numbers='latin',
-                    dir='LTR', number_start=1, engine='webkit'):        
+                    dir='LTR', number_start=1, engine='webkit'):
         cmd = ['pdfedit', '-s', 'wk_objavi.qs',
                'operation=page_numbers',
                'dir=%s' % dir,
@@ -130,7 +132,7 @@ class PageSettings:
         run(cmd)
 
     def number_pdf(self, pdf, pages, **kwargs):
-        if pages <= PDFEDIT_MAX_PAGES:
+        if pages is None or pages <= PDFEDIT_MAX_PAGES:
             self._number_pdf(pdf, **kwargs)
         else:
             # section_size must be even
@@ -138,7 +140,7 @@ class PageSettings:
             section_size = (pages // sections + 2) & ~1
 
             pdf_sections = []
-            s = kwargs.pop('number_start', 1)            
+            s = kwargs.pop('number_start', 1)
             while s < pages:
                 e = min(s + section_size - 1, pages)
                 pdf_section = '%s-%s-%s.pdf' % (pdf[:-4], s, e)
@@ -171,7 +173,7 @@ def index_pdf(pdf, text=None):
     if text is None:
         text = pdf + '.index.txt'
     cmd = ['pdftotext',
-           #'-layout', #keeps more original formatting 
+           #'-layout', #keeps more original formatting
            pdf,
            text]
     run(cmd)
@@ -295,8 +297,8 @@ class Book(object):
         n_pages = self.extract_pdf_text()
         log ("found %s pages in pdf" % n_pages)
         #4. resize pages, shift gutters, and rotate 180 degrees for RTL
-        self.maker.reshape_pdf(self.body_pdf_file, self.dir)    
-        self.notify_watcher('reshape_pdf')        
+        self.maker.reshape_pdf(self.body_pdf_file, self.dir)
+        self.notify_watcher('reshape_pdf')
 
         #5 add page numbers
         self.maker.number_pdf(self.body_pdf_file, n_pages, dir=self.dir,
@@ -315,8 +317,17 @@ class Book(object):
                 '<div class="contents">%s</div>\n</body></html>'
                 ) % (self.dir, self.css_url, self.title, self.copyright(), contents)
         self.save_data(self.preamble_html_file, html)
-        self.maker.make_pdf(self.preamble_html_file, self.preamble_pdf_file, size=self.pagesize, dir=self.dir,
-                            numbers=self.preamble_page_numbers, number_start=-2, engine=self.engine, index=False)
+
+        self.maker.make_raw_pdf(self.preamble_html_file, self.preamble_pdf_file,
+                                engine=self.engine)
+
+        self.maker.reshape_pdf(self.preamble_pdf_file, self.dir)
+
+        self.maker.number_pdf(self.preamble_pdf_file, None,
+                            dir=self.dir, size=self.pagesize,
+                            numbers=self.preamble_page_numbers,
+                            number_start=-2, engine=self.engine)
+
         self.notify_watcher()
 
     def make_pdf(self):
