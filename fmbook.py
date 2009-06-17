@@ -93,7 +93,7 @@ class PageSettings:
 
     def _webkit_command(self, html, pdf):
         m = [str(x) for x in self.wkmargins]
-        cmd = ['wkhtmltopdf', '-s', self.wksize,
+        cmd = ['wkhtmltopdf', '-q', '-s', self.wksize,
                '-T', m[0], '-R', m[1], '-B', m[2], '-L', m[3],
                html, pdf
                ]
