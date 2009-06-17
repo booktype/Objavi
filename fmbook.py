@@ -274,7 +274,7 @@ class Book(object):
         contents."""
         index_pdf(self.body_pdf_file, self.body_index_file)
         f = open(self.body_index_file)
-        s = f.read()
+        s = unicode(f.read(), 'utf8')
         f.close()
         #pages are spearated by formfeed character "^L", "\f" or chr(12)
         self.text_pages = s.split("\f")
@@ -423,7 +423,6 @@ class Book(object):
         transformed to lowercase."""
         for i, p in enumerate(self.text_pages):
             yield(i + 1, p)
-
 
 
     def make_contents(self):
