@@ -133,6 +133,8 @@ class PageSettings:
         run(cmd)
 
     def number_pdf(self, pdf, pages, **kwargs):
+        # if there are too many pages for pdfedit to handle in one go,
+        # split the job into bits.  <pages> may not be exact
         if pages is None or pages <= PDFEDIT_MAX_PAGES:
             self._number_pdf(pdf, **kwargs)
         else:
@@ -143,12 +145,16 @@ class PageSettings:
             pdf_sections = []
             s = kwargs.pop('number_start', 1)
             while s < pages:
-                e = min(s + section_size - 1, pages)
+                e = s + section_size - 1
                 pdf_section = '%s-%s-%s.pdf' % (pdf[:-4], s, e)
+                if e < pages - 1:
+                    page_range = '%s-%s' % (s, e)
+                else:
+                    page_range = '%s-end' % s
                 run(['pdftk',
                      pdf,
                      'cat',
-                     '%s-%s' % (s, e),
+                     page_range,
                      'output',
                      pdf_section,
                      ])
@@ -267,7 +273,6 @@ class Book(object):
         self.save_data(fn, data)
         return fn
 
-
     def extract_pdf_text(self):
         """Extract the text from the body pdf, split into pages, so
         that the correct page can be found to generate the table of
@@ -279,8 +284,6 @@ class Book(object):
         #pages are spearated by formfeed character "^L", "\f" or chr(12)
         self.text_pages = s.split("\f")
         #there is sometimes (probably always) an unwanted ^L at the end
-        if self.text_pages[-1].strip() == '':
-            self.text_pages.pop()
         return len(self.text_pages)
 
     def make_body_pdf(self):
