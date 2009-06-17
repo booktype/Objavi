@@ -42,11 +42,6 @@ h1 {
   page-break-before: always;
 }
 
-/*h1.first-heading {
-  page-break-before: avoid;
-}*/
-
-
 h2 {
   text-transform: uppercase;
 }
@@ -70,16 +65,13 @@ div.copyright{
 table.toc {
   /*border: 1px dotted #999;*/
   font-size: 17pt;
-}
+  width: 95%;
 }
 
 td.chapter {
   padding-left: 2em;
-  text-align: right;
-}
+  padding-right: 2em;
 
-td.pagenumber {
-  text-align: right;
 }
 
 td.section {
