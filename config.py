@@ -4,6 +4,10 @@ POINT_2_MM = 0.35277777777777777
 KEEP_TEMP_FILES=True
 TMPDIR = 'tmp'
 
+#keep book lists around for this time without refetching
+BOOK_LIST_CACHE = 3600 * 2
+BOOK_LIST_CACH_DIR = 'cache'
+
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 BOOK_URL = "http://%s/bin/view/%s/_all?skin=text"
 PUBLISH_URL = "/books/"

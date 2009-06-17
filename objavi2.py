@@ -9,6 +9,8 @@ from getopt import gnu_getopt
 from fmbook import log, Book
 from fmbook import PAGE_SETTINGS, ENGINES, SERVER_DEFAULTS, DEFAULT_SERVER
 
+from config import BOOK_LIST_CACHE
+
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
 PROGRESS_TEMPLATE = os.path.abspath('templates/progress.html')
 
@@ -58,18 +60,33 @@ def get_server_list():
 
 
 def get_book_list(server):
-    #need to go via http to get list
-    #http://en.flossmanuals.net/bin/view/TWiki/TWikiWebsTable?skin=text
-    #http://en.flossmanuals.net/bin/view/TWiki/WebLeftBarWebsList?skin=text
-    items = []
+    """Ask the server for a list of books.  Floss Manual TWikis keep such a list at
+    /bin/view/TWiki/WebLeftBarWebsList?skin=text but it needs a bit of processing
+
+    If BOOK_LIST_CACHE is non-zero, the book list won't be re-fetched
+    in that many seconds, rather it will be read from disk.
+    """        
+    if BOOK_LIST_CACHE:
+       cache_name = os.path.join(BOOK_LIST_CACHE_DIR, '%s.booklist' %s server)
+       if (os.path.exists(cache_name) and
+           os.stat(cache_name).st_mtime + BOOK_LIST_CACHE > time.time()):
+           f = open(cache_name)
+           s = f.read()
+           f.close()
+           return s.split()
+       
     url = 'http://%s/bin/view/TWiki/WebLeftBarWebsList?skin=text' % server
     #XXX should use lxml
     log(url)
     f = urlopen(url)
     s = f.read()
     f.close()
-    return sorted(re.findall(r'/bin/view/([\w/]+)/WebHome', s))
-
+    items = sorted(re.findall(r'/bin/view/([\w/]+)/WebHome', s))
+    if BOOK_LIST_CACHE:
+        f = open(cache_name, 'w')
+        f.write('\n'.join(items))
+        f.close()
+    return items
 
 def get_size_list():
     #order by increasing areal size.
