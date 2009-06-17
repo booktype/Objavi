@@ -251,13 +251,44 @@ class Book(object):
         self.save_data(fn, data)
         return fn
 
+
+    def extract_pdf_text(self):
+        """Extract the text from the body pdf, split into pages, so
+        that the correct page can be found to generate the table of
+        contents."""
+        index_pdf(self.body_pdf_file, self.body_index_file)
+        f = open(self.body_index_file)
+        s = f.read()
+        f.close()
+        #pages are spearated by formfeed character "^L", "\f" or chr(12)
+        self.text_pages = s.split("\f")
+        #there is sometimes (probably always) an unwanted ^L at the end
+        if self.text_pages[-1].strip() == '':
+            self.text_pages.pop()        
+        return len(self.text_pages)
+
     def make_body_pdf(self):
         """Make a pdf of the HTML, using webkit"""
+        #1. Save the html
         html_text = lxml.etree.tostring(self.tree, method="html")
         self.save_data(self.body_html_file, html_text)
-        self.maker.make_pdf(self.body_html_file, self.body_pdf_file, dir=self.dir,
-                            size=self.pagesize, numbers=self.page_numbers, engine=self.engine,
-                            notify=self.notify_watcher)
+
+        #2. Make a pdf of it
+        self.maker.make_raw_pdf(self.body_html_file, self.body_pdf_file,
+                                engine=self.engine)
+        self.notify_watcher('generate_pdf')
+
+        #3. extract the text for finding contents.
+        n_pages = self.extract_pdf_text()
+        log ("found %s pages in pdf" % n_pages)
+        #4. resize pages, shift gutters, and rotate 180 degrees for RTL
+        self.maker.reshape_pdf(self.body_pdf_file, self.dir)    
+        self.notify_watcher('reshape_pdf')        
+
+        #5 add page numbers
+        self.maker.number_pdf(self.body_pdf_file, n_pages, dir=self.dir,
+                            size=self.pagesize, numbers=self.page_numbers)
+        self.notify_watcher("number_pdf")
         self.notify_watcher()
 
     def make_preamble_pdf(self):
