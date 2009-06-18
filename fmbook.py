@@ -43,12 +43,13 @@ def _add_initial_number(e, n):
 def _add_chapter_cookie(e):
     """add magic hidden text to help with contents generation"""
     cookie = e.makeelement("span", Class="heading-cookie", dir="ltr",
-                           style="font-size:6pt; color: #fff;"
+                           style="font-size:6pt; color: #fff; width:0;"
+                           " float:left; margin:-3em; z-index: -67; display: block;"
                            )
     cookie.text = ''.join(random.choice(CHAPTER_COOKIE_CHARS) for x in range(8))
     e.cookie = cookie.text
-    #e.addnext(cookie)
-    e.append(cookie)
+    e.addnext(cookie)
+    #e.append(cookie)
 
 
 class TocItem:
@@ -321,7 +322,7 @@ class Book(object):
                 '<h1 class="frontpage">%s</h1>'
                 '<div class="copyright">%s</div>\n'
                 '<div class="contents">%s</div>\n'
-                '<div style="page-break-after: always; color:#ff0" class="unseen">.'
+                '<div style="page-break-after: always; color:#fff" class="unseen">.'
                 '<!--%s--></div></body></html>'
                 ) % (self.dir, self.css_url, self.title, self.copyright(),
                      contents, self.title)
@@ -397,7 +398,7 @@ class Book(object):
                 '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
                 '</head>\n<body>\n'
                 '%s\n'
-                '<div style="page-break-before: always; color:#ff0;" class="unseen">'
+                '<div style="page-break-before: always; color:#fff;" class="unseen">'
                 'A FLOSSManuals book</div>\n</body></html>'
                 ) % (self.dir, self.webname, html)
 

@@ -10,22 +10,6 @@ body {
   margin-left: -1000pt;
 }
 
-.heading-cookie { 
-  z-index: -67;
-  background:white;
-}
-
-.heading-cookie:before { 
-  content: url(http://objavi.halo.gen.nz/static/white.png);
-  position: relative;
-  /*left: 10pt;*/
-  width: 8em;
-  margin-right: -8em;
-  height: 1em;
-  background: #fff;
-  border: 1pt solid white;
-  display: inline-block;
-}
 
 .chapter{
   color: #000;
