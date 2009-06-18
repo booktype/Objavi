@@ -4,6 +4,11 @@ POINT_2_MM = 0.35277777777777777
 KEEP_TEMP_FILES=True
 TMPDIR = 'tmp'
 
+WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
+WKHTMLTOPDF_EXTRA_COMMANDS = []
+#WKHTMLTOPDF_EXTRA_COMMANDS = ['--outline',  '-t']
+
+
 #keep book lists around for this time without refetching
 BOOK_LIST_CACHE = 3600 * 2
 BOOK_LIST_CACHE_DIR = 'cache'

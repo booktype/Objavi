@@ -14,6 +14,7 @@ import lxml, lxml.html, lxml.etree
 from config import PAGE_SIZE_DATA, SERVER_DEFAULTS, DEFAULT_SERVER
 from config import POINT_2_MM, KEEP_TEMP_FILES, TMPDIR, CHAPTER_COOKIE_CHARS
 from config import ENGINES, DEBUG_MODES, TOC_URL, PUBLISH_URL, BOOK_URL, DEBUG_ALL
+from config import WKHTMLTOPDF, WKHTMLTOPDF_EXTRA_COMMANDS
 
 TMPDIR = os.path.abspath(TMPDIR)
 DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
@@ -94,10 +95,10 @@ class PageSettings:
 
     def _webkit_command(self, html, pdf):
         m = [str(x) for x in self.wkmargins]
-        cmd = ['wkhtmltopdf', '-q', '-s', self.wksize,
+        cmd = [WKHTMLTOPDF, '-q', '-s', self.wksize,
                '-T', m[0], '-R', m[1], '-B', m[2], '-L', m[3],
-               html, pdf
-               ]
+               ] + WKHTMLTOPDF_EXTRA_COMMANDS + [
+               html, pdf]
         log(' '.join(cmd))
         return cmd
 
