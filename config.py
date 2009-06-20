@@ -9,6 +9,7 @@ POINT_2_MM = 0.35277777777777777
 KEEP_TEMP_FILES=True
 TMPDIR = 'tmp'
 
+FIREFOX = 'firefox'
 WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
 #WKHTMLTOPDF_EXTRA_COMMANDS = ['--outline',  '-t']
@@ -81,12 +82,14 @@ PAGE_SIZE_DATA = {
                        numberpos=[50, 40], #points, after page resize, from corner
                        shift=20,
                        pointsize=((6.625 * 72), (10.25 * 72)),
+                       moz_printer='printer_objavi',
                        ),
     'COMICBOOK2' : dict(wksize='A4',
                         wkmargins=[45, 45, 45, 45], #mm
                         numberpos=[50, 40], #points, after page resize, from corner
                         shift=20,
                         pointsize=((6.625 * 72), (10.25 * 72)),
+                        moz_printer='printer_objavi',                        
                        )
 }
 

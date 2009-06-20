@@ -106,6 +106,15 @@ class PageSettings:
         log(' '.join(cmd))
         return cmd
 
+    def _gecko_command(self, html, pdf):
+        m = [str(x) for x in self.wkmargins]
+
+        #firefox -P pdfprint -print URL -printprinter "printer_settings"
+        cmd = [FIREFOX, '-P', 'pdfprint', '-print',
+               html, '-printprinter', self.moz_printer]
+        log(' '.join(cmd))
+        return cmd
+
     def make_raw_pdf(self, html, pdf, engine='webkit'):
         func = getattr(self, '_%s_command' % engine)
         cmd = func(html, pdf)
