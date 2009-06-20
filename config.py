@@ -1,4 +1,9 @@
+"""This module contains constant values used to produce books.
+"""
+#XXX eventually, read in a real config file.
+#XXX Some of these values should be editable via an admin cgi script
 
+#Not really configurable (72 pt per inch / 25.4 mm per inch)
 POINT_2_MM = 0.35277777777777777
 
 KEEP_TEMP_FILES=True
@@ -19,9 +24,6 @@ PUBLISH_URL = "/books/"
 
 #leave out vowels so as to avoid accidental words, and punctuation for bidi consistency
 CHAPTER_COOKIE_CHARS = 'BCDFGHJKLMNPQRSTVWXYZ'
-
-#XXX could be reading these in from a config file, which can be edited
-#by a cgi script
 
 DEFAULT_SERVER = 'en.flossmanuals.net'
 #DEFAULT_CSS = 'file://' + os.path.abspath('static/default.css')
@@ -58,6 +60,7 @@ SERVER_DEFAULTS = {
         },
 }
 
+# uncomment a debug mode to get messages about that topic.
 DEBUG_MODES = (
     #'STARTUP',
     #'INDEX',
