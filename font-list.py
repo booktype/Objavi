@@ -43,7 +43,10 @@ def font_pdf(html, pdfname):
 #first, get the font list and check whether it has already been made
 
 fonts = get_font_list()
-pdfname = os.path.join(config.BOOK_LIST_CACHE_DIR, hashlib.sha1(str(fonts)).hexdigest() + '.pdf')
+h = hashlib.sha1(str(fonts))
+#XXX should h.update(<this file>), so new versions uncache
+
+pdfname = os.path.join(config.BOOK_LIST_CACHE_DIR, 'font-list-' + h.hexdigest() + '.pdf')
 
 if not os.path.exists(pdfname):
     #So this particular font list has not been made before
