@@ -20,7 +20,9 @@ def font_div(f):
 
 
 def font_html(fonts):
-    html = ['<html><style>big {background: #ffc; padding: 0.25em} div{padding:0.6em 0} <body>']
+    html = ['<html><style>'
+            'big {background: #ffc; padding: 0.25em} div{padding:0.6em 0}'
+            '</style><body>']
     for f in fonts:
         html.append(font_div(f))
     html.append('</body></html>')
@@ -30,7 +32,7 @@ def font_pdf(html, pdfname):
     fh, htmlname = tempfile.mkstemp(suffix='.html', dir=config.TMPDIR)
     os.write(fh, html)
     os.close(fh)
-    cmd = [config.WKHTMLTOPDF, '-q', '-s', 'A4',
+    cmd = ['xvfb-run', config.WKHTMLTOPDF, '-q', '-s', 'A4',
            htmlname, pdfname]
 
     p = Popen(cmd, stdout=PIPE, stderr=PIPE)
