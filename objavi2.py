@@ -183,6 +183,10 @@ if __name__ == '__main__':
     if mode == 'booklist':
         print optionise(get_book_list(server), default=webname)
         sys.exit()
+    if mode == 'css':
+        #XX sending as text/html, but it doesn't really matter
+        print get_default_css(server=None)
+        sys.exit()
 
     if not webname or not server:
         if cgi_context:

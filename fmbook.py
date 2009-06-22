@@ -53,7 +53,7 @@ def _add_chapter_cookie(e):
 
 
 class TocItem:
-    """This makes sense of the tuples from TOC.txt files"""    
+    """This makes sense of the tuples from TOC.txt files"""
     def __init__(self, status, chapter, title):
         # status is
         #  0 - section heading with no chapter
@@ -89,7 +89,7 @@ def run(cmd):
 
 class PageSettings:
     """Calculates and wraps commands for the generation and processing
-    of PDFs"""    
+    of PDFs"""
     def __init__(self, name, **kwargs):
         for k, v in kwargs.items():
             setattr(self, k, v)

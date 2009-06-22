@@ -46,6 +46,11 @@ function load_booklist(){
     );
 }
 
+function load_css(){
+    var server = $("#server").val();
+    $('#css-textarea-data').load("?server=" + server + "&mode=css");
+}
+
 
 
 function onload(){
@@ -60,7 +65,7 @@ function onload(){
     $("#server").change(load_booklist);
 
     $("#css-control").change(css_mode_switch);
-    css_mode_switch(); 
+    css_mode_switch();
     //load the booklist for the selected server
     load_booklist();
 }
