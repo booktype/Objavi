@@ -1,11 +1,12 @@
 body {
-  font-family: 'Gillius ADF';
+/*  font-family: 'Gillius ADF';*/
+  font-family: "Beteckna";
   background: #fff;
   color: #000;
 }
 
 
-.unseen{ 
+.unseen{
   z-index: -66;
   margin-left: -1000pt;
 }
@@ -101,3 +102,6 @@ p, ul, ol {
   page-break-inside: avoid;
 }
 
+pre, code, tt {
+  font-family: "Courier New", monospace;
+}

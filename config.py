@@ -24,6 +24,10 @@ CHAPTER_COOKIE_CHARS = 'BCDFGHJKLMNPQRSTVWXYZ'
 #by a cgi script
 
 DEFAULT_SERVER = 'en.flossmanuals.net'
+DEFAULT_SIZE = 'COMICBOOK'
+DEFAULT_ENGINE = 'webkit'
+#DEFAULT_MODE = None
+
 #DEFAULT_CSS = 'file://' + os.path.abspath('static/default.css')
 SERVER_DEFAULTS = {
     'en.flossmanuals.net': {
