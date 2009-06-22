@@ -9,6 +9,7 @@ from getopt import gnu_getopt
 from fmbook import log, Book
 from fmbook import PAGE_SETTINGS, ENGINES, SERVER_DEFAULTS, DEFAULT_SERVER
 
+import config
 from config import BOOK_LIST_CACHE, BOOK_LIST_CACHE_DIR
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
@@ -105,6 +106,7 @@ def optionise(items, default=None):
             else:
                 options.append('<option>%s</option>' % x)
         else:
+            log(x, x[0])
             # couple: value, name
             if x[0] == default:
                 options.append('<option selected="selected" value="%s">%s</option>' % x)
@@ -114,11 +116,12 @@ def optionise(items, default=None):
     return '\n'.join(options)
 
 def get_default_css(server=None):
-    if server not in SERVER_DEFAULTS:
-        server == DEFAULT_SERVER
-    f = open(SERVER_DEFAULTS[server]['css'])
+    cssfile = SERVER_DEFAULTS.get(server, DEFAULT_SERVER)['css']
+    log(cssfile)
+    f = open(cssfile)
     s = f.read()
     f.close()
+    log(s)
     return s
 
 
@@ -131,7 +134,7 @@ def show_form(args, server, webname, size='COMICBOOK', engine='webkit'):
         'server_options': optionise(get_server_list(), default=server),
         'book_options': optionise(get_book_list(server), default=webname),
         'size_options': optionise(get_size_list(), default=size),
-        'engines': optionise(ENGINES.keys(), default='webkit'),
+        'engines': optionise(ENGINES.keys(), default=engine),
         'css': get_default_css(server),
     }
     print template % d
@@ -168,9 +171,9 @@ def make_book_name(webname, server):
 if __name__ == '__main__':
     args = parse_args()
     webname = args.get('webName')
-    server = args.get('server', 'en.flossmanuals.net')
-    size = args.get('booksize')
-    engine = args.get('engine')
+    server = args.get('server', config.DEFAULT_SERVER)
+    size = args.get('booksize', config.DEFAULT_SIZE)
+    engine = args.get('engine', config.DEFAULT_ENGINE)
     mode = args.get('mode')
 
     cgi_context = 'SERVER_NAME' in os.environ or args.get('cgi-context', 'NO').lower() in '1true'

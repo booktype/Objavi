@@ -52,7 +52,7 @@ function onload(){
     $(".advanced").addClass("gone");
 
     if ($("#toggle-advanced").length == 0){
-        $("#form").after('<b id="toggle-advanced" >Show advanced options</b>');
+        $("#form").after('<b id="toggle-advanced">Show advanced options</b>');
     }
 
     $("#toggle-advanced").click(toggle_advanced);
