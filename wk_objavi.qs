@@ -67,6 +67,8 @@ function onConsoleStart() {
         mode: function(x){return x.upper();},
         dir: function(x){return x.upper();},
         number_style: function(x){return x.lower();},
+        centre_first: function(x){return x.lower() == 'true';},
+        centre_last: function(x){return x.lower() == 'true';},
         number_start: number_check(parseInt, 'number_start', 1),
         number_bottom: number_check(parseFloat, 'number_bottom'),
         number_margin: number_check(parseFloat, 'number_margin'),
@@ -88,7 +90,8 @@ function onConsoleStart() {
         width: COMIC_WIDTH,
         height: COMIC_HEIGHT,
         engine: DEFAULT_ENGINE,
-        even_pages: 'true',
+        centre_first: 'false',
+        centre_last: 'false',
         operation: DEFAULT_OPERATION
     };
 
@@ -136,14 +139,20 @@ function onConsoleStart() {
         process_pdf(pdf, transform_page, {offset: options.offset,
                                           dir: options.dir,
                                           flip: "offset"
-                                         });
+                                         },
+                                         (options.centre_first) ? 1 : undefined,
+                                         (options.centre_last) ? 1 : undefined
+                   );
     }
     if (doing_op('shift')){
         process_pdf(pdf, shift_page_mediabox, {offset: options.offset,
                                                flip: "offset",
                                                width: options.width,
                                                height: options.height
-                                              });
+                                              },
+                                              (options.centre_first) ? 1 : undefined,
+                                              (options.centre_last) ? 1 : undefined
+                   );
     }
     if (doing_op('page_numbers') &&
         options.number_style != 'none'){

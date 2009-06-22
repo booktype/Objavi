@@ -120,8 +120,9 @@ class PageSettings:
         cmd = func(html, pdf)
         run(cmd)
 
-    def reshape_pdf(self, pdf, dir='LTR'):
-        """Spin the pdf for RTL text, resize it to the right size, and shift the gutter left and right"""
+    def reshape_pdf(self, pdf, dir='LTR', centre_start=False, centre_end=False):
+        """Spin the pdf for RTL text, resize it to the right size, and
+        shift the gutter left and right"""
         cmd = ['pdfedit', '-s', 'wk_objavi.qs',
                'dir=%s' % dir,
                'filename=%s' % pdf,
@@ -129,6 +130,8 @@ class PageSettings:
                'operation=adjust_for_direction,resize,shift,even_pages',
                'size=%s' % self.name,
                'offset=%s' % self.shift,
+               'centre_start=%s' % centre_start,
+               'centre_end=%s' % centre_end,
                ]
         run(cmd)
 
@@ -316,7 +319,7 @@ class Book(object):
         n_pages = self.extract_pdf_text()
         log ("found %s pages in pdf" % n_pages)
         #4. resize pages, shift gutters, and rotate 180 degrees for RTL
-        self.maker.reshape_pdf(self.body_pdf_file, self.dir)
+        self.maker.reshape_pdf(self.body_pdf_file, self.dir, centre_end=True)
         self.notify_watcher('reshape_pdf')
 
         #5 add page numbers
@@ -343,7 +346,7 @@ class Book(object):
         self.maker.make_raw_pdf(self.preamble_html_file, self.preamble_pdf_file,
                                 engine=self.engine)
 
-        self.maker.reshape_pdf(self.preamble_pdf_file, self.dir)
+        self.maker.reshape_pdf(self.preamble_pdf_file, self.dir, centre_start=True)
 
         self.maker.number_pdf(self.preamble_pdf_file, None,
                             dir=self.dir, size=self.pagesize,

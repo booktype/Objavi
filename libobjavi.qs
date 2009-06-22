@@ -373,10 +373,20 @@ function number_pdf_pages(pdf, dir, number_style, start,
 }
 
 
-function process_pdf(pdf, func, data){
+function process_pdf(pdf, func, data, skip_start, skip_end){
     var pages = pdf.getPageCount();
-    var i;
-    for (i = 1; i <= pages; i++){
+    var i = 1;
+    if (! isNaN(skip_start)){
+        print ("skipping " + skip_start + "pages");
+        i += skip_start;
+        if (skip_start & 1)
+            data[data.flip] = -data[data.flip];
+        print (data.flip + " is  now " + data[data.flip]);
+    }
+    if (! isNaN(skip_end)){
+        pages -= skip_end;
+    }
+    for (; i <= pages; i++){
         func(pdf.getPage(i), data);
         if (data != undefined && data.flip)
             data[data.flip] = -data[data.flip];
