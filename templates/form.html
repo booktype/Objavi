@@ -97,8 +97,15 @@
               </td>
             </tr>
             <tr class="advanced" id="css-textarea-row">
-              <td colspan="2">
-                <b onclick="load_css(); return false;">Load server default CSS (lose changes)</b>
+              <td>
+                <h4>Available fonts</h4>
+<a href="%(font_link)s">See example text (pdf)</a>
+                <div class="font-list">
+%(font_list)s
+</div>
+              </td>
+              <td>
+                <a href="#" onclick="load_css(); return false;">Load server default CSS (lose changes)</a>
             <textarea name="css" cols="60" rows="20" id="css-textarea-data">%(css)s</textarea>
               </td>
             </tr>

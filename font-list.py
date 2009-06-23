@@ -38,9 +38,14 @@ def font_pdf(html, pdfname):
     p = Popen(cmd, stdout=PIPE, stderr=PIPE)
     print >>sys.stderr, p.communicate()
 
+def html_font_list(fonts, name):
+    f = open(name, 'w')
+    for x in fonts:
+        f.write(x + '<br/>\n')
+    f.close()
 
-
-#first, get the font list and check whether it has already been made
+#Instead of regenerating the pdf every time, which is expensive, keep
+#a cached version indexed by the font list and script version
 
 fonts = get_font_list()
 h = hashlib.sha1(str(fonts))
@@ -60,7 +65,7 @@ print f.read()
 f.close()
 sys.exit()
 
-
-
+    include_name = os.path.join(config.BOOK_LIST_CACHE_DIR, 'font-list.inc')
+    html_font_list(fonts, include_name)
 
 

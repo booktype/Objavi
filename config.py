@@ -101,6 +101,8 @@ ENGINES = {
     'webkit' : [],
 }
 
+FONT_LIST_INCLUDE = 'cache/font-list.inc'
+FONT_LIST_URL = '/font-list.py'
 
 
 if __name__ == '__main__':

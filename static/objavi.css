@@ -38,7 +38,8 @@ input[type=text] {
 }
 
 textarea {
-  width:600px;
+  width:570px;
+  height:570px;
 }
 
 .gone {
@@ -56,4 +57,13 @@ textarea {
   color: #00b;
   size: 1.5em;
   font-weight: bold;
+}
+
+.font-list{
+  /*white-space: pre;*/
+  font-size:smaller;
+}
+
+td {
+  vertical-align: top;
 }

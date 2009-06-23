@@ -115,13 +115,14 @@ def optionise(items, default=None):
 
     return '\n'.join(options)
 
-def get_default_css(server=None):
-    cssfile = SERVER_DEFAULTS.get(server, DEFAULT_SERVER)['css']
+def get_default_css(server=DEFAULT_SERVER):
+    log(server)
+    cssfile = SERVER_DEFAULTS[server]['css']
     log(cssfile)
     f = open(cssfile)
     s = f.read()
     f.close()
-    log(s)
+    #log(s)
     return s
 
 
@@ -130,12 +131,17 @@ def show_form(args, server, webname, size='COMICBOOK', engine='webkit'):
     f = open(FORM_TEMPLATE)
     template = f.read()
     f.close()
+    f = open(config.FONT_LIST_INCLUDE)
+    font_list = f.read()
+    f.close()    
     d = {
         'server_options': optionise(get_server_list(), default=server),
         'book_options': optionise(get_book_list(server), default=webname),
         'size_options': optionise(get_size_list(), default=size),
         'engines': optionise(ENGINES.keys(), default=engine),
         'css': get_default_css(server),
+        'font_link': config.FONT_LIST_URL,
+        'font_list': font_list, 
     }
     print template % d
 
@@ -185,7 +191,7 @@ if __name__ == '__main__':
         sys.exit()
     if mode == 'css':
         #XX sending as text/html, but it doesn't really matter
-        print get_default_css(server=None)
+        print get_default_css(server=server)
         sys.exit()
 
     if not webname or not server:

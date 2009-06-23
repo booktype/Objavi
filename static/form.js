@@ -48,7 +48,11 @@ function load_booklist(){
 
 function load_css(){
     var server = $("#server").val();
-    $('#css-textarea-data').load("?server=" + server + "&mode=css");
+    var textarea = $('#css-textarea-data');
+
+    $.get("?server=" + server + "&mode=css",
+          undefined, function(data){textarea.val(data);}
+        );
 }
 
 
