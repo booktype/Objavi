@@ -49,7 +49,11 @@ def html_font_list(fonts, name):
 
 fonts = get_font_list()
 h = hashlib.sha1(str(fonts))
-#XXX should h.update(<this file>), so new versions uncache
+
+#Any change to this file will effectively clear the cache.
+f = open(__file__)
+h.update(f.read())
+f.close()
 
 pdfname = os.path.join(config.BOOK_LIST_CACHE_DIR, 'font-list-' + h.hexdigest() + '.pdf')
 
@@ -58,14 +62,14 @@ if not os.path.exists(pdfname):
     html = font_html(fonts)
     font_pdf(html, pdfname)
 
+    include_name = os.path.join(config.BOOK_LIST_CACHE_DIR, 'font-list.inc')
+    html_font_list(fonts, include_name)
+
+
 
 print "Content-type: application/pdf\n"
 f = open(pdfname)
 print f.read()
 f.close()
 sys.exit()
-
-    include_name = os.path.join(config.BOOK_LIST_CACHE_DIR, 'font-list.inc')
-    html_font_list(fonts, include_name)
-
 
