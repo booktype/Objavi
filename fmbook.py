@@ -11,6 +11,8 @@ from subprocess import Popen, check_call, PIPE
 import lxml.etree, lxml.html
 import lxml, lxml.html, lxml.etree
 
+import config
+
 from config import PAGE_SIZE_DATA, SERVER_DEFAULTS, DEFAULT_SERVER
 from config import POINT_2_MM, KEEP_TEMP_FILES, TMPDIR, CHAPTER_COOKIE_CHARS
 from config import ENGINES, DEBUG_MODES, TOC_URL, PUBLISH_URL, BOOK_URL, DEBUG_ALL
@@ -87,19 +89,65 @@ def run(cmd):
         (' '.join(cmd), cmd[0], p.poll(), out, err))
 
 
+def find_containing_paper(w, h):
+    size = None
+    for name, pw, ph in config.PAPER_SIZES:
+        if pw >= w and ph >= h:
+            mw = (pw - w) * 0.5
+            mh = (ph - h) * 0.5
+            return (name, mw, mh)
+
+    raise ValueError("page sized %.2fmm x %.2fmm won't fit on any paper!" %
+                     (w * POINT_2_MM, h * POINT_2_MM))
+        
+
+
 class PageSettings:
     """Calculates and wraps commands for the generation and processing
     of PDFs"""
-    def __init__(self, name, **kwargs):
-        for k, v in kwargs.items():
-            setattr(self, k, v)
+    def __init__(self, name, pointsize, moz_printer=None,
+                 gutter=None, margins=None):
+
+        self.width, self.height = pointsize
         self.name = name
-        self.mmsize = [x * POINT_2_MM for x in self.pointsize]
-        self.area = self.pointsize[0] * self.pointsize[1]
+        self.mmsize = [x * POINT_2_MM for x in pointsize]
+        self.area = self.width * self.height
+
+        if gutter is None:
+            gutter = (config.BASE_GUTTER +
+                      config.PROPORTIONAL_GUTTER * self.width)
+
+        #XXX does papersize depend on gutter? sort of / depends how it is done.
+        self.papersize, clipx, clipy = find_containing_paper(self.width, self.height)
+
+        if margins is None:
+            margin = (config.BASE_MARGIN +
+                      config.PROPORTIONAL_MARGIN * min(pointsize))
+            margins = [ x * POINT_2_MM for x in 
+                        #css style, clockwise from top
+                        (clipy + margin,
+                         clipx + margin + 0.5 * gutter,
+                         clipy + margin + 0.5 * config.PAGE_NUMBER_SIZE,
+                         clipx + margin + 0.5 * gutter
+                         )]
+
+        if moz_printer is None:
+            moz_printer = 'objavi_' + self.papersize
+            
+        self.gutter = gutter            
+        self.margins = margins
+        self.moz_printer = moz_printer
+        self.number_bottom = margin - 0.6 * config.PAGE_NUMBER_SIZE
+        self.number_margin = margin
+
+        log("%s:\npapersize is %s\nmargin is %s\ngutter is %s\nclip is %s\nmargins is %s" %
+            (name, self.papersize, margin, gutter, (clipx, clipy), self.margins))
+
+        
 
     def _webkit_command(self, html, pdf):
-        m = [str(x) for x in self.wkmargins]
-        cmd = [WKHTMLTOPDF, '-q', '-s', self.wksize,
+        m = [str(x) for x in self.margins]
+        cmd = [WKHTMLTOPDF, '-q', '-s', self.papersize,
                '-T', m[0], '-R', m[1], '-B', m[2], '-L', m[3],
                ] + WKHTMLTOPDF_EXTRA_COMMANDS + [
                html, pdf]
@@ -107,8 +155,7 @@ class PageSettings:
         return cmd
 
     def _gecko_command(self, html, pdf):
-        m = [str(x) for x in self.wkmargins]
-
+        m = [str(x) for x in self.margins]
         #firefox -P pdfprint -print URL -printprinter "printer_settings"
         cmd = [FIREFOX, '-P', 'pdfprint', '-print',
                html, '-printprinter', self.moz_printer]
@@ -128,8 +175,9 @@ class PageSettings:
                'filename=%s' % pdf,
                'output_filename=%s' % pdf,
                'operation=adjust_for_direction,resize,shift,even_pages',
-               'size=%s' % self.name,
-               'offset=%s' % self.shift,
+               'width=%s' % self.width,
+               'height=%s' % self.height,
+               'offset=%s' % self.gutter,
                'centre_start=%s' % centre_start,
                'centre_end=%s' % centre_end,
                ]
@@ -142,11 +190,10 @@ class PageSettings:
                'dir=%s' % dir,
                'filename=%s' % pdf,
                'output_filename=%s' % pdf,
-               'size=%s' % self.name,
                'number_start=%s' % number_start,
                'number_style=%s' % numbers,
-               'number_bottom=%s' % self.numberpos[1],
-               'number_margin=%s' % self.numberpos[0],
+               'number_bottom=%s' % self.number_bottom,
+               'number_margin=%s' % self.number_margin,
                ]
         run(cmd)
 
@@ -642,3 +689,4 @@ class Book(object):
             log(*os.listdir(self.workdir))
 
         self.notify_watcher()
+

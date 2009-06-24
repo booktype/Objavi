@@ -64,7 +64,6 @@ function onConsoleStart() {
 
     var convertors = {
         offset: number_check(parseFloat, 'offset'),
-        mode: function(x){return x.upper();},
         dir: function(x){return x.upper();},
         number_style: function(x){return x.lower();},
         centre_first: function(x){return x.lower() == 'true';},
@@ -79,7 +78,6 @@ function onConsoleStart() {
 
     var options = {
         offset: DEFAULT_OFFSET,
-        mode:   DEFAULT_MODE,
         dir:    DEFAULT_DIR,
         number_style: DEFAULT_NUMBER_STYLE,
         number_start: 1,
@@ -106,7 +104,7 @@ function onConsoleStart() {
     }
     var newfilename = options.output_filename;
     if (newfilename == undefined)
-        newfilename = re.cap(1) + '-' + options.mode + '.pdf';
+        newfilename = re.cap(1) + '-PDFEDIT.pdf';
     if (newfilename != options.filename)
         Process.execute("cp " + options.filename + ' ' + newfilename);
 

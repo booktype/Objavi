@@ -16,9 +16,6 @@ const PAGE_NUMBER_SIZE = 11;
 
 const DEFAULT_DIR = 'LTR';
 
-//const DEFAULT_MODE = 'TRANSFORM';
-//const DEFAULT_MODE = 'MEDIABOX';
-const DEFAULT_MODE = 'COMICBOOK';
 const DEFAULT_NUMBER_STYLE = 'latin';
 const DEFAULT_ENGINE = 'webkit';
 

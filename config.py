@@ -4,7 +4,8 @@
 #XXX Some of these values should be editable via an admin cgi script
 
 #Not really configurable (72 pt per inch / 25.4 mm per inch)
-POINT_2_MM = 0.35277777777777777
+POINT_2_MM = 25.4 / 72.0
+MM_2_POINT = 72.0 / 25.4
 
 KEEP_TEMP_FILES=True
 TMPDIR = 'tmp'
@@ -75,26 +76,44 @@ DEBUG_MODES = (
     )
 DEBUG_ALL = False
 
-PAGE_SIZE_DATA = {
-    # name      --> should be the same as the key
-    # wksize    --> the size name for wkhtml2pdf
-    # wkmargins --> margins for wkhtml2pdf (css style, clockwise from top)
-    # shift     --> how many points to shift each page left or right.
+#convert all sizes to points
+PAPER_SIZES = [(s, x * MM_2_POINT, y * MM_2_POINT) for s, x, y in  (
+    ("A5", 148, 210),
+    #("B5", 176, 250),
+    ("A4", 210, 297),
+    #("B4", 250, 353),
+    ("A3", 297, 420),
+    #("B3", 353, 500),
+    ("A2", 420, 594),
+    #("B2", 500, 707),
+    ("A1", 594, 841),
+    #("B1", 707, 1000),
+    ("A0", 841, 1189),
+    ("B0", 1000, 1414),
+)]
 
-    'COMICBOOK' : dict(wksize='B5',
-                       wkmargins=[20, 30, 20, 30], #mm
-                       numberpos=[50, 40], #points, after page resize, from corner
-                       shift=20,
-                       pointsize=((6.625 * 72), (10.25 * 72)),
-                       moz_printer='printer_objavi',
-                       ),
-    'COMICBOOK2' : dict(wksize='A4',
-                        wkmargins=[45, 45, 45, 45], #mm
-                        numberpos=[50, 40], #points, after page resize, from corner
-                        shift=20,
-                        pointsize=((6.625 * 72), (10.25 * 72)),
-                        moz_printer='printer_objavi',                        
-                       )
+# margins are BASE_MARGIN + PROPORTIONAL_MARGIN * min(width, height)
+BASE_MARGIN = 18
+PROPORTIONAL_MARGIN = 0.032
+# gutter is BASE_GUTTER + PROPORTIONAL_GUTTER * width
+BASE_GUTTER = 15
+PROPORTIONAL_GUTTER = 0.011
+
+PAGE_NUMBER_SIZE = 11 #XXX this is not used by pdfedit! (ie, it is a guess)
+
+PAGE_SIZE_DATA = {
+    'COMICBOOK':    {'pointsize': ((6.625 * 72), (10.25 * 72))},
+    "A4":           {'pointsize': (210 * MM_2_POINT, 297 * MM_2_POINT)},
+    "POCKET":       {'pointsize': (4.25 * 72, 6.875 * 72)},
+
+    "USLETTER":     {'pointsize': (8.5 * 72, 11 * 72)},
+    "USTRADE":      {'pointsize': (6 * 72, 9 * 72)},
+    "LANDSCAPE9x7": {'pointsize': (9 * 72, 7 * 72)},
+    "SQUARE7.5":    {'pointsize': (7.5 * 72, 7.5 * 72)},
+    "ROYAL":        {'pointsize': (6.139 * 72, 9.21 * 72)},
+    "CROWNQUARTO":  {'pointsize': (7.444 * 72, 9.681 * 72)},
+    "SQUARE8.5":    {'pointsize': (8.5 * 72, 8.5 * 72)},
+    "A5":           {'pointsize': (148 * MM_2_POINT, 210 * MM_2_POINT)},
 }
 
 ENGINES = {
