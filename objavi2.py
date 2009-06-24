@@ -66,7 +66,7 @@ def get_book_list(server):
 
     If BOOK_LIST_CACHE is non-zero, the book list won't be re-fetched
     in that many seconds, rather it will be read from disk.
-    """        
+    """
     if BOOK_LIST_CACHE:
        cache_name = os.path.join(BOOK_LIST_CACHE_DIR, '%s.booklist' % server)
        if (os.path.exists(cache_name) and
@@ -75,7 +75,7 @@ def get_book_list(server):
            s = f.read()
            f.close()
            return s.split()
-       
+
     url = 'http://%s/bin/view/TWiki/WebLeftBarWebsList?skin=text' % server
     #XXX should use lxml
     log(url)
@@ -133,7 +133,7 @@ def show_form(args, server, webname, size='COMICBOOK', engine='webkit'):
     f.close()
     f = open(config.FONT_LIST_INCLUDE)
     font_list = f.read()
-    f.close()    
+    f.close()
     d = {
         'server_options': optionise(get_server_list(), default=server),
         'book_options': optionise(get_book_list(server), default=webname),
@@ -141,7 +141,7 @@ def show_form(args, server, webname, size='COMICBOOK', engine='webkit'):
         'engines': optionise(ENGINES.keys(), default=engine),
         'css': get_default_css(server),
         'font_link': config.FONT_LIST_URL,
-        'font_list': font_list, 
+        'font_list': font_list,
     }
     print template % d
 

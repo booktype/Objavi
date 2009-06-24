@@ -95,7 +95,7 @@ def find_containing_paper(w, h):
 
     raise ValueError("page sized %.2fmm x %.2fmm won't fit on any paper!" %
                      (w * POINT_2_MM, h * POINT_2_MM))
-        
+
 
 
 class PageSettings:
@@ -119,7 +119,7 @@ class PageSettings:
         if margins is None:
             margin = (config.BASE_MARGIN +
                       config.PROPORTIONAL_MARGIN * min(pointsize))
-            margins = [ x * POINT_2_MM for x in 
+            margins = [ x * POINT_2_MM for x in
                         #css style, clockwise from top
                         (clipy + margin,
                          clipx + margin + 0.5 * gutter,
@@ -129,8 +129,8 @@ class PageSettings:
 
         if moz_printer is None:
             moz_printer = 'objavi_' + self.papersize
-            
-        self.gutter = gutter            
+
+        self.gutter = gutter
         self.margins = margins
         self.moz_printer = moz_printer
         self.number_bottom = margin - 0.6 * config.PAGE_NUMBER_SIZE
@@ -139,7 +139,6 @@ class PageSettings:
         log("%s:\npapersize is %s\nmargin is %s\ngutter is %s\nclip is %s\nmargins is %s" %
             (name, self.papersize, margin, gutter, (clipx, clipy), self.margins))
 
-        
 
     def _webkit_command(self, html, pdf):
         m = [str(x) for x in self.margins]
