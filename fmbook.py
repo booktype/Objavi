@@ -479,21 +479,16 @@ class Book(object):
         self.load_book()
         self.load_toc()
 
-    def find_page(self, element, pages):
+    def find_page(self, element, start_page=1):
         """Search through a page iterator and return the page
         number which the element probably occurs."""
         text = element.cookie
-        for pagenum, content in pages:
-            log("looking for '%s' in page %s below:\n%s" % (text, pagenum, content), debug='INDEX')
+        for i, content in enumerate(self.text_pages[start_page - 1:]):
+            log("looking for '%s' in page %s below:\n%s" % (text, i + start_page, content), debug='INDEX')
             if text in content:
-                return pagenum
-
-    def page_text_iterator(self):
-        """Return the text found in the pdf, one page at a time,
-        transformed to lowercase."""
-        for i, p in enumerate(self.text_pages):
-            yield(i + 1, p)
-
+                return pagenum + start_page, True
+        #If it isn't found, return the start page so the next chapter has a chance
+        return start_page, False
 
     def make_contents(self):
         header = '<h1>Table of Contents</h1><table class="toc">\n'
@@ -509,13 +504,16 @@ class Book(object):
         subsections = [] # for the subsection heading pages.
 
         headings = iter(self.headings)
-        pages = self.page_text_iterator()
 
         for t in self.toc:
             if t.is_chapter():
                 h1 = headings.next()
-                page_num = self.find_page(h1, pages)
-                contents.append(row_tmpl % (chapter, h1.title, page_num))
+                page_num, found = self.find_page(h1, page_num)
+                # sometimes the heading isn't found, which is shown as a frown
+                if found:
+                    contents.append(row_tmpl % (chapter, h1.title, page_num))
+                else:
+                    contents.append(row_tmpl % (chapter, h1.title, ':-('))
                 chapter += 1
             elif t.is_section():
                 contents.append(section_tmpl % t.title)
@@ -613,7 +611,7 @@ class Book(object):
         """create the markup for the preamble inside cover, storing it
         in self.inside_cover_html"""
         #XXX this should go in make_preamble_pdf, but that needs to be extracted from make_pdf
-        
+
         if isbn:
             isbn_text = '<b>ISBN :</b> %s <br>' % isbn
             #XXX make a barcode
