@@ -90,6 +90,9 @@ def get_book_list(server):
     return items
 
 def get_size_list():
+    #XXX PAGE_SETTINGS instances are only constructed for this list.
+    # the area and mmsizes could be calculated seperately here from PAGE_SIZE_DATA
+
     #order by increasing areal size.
     ordered = [x[1] for x in
                sorted((v.area, v) for v in PAGE_SETTINGS.values())]
