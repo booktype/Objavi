@@ -22,7 +22,7 @@ ARG_VALIDATORS = {
     "webName": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah
     "css": None, # an url, empty (for default), or css content
     "title": lambda x: len(x) < 999,
-    "header": None, # the copyright text?
+    "header": None, # header text, UNUSED
     "isbn": lambda x: x.isdigit() and len(x) == 13,
     "license": lambda x: len(x) < 999999, #should be a codename?
     "server": SERVER_DEFAULTS.__contains__,
