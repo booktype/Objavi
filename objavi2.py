@@ -7,7 +7,7 @@ from urllib2 import urlopen
 from getopt import gnu_getopt
 
 from fmbook import log, Book
-from fmbook import PAGE_SETTINGS, ENGINES, SERVER_DEFAULTS, DEFAULT_SERVER
+from fmbook import PAGE_SETTINGS, SERVER_DEFAULTS, DEFAULT_SERVER
 
 import config
 from config import BOOK_LIST_CACHE, BOOK_LIST_CACHE_DIR
@@ -26,7 +26,7 @@ ARG_VALIDATORS = {
     "isbn": lambda x: x.isdigit() and len(x) == 13,
     "license": lambda x: len(x) < 999999, #should be a codename?
     "server": SERVER_DEFAULTS.__contains__,
-    "engine": ENGINES.__contains__,
+    "engine": config.ENGINES.__contains__,
     "booksize": PAGE_SETTINGS.__contains__,
     "cgi-context": lambda x: x.lower() in '1true0false',
     "mode": str.isalnum,

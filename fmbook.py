@@ -12,13 +12,9 @@ import lxml.etree, lxml.html
 import lxml, lxml.html, lxml.etree
 
 import config
+from config import SERVER_DEFAULTS, DEFAULT_SERVER, POINT_2_MM
 
-from config import PAGE_SIZE_DATA, SERVER_DEFAULTS, DEFAULT_SERVER
-from config import POINT_2_MM, KEEP_TEMP_FILES, TMPDIR, CHAPTER_COOKIE_CHARS
-from config import ENGINES, DEBUG_MODES, TOC_URL, PUBLISH_URL, BOOK_URL, DEBUG_ALL
-from config import WKHTMLTOPDF, WKHTMLTOPDF_EXTRA_COMMANDS
-
-TMPDIR = os.path.abspath(TMPDIR)
+TMPDIR = os.path.abspath(config.TMPDIR)
 DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
 PUBLISH_PATH = "%s/books/" % DOC_ROOT
 PDFEDIT_MAX_PAGES = 50
@@ -28,7 +24,7 @@ def log(*messages, **kwargs):
     """Send the messages to the appropriate place (stderr, or syslog).
     If a <debug> keyword is specified, the message is only printed if
     its value ias in the global DEBUG_MODES."""
-    if 'debug' not in kwargs or DEBUG_ALL or kwargs['debug'] in DEBUG_MODES:
+    if 'debug' not in kwargs or config.DEBUG_ALL or kwargs['debug'] in config.DEBUG_MODES:
         for m in messages:
             print >> sys.stderr, m
 
@@ -48,7 +44,7 @@ def _add_chapter_cookie(e):
                            style="font-size:6pt; color: #fff; width:0;"
                            " float:left; margin:-3em; z-index: -67; display: block;"
                            )
-    cookie.text = ''.join(random.choice(CHAPTER_COOKIE_CHARS) for x in range(8))
+    cookie.text = ''.join(random.choice(config.CHAPTER_COOKIE_CHARS) for x in range(8))
     e.cookie = cookie.text
     e.addnext(cookie)
     #e.append(cookie)
@@ -147,9 +143,9 @@ class PageSettings:
 
     def _webkit_command(self, html, pdf):
         m = [str(x) for x in self.margins]
-        cmd = [WKHTMLTOPDF, '-q', '-s', self.papersize,
+        cmd = [config.WKHTMLTOPDF, '-q', '-s', self.papersize,
                '-T', m[0], '-R', m[1], '-B', m[2], '-L', m[3],
-               ] + WKHTMLTOPDF_EXTRA_COMMANDS + [
+               ] + config.WKHTMLTOPDF_EXTRA_COMMANDS + [
                html, pdf]
         log(' '.join(cmd))
         return cmd
@@ -230,7 +226,7 @@ class PageSettings:
             concat_pdfs(pdf, *pdf_sections)
 
 
-PAGE_SETTINGS = dict((k, PageSettings(k, **v)) for k, v in PAGE_SIZE_DATA.iteritems())
+PAGE_SETTINGS = dict((k, PageSettings(k, **v)) for k, v in config.PAGE_SIZE_DATA.iteritems())
 
 def concat_pdfs(name, *args):
     """Join all the named pdfs together into one and save it as <name>"""
@@ -291,10 +287,10 @@ class Book(object):
 
         self.publish_name = bookname
         self.publish_file = os.path.join(PUBLISH_PATH, self.publish_name)
-        self.publish_url = os.path.join(PUBLISH_URL, self.publish_name)
+        self.publish_url = os.path.join(config.PUBLISH_URL, self.publish_name)
 
-        self.book_url = BOOK_URL % (self.server, self.webname)
-        self.toc_url = TOC_URL % (self.server, self.webname)
+        self.book_url = config.BOOK_URL % (self.server, self.webname)
+        self.toc_url = config.TOC_URL % (self.server, self.webname)
         if pagesize is not None:
             self.pagesize = pagesize
         self.maker = PAGE_SETTINGS[self.pagesize]
@@ -680,7 +676,7 @@ class Book(object):
 
     def cleanup(self):
         self.cleanup_x()
-        if not KEEP_TEMP_FILES:
+        if not config.KEEP_TEMP_FILES:
             for fn in os.listdir(self.workdir):
                 os.remove(os.path.join(self.workdir, fn))
             os.rmdir(self.workdir)
