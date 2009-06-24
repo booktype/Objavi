@@ -118,6 +118,7 @@ PAGE_SIZE_DATA = {
 
 ENGINES = {
     'webkit' : [],
+    'gecko' : [],
 }
 
 FONT_LIST_INCLUDE = 'cache/font-list.inc'
