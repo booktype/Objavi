@@ -41,7 +41,7 @@ def _add_initial_number(e, n):
 def _add_chapter_cookie(e):
     """add magic hidden text to help with contents generation"""
     cookie = e.makeelement("span", Class="heading-cookie", dir="ltr",
-                           style="font-size:6pt; color: #fff; width:0;"
+                           style="font-size:8pt; line-height: 0pt; color: #fff; width:0;"
                            " float:left; margin:-3em; z-index: -67; display: block;"
                            )
     cookie.text = ''.join(random.choice(config.CHAPTER_COOKIE_CHARS) for x in range(8))
