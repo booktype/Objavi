@@ -138,7 +138,7 @@ def show_form(args, server, webname, size='COMICBOOK', engine='webkit'):
         'server_options': optionise(get_server_list(), default=server),
         'book_options': optionise(get_book_list(server), default=webname),
         'size_options': optionise(get_size_list(), default=size),
-        'engines': optionise(ENGINES.keys(), default=engine),
+        'engines': optionise(config.ENGINES.keys(), default=engine),
         'css': get_default_css(server),
         'font_link': config.FONT_LIST_URL,
         'font_list': font_list,
