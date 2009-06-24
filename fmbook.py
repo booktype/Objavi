@@ -381,11 +381,11 @@ class Book(object):
                 '<link rel="stylesheet" href="%s" />\n'
                 '</head>\n<body>\n'
                 '<h1 class="frontpage">%s</h1>'
-                '<div class="copyright">%s</div>\n'
+                '%s\n'
                 '<div class="contents">%s</div>\n'
                 '<div style="page-break-after: always; color:#fff" class="unseen">.'
                 '<!--%s--></div></body></html>'
-                ) % (self.dir, self.css_url, self.title, self.copyright(),
+                ) % (self.dir, self.css_url, self.title, self.inside_cover_html,
                      contents, self.title)
         self.save_data(self.preamble_html_file, html)
 
@@ -415,9 +415,6 @@ class Book(object):
         os.rename(self.filepath('final.pdf'), self.publish_file)
         self.notify_watcher()
 
-
-    def copyright(self):
-        return "copyright goes here"
 
     def load_toc(self):
         """From the TOC.txt file create a list of TocItems with
@@ -610,6 +607,30 @@ class Book(object):
                 #oh well
                 self.title = 'A Manual About ' + self.webname
         return self.title
+
+
+    def compose_inside_cover(self, license='GPL', isbn=None):
+        """create the markup for the preamble inside cover, storing it
+        in self.inside_cover_html"""
+        #XXX this should go in make_preamble_pdf, but that needs to be extracted from make_pdf
+        
+        if isbn:
+            isbn_text = '<b>ISBN :</b> %s <br>' % isbn
+            #XXX make a barcode
+        else:
+            isbn_text = ''
+        self.inside_cover_html = (
+            '<div class="inside-cover">\n'
+            '<div class="copyright"><b>Copyright :</b> The Contributors (see back) <br>\n'
+            '<b>Published :</b> %s <br />\n'
+            '%s\n'
+            '<b>License :</b> %s <br>\n'
+            '<b>Note :</b> We offer no warranty if you follow this manual and something goes wrong. So be careful!'
+            '</div></div>\n'
+            % (time.strftime('%Y-%m-%d'), isbn_text, license)
+        )
+
+
 
     def spawn_x(self):
         #Find an unused server number (in case two cgis are running at once)
