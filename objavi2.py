@@ -22,7 +22,7 @@ ARG_VALIDATORS = {
     "webName": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah
     "css": None, # an url, empty (for default), or css content
     "title": lambda x: len(x) < 999,
-    "header": None, # the copyright text?
+    "header": None, # header text, UNUSED
     "isbn": lambda x: x.isdigit() and len(x) == 13,
     "license": lambda x: len(x) < 999999, #should be a codename?
     "server": SERVER_DEFAULTS.__contains__,
@@ -90,6 +90,9 @@ def get_book_list(server):
     return items
 
 def get_size_list():
+    #XXX PAGE_SETTINGS instances are only constructed for this list.
+    # the area and mmsizes could be calculated seperately here from PAGE_SIZE_DATA
+
     #order by increasing areal size.
     ordered = [x[1] for x in
                sorted((v.area, v) for v in PAGE_SETTINGS.values())]
@@ -222,6 +225,8 @@ if __name__ == '__main__':
 
     book.set_title(args.get('title'))
     book.add_css(args.get('css'))
+    
+    book.compose_inside_cover(args.get('license'), args.get('isbn'))
 
     book.add_section_titles()
 

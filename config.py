@@ -124,6 +124,10 @@ ENGINES = {
 FONT_LIST_INCLUDE = 'cache/font-list.inc'
 FONT_LIST_URL = '/font-list.py'
 
+# for the license field, with a view to making it a drop down.
+LISENCES = ('GPL', 'GPLv2', 'GPLv2+', 'GPLv3', 'GPLv3+', 'LGPL', 'LGPLv2.1',
+            'BSD', 'public domain', 'MIT', 'Artistic')
+
 
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))
