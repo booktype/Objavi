@@ -137,7 +137,8 @@ class PageSettings:
         self.number_margin = margin
 
         log("%s:\npapersize is %s\nmargin is %s\ngutter is %s\nclip is %s\nmargins is %s" %
-            (name, self.papersize, margin, gutter, (clipx, clipy), self.margins))
+            (name, self.papersize, margin, gutter, (clipx, clipy), self.margins), debug='PDFGEN')
+
 
 
     def _webkit_command(self, html, pdf):
