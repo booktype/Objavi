@@ -166,14 +166,17 @@ class PageSettings:
     def reshape_pdf(self, pdf, dir='LTR', centre_start=False, centre_end=False):
         """Spin the pdf for RTL text, resize it to the right size, and
         shift the gutter left and right"""
+        gutter = self.gutter
+        if dir == 'RTL':
+            gutter = -gutter
         cmd = ['pdfedit', '-s', 'wk_objavi.qs',
                'dir=%s' % dir,
                'filename=%s' % pdf,
                'output_filename=%s' % pdf,
-               'operation=adjust_for_direction,resize,shift,even_pages',
+               'operation=resize,shift,even_pages',
                'width=%s' % self.width,
                'height=%s' % self.height,
-               'offset=%s' % self.gutter,
+               'offset=%s' % gutter,
                'centre_start=%s' % centre_start,
                'centre_end=%s' % centre_end,
                ]
