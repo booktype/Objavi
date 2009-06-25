@@ -26,7 +26,10 @@ def log(*messages, **kwargs):
     its value ias in the global DEBUG_MODES."""
     if 'debug' not in kwargs or config.DEBUG_ALL or kwargs['debug'] in config.DEBUG_MODES:
         for m in messages:
-            print >> sys.stderr, m
+            try:
+                print >> sys.stderr, m
+            except Exception:
+                print >> sys.stderr, repr(m)
 
 def _add_initial_number(e, n):
     """Put a styled chapter number n at the beginning of element e."""
@@ -41,7 +44,7 @@ def _add_initial_number(e, n):
 def _add_chapter_cookie(e):
     """add magic hidden text to help with contents generation"""
     cookie = e.makeelement("span", Class="heading-cookie", dir="ltr",
-                           style="font-size:8pt; line-height: 0pt; color: #fff; width:0;"
+                           style="font-size:9pt; line-height: 8pt; color: #fff; width:0;"
                            " float:left; margin:-3em; z-index: -67; display: block;"
                            )
     cookie.text = ''.join(random.choice(config.CHAPTER_COOKIE_CHARS) for x in range(8))
@@ -484,9 +487,10 @@ class Book(object):
         number which the element probably occurs."""
         text = element.cookie
         for i, content in enumerate(self.text_pages[start_page - 1:]):
-            log("looking for '%s' in page %s below:\n%s" % (text, i + start_page, content), debug='INDEX')
+            log("looking for '%s' in page %s below:\n%s[...]" %
+                (text, i + start_page, content[:160]), debug='INDEX')
             if text in content:
-                return pagenum + start_page, True
+                return i + start_page, True
         #If it isn't found, return the start page so the next chapter has a chance
         return start_page, False
 
