@@ -435,10 +435,9 @@ class Book(object):
         self.notify_watcher()        
 
     def publish_pdf(self):
-        log(self.filepath('final.pdf'), self.publish_file)
-        os.rename(self.filepath('final.pdf'), self.publish_file)
+        log(self.pdf_file, self.publish_file)
+        os.rename(self.pdf_file, self.publish_file)
         self.notify_watcher()
-
 
     def load_toc(self):
         """From the TOC.txt file create a list of TocItems with
@@ -644,6 +643,7 @@ class Book(object):
             #XXX make a barcode
         else:
             isbn_text = ''
+        #XXX should read this text from a language specific file.
         self.inside_cover_html = (
             '<div class="inside-cover">\n'
             '<div class="copyright"><b>Copyright :</b> The Contributors (see back) <br>\n'
