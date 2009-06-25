@@ -24,7 +24,7 @@ ARG_VALIDATORS = {
     "title": lambda x: len(x) < 999,
     "header": None, # header text, UNUSED
     "isbn": lambda x: x.isdigit() and len(x) == 13,
-    "license": lambda x: len(x) < 999999, #should be a codename?
+    "license": lambda x: len(x) < 999, #should be a codename?
     "server": SERVER_DEFAULTS.__contains__,
     "engine": config.ENGINES.__contains__,
     "booksize": PAGE_SETTINGS.__contains__,
