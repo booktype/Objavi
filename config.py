@@ -69,7 +69,7 @@ SERVER_DEFAULTS = {
 # uncomment a debug mode to get messages about that topic.
 DEBUG_MODES = (
     #'STARTUP',
-    #'INDEX',
+    'INDEX',
     #'PDFEDIT',
     #'PDFGEN',
     #'HTMLGEN',
@@ -93,8 +93,8 @@ PAPER_SIZES = [(s, x * MM_2_POINT, y * MM_2_POINT) for s, x, y in  (
 )]
 
 # margins are BASE_MARGIN + PROPORTIONAL_MARGIN * min(width, height)
-BASE_MARGIN = 20
-PROPORTIONAL_MARGIN = 0.036
+BASE_MARGIN = 22
+PROPORTIONAL_MARGIN = 0.04
 # gutter is BASE_GUTTER + PROPORTIONAL_GUTTER * width
 BASE_GUTTER = 15
 PROPORTIONAL_GUTTER = 0.011

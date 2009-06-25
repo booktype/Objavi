@@ -44,8 +44,8 @@ def _add_initial_number(e, n):
 def _add_chapter_cookie(e):
     """add magic hidden text to help with contents generation"""
     cookie = e.makeelement("span", Class="heading-cookie", dir="ltr",
-                           style="font-size:9pt; line-height: 8pt; color: #fff; width:0;"
-                           " float:left; margin:-3em; z-index: -67; display: block;"
+                           style="font-size:6pt; line-height: 6pt; color: #fff; width:0;"
+                           " float:left; margin:-2em; z-index: -67; display: block;"
                            )
     cookie.text = ''.join(random.choice(config.CHAPTER_COOKIE_CHARS) for x in range(8))
     e.cookie = cookie.text
@@ -489,6 +489,8 @@ class Book(object):
         for i, content in enumerate(self.text_pages[start_page - 1:]):
             log("looking for '%s' in page %s below:\n%s[...]" %
                 (text, i + start_page, content[:160]), debug='INDEX')
+            #remove spaces: they can appear spuriously
+            content = ''.join(content.split())
             if text in content:
                 return i + start_page, True
         #If it isn't found, return the start page so the next chapter has a chance
