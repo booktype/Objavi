@@ -30,6 +30,7 @@ ARG_VALIDATORS = {
     "booksize": PAGE_SETTINGS.__contains__,
     "cgi-context": lambda x: x.lower() in '1true0false',
     "mode": str.isalnum,
+    "rotate": u"rotate".__eq__,
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
@@ -231,6 +232,9 @@ if __name__ == '__main__':
     book.add_section_titles()
 
     book.make_pdf()
+
+    if "rotate" in args:
+        book.rotate180()
 
     book.publish_pdf()
 

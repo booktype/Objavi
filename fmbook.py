@@ -253,6 +253,16 @@ def index_pdf(pdf, text=None):
     run(cmd)
     return text
 
+def rotate_pdf(pdfin, pdfout):
+    """Turn the PDF on its head"""
+    cmd = ['pdftk', pdfin,
+           'cat',
+           '1-endD',
+           'output',
+           pdfout
+           ]
+    run(cmd)
+
 
 class Book(object):
     pagesize = 'COMICBOOK'
@@ -412,6 +422,17 @@ class Book(object):
         concat_pdfs(self.pdf_file, self.preamble_pdf_file, self.body_pdf_file)
         self.notify_watcher('concatenated_pdfs')
         #and move it into place (what place?)
+
+    def rotate180(self):
+        """Rotate the pdf 180 degrees so an RTL book can print on LTR
+        presses."""
+        rotated = self.filepath('final-rotate.pdf')
+        unrotated = self.filepath('final-pre-rotate.pdf')
+        #leave the unrotated pdf intact at first, in case of error.
+        rotate_pdf(self.pdf_file, rotated)
+        os.rename(self.pdf_file, unrotated)
+        os.rename(rotated, self.pdf_file)
+        self.notify_watcher()        
 
     def publish_pdf(self):
         log(self.filepath('final.pdf'), self.publish_file)
