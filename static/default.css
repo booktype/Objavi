@@ -69,6 +69,7 @@ h1.frontpage{
   text-align: center;
   page-break-after: always;
   page-break-before: avoid;
+  max-width: 780px;
 }
 
 div.copyright{
@@ -102,5 +103,18 @@ p, ul, ol {
 }
 
 pre, code, tt {
-  font-family: "Courier New", monospace;
+  font-family: "Courier", "Courier New", monospace;
 }
+
+pre {
+  width: 780px;
+  overflow: hidden;
+}
+
+img {
+  max-width: 780px;
+  height: auto;
+}
+
+
+
