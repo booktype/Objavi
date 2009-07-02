@@ -432,7 +432,7 @@ class Book(object):
         rotate_pdf(self.pdf_file, rotated)
         os.rename(self.pdf_file, unrotated)
         os.rename(rotated, self.pdf_file)
-        self.notify_watcher()        
+        self.notify_watcher()
 
     def publish_pdf(self):
         log(self.pdf_file, self.publish_file)
