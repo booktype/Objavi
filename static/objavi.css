@@ -62,6 +62,8 @@ textarea {
 .font-list{
   /*white-space: pre;*/
   font-size:smaller;
+  overflow: scroll;
+  height: 500px;
 }
 
 td {
