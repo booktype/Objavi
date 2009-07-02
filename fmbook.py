@@ -533,7 +533,11 @@ class Book(object):
 
         for t in self.toc:
             if t.is_chapter():
-                h1 = headings.next()
+                try:
+                    h1 = headings.next()
+                except StopIteration:
+                    log("heading not found for %s (previous h1 missing?). Stopping" % t)
+                    break
                 page_num, found = self.find_page(h1, page_num)
                 # sometimes the heading isn't found, which is shown as a frown
                 if found:
@@ -551,13 +555,18 @@ class Book(object):
         return doc
 
     def add_section_titles(self):
+        log(self.headings)
         headings = iter(self.headings)
         chapter = 1
         section = None
 
         for t in self.toc:
             if t.is_chapter() and section is not None:
-                h1 = headings.next()
+                try:
+                    h1 = headings.next()
+                except StopIteration:
+                    log("heading not found for %s (previous h1 missing?)" % t)
+                    break
                 item = h1.makeelement('div', Class='chapter')
                 log(h1.title, debug='HTMLGEN')
                 item.text = h1.title
