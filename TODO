@@ -10,7 +10,7 @@
 
 * cgi admin interface for changing CSS, server list, adding fonts
 
- * README, INSTALL, packaging (.deb etc)
+* README, INSTALL, packaging (.deb etc)
 
 * look into wkhtml2pdf's hacks to make outline, contents.
    (+ perhaps something similar for mozilla - <h1> hooks)
@@ -23,3 +23,7 @@
 * arbitrary fonts for page numbers (so non-western numbers work)
 
 * columned / map-fold output.
+
+* fancier, more intuitive form.
+
+* add GPL boilerplate to various files
