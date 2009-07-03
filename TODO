@@ -1,5 +1,25 @@
-* mozilla
+* mozilla rendering engine
 
 * ISBN barcode
 
 * localised inside cover text
+
+* customisable margins and gutter
+
+* custom sizes
+
+* cgi admin interface for changing CSS, server list, adding fonts
+
+ * README, INSTALL, packaging (.deb etc)
+
+* look into wkhtml2pdf's hacks to make outline, contents.
+   (+ perhaps something similar for mozilla - <h1> hooks)
+
+* experiment with max-width, width, etc combinations for pre and img
+   CSS
+
+* print warnings and errors and optionally logs to web page
+
+* arbitrary fonts for page numbers (so non-western numbers work)
+
+* columned / map-fold output.
