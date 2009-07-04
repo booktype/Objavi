@@ -1,6 +1,9 @@
 <VirtualHost *:80>
 	ServerAdmin webmaster@localhost
-	ServerName po
+	#XXX set server name
+	#ServerName objavi.halo.gen.nz
+	# limit MEM to 800 million bytes
+	RLimitMEM 800000000
 
 	DocumentRoot /home/douglas/objavi2
 	<Directory />
@@ -10,9 +13,8 @@
 	<Directory /home/douglas/objavi2/>
 		Options +All +ExecCGI
 		AllowOverride None
-		Order deny,allow
-                Deny from all
-                Allow from 127.0.0.0/255.0.0.0 ::1/128		
+		Order allow,deny
+		Allow from all
 		AddHandler cgi-script .py	       		
 	</Directory>
 
@@ -23,15 +25,6 @@
 	LogLevel warn
 
 	CustomLog /var/log/apache2/objavi-access.log combined
-	ScriptLog /tmp/objavi-cgi.log 
-
-    Alias /doc/ "/usr/share/doc/"
-    <Directory "/usr/share/doc/">
-        Options Indexes MultiViews FollowSymLinks
-        AllowOverride None
-        Order deny,allow
-        Deny from all
-        Allow from 127.0.0.0/255.0.0.0 ::1/128
-    </Directory>
+	#ScriptLog /tmp/objavi-cgi.log 
 
 </VirtualHost>
