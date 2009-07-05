@@ -52,6 +52,8 @@ DEFAULT_SIZE = 'COMICBOOK'
 DEFAULT_ENGINE = 'webkit'
 #DEFAULT_MODE = None
 
+RTL_SCRIPTS = ['persian', 'arabic', 'hebrew', 'urdu']
+
 #DEFAULT_CSS = 'file://' + os.path.abspath('static/default.css')
 SERVER_DEFAULTS = {
     'en.flossmanuals.net': {
