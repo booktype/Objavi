@@ -148,6 +148,15 @@ def get_default_css(server=DEFAULT_SERVER):
     #log(s)
     return s
 
+def font_links():
+    """Links to various example pdfs."""
+    links = []
+    for script in os.listdir(config.FONT_EXAMPLE_SCRIPT_DIR):
+        if not script.isalnum():
+            log("warning: font-sample %s won't work; skipping" % script)
+            continue
+        links.append('<a href="%s?script=%s">%s</a>' % (config.FONT_LIST_URL, script, script))
+    return ', '.join(links)
 
 
 def show_form(args, server, webname, size='COMICBOOK', engine='webkit'):
@@ -163,7 +172,7 @@ def show_form(args, server, webname, size='COMICBOOK', engine='webkit'):
         'size_options': optionise(get_size_list(), default=size),
         'engines': optionise(config.ENGINES.keys(), default=engine),
         'css': get_default_css(server),
-        'font_link': config.FONT_LIST_URL,
+        'font_links': font_links(),
         'font_list': font_list,
     }
     print template % d

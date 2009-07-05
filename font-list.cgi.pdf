@@ -21,6 +21,7 @@
 
 import config
 import tempfile, os, re, sys
+import cgi
 import hashlib
 from subprocess import Popen, check_call, PIPE
 
@@ -31,19 +32,13 @@ def get_font_list():
     return sorted(fonts, key=str.lower)
 
 
-def font_div(f):
-    return ('<div class="font" style="font-family: \'%s\'">'
-            '<big>%s </big> '
-            'The quick <b>brown fox</b> jumped over the <i>lazy dog</i>'
-            '...,;:"!@#$%%^&*()1234567890</div>' % (f, f))
-
-
-def font_html(fonts):
+def font_html(fonts, example_template):
     html = ['<html><style>'
-            'big {background: #ffc; padding: 0.25em} div{padding:0.6em 0}'
+            '.font-name {background: #ffc; padding: 0.25em; font-family: "Dejavu Sans", sans-serif}'
+            ' div{padding:0.6em 0}'
             '</style><body>']
     for f in fonts:
-        html.append(font_div(f))
+        html.append(example_template % {'font':f})
     html.append('</body></html>')
     return '\n'.join(html)
 
@@ -63,9 +58,11 @@ def html_font_list(fonts, name):
         f.write(x + '<br/>\n')
     f.close()
 
+
+
+
 #Instead of regenerating the pdf every time, which is expensive, keep
 #a cached version indexed by the font list and script version
-
 fonts = get_font_list()
 h = hashlib.sha1(str(fonts))
 
@@ -74,11 +71,20 @@ f = open(__file__)
 h.update(f.read())
 f.close()
 
-pdfname = os.path.join(config.BOOK_LIST_CACHE_DIR, 'font-list-' + h.hexdigest() + '.pdf')
+form = cgi.FieldStorage()
+script = form.getfirst('script')
+if script not in (x for x in os.listdir(config.FONT_EXAMPLE_SCRIPT_DIR) if x.isalnum()):
+    script = 'latin'
+
+pdfname = os.path.join(config.BOOK_LIST_CACHE_DIR, 'font-list-%s-%s.pdf' %(script, h.hexdigest()))
 
 if not os.path.exists(pdfname):
     #So this particular font list has not been made before
-    html = font_html(fonts)
+    f = open(os.path.join(config.FONT_EXAMPLE_SCRIPT_DIR, script))
+    example_template = f.read()
+    f.close()
+    
+    html = font_html(fonts, example_template)
     font_pdf(html, pdfname)
 
     include_name = os.path.join(config.BOOK_LIST_CACHE_DIR, 'font-list.inc')

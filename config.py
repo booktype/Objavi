@@ -143,6 +143,7 @@ ENGINES = {
 
 FONT_LIST_INCLUDE = 'cache/font-list.inc'
 FONT_LIST_URL = '/font-list.cgi.pdf'
+FONT_EXAMPLE_SCRIPT_DIR = 'templates/font-list'
 
 # for the license field, with a view to making it a drop down.
 LISENCES = ('GPL', 'GPLv2', 'GPLv2+', 'GPLv3', 'GPLv3+', 'LGPL', 'LGPLv2.1',
