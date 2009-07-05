@@ -15,7 +15,7 @@
 		AllowOverride None
 		Order allow,deny
 		Allow from all
-		AddHandler cgi-script .py	       		
+		AddHandler cgi-script .py .cgi
 	</Directory>
 
 	ErrorLog /var/log/apache2/objavi-error.log
@@ -25,6 +25,6 @@
 	LogLevel warn
 
 	CustomLog /var/log/apache2/objavi-access.log combined
-	#ScriptLog /tmp/objavi-cgi.log 
+	#ScriptLog /tmp/objavi-cgi.log
 
 </VirtualHost>
