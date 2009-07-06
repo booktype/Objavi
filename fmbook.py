@@ -732,7 +732,7 @@ class Book(object):
         if hasattr(self, 'xvfb'):
             d = self.xvfb_ready_time - time.time()
             if d > 0:
-                sleep(d)
+                time.sleep(d)
                 self.notify_watcher()
 
     def cleanup_x(self):
