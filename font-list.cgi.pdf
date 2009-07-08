@@ -35,7 +35,7 @@ def get_font_list():
 def font_html(fonts, example_template, dir="LTR"):
     html = ['<html dir="%s"><meta http-equiv="content-type" content="text/html; charset=utf-8"> <style>'
             '.font-name {background: #ffc; padding: 0.25em; font-family: "Dejavu Sans", sans-serif}'
-            ' div{padding:0.6em 0}'
+            ' div{padding:0.9em 0}'
             '</style><body>' % dir]
     for f in fonts:
         html.append(example_template % {'font':f})
@@ -67,6 +67,8 @@ h = hashlib.sha1(str(fonts))
 f = open(__file__)
 h.update(f.read())
 f.close()
+
+#XXX should also include the script example include in the hash
 
 form = cgi.FieldStorage()
 script = form.getfirst('script')
