@@ -10,7 +10,7 @@
 
 * cgi admin interface for changing CSS, server list, adding fonts
 
-* README, INSTALL, packaging (.deb etc)
+* Installer and packaging
 
 * look into wkhtml2pdf's hacks to make outline, contents.
    (+ perhaps something similar for mozilla - <h1> hooks)
@@ -26,4 +26,9 @@
 
 * fancier, more intuitive form.
 
-* add GPL boilerplate to various files
+* experiment with print css options in wkhtmltopdf
+
+* fix page-break rules in webkit and gecko.
+
+* consider open office as a layout engine.
+  (presumably: poor CSS, but good page-break control)
