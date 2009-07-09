@@ -37,6 +37,7 @@
 		AddHandler cgi-script .py .cgi
 	</Directory>
 
+        DirectoryIndex index.html objavi2.py
 	ErrorLog /var/log/apache2/objavi-error.log
 
 	# Possible values include: debug, info, notice, warn, error, crit,
