@@ -1,0 +1,196 @@
+Objavi2: another FLOSS Manuals publishing system
+================================================
+
+Introduction
+============
+
+FLOSS Manuals books are written and stored as HTML, but are converted
+to PDF for printing.  Programs which perform this task are called
+objavi (pronounced "ob-YAH-vee", as if the J was a Y), after the
+Croatian word "objavi!" meaning "publish!".
+
+the previous objavi, Objavi beta, works very well but is unable to
+process bidirectional text and is closely tied to the TWiki software
+that FLOSS Manuals intends to abandon.  Objavi2 was written to provide
+a fully internationalised objavi that is decoupled from other parts of
+the FLOSS Manuals system.  It was not intended to outdo Objavi beta at
+the things that Objavi beta does well, though in some regards it has
+and that is OK too.
+
+Objavi2 is free software, distributed under the version 2 or greater
+of the Gnu General Public License.  The source can be viewed at
+
+ http://repo.or.cz/w/objavi2.git
+
+which also contains instructions for cloning the git repository.  If
+you want a source tarball without worrying about git, try this link:
+
+ http://repo.or.cz/w/objavi2.git?a=snapshot;h=HEAD;sf=tgz
+
+It is primarily written in Python, with a substantial amount of
+QSAScript (an ECMAscript variant) and some Javascript, HTML, and CSS.
+
+Which Objavi should I use?
+==========================
+
+Short answer 
+~~~~~~~~~~~~ 
+Try both and see which you like, unless the book in question has
+right-to-left text, in which case you want Objavi2.
+
+Details 
+~~~~~~~ 
+Objavi beta (written in 2008 by Aleksandar Erkalovic) is a TWiki
+extension that uses Pisa to make PDFs.  Pisa lets you use CSS rules to
+avoid widowed or orphaned text and to adjust margins.  In other
+regards, its CSS support is variable.  This means Objavi beta makes
+well laid-out books, but people writing style rules need to be aware
+of its quirks and use peculiar workarounds to achieve certain effects.
+It only works with left-to-right scripts and possibly mis-renders some
+of those (due to not understanding combining characters).
+
+Objavi2 uses Webkit to make PDFs.  Webkit is a common web browser
+engine, so it interprets CSS in a fairly predictable fashion but also
+has almost no concept of paged media.  It does not recognise CSS rules
+for setting page sizes or margins and has limited support for
+controlling page breaks.  (There are actually ways in which margins
+can be customised with Webkit but Objavi2 does not yet expose them).
+Webkit has very well tested Unicode support and it handles
+bidirectional text.
+
+The page-break CSS properties supported by Webkit are
+page-break-before and page-break-after, which is sufficient to have
+each chapter start on a new page, but not to avoid breaking up
+paragraphs in unfortunate ways.
+
+Objavi2 is somewhat faster than Objavi beta.
+
+Compatibility
+~~~~~~~~~~~~~
+The two objavis share no code but have a similar CGI interface, so
+sending the same request might result in a PDF being produced
+whichever Objavi was installed.  This behaviour is inherited rather
+than guaranteed, and might fade away.
+
+
+The FLOSS Manuals Book Format
+=============================
+
+FLOSS Manuals source HTML
+~~~~~~~~~~~~~~~~~~~~~~~~~
+The subset of HTML used in FLOSS Manuals books has been pragmatically
+determined rather than specified.  The constraints that have shaped it
+are that the source must be:
+
+ 1. easily producible and editable using the Xinha editor and by hand,
+ 2. printable using Objavi beta,
+ 3. organised into chapters, and
+ 4. conformant to the instincts and habits of the authors.
+
+This has led to simplified HTML that has the following properties:
+
+ * Each chapter starts with an <h1> heading and contains no other <h1>
+   elements.
+
+ * Each chapter is in a separate file.
+
+ * Fixed width elements such as images are generally no bigger than
+   600 pixels wide.
+
+ * Inline style, class and id attributes are avoided.
+
+ * Many uncommon or irrelevant tags are avoided.
+
+ * <pre> blocks use less than about 80 columns, though this is
+   commonly broken.
+
+ * Spurious &nbsp; entities and the like are despised but are left
+   unmolested in practice unless they cause obvious problems.
+
+ * All of these guidelines are regularly broken if the printed page
+   looks OK.
+
+TOC.txt file 
+~~~~~~~~~~~~
+In addition to the HTML chapters, the source of a FLOSS Manuals book
+contains a file named TOC.txt which orders the chapters and groups
+them into sections.
+
+The TOC.txt format is quite simple but fiddly to describe and thus
+undocumented.  An example can be seen here:
+
+http://en.flossmanuals.net/pub/Audacity/_index/TOC.txt
+
+and decoding methods can be found in the Objavi2 source.  Much of the
+information encoded in the TOC.txt file is useless to Objavi.
+
+
+The objavi process
+==================
+
+Objavi2 starts with the chapters of a book concatenated in order, as
+provided by links like this:
+
+http://en.flossmanuals.net/bin/view/Audacity/_all?skin=text
+
+and separately fetches the TOC.txt file described above.  Using lxml
+(an xml/html library), it finds and numbers chapter headings,
+canonicalises image links, and inserts section headings which group
+related chapters together.  This modified HTML is sent to wkhtmltopdf,
+a command-line interface to Webkit that renders a PDF.  
+
+At this point the PDF has no page numbers, no gutters, no table of
+contents, and is using a too big paper size.  In order to write a
+table of contents, the text is re-extracted from the PDF and searched
+for invisible tags that were added along with the chapter numbers. (It
+is not possible to know what page a chapter will end up on before the
+PDF has been laid out).  The table of contents thus generated is
+combined with other preliminary pages and another PDF is created.
+
+Pdfedit is used to crop the pages down to size and to shift them
+alternately left and right, creating a gutter for the spine of the
+book.  Then pdfedit is used again to add page numbers to both PDFs,
+with lowercase roman numbers being used for the preliminary pages.
+
+Finally the two PDFs are combined using pdftk and, optionally, spun
+180 degrees so they appear upside down.  If a right-to-left book is
+printed like this on a left-to-right printer, the binding will be on
+the correct side.
+
+Pdfedit and wkhtmltopdf both require an X server to run, for which
+Xvfb is used.  
+
+How this differs from Objavi beta
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Because it is integrated into TWiki, Objavi beta doesn't need to fetch
+the book or the TOC.txt over the network, and can instead construct
+the html using the TWiki library.  Pisa adds page numbers and
+generates a table of contents as it goes, and the gutter is set using
+its advanced CSS page support.
+
+
+Future plans
+============
+
+There is a TODO in the git repository, but one or two items are worth
+expanding.  
+
+It should be easy to add Gecko as an optional layout engine, so people
+can choose between the Webkit and Gecko versions.  Some languages
+might suit one more than the other, and when one grows new paged media
+CSS features, Objavi2 will not be stuck with the wrong choice.
+
+On the other hand, Objavi2 could be tempted into a tighter snuggle
+with Webkit, as its front-end wkhtmltopdf is able to generate PDF
+outlines and tables of contents as it makes the PDF.  The way it does
+these things is currently unusable by Objavi2, but it could be
+changed.
+
+Another intriguing but probably stupid possibility would be to embed
+Webkit directly in Objavi2 using pyQT.
+
+
+Installation
+============
+
+See the INSTALL file.  Apologies for its inadequacy.

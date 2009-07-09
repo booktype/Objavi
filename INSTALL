@@ -1,0 +1,53 @@
+Installing Objavi2 on a Debian machine.
+
+
+0. Fetch the tarball or clone the git repositiory with
+
+   git clone git://repo.or.cz/objavi2.git
+
+(hint: this has probably already been done because that's how you
+found this file).
+
+
+1. Install dependencies.  Everything is apt-gettable in Debian Lenny or testing.
+
+lxml
+pdfedit          (4.1+)
+xvfb             (unnecessary if you're just testing under another X server)
+fontconfig
+ttf-???          (you'll need some fonts)
+pdftk
+pdfedit
+poppler-utils or xpdf-utils
+a httpd          (apache2 is easiest because a config file is included)
+
+
+2. Make sure the following two files are executable (and no others):
+
+./objavi2.py
+./font-list.cgi.pdf
+
+
+3. Make sure the following directories exist and are writable by
+   www-data (or whoever is you webserver user):
+
+books
+cache
+tmp
+
+The file ./setup.sh shows a way of doing this.
+
+
+4. Configure your webserver.  For apache 2.2 you can use the following steps:
+
+  4.1 edit the file apache-config-objavi2 and replace each occurrence
+      of '/home/douglas/objavi2' with the name of your objavi
+      directory.  Adjust other parameters as you see fit.
+ 
+  4.2 Copy apache-config-objavi2 to /etc/apache2/sites-available/objavi2
+  
+  4.3 sudo a2ensite objavi2 
+
+
+5. Restart or reload the webserver. 
+
