@@ -9,7 +9,8 @@ Installing Objavi2 on a Debian machine.
 found this file).
 
 
-1. Install dependencies.  Everything is apt-gettable in Debian Lenny or testing.
+1. Install dependencies.  Everything is apt-gettable in Debian Lenny except wkhtml2pdf, 
+   which is available in Squeeze (testing).
 
 lxml
 pdfedit          (4.1+)
@@ -19,8 +20,10 @@ ttf-???          (you'll need some fonts)
 pdftk
 pdfedit
 poppler-utils or xpdf-utils
-a httpd          (apache2 is easiest because a config file is included)
+httpd            (apache2 is easiest because a config file is included)
 
+wkhtmltopdf     (download from http://code.google.com/p/wkhtmltopdf/ - you
+                 can choose whether to compile or use the existing binary)
 
 2. Make sure the following two files are executable (and no others):
 
