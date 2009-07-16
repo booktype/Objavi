@@ -35,6 +35,9 @@ WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
 #WKHTMLTOPDF_EXTRA_COMMANDS = ['--outline',  '-t']
 
+# how many pages to number in one pdfedit process (which has
+# exponential memory leak)
+PDFEDIT_MAX_PAGES = 40
 
 #keep book lists around for this time without refetching
 BOOK_LIST_CACHE = 3600 * 2

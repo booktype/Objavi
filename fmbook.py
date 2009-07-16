@@ -32,12 +32,11 @@ import lxml.etree, lxml.html
 import lxml, lxml.html, lxml.etree
 
 import config
-from config import SERVER_DEFAULTS, DEFAULT_SERVER, POINT_2_MM
+from config import SERVER_DEFAULTS, DEFAULT_SERVER, POINT_2_MM, PDFEDIT_MAX_PAGES
 
 TMPDIR = os.path.abspath(config.TMPDIR)
 DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
 PUBLISH_PATH = "%s/books/" % DOC_ROOT
-PDFEDIT_MAX_PAGES = 50
 
 
 def log(*messages, **kwargs):
