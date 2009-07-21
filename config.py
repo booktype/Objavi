@@ -91,7 +91,7 @@ SERVER_DEFAULTS = {
 # uncomment a debug mode to get messages about that topic.
 DEBUG_MODES = (
     #'STARTUP',
-    'INDEX',
+    #'INDEX',
     #'PDFEDIT',
     #'PDFGEN',
     #'HTMLGEN',
@@ -140,7 +140,7 @@ PAGE_SIZE_DATA = {
 
 ENGINES = {
     'webkit' : [],
-    'gecko' : [],
+    #'gecko' : [],
 }
 
 FONT_LIST_INCLUDE = 'cache/font-list.inc'
