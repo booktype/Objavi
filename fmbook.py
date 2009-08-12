@@ -295,6 +295,7 @@ class Book(object):
         if self.watcher:
             if  message is None:
                 #message is the name of the caller
+                #XXX look at using inspect module
                 import traceback
                 message = traceback.extract_stack(None, 2)[0][2]
                 log("notify_watcher called by '%s'" % message)
