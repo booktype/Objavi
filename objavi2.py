@@ -26,17 +26,28 @@ from urllib2 import urlopen
 from getopt import gnu_getopt
 
 from fmbook import log, Book
-from fmbook import PAGE_SETTINGS, SERVER_DEFAULTS, DEFAULT_SERVER
+from fmbook import SERVER_DEFAULTS, DEFAULT_SERVER
 
 import config
-from config import BOOK_LIST_CACHE, BOOK_LIST_CACHE_DIR
+from config import BOOK_LIST_CACHE, BOOK_LIST_CACHE_DIR, PAGE_SIZE_DATA
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
 PROGRESS_TEMPLATE = os.path.abspath('templates/progress.html')
 
+def isfloat(s):
+    #spaces?, digits!, dot?, digits?, spaces?
+    #return re.compile(r'^\s*[+-]?\d+\.?\d*\s*$').match
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+def isfloat_or_auto(s):
+    return isfloat(s) or s.lower() in ('', 'auto')
+
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
 # functions to validate their values. (None means no validation).
-
 ARG_VALIDATORS = {
     "webName": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah
     "css": None, # an url, empty (for default), or css content
@@ -46,7 +57,15 @@ ARG_VALIDATORS = {
     "license": lambda x: len(x) < 999, #should be a codename?
     "server": SERVER_DEFAULTS.__contains__,
     "engine": config.ENGINES.__contains__,
-    "booksize": PAGE_SETTINGS.__contains__,
+    "booksize": PAGE_SIZE_DATA.__contains__,
+    "pagewidth": isfloat,
+    "pageheight": isfloat,
+    "gutter": isfloat_or_auto,
+    "top_margin": isfloat_or_auto,
+    "side_margin": isfloat_or_auto,
+    "bottom_margin": isfloat_or_auto,
+    "columns": isfloat_or_auto,    
+    "column_margin": isfloat_or_auto,    
     "cgi-context": lambda x: x.lower() in '1true0false',
     "mode": str.isalnum,
     "rotate": u"rotate".__eq__,
@@ -110,14 +129,18 @@ def get_book_list(server):
     return items
 
 def get_size_list():
-    #XXX PAGE_SETTINGS instances are only constructed for this list.
-    # the area and mmsizes could be calculated seperately here from PAGE_SIZE_DATA
-
     #order by increasing areal size.
-    ordered = [x[1] for x in
-               sorted((v.area, v) for v in PAGE_SETTINGS.values())]
-    return [(v.name, '%s (%dmm x %dmm)' % (v.name, v.mmsize[0], v.mmsize[1]))
-            for v in ordered]
+    def calc_size(name, pointsize):
+        if pointsize:
+            mmx = pointsize[0] * config.POINT_2_MM
+            mmy = pointsize[1] * config.POINT_2_MM
+            return (mmx * mmy, name,
+                    '%s (%dmm x %dmm)' % (name, mmx, mmy))
+        return (0, name, name) # presumably 'custom'
+
+    return [x[1:] for x in sorted(calc_size(k, v.get('pointsize'))
+                                  for k, v in PAGE_SIZE_DATA.iteritems())
+            ]
 
 
 def optionise(items, default=None):
@@ -159,13 +182,15 @@ def font_links():
     return ', '.join(links)
 
 
-def show_form(args, server, webname, size='COMICBOOK', engine='webkit'):
+def show_form(args, server, webname):
     f = open(FORM_TEMPLATE)
     template = f.read()
     f.close()
     f = open(config.FONT_LIST_INCLUDE)
     font_list = f.read()
     f.close()
+    size = args.get('booksize', config.DEFAULT_SIZE)
+    engine = args.get('engine', config.DEFAULT_ENGINE)
     d = {
         'server_options': optionise(get_server_list(), default=server),
         'book_options': optionise(get_book_list(server), default=webname),
@@ -206,13 +231,29 @@ def make_book_name(webname, server):
     return '%s-%s-%s.pdf' % (webname, lang,
                              time.strftime('%Y.%m.%d-%H.%M.%S'))
 
+
+def get_page_size(args):
+    """args['booksize'] is either a keyword describing a size or
+    'custom'.  If it is custom, the form is inspected for specific
+    dimensions -- otherwise these are ignored."""
+    size = args.get('booksize', config.DEFAULT_SIZE)
+    if size != 'custom':
+        return config.PAGE_SIZE_DATA[size]
+    wmax, hmax = config.PAGE_MAX_SIZE
+    wmin, hmin = config.PAGE_MIN_SIZE
+    w = min(max(args.get('page_width'), wmin), wmax)
+    h = min(max(args.get('page_height'), hmin), hmax)
+    return {'pointsize': (w, h)}
+
+
 if __name__ == '__main__':
     args = parse_args()
     webname = args.get('webName')
     server = args.get('server', config.DEFAULT_SERVER)
-    size = args.get('booksize', config.DEFAULT_SIZE)
     engine = args.get('engine', config.DEFAULT_ENGINE)
     mode = args.get('mode')
+
+    dimensions = get_page_size(args)
 
     cgi_context = 'SERVER_NAME' in os.environ or args.get('cgi-context', 'NO').lower() in '1true'
     if cgi_context:
@@ -228,7 +269,7 @@ if __name__ == '__main__':
 
     if not webname or not server:
         if cgi_context:
-            show_form(args, server, webname, size)
+            show_form(args, server, webname)
         else:
             print __doc__
         sys.exit()
@@ -243,7 +284,7 @@ if __name__ == '__main__':
     #XXX could use 'with Book() as book': to makesure cleanup happens
     # (or try ... finally)
 
-    book = Book(webname, server, bookname, pagesize=size, engine=engine,
+    book = Book(webname, server, bookname, pagesize=dimensions, engine=engine,
                 watcher=progress_bar
                 )
 
@@ -251,10 +292,9 @@ if __name__ == '__main__':
         book.spawn_x()
 
     book.load()
-
     book.set_title(args.get('title'))
     book.add_css(args.get('css'))
-    
+
     book.compose_inside_cover(args.get('license'), args.get('isbn'))
 
     book.add_section_titles()

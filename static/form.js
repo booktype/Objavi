@@ -1,5 +1,5 @@
 /* Part of Objavi2, which turns html manuals into books. This file
- * provides javascript to help people select the book and options they 
+ * provides javascript to help people select the book and options they
  * want.
  *
  * Copyright (C) 2009 Douglas Bagnall
@@ -31,7 +31,6 @@ function toggle_advanced(){
     }
     return false;
 }
-
 
 function css_mode_switch(){
     var v = $("#css-control").val();
@@ -76,6 +75,11 @@ function load_css(){
 }
 
 
+function toggle_custom_size(){
+    var v = $("#booksize").val();
+    var x = (v == 'custom') ? 'table-row' : 'none';
+    $('.booksize').css({display: x});
+}
 
 function onload(){
     $(".advanced").addClass("gone");
@@ -85,7 +89,8 @@ function onload(){
     }
 
     $("#toggle-advanced").click(toggle_advanced);
-
+    $("#booksize").change(toggle_custom_size);
+    toggle_custom_size();
     $("#server").change(load_booklist);
 
     $("#css-control").change(css_mode_switch);

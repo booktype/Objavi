@@ -250,7 +250,6 @@ class PageSettings:
             concat_pdfs(pdf, *pdf_sections)
 
 
-PAGE_SETTINGS = dict((k, PageSettings(k, **v)) for k, v in config.PAGE_SIZE_DATA.iteritems())
 
 def concat_pdfs(name, *args):
     """Join all the named pdfs together into one and save it as <name>"""
@@ -283,7 +282,6 @@ def rotate_pdf(pdfin, pdfout):
 
 
 class Book(object):
-    pagesize = 'COMICBOOK'
     page_numbers = 'latin'
     preamble_page_numbers = 'roman'
     engine= 'webkit'
@@ -326,9 +324,8 @@ class Book(object):
 
         self.book_url = config.BOOK_URL % (self.server, self.webname)
         self.toc_url = config.TOC_URL % (self.server, self.webname)
-        if pagesize is not None:
-            self.pagesize = pagesize
-        self.maker = PAGE_SETTINGS[self.pagesize]
+
+        self.set_page_dimensions(pagesize)
 
         if engine is not None:
             self.engine = engine
@@ -368,6 +365,10 @@ class Book(object):
         fn = self.filepath(fn)
         self.save_data(fn, data)
         return fn
+
+    def set_page_dimensions(self, dimensions):
+        self.maker = PageSettings(**dimensions)
+
 
     def extract_pdf_text(self):
         """Extract the text from the body pdf, split into pages, so

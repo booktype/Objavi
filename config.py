@@ -26,6 +26,7 @@
 #Not really configurable (72 pt per inch / 25.4 mm per inch)
 POINT_2_MM = 25.4 / 72.0
 MM_2_POINT = 72.0 / 25.4
+INCH_TO_POINT = 72
 
 KEEP_TEMP_FILES=True
 TMPDIR = 'tmp'
@@ -139,7 +140,12 @@ PAGE_SIZE_DATA = {
     "CROWNQUARTO":  {'pointsize': (7.444 * 72, 9.681 * 72)},
     "SQUARE8.5":    {'pointsize': (8.5 * 72, 8.5 * 72)},
     "A5":           {'pointsize': (148 * MM_2_POINT, 210 * MM_2_POINT)},
+
+    "custom":       {},
 }
+
+PAGE_MIN_SIZE = (1.0, 1.0)
+PAGE_MAX_SIZE = (3000.0, 3000.0)
 
 ENGINES = {
     'webkit' : [],

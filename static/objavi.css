@@ -69,3 +69,13 @@ textarea {
 td {
   vertical-align: top;
 }
+
+.booksize td 
+{ 
+  background: #ffc;
+}
+
+.numeric-field input
+{ 
+  width: 5em;
+}

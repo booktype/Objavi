@@ -62,7 +62,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
               <td>
                 <label for="license">License</label>
               </td><td>
-            <input type="text" name="license" value="GPL"/>
+              <input type="text" name="license" value="GPL"/>
               </td>
             </tr>
             <tr class="advanced">
@@ -85,9 +85,40 @@ with this program; if not, write to the Free Software Foundation, Inc.,
               <td>
                 <label for="booksize">Page size</label>
               </td><td>
-            <select name="booksize">%(size_options)s</select>
+            <select id="booksize" name="booksize">%(size_options)s</select>
               </td>
             </tr>
+
+            <tr class="advanced booksize numeric-field">
+              <td>
+                custom size (mm)
+              </td><td>              
+              Width: <input type="text" id="page_width" name="page_width" value=""/>
+              Height: <input type="text" id="page_height" name="page_height" value=""/>
+              </td>
+            </tr>
+
+            <tr class="advanced booksize numeric-field">
+              <td>
+                Margins (mm)
+              </td><td>
+              Top: <input type="text" id="top_margins" name="top_margins" value=""/>
+              Sides: <input type="text" id="side_margins" name="side_margins" value=""/>
+              Bottom: <input type="text" id="bottom_margins" name="bottom_margins" value=""/>
+              </td>
+            </tr>
+
+            <tr class="advanced booksize numeric-field">
+              <td>
+                gutter and columns (mm)
+              </td><td>
+              gutter: <input type="text" id="gutter" name="gutter" value=""/>
+              columns: <input type="text" id="columns" name="columns" value=""/>
+              column margin: <input type="text" id="column_margin" name="column_margin" value=""/>
+              </td>
+            </tr>
+
+
             <tr class="advanced">
               <td>
                 <label for="engine">Layout Engine</label>
