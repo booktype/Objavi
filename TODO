@@ -1,34 +1,36 @@
-* mozilla rendering engine
-
-* ISBN barcode
+* multi-column and map fold pdf 
 
 * localised inside cover text
+
+* ISBN numbers and barcode
+
+* fancier, more intuitive form.
+
+* open office output
+
+* web pdf ouytput (no gutters, with outline)
+
+* cgi admin interface for changing CSS, server list, adding fonts
+
+* experiment with max-width, width, etc combinations for pre and img
+   CSS
+
+* fix page-break rules in webkit and gecko.
+
+* mozilla rendering engine
+
+* print warnings and errors and optionally logs to web page
+
+* arbitrary fonts for page numbers (so non-western numbers work)
+
+* experiment with print css options in wkhtmltopdf
 
 * customisable margins and gutter
 
 * custom sizes
-
-* cgi admin interface for changing CSS, server list, adding fonts
 
 * Installer and packaging
 
 * look into wkhtml2pdf's hacks to make outline, contents.
    (+ perhaps something similar for mozilla - <h1> hooks)
 
-* experiment with max-width, width, etc combinations for pre and img
-   CSS
-
-* print warnings and errors and optionally logs to web page
-
-* arbitrary fonts for page numbers (so non-western numbers work)
-
-* columned / map-fold output.
-
-* fancier, more intuitive form.
-
-* experiment with print css options in wkhtmltopdf
-
-* fix page-break rules in webkit and gecko.
-
-* consider open office as a layout engine.
-  (presumably: poor CSS, but good page-break control)
