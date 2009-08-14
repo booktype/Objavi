@@ -123,11 +123,10 @@ def find_containing_paper(w, h):
 class PageSettings:
     """Calculates and wraps commands for the generation and processing
     of PDFs"""
-    def __init__(self, name, pointsize, moz_printer=None,
+    def __init__(self, pointsize, moz_printer=None,
                  gutter=None, margins=None):
 
         self.width, self.height = pointsize
-        self.name = name
         self.mmsize = [x * POINT_2_MM for x in pointsize]
         self.area = self.width * self.height
 
@@ -135,7 +134,7 @@ class PageSettings:
             gutter = (config.BASE_GUTTER +
                       config.PROPORTIONAL_GUTTER * self.width)
 
-        #XXX does papersize depend on gutter? sort of / depends how it is done.
+        #XXX does papersize depend on gutter? sort of? depends how it is done?
         self.papersize, clipx, clipy = find_containing_paper(self.width, self.height)
 
         if margins is None:
@@ -158,8 +157,8 @@ class PageSettings:
         self.number_bottom = margin - 0.6 * config.PAGE_NUMBER_SIZE
         self.number_margin = margin
 
-        log("%s:\npapersize is %s\nmargin is %s\ngutter is %s\nclip is %s\nmargins is %s" %
-            (name, self.papersize, margin, gutter, (clipx, clipy), self.margins), debug='PDFGEN')
+        log("papersize is %s\nmargin is %s\ngutter is %s\nclip is %s\nmargins is %s" %
+            (self.papersize, margin, gutter, (clipx, clipy), self.margins), debug='PDFGEN')
 
 
 
@@ -204,8 +203,8 @@ class PageSettings:
                ]
         run(cmd)
 
-    def _number_pdf(self, pdf, size='COMICBOOK', numbers='latin',
-                    dir='LTR', number_start=1, engine='webkit'):
+    def _number_pdf(self, pdf, numbers='latin', dir='LTR',
+                    number_start=1):
         cmd = ['pdfedit', '-s', 'wk_objavi.qs',
                'operation=page_numbers',
                'dir=%s' % dir,
@@ -403,7 +402,7 @@ class Book(object):
 
         #5 add page numbers
         self.maker.number_pdf(self.body_pdf_file, n_pages, dir=self.dir,
-                            size=self.pagesize, numbers=self.page_numbers)
+                              numbers=self.page_numbers)
         self.notify_watcher("number_pdf")
         self.notify_watcher()
 
@@ -427,10 +426,9 @@ class Book(object):
 
         self.maker.reshape_pdf(self.preamble_pdf_file, self.dir, centre_start=True)
 
-        self.maker.number_pdf(self.preamble_pdf_file, None,
-                            dir=self.dir, size=self.pagesize,
+        self.maker.number_pdf(self.preamble_pdf_file, None, dir=self.dir,
                             numbers=self.preamble_page_numbers,
-                            number_start=-2, engine=self.engine)
+                            number_start=-2)
 
         self.notify_watcher()
 
