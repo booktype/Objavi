@@ -700,9 +700,7 @@ class Book(object):
 
         #mcookie(1) eats into /dev/random, so avoid that
         from hashlib import md5
-        f = open('/dev/urandom')
-        m = md5("%r %r %r %r %r" % (self, os.environ, os.getpid(), time.time(), f.read(32)))
-        f.close()
+        m = md5("%r %r %r %r %r" % (self, os.environ, os.getpid(), time.time(), os.urandom(32)))
         mcookie = m.hexdigest()
 
         check_call(['xauth', 'add', self.xserver_no, '.', mcookie])
@@ -718,9 +716,8 @@ class Book(object):
                            '-nolisten', 'tcp',
                            ])
 
-
         # We need to wait a bit before the Xvfb is ready.  but the
-        # downloads are so slow that that probaby doesn't matter
+        # downloads are so slow that that probably doesn't matter
 
         self.xvfb_ready_time = time.time() + 2
 
