@@ -146,6 +146,8 @@ def get_size_list():
 
 
 def optionise(items, default=None):
+    """Make a list of strings into an html option string, as would fit
+    inside <select> tags."""
     options = []
     for x in items:
         if isinstance(x, str):
@@ -164,6 +166,7 @@ def optionise(items, default=None):
     return '\n'.join(options)
 
 def get_default_css(server=DEFAULT_SERVER):
+    """Get the default CSS text for the selected server"""
     log(server)
     cssfile = SERVER_DEFAULTS[server]['css']
     log(cssfile)
@@ -182,8 +185,6 @@ def font_links():
             continue
         links.append('<a href="%s?script=%s">%s</a>' % (config.FONT_LIST_URL, script, script))
     return ', '.join(links)
-
-
 
 
 def make_progress_page(webname, bookname):
@@ -238,7 +239,6 @@ def output_and_exit(f):
             print "Content-type: text/html; charset=utf-8\n"
         f(args)
         sys.exit()
-
     return output
 
 @output_and_exit
