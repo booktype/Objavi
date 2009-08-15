@@ -72,7 +72,7 @@ def _add_chapter_cookie(e):
     #e.append(cookie)
 
 
-class TocItem:
+class TocItem(object):
     """This makes sense of the tuples from TOC.txt files"""
     def __init__(self, status, chapter, title):
         # status is
@@ -120,7 +120,7 @@ def find_containing_paper(w, h):
 
 
 
-class PageSettings:
+class PageSettings(object):
     """Calculates and wraps commands for the generation and processing
     of PDFs"""
     def __init__(self, pointsize, moz_printer=None,
