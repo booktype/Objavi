@@ -216,18 +216,45 @@ def make_book_name(webname, server):
                              time.strftime('%Y.%m.%d-%H.%M.%S'))
 
 
-def get_page_size(args):
-    """args['booksize'] is either a keyword describing a size or
+def get_page_settings(args):
+    """Find the size and any optional layout settings.
+
+    args['booksize'] is either a keyword describing a size or
     'custom'.  If it is custom, the form is inspected for specific
-    dimensions -- otherwise these are ignored."""
+    dimensions -- otherwise these are ignored.
+
+    The margins, gutter, number of columns, and column
+    margins all set themselves automatically based on the page
+    dimensions, but they can be overridden.  Any that are are
+    collected here."""
+    #get all the values including sizes first
+    settings = {}
+    for k, extrema in config.PAGE_EXTREMA.iteritems():
+        try:
+            v = float(args.get(k))
+        except (ValueError, TypeError):
+            log("don't like %r as a float value for %s!" % (args.get(k), k))
+            continue
+        if v < extrema[0] or v > extrema[1]:
+            log('rejecting %s: outside %s' % (v,) + extrema)
+        else:
+            log('found %s=%s' % (k, v))
+            settings[k] = v * config.MM_2_POINT
+
+    #now if args['size'] is not 'custom', the width height above
+    # is overruled.
+
     size = args.get('booksize', config.DEFAULT_SIZE)
     if size != 'custom':
-        return config.PAGE_SIZE_DATA[size]
-    wmax, hmax = config.PAGE_MAX_SIZE
-    wmin, hmin = config.PAGE_MIN_SIZE
-    w = min(max(args.get('page_width'), wmin), wmax)
-    h = min(max(args.get('page_height'), hmin), hmax)
-    return {'pointsize': (w * config.MM_2_POINT, h * config.MM_2_POINT)}
+        settings.update(config.PAGE_SIZE_DATA[size])
+    else:
+        #will raise KeyError if width, height aren't set
+        settings['pointsize'] = (settings['page_width'], settings['page_height'])
+        del settings['page_width']
+        del settings['page_height']
+        
+    return settings
+
 
 
 def cgi_context(args):
@@ -282,7 +309,7 @@ def mode_book(args):
     server = args.get('server', config.DEFAULT_SERVER)
     engine = args.get('engine', config.DEFAULT_ENGINE)
 
-    dimensions = get_page_size(args)
+    page_settings = get_page_settings(args)
 
     bookname = make_book_name(webname, server)
 
@@ -291,9 +318,8 @@ def mode_book(args):
     else:
         progress_bar = print_progress
 
-    with Book(webname, server, bookname, pagesize=dimensions, engine=engine,
-              watcher=progress_bar
-              ) as book:
+    with Book(webname, server, bookname, page_settings=page_settings, engine=engine,
+              watcher=progress_bar) as book:
         if cgi_context(args):
             book.spawn_x()
         book.load()
