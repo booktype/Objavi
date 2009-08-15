@@ -227,7 +227,7 @@ def get_page_size(args):
     wmin, hmin = config.PAGE_MIN_SIZE
     w = min(max(args.get('page_width'), wmin), wmax)
     h = min(max(args.get('page_height'), hmin), hmax)
-    return {'pointsize': (w * MM_2_POINT, h * MM_2_POINT)}
+    return {'pointsize': (w * config.MM_2_POINT, h * config.MM_2_POINT)}
 
 
 def cgi_context(args):
