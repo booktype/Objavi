@@ -690,10 +690,15 @@ class Book(object):
         )
 
 
-
     def spawn_x(self):
+        """Start an Xvfb instance, using a new server number.  A
+        reference to it is stored in self.xvfb, which is used to kill
+        it when the pdf is done.
+
+        Note that Xvfb doesn't interact well with dbus which is
+        present on modern desktops.
+        """
         #Find an unused server number (in case two cgis are running at once)
-        import random
         while True:
             servernum = random.randrange(50, 500)
             if not os.path.exists('/tmp/.X%s-lock' % servernum):
@@ -753,6 +758,34 @@ class Book(object):
         else:
             log("Xvfb would not die! kill -9! kill -9!")
             os.kill(p.pid, 9)
+
+        if random.random() < 0.05:
+            #kill old xvfbs occasionally, if there are any.
+            self.kill_old_xvfbs()
+
+    def kill_old_xvfbs(self):
+        """Sometimes, despite everything, Xvfb instances hang around
+        well after they are wanted -- for example if the cgi process
+        dies particularly badly. So kill them if they have been
+        running for a long time."""
+        log("running kill_old_xvfbs")
+        p = Popen(['ps', '-C' 'Xvfb', '-o', 'pid,etime', '--no-headers'], stdout=PIPE)
+        data = p.communicate().strip()
+        if data:
+            lines = data.split('\n')
+            for line in lines:
+                log('dealing with ps output "%s"' % line)
+                try:
+                    pid, days_, hours, minutes, seconds = re.match(r'^(\d+)\s+(\d+-)?(\d{2})?:?(\d{2}):(\d+)\s*$').groups()
+                except AttributeError:
+                    log("Couldn't parse that line!")
+                # 50 minutes should be enough xvfb time for anyone
+                if days or hours or int(minutes) > 50:
+                    log("going to kill pid %s" % pid)
+                    os.kill(int(pid), 15)
+                    time.sleep(0.5)
+                    os.kill(int(pid), 9)
+        self.notify_watcher()
 
     def cleanup(self):
         self.cleanup_x()

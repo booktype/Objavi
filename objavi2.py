@@ -19,6 +19,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """Make a pdf from the specified book."""
+from __future__ import with_statement
+
 import os, sys
 import cgi
 import re, time
@@ -64,8 +66,8 @@ ARG_VALIDATORS = {
     "top_margin": isfloat_or_auto,
     "side_margin": isfloat_or_auto,
     "bottom_margin": isfloat_or_auto,
-    "columns": isfloat_or_auto,    
-    "column_margin": isfloat_or_auto,    
+    "columns": isfloat_or_auto,
+    "column_margin": isfloat_or_auto,
     "cgi-context": lambda x: x.lower() in '1true0false',
     "mode": str.isalnum,
     "rotate": u"rotate".__eq__,
@@ -182,25 +184,6 @@ def font_links():
     return ', '.join(links)
 
 
-def show_form(args, server, webname):
-    f = open(FORM_TEMPLATE)
-    template = f.read()
-    f.close()
-    f = open(config.FONT_LIST_INCLUDE)
-    font_list = f.read()
-    f.close()
-    size = args.get('booksize', config.DEFAULT_SIZE)
-    engine = args.get('engine', config.DEFAULT_ENGINE)
-    d = {
-        'server_options': optionise(get_server_list(), default=server),
-        'book_options': optionise(get_book_list(server), default=webname),
-        'size_options': optionise(get_size_list(), default=size),
-        'engines': optionise(config.ENGINES.keys(), default=engine),
-        'css': get_default_css(server),
-        'font_links': font_links(),
-        'font_list': font_list,
-    }
-    print template % d
 
 
 def make_progress_page(webname, bookname):
@@ -246,66 +229,101 @@ def get_page_size(args):
     return {'pointsize': (w, h)}
 
 
-if __name__ == '__main__':
-    args = parse_args()
+def cgi_context(args):
+    return 'SERVER_NAME' in os.environ or args.get('cgi-context', 'NO').lower() in '1true'
+
+def output_and_exit(f):
+    def output(args):
+        if cgi_context(args):
+            print "Content-type: text/html; charset=utf-8\n"
+        f(args)
+        sys.exit()
+
+    return output
+
+@output_and_exit
+def mode_booklist(args):
+    print optionise(get_book_list(args.get('server', config.DEFAULT_SERVER)),
+                    default=args.get('webName'))
+
+@output_and_exit
+def mode_css(args):
+    #XX sending as text/html, but it doesn't really matter
+    print get_default_css(args.get('server', config.DEFAULT_SERVER))
+    sys.exit()
+
+@output_and_exit
+def mode_form(args):
+    f = open(FORM_TEMPLATE)
+    template = f.read()
+    f.close()
+    f = open(config.FONT_LIST_INCLUDE)
+    font_list = f.read()
+    f.close()
+    server = args.get('server', config.DEFAULT_SERVER)
+    webname = args.get('webName')
+    size = args.get('booksize', config.DEFAULT_SIZE)
+    engine = args.get('engine', config.DEFAULT_ENGINE)
+    d = {
+        'server_options': optionise(get_server_list(), default=server),
+        'book_options': optionise(get_book_list(server), default=webname),
+        'size_options': optionise(get_size_list(), default=size),
+        'engines': optionise(config.ENGINES.keys(), default=engine),
+        'css': get_default_css(server),
+        'font_links': font_links(),
+        'font_list': font_list,
+    }
+    print template % d
+
+@output_and_exit
+def mode_book(args):
+    # so we're making a book.
     webname = args.get('webName')
     server = args.get('server', config.DEFAULT_SERVER)
     engine = args.get('engine', config.DEFAULT_ENGINE)
-    mode = args.get('mode')
 
     dimensions = get_page_size(args)
 
-    cgi_context = 'SERVER_NAME' in os.environ or args.get('cgi-context', 'NO').lower() in '1true'
-    if cgi_context:
-        print "Content-type: text/html; charset=utf-8\n"
-
-    if mode == 'booklist':
-        print optionise(get_book_list(server), default=webname)
-        sys.exit()
-    if mode == 'css':
-        #XX sending as text/html, but it doesn't really matter
-        print get_default_css(server=server)
-        sys.exit()
-
-    if not webname or not server:
-        if cgi_context:
-            show_form(args, server, webname)
-        else:
-            print __doc__
-        sys.exit()
-
-    # so we're making a book.
     bookname = make_book_name(webname, server)
-    if cgi_context:
+
+    if cgi_context(args):
         progress_bar = make_progress_page(webname, bookname)
     else:
         progress_bar = print_progress
 
-    #XXX could use 'with Book() as book': to makesure cleanup happens
-    # (or try ... finally)
+    with Book(webname, server, bookname, pagesize=dimensions, engine=engine,
+              watcher=progress_bar
+              ) as book:
+        if cgi_context(args):
+            book.spawn_x()
+        book.load()
+        book.set_title(args.get('title'))
+        book.add_css(args.get('css'))
 
-    book = Book(webname, server, bookname, pagesize=dimensions, engine=engine,
-                watcher=progress_bar
-                )
+        book.compose_inside_cover(args.get('license'), args.get('isbn'))
+        book.add_section_titles()
+        book.make_pdf()
 
-    if cgi_context:
-        book.spawn_x()
+        if "rotate" in args:
+            book.rotate180()
 
-    book.load()
-    book.set_title(args.get('title'))
-    book.add_css(args.get('css'))
+        book.publish_pdf()
+        book.notify_watcher('finished')
+        #book.cleanup()
 
-    book.compose_inside_cover(args.get('license'), args.get('isbn'))
 
-    book.add_section_titles()
 
-    book.make_pdf()
+if __name__ == '__main__':
+    args = parse_args()
+    mode = args.get('mode')
+    if mode is None and 'webName' in args:
+        mode = 'book'
 
-    if "rotate" in args:
-        book.rotate180()
+    if not args and not cgi_context(args):
+        print __doc__
+        sys.exit()
 
-    book.publish_pdf()
+    output_function = globals().get('mode_' + mode, mode_form)
+    output_function(args)
 
-    book.cleanup()
 
-    book.notify_watcher('finished')
