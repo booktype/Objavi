@@ -297,6 +297,12 @@ class Book(object):
                 log("notify_watcher called by '%s'" % message)
             self.watcher(message)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.cleanup()
+        #could deal with exceptions here and return true
 
     def __init__(self, webname, server, bookname,
                  pagesize=None, engine=None, watcher=None):
