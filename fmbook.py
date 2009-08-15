@@ -123,8 +123,9 @@ def find_containing_paper(w, h):
 class PageSettings(object):
     """Calculates and wraps commands for the generation and processing
     of PDFs"""
-    def __init__(self, pointsize, moz_printer=None,
-                 gutter=None, margins=None):
+    def __init__(self, pointsize, moz_printer=None, gutter=None,
+                 top_margin=None, side_margin=None, bottom_margin=None,
+                 columns=None, column_margin=None):
 
         self.width, self.height = pointsize
         self.mmsize = [x * POINT_2_MM for x in pointsize]
@@ -137,28 +138,36 @@ class PageSettings(object):
         #XXX does papersize depend on gutter? sort of? depends how it is done?
         self.papersize, clipx, clipy = find_containing_paper(self.width, self.height)
 
-        if margins is None:
-            margin = (config.BASE_MARGIN +
-                      config.PROPORTIONAL_MARGIN * min(pointsize))
-            margins = [ x * POINT_2_MM for x in
-                        #css style, clockwise from top
-                        (clipy + margin,
-                         clipx + margin + 0.5 * gutter,
-                         clipy + margin + 0.5 * config.PAGE_NUMBER_SIZE,
-                         clipx + margin + 0.5 * gutter
-                         )]
+        default_margin = (config.BASE_MARGIN + config.PROPORTIONAL_MARGIN * min(pointsize))
+        if bottom_margin is None:
+            bottom_margin = default_margin
+        if side_margin is None:
+            side_margin = default_margin
+        if top_margin is None:
+            top_margin = default_margin
+
+        self.number_bottom = bottom_margin - 0.6 * config.PAGE_NUMBER_SIZE
+        self.number_margin = side_margin
+
+        # claculate margins in mm for browsers
+        margins = [(m + clip) * POINT_2_MM
+                   for m, clip in ((top_margin, clipy),
+                                   (side_margin, clipx + 0.5 * gutter),
+                                   (bottom_margin, clipy + 0.5 * config.PAGE_NUMBER_SIZE),
+                                   (side_margin, clipx + 0.5 * gutter),
+                                   )
+                   ]
 
         if moz_printer is None:
             moz_printer = 'objavi_' + self.papersize
 
-        self.gutter = gutter
         self.margins = margins
         self.moz_printer = moz_printer
-        self.number_bottom = margin - 0.6 * config.PAGE_NUMBER_SIZE
-        self.number_margin = margin
-
-        log("papersize is %s\nmargin is %s\ngutter is %s\nclip is %s\nmargins is %s" %
-            (self.papersize, margin, gutter, (clipx, clipy), self.margins), debug='PDFGEN')
+        self.gutter = gutter
+        self.columns = columns
+        self.column_margin = column_margin
+        log("papersize is %s\nmargins are %s\ngutter is %s\nclip is %s\nmargins is %s" %
+            (self.papersize, margins, gutter, (clipx, clipy), self.margins), debug='PDFGEN')
 
 
 
@@ -305,7 +314,7 @@ class Book(object):
         #could deal with exceptions here and return true
 
     def __init__(self, webname, server, bookname,
-                 pagesize=None, engine=None, watcher=None):
+                 page_settings=None, engine=None, watcher=None):
         log("*** Starting new book %s ***" % bookname)
         self.webname = webname
         self.server = server
@@ -331,7 +340,7 @@ class Book(object):
         self.book_url = config.BOOK_URL % (self.server, self.webname)
         self.toc_url = config.TOC_URL % (self.server, self.webname)
 
-        self.set_page_dimensions(pagesize)
+        self.set_page_dimensions(page_settings)
 
         if engine is not None:
             self.engine = engine
@@ -798,4 +807,5 @@ class Book(object):
             log(*os.listdir(self.workdir))
 
         self.notify_watcher()
+
 
