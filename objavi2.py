@@ -60,8 +60,8 @@ ARG_VALIDATORS = {
     "server": SERVER_DEFAULTS.__contains__,
     "engine": config.ENGINES.__contains__,
     "booksize": PAGE_SIZE_DATA.__contains__,
-    "pagewidth": isfloat,
-    "pageheight": isfloat,
+    "page_width": isfloat,
+    "page_height": isfloat,
     "gutter": isfloat_or_auto,
     "top_margin": isfloat_or_auto,
     "side_margin": isfloat_or_auto,
@@ -226,7 +226,7 @@ def get_page_size(args):
     wmin, hmin = config.PAGE_MIN_SIZE
     w = min(max(args.get('page_width'), wmin), wmax)
     h = min(max(args.get('page_height'), hmin), hmax)
-    return {'pointsize': (w, h)}
+    return {'pointsize': (w * MM_2_POINT, h * MM_2_POINT)}
 
 
 def cgi_context(args):
