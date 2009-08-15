@@ -349,7 +349,7 @@ if __name__ == '__main__':
         print __doc__
         sys.exit()
 
-    output_function = globals().get('mode_' + mode, mode_form)
+    output_function = globals().get('mode_%s' % mode, mode_form)
     output_function(args)
 
 
