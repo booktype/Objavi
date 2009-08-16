@@ -126,14 +126,14 @@ BASE_GUTTER = 15
 PROPORTIONAL_GUTTER = 0.011
 
 PAGE_EXTREMA = {
-    'page_width':  (1, 3000),
-    'page_height': (1, 3000),
-    'gutter': (-1000, 1000),
-    'top_margin': (0, 1500),
-    'side_margin': (0, 1500),
-    'bottom_margin': (0, 1500),
-    "columns": (0, 20),
-    "column_margin": (0, 1000),
+    'page_width':  (1, 3000, MM_2_POINT),
+    'page_height': (1, 3000, MM_2_POINT),
+    'gutter': (-1000, 1000, MM_2_POINT),
+    'top_margin': (0, 1500, MM_2_POINT),
+    'side_margin': (0, 1500, MM_2_POINT),
+    'bottom_margin': (0, 1500, MM_2_POINT),
+    "columns": (1, 20, 1),
+    "column_margin": (0, 1000, MM_2_POINT),
 }
 
 PAGE_NUMBER_SIZE = 11 #XXX this is not used by pdfedit! (ie, it is a guess)

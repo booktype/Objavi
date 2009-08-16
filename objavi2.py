@@ -239,7 +239,7 @@ def get_page_settings(args):
             log('rejecting %s: outside %s' % (v,) + extrema)
         else:
             log('found %s=%s' % (k, v))
-            settings[k] = v * config.MM_2_POINT
+            settings[k] = v * extrema[2]
 
     #now if args['size'] is not 'custom', the width height above
     # is overruled.
@@ -252,7 +252,7 @@ def get_page_settings(args):
         settings['pointsize'] = (settings['page_width'], settings['page_height'])
         del settings['page_width']
         del settings['page_height']
-        
+
     return settings
 
 
