@@ -134,6 +134,10 @@ class PageSettings(object):
         if gutter is None:
             gutter = (config.BASE_GUTTER +
                       config.PROPORTIONAL_GUTTER * self.width)
+        if columns is None:
+            columns = 1
+
+        self.gutter = gutter
 
         #XXX does papersize depend on gutter? sort of? depends how it is done?
         self.papersize, clipx, clipy = find_containing_paper(self.width, self.height)
@@ -149,10 +153,25 @@ class PageSettings(object):
         self.number_bottom = bottom_margin - 0.6 * config.PAGE_NUMBER_SIZE
         self.number_margin = side_margin
 
+        if column_margin is None:
+            #completely adhoc.
+            column_margin = default_margin * 2 / (4.0 + columns)
+
+        printable_width = self.width - 2.0 * side_margin - gutter
+        column_width = (printable_width - (columns - 1) * column_margin) / columns
+        right_margin = side_margin + printable_width - column_width
+        log(column_width, printable_width, column_margin,
+             self.width, right_margin, columns,
+             side_margin, default_margin)
+        for x in locals().iteritems():
+            log("%s: %s" % x)
+
+
         # claculate margins in mm for browsers
         margins = [(m + clip) * POINT_2_MM
                    for m, clip in ((top_margin, clipy),
-                                   (side_margin, clipx + 0.5 * gutter),
+                                   #(side_margin, clipx + 0.5 * gutter),
+                                   (right_margin, clipx + 0.5 * gutter),
                                    (bottom_margin, clipy + 0.5 * config.PAGE_NUMBER_SIZE),
                                    (side_margin, clipx + 0.5 * gutter),
                                    )
@@ -161,11 +180,11 @@ class PageSettings(object):
         if moz_printer is None:
             moz_printer = 'objavi_' + self.papersize
 
-        self.margins = margins
-        self.moz_printer = moz_printer
-        self.gutter = gutter
         self.columns = columns
         self.column_margin = column_margin
+        self.column_width = column_width
+        self.margins = margins
+        self.moz_printer = moz_printer
         log("papersize is %s\nmargins are %s\ngutter is %s\nclip is %s\nmargins is %s" %
             (self.papersize, margins, gutter, (clipx, clipy), self.margins), debug='PDFGEN')
 
