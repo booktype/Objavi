@@ -55,7 +55,7 @@ def font_pdf(html, pdfname):
 def html_font_list(fonts, name):
     f = open(name, 'w')
     for x in fonts:
-        f.write(x + '<br/>\n')
+        f.write(x + '\n')
     f.close()
 
 #Instead of regenerating the pdf every time, which is expensive, keep
