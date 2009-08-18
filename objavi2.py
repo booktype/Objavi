@@ -169,7 +169,7 @@ def listise(items):
     """Make a list of strings into html <li> items, to fit in a <ul>
     or <ol> element."""
     return '\n'.join('<li>%s</li>' % x for x in items)
-    
+
 
 def get_default_css(server=DEFAULT_SERVER):
     """Get the default CSS text for the selected server"""
@@ -283,7 +283,7 @@ def mode_booklist(args):
 def mode_css(args):
     #XX sending as text/html, but it doesn't really matter
     print get_default_css(args.get('server', config.DEFAULT_SERVER))
-    sys.exit()
+
 
 @output_and_exit
 def mode_form(args):
@@ -309,17 +309,17 @@ def mode_form(args):
         'licenses' : optionise(config.LICENSES, default=config.DEFAULT_LICENSE),
         None: '',
     }
-    
+
     form = []
     for id, title, type, source, classes, epilogue in config.FORM_INPUTS:
         val = d.get(source, '')
         e = config.FORM_ELEMENT_TYPES[type] % locals()
         form.append('\n<div id="%(id)s_div" class="form-item %(classes)s">\n'
                     '<div class="input_title">%(title)s</div>\n'
-                    '<div class="input_contents"> %(e)s %(epilogue)s\n</div>'                    
+                    '<div class="input_contents"> %(e)s %(epilogue)s\n</div>'
                     '</div>\n' % locals())
 
-    
+
     print template % {'form': ''.join(form)}
 
 
@@ -361,6 +361,11 @@ def mode_book(args):
 
 
 if __name__ == '__main__':
+    _valid_inputs = set(ARG_VALIDATORS)
+    _form_inputs = set(x[0] for x in config.FORM_INPUTS)
+    log("valid but not used inputs: %s" % _valid_inputs - _form_inputs)
+    log("invalid form inputs: %s" % _form_inputs - _valid_inputs)
+
     args = parse_args()
     mode = args.get('mode')
     if mode is None and 'webName' in args:
