@@ -8,7 +8,7 @@ body
 }
 
 #main {
-  margin: 15px 100px;
+  margin: 15px 80px;
   padding: 15px;
   background: white;
 }
@@ -37,20 +37,18 @@ input[type=text] {
   width: 400px;
 }
 
-textarea {
-  width:570px;
-  height:570px;
-}
-
 .gone {
   display: none;
 }
-.css-gone {
+
+.hidden {
   display: none;
 }
 
 #toggle-advanced {
   color: #b00;
+  margin: 5px;
+  display: block;
 }
 
 #book-link {
@@ -59,23 +57,74 @@ textarea {
   font-weight: bold;
 }
 
-.font-list{
-  /*white-space: pre;*/
-  font-size:smaller;
-  overflow: scroll;
-  height: 500px;
-}
-
-td {
-  vertical-align: top;
-}
-
-.booksize td 
-{ 
-  background: #ffc;
-}
-
 .numeric-field input
-{ 
+{
   width: 5em;
 }
+
+div.form-item {
+  margin: 5px 0px;
+  clear: both;
+}
+
+.input_title {
+  float: left;
+  width: 200px;
+  margin-right: 5px;
+  font-weight: bold;
+}
+
+#submit {
+  font-weight: bold;
+}
+
+
+#submit {
+  font-weight: bold;
+}
+
+
+#css_div, #font_links_div{
+  clear: none;
+}
+
+#css_div textarea {
+  width:70%;
+  height:570px;
+}
+
+#font_list_div {
+  width:28%;
+  float:right;
+}
+
+#font_list_div .input_title {
+  float: none;
+}
+
+#font_list {
+  overflow: scroll;
+  height: 570px;
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+#font_list li {
+  font-size:smaller;
+  display: block;
+  margin: 0px;
+  border-bottom: 1px dotted #999;
+}
+
+#font_links {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+#font_links li {
+  display: inline-block;
+  margin: 0px 3px;
+}
+

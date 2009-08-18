@@ -32,24 +32,27 @@ function toggle_advanced(){
     return false;
 }
 
+
 function css_mode_switch(){
     var v = $("#css-control").val();
 
     function on(s){
-        $('#css-' + s + '-row').removeClass("css-gone");
-        $('#css-' + s + '-data').removeAttr('disabled');
+        $('.css-' + s).removeClass("hidden");
+        $('.css-' + s + ' input').removeAttr('disabled');
+        $('.css-' + s + ' textarea').removeAttr('disabled');
     }
     function off(s){
-        $('#css-' + s + '-data').attr('disabled', 'disabled');
-        $('#css-' + s + '-row').addClass("css-gone");
+        $('.css-' + s + ' input').attr('disabled', 'disabled');
+        $('.css-' + s + ' textarea').attr('disabled', 'disabled');
+        $('.css-' + s).addClass("hidden");
     }
 
     if (v == 'default'){
-        off('textarea');
+        off('custom');
         off('url');
     }
     else {
-        var not_v = (v == 'url') ? 'textarea' : 'url';
+        var not_v = (v == 'url') ? 'custom' : 'url';
         on(v);
         off(not_v);
     }
@@ -67,7 +70,7 @@ function load_booklist(){
 
 function load_css(){
     var server = $("#server").val();
-    var textarea = $('#css-textarea-data');
+    var textarea = $('#css');
 
     $.get("?server=" + server + "&mode=css",
           undefined, function(data){textarea.val(data);}
@@ -77,21 +80,39 @@ function load_css(){
 
 function toggle_custom_size(){
     var v = $("#booksize").val();
-    var x = (v == 'custom') ? 'table-row' : 'none';
-    $('.booksize').css({display: x});
+    if (v == 'custom'){
+        $('.booksize').removeClass("hidden");
+    }
+    else {
+        $('.booksize').addClass("hidden");
+    }
 }
 
 function onload(){
     $(".advanced").addClass("gone");
 
     if ($("#toggle-advanced").length == 0){
-        $("#form").after('<b id="toggle-advanced">Show advanced options</b>');
+        $("#license_div").after('<button id="toggle-advanced">Show advanced options</button>');
+        $("#toggle-advanced").click(toggle_advanced);
     }
 
-    $("#toggle-advanced").click(toggle_advanced);
     $("#booksize").change(toggle_custom_size);
     toggle_custom_size();
+
     $("#server").change(load_booklist);
+
+    if ($("#css-control").length == 0){
+        $(".css-url").before('<div id="css-control_div" class="advanced form-item">' +
+                             '<div class="input_title">CSS mode</div>' +
+                             '<select id="css-control">' +
+                             '<option value="default" selected="selected">Server default</option>' +
+                             '<option value="url">URL</option>' +
+                             '<option value="custom">Custom</option>' +
+                             '</select></div>'
+                            ).attr("name", 'css');
+        $('#css_div .input_title').after('<a href="#" onclick="load_css(); return false;">' +
+                                            'Load server default CSS (lose changes)</a>');
+    }
 
     $("#css-control").change(css_mode_switch);
     css_mode_switch();
