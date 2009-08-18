@@ -165,6 +165,12 @@ def optionise(items, default=None):
 
     return '\n'.join(options)
 
+def listise(items):
+    """Make a list of strings into html <li> items, to fit in a <ul>
+    or <ol> element."""
+    return '\n'.join('<li>%s</li>' % x for x in items)
+    
+
 def get_default_css(server=DEFAULT_SERVER):
     """Get the default CSS text for the selected server"""
     log(server)
@@ -184,7 +190,7 @@ def font_links():
             log("warning: font-sample %s won't work; skipping" % script)
             continue
         links.append('<a href="%s?script=%s">%s</a>' % (config.FONT_LIST_URL, script, script))
-    return ', '.join(links)
+    return links
 
 
 def make_progress_page(webname, bookname):
@@ -285,7 +291,7 @@ def mode_form(args):
     template = f.read()
     f.close()
     f = open(config.FONT_LIST_INCLUDE)
-    font_list = f.read()
+    font_list = [x.strip() for x in f if x.strip()]
     f.close()
     server = args.get('server', config.DEFAULT_SERVER)
     webname = args.get('webName')
@@ -297,10 +303,25 @@ def mode_form(args):
         'size_options': optionise(get_size_list(), default=size),
         'engines': optionise(config.ENGINES.keys(), default=engine),
         'css': get_default_css(server),
-        'font_links': font_links(),
-        'font_list': font_list,
+        'font_links': listise(font_links()),
+        'font_list': listise(font_list),
+        'default_license' : config.DEFAULT_LICENSE,
+        'licenses' : optionise(config.LICENSES, default=config.DEFAULT_LICENSE),
+        None: '',
     }
-    print template % d
+    
+    form = []
+    for id, title, type, source, classes, epilogue in config.FORM_INPUTS:
+        val = d.get(source, '')
+        e = config.FORM_ELEMENT_TYPES[type] % locals()
+        form.append('\n<div id="%(id)s_div" class="form-item %(classes)s">\n'
+                    '<div class="input_title">%(title)s</div>\n'
+                    '<div class="input_contents"> %(e)s %(epilogue)s\n</div>'                    
+                    '</div>\n' % locals())
+
+    
+    print template % {'form': ''.join(form)}
+
 
 @output_and_exit
 def mode_book(args):

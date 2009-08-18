@@ -173,6 +173,46 @@ LICENSES = ('GPL', 'GPLv2', 'GPLv2+', 'GPLv3', 'GPLv3+', 'LGPL', 'LGPLv2.1',
 
 DEFAULT_LICENSE = 'GPLv2+'
 
+FORM_INPUTS = (
+    ("server", "FLOSS Manuals server", "select", "server_options", "", ""),
+    ("webName", "Manual", "select", "book_options", "", ""),
+    ("title", "Book title", "input[type=text]", None, "", ""),
+    ("license", "License", "select", "licenses", "", ""),
+
+    ("isbn", "ISBN", "input[type=text]", None, "advanced", "(13 digits)"),
+    ("rotate", "Rotate pages for binding", "input[type=checkbox]", None, "advanced", "(for RTL books on LTR printing presses, and vice versa)."),
+    ("engine", "Layout engine", "select", "engines", "advanced", ""),    
+    #("header", "Header Text", "input[type=text]", None, "advanced", ""),
+    
+    ("booksize", "Page size", "select", "size_options", "advanced", ""),
+    ("page_width", "Page width", "input[type=text]", None, "advanced booksize numeric-field", ""),
+    ("page_height", "Page height", "input[type=text]", None, "advanced booksize numeric-field", ""),
+
+    ("top_margin", "Top margin", "input[type=text]", None, "advanced margins numeric-field", ""),
+    ("side_margin", "Side margin", "input[type=text]", None, "advanced margins numeric-field", ""),
+    ("bottom_margin", "Bottom margin", "input[type=text]", None, "advanced margins numeric-field", ""),
+    ("gutter", "Gutter", "input[type=text]", None, "advanced margins numeric-field", ""),
+
+    ("columns", "Columns", "input[type=text]", None, "advanced columns numeric-field", ""),
+    ("column_margin", "Column margin", "input[type=text]", None, "advanced columns numeric-field", ""),
+
+    #("css_customise", "Customise CSS", "input[type=checkbox]", None, "advanced", "Enter a URL or "),
+    ("css-url", "CSS URL", "input[type=text][disabled]", "css_url", "advanced css-url", ""),
+    ("font_list", "Available fonts", "ul", "font_list", "advanced css-custom", ""),
+    ("font_links", "Font examples", "ul", "font_links", "advanced css-custom", ""),
+    ("css", "CSS", "textarea", "css", "advanced css-custom", ""),
+)
+
+FORM_ELEMENT_TYPES = {
+    'input[type=text]' : '<input type="text" id="%(id)s" name="%(id)s" value="%(val)s" />',
+    'input[type=text][disabled]' : '<input type="text" disabled="disabled" id="%(id)s" name="%(id)s" value="%(val)s" />',
+    'input[type=checkbox]' : '<input type="checkbox" id="%(id)s" name="%(id)s" value="%(val)s" />',
+    'textarea' : '<textarea id="%(id)s" name="%(id)s">%(val)s</textarea>',
+    'select': '<select id="%(id)s" name="%(id)s">%(val)s</select>',
+    'ul': '<ul id="%(id)s" name="%(id)s">%(val)s</ul>',
+}
+
+
 
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))
