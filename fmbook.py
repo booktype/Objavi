@@ -813,7 +813,7 @@ class Book(object):
         running for a long time."""
         log("running kill_old_xvfbs")
         p = Popen(['ps', '-C' 'Xvfb', '-o', 'pid,etime', '--no-headers'], stdout=PIPE)
-        data = p.communicate().strip()
+        data = p.communicate()[0].strip()
         if data:
             lines = data.split('\n')
             for line in lines:
