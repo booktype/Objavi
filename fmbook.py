@@ -125,7 +125,7 @@ class PageSettings(object):
     of PDFs"""
     def __init__(self, pointsize, moz_printer=None, gutter=None,
                  top_margin=None, side_margin=None, bottom_margin=None,
-                 columns=None, column_margin=None):
+                 columns=1, column_margin=None):
 
         self.width, self.height = pointsize
 
@@ -133,54 +133,47 @@ class PageSettings(object):
             gutter = (config.BASE_GUTTER +
                       config.PROPORTIONAL_GUTTER * self.width)
         self.gutter = gutter
-        
-        if columns is None:
-            columns = 1
 
         #XXX does papersize depend on gutter? sort of? depends how it is done?
         self.papersize, clipx, clipy = find_containing_paper(self.width, self.height)
 
         default_margin = (config.BASE_MARGIN + config.PROPORTIONAL_MARGIN * min(pointsize))
+
         if bottom_margin is None:
             bottom_margin = default_margin
         if side_margin is None:
             side_margin = default_margin
-        if top_margin is None:
-            top_margin = default_margin
-
-        if column_margin is None:
-            #completely adhoc.
-            column_margin = default_margin * 2 / (4.0 + columns)
 
         self.number_bottom = bottom_margin - 0.6 * config.PAGE_NUMBER_SIZE
         self.number_margin = side_margin
 
-        printable_width = self.width - 2.0 * side_margin - gutter
-        column_width = (printable_width - (columns - 1) * column_margin) / columns
-        right_margin = side_margin + printable_width - column_width
+        self.printable_width = self.width - 2.0 * side_margin - gutter
 
+        self.raw_margins = [top_margin, side_margin, bottom_margin]
         # calculate margins in mm for browsers
-        margins = [(m + clip) * POINT_2_MM
-                   for m, clip in ((top_margin, clipy),
-                                   #(side_margin, clipx + 0.5 * gutter),
-                                   (right_margin, clipx + 0.5 * gutter),
-                                   (bottom_margin, clipy + 0.5 * config.PAGE_NUMBER_SIZE),
-                                   (side_margin, clipx + 0.5 * gutter),
-                                   )
-                   ]
+        self.margins = []
+        for m, clip in ((top_margin, clipy),
+                        (side_margin, clipx + 0.5 * gutter),
+                        (bottom_margin, clipy + 0.5 * config.PAGE_NUMBER_SIZE),
+                        (side_margin, clipx + 0.5 * gutter),
+                        ):
+            if m is None:
+                m = default_margin
+            self.margins.append((m + clip) * POINT_2_MM)
 
-        self.columns = columns
+        # completely ad-hoc formula for default column margins
+        if column_margin is None:
+            column_margin = default_margin * 2 / (4.0 + columns)
+
         self.column_margin = column_margin
-        self.column_width = column_width
-        self.margins = margins
+        self.columns = columns
 
         self.moz_printer = moz_printer or ('objavi_' + self.papersize)
 
-        log("papersize is %s\nmargins are %s\ngutter is %s\nclip is %s\n" %
-            (self.papersize, margins, gutter, (clipx, clipy), self.margins), debug='PDFGEN')
-
         for x in locals().iteritems():
-            log("%s: %s" % x)
+            log("%s: %s" % x, debug='PDFGEN')
+        for x in dir(self):
+            log("%s: %s" % (x, getattr(self, x)), debug='PDFGEN')
 
 
 
@@ -204,8 +197,35 @@ class PageSettings(object):
 
     def make_raw_pdf(self, html, pdf, engine='webkit'):
         func = getattr(self, '_%s_command' % engine)
-        cmd = func(html, pdf)
-        run(cmd)
+        if self.columns == 1:
+            cmd = func(html, pdf)
+            run(cmd)
+        else:
+            column_width = (self.printable_width - (self.columns - 1) * self.column_margin) / self.columns
+            page_width = column_width + self.column_margin
+
+            columnmaker = PageSettings((page_width, self.height), self.moz_printer,
+                                       gutter=0, top_margin=self.raw_margins[0],
+                                       side_margin=self.column_margin * 0.5,
+                                       bottom_margin=self.raw_margins[2])
+
+            column_pdf = pdf[:-4] + '-single-column.pdf'
+            columnmaker.make_raw_pdf(html, column_pdf, engine=engine)
+            columnmaker.reshape_pdf(column_pdf)
+
+            cmd = ['pdfnup',
+                   '--nup', '%sx1' % int(self.columns),
+                   '--paper', self.papersize.lower() + 'paper',
+                   '--outfile', pdf,
+                   '--offset', '0 0', #'%scm 0' % (self.margins[1] * 0.1),
+                   '--noautoscale', 'true',
+                   '--orient', 'portrait',
+                   #'--tidy', 'false',
+                   column_pdf
+                   ]
+            run(cmd)
+
+
 
     def reshape_pdf(self, pdf, dir='LTR', centre_start=False, centre_end=False):
         """Spin the pdf for RTL text, resize it to the right size, and
