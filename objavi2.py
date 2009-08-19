@@ -329,9 +329,7 @@ def mode_book(args):
     webname = args.get('webName')
     server = args.get('server', config.DEFAULT_SERVER)
     engine = args.get('engine', config.DEFAULT_ENGINE)
-
     page_settings = get_page_settings(args)
-
     bookname = make_book_name(webname, server)
 
     if cgi_context(args):
@@ -363,8 +361,8 @@ def mode_book(args):
 if __name__ == '__main__':
     _valid_inputs = set(ARG_VALIDATORS)
     _form_inputs = set(x[0] for x in config.FORM_INPUTS)
-    log("valid but not used inputs: %s" % _valid_inputs - _form_inputs)
-    log("invalid form inputs: %s" % _form_inputs - _valid_inputs)
+    log("valid but not used inputs: %s" % (_valid_inputs - _form_inputs))
+    log("invalid form inputs: %s" % (_form_inputs - _valid_inputs))
 
     args = parse_args()
     mode = args.get('mode')
