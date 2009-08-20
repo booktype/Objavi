@@ -469,6 +469,7 @@ class Book(object):
         self.notify_watcher()
 
     def make_pdf(self):
+        """A convenient wrapper of a few necessary steps"""
         # now the Xvfb server is needed. make sure it has had long enough to get going
         self.wait_for_xvfb()
         self.make_body_pdf()
@@ -489,7 +490,8 @@ class Book(object):
         self.notify_watcher()
 
     def publish_pdf(self):
-        log(self.pdf_file, self.publish_file)
+        """Move the finished PDF to its final resting place"""
+        log("Publishing %r as %r" % (self.pdf_file, self.publish_file))
         os.rename(self.pdf_file, self.publish_file)
         self.notify_watcher()
 
@@ -571,6 +573,8 @@ class Book(object):
         return start_page, False
 
     def make_contents(self):
+        """Generate HTML containing the table of contents.  This can
+        only be done after the main PDF has been made."""
         header = '<h1>Table of Contents</h1><table class="toc">\n'
         row_tmpl = ('<tr><td class="chapter">%s</td><td class="title">%s</td>'
                     '<td class="pagenumber">%s</td></tr>\n')
@@ -609,6 +613,11 @@ class Book(object):
         return doc
 
     def add_section_titles(self):
+        """Add any section heading pages that the TOC.txt file
+        specifies.  These are sub-book, super-chapter groupings.
+
+        Also add initial numbers to chapters.
+        """
         log(self.headings)
         headings = iter(self.headings)
         chapter = 1
@@ -684,6 +693,8 @@ class Book(object):
         return url
 
     def set_title(self, title=None):
+        """If a string is supplied, it becomes the book's title.
+        Otherwise a guess is made."""
         if title:
             self.title = title
         else:
