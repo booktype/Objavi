@@ -178,6 +178,8 @@ ENGINES = {
     #'gecko' : [],
 }
 
+INSIDE_FRONT_COVER_TEMPLATE = 'templates/inside-front-cover.%s.html'
+
 FONT_LIST_INCLUDE = 'cache/font-list.inc'
 FONT_LIST_URL = '/font-list.cgi.pdf'
 FONT_EXAMPLE_SCRIPT_DIR = 'templates/font-list'

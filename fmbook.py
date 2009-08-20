@@ -716,17 +716,22 @@ class Book(object):
             #XXX make a barcode
         else:
             isbn_text = ''
-        #XXX should read this text from a language specific file.
-        self.inside_cover_html = (
-            '<div class="inside-cover">\n'
-            '<div class="copyright"><b>Copyright :</b> The Contributors (see back) <br>\n'
-            '<b>Published :</b> %s <br />\n'
-            '%s\n'
-            '<b>License :</b> %s <br>\n'
-            '<b>Note :</b> We offer no warranty if you follow this manual and something goes wrong. So be careful!'
-            '</div></div>\n'
-            % (time.strftime('%Y-%m-%d'), isbn_text, license)
-        )
+
+        for lang in (self.lang, 'en'):
+            try:
+                fn = INSIDE_FRONT_COVER_TEMPLATE % (lang)
+                f = open(fn)
+            except IOError, e:
+                log("couldn't open inside front cover for lang %s (filename %s)" % (lang, fn))
+                log(e)
+
+        template = f.read()
+        f.close()
+
+        self.inside_cover_html = template % {'date': time.strftime('%Y-%m-%d'),
+                                             'isbn': isbn_text,
+                                             'license': license,
+                                             }
 
 
     def spawn_x(self):
