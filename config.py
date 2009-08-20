@@ -192,7 +192,7 @@ DEFAULT_LICENSE = 'GPLv2+'
 
 FORM_INPUTS = (
     ("server", "FLOSS Manuals server", "select", "server_options", "", ""),
-    ("webName", "Manual", "select", "book_options", "", ""),
+    ("book", "Manual", "select", "book_options", "", ""),
     ("title", "Book title", "input[type=text]", None, "", ""),
     ("license", "License", "select", "licenses", "", ""),
 

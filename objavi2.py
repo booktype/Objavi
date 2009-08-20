@@ -50,7 +50,7 @@ def isfloat_or_auto(s):
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
 # functions to validate their values. (None means no validation).
 ARG_VALIDATORS = {
-    "webName": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah
+    "book": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah
     "css": None, # an url, empty (for default), or css content
     "title": lambda x: len(x) < 999,
     "header": None, # header text, UNUSED
@@ -195,14 +195,14 @@ def font_links():
     return links
 
 
-def make_progress_page(webname, bookname):
+def make_progress_page(book, bookname):
     f = open(PROGRESS_TEMPLATE)
     template = f.read()
     f.close()
     progress_list = ''.join('<li id="%s">%s</li>\n' for x in config.PROGRESS_POINTS)
 
     d = {
-        'webname': webname,
+        'book': book,
         'bookname': bookname,
         'progress_list': progress_list,
     }
@@ -220,10 +220,10 @@ def make_progress_page(webname, bookname):
 def print_progress(message):
     print '******* got message "%s"' %message
 
-def make_book_name(webname, server):
+def make_book_name(book, server):
     lang = SERVER_DEFAULTS.get(server, SERVER_DEFAULTS[DEFAULT_SERVER])['lang']
-    webname = ''.join(x for x in webname if x.isalnum())
-    return '%s-%s-%s.pdf' % (webname, lang,
+    book = ''.join(x for x in book if x.isalnum())
+    return '%s-%s-%s.pdf' % (book, lang,
                              time.strftime('%Y.%m.%d-%H.%M.%S'))
 
 
@@ -282,7 +282,7 @@ def output_and_exit(f):
 @output_and_exit
 def mode_booklist(args):
     print optionise(get_book_list(args.get('server', config.DEFAULT_SERVER)),
-                    default=args.get('webName'))
+                    default=args.get('book'))
 
 @output_and_exit
 def mode_css(args):
@@ -299,12 +299,12 @@ def mode_form(args):
     font_list = [x.strip() for x in f if x.strip()]
     f.close()
     server = args.get('server', config.DEFAULT_SERVER)
-    webname = args.get('webName')
+    book = args.get('book')
     size = args.get('booksize', config.DEFAULT_SIZE)
     engine = args.get('engine', config.DEFAULT_ENGINE)
     d = {
         'server_options': optionise(get_server_list(), default=server),
-        'book_options': optionise(get_book_list(server), default=webname),
+        'book_options': optionise(get_book_list(server), default=book),
         'size_options': optionise(get_size_list(), default=size),
         'engines': optionise(config.ENGINES.keys(), default=engine),
         'css': get_default_css(server),
@@ -331,18 +331,18 @@ def mode_form(args):
 @output_and_exit
 def mode_book(args):
     # so we're making a book.
-    webname = args.get('webName')
+    book = args.get('book')
     server = args.get('server', config.DEFAULT_SERVER)
     engine = args.get('engine', config.DEFAULT_ENGINE)
     page_settings = get_page_settings(args)
-    bookname = make_book_name(webname, server)
+    bookname = make_book_name(book, server)
 
     if cgi_context(args):
-        progress_bar = make_progress_page(webname, bookname)
+        progress_bar = make_progress_page(book, bookname)
     else:
         progress_bar = print_progress
 
-    with Book(webname, server, bookname, page_settings=page_settings, engine=engine,
+    with Book(book, server, bookname, page_settings=page_settings, engine=engine,
               watcher=progress_bar) as book:
         if cgi_context(args):
             book.spawn_x()
@@ -371,7 +371,7 @@ if __name__ == '__main__':
 
     args = parse_args()
     mode = args.get('mode')
-    if mode is None and 'webName' in args:
+    if mode is None and 'book' in args:
         mode = 'book'
 
     if not args and not cgi_context(args):

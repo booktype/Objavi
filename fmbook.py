@@ -333,10 +333,10 @@ class Book(object):
         self.cleanup()
         #could deal with exceptions here and return true
 
-    def __init__(self, webname, server, bookname,
+    def __init__(self, book, server, bookname,
                  page_settings=None, engine=None, watcher=None):
         log("*** Starting new book %s ***" % bookname)
-        self.webname = webname
+        self.book = book
         self.server = server
         self.watcher = watcher
         self.workdir = tempfile.mkdtemp(prefix=bookname, dir=TMPDIR)
@@ -357,8 +357,8 @@ class Book(object):
         self.publish_file = os.path.join(PUBLISH_PATH, self.publish_name)
         self.publish_url = os.path.join(config.PUBLISH_URL, self.publish_name)
 
-        self.book_url = config.BOOK_URL % (self.server, self.webname)
-        self.toc_url = config.TOC_URL % (self.server, self.webname)
+        self.book_url = config.BOOK_URL % (self.server, self.book)
+        self.toc_url = config.TOC_URL % (self.server, self.book)
 
         self.set_page_dimensions(page_settings)
 
@@ -537,7 +537,7 @@ class Book(object):
                 '%s\n'
                 '<div style="page-break-before: always; color:#fff;" class="unseen">'
                 'A FLOSSManuals book</div>\n</body></html>'
-                ) % (self.dir, self.webname, html)
+                ) % (self.dir, self.book, html)
 
         self.save_tempfile('raw.html', html)
 
@@ -703,7 +703,7 @@ class Book(object):
                 self.title = titles[0]
             else:
                 #oh well
-                self.title = 'A Manual About ' + self.webname
+                self.title = 'A Manual About ' + self.book
         return self.title
 
     def compose_inside_cover(self, license=config.DEFAULT_LICENSE, isbn=None):

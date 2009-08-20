@@ -60,10 +60,10 @@ function css_mode_switch(){
 
 function load_booklist(){
     var server = $("#server").val();
-    var w = $("#webName");
-    var webName = w.val();
+    var w = $("#book");
+    var book = w.val();
     w.attr('disabled', 'disabled');
-    w.load("?server=" + server + "&webName=" + webName + "&mode=booklist",
+    w.load("?server=" + server + "&book=" + book + "&mode=booklist",
            undefined, function(){w.removeAttr('disabled');}
     );
 }
