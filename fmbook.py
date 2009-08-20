@@ -123,58 +123,43 @@ def find_containing_paper(w, h):
 class PageSettings(object):
     """Calculates and wraps commands for the generation and processing
     of PDFs"""
-    def __init__(self, pointsize, moz_printer=None, gutter=None,
-                 top_margin=None, side_margin=None, bottom_margin=None,
-                 columns=1, column_margin=None):
+    def __init__(self, pointsize, **kwargs):
+        # the formulas for default gutters, margins and column margins
+        # are quite ad-hoc and certainly improvable.
 
         self.width, self.height = pointsize
-
-        if gutter is None:
-            gutter = (config.BASE_GUTTER +
-                      config.PROPORTIONAL_GUTTER * self.width)
-        self.gutter = gutter
-
-        #XXX does papersize depend on gutter? sort of? depends how it is done?
         self.papersize, clipx, clipy = find_containing_paper(self.width, self.height)
 
+        self.gutter = kwargs.get('gutter', (config.BASE_GUTTER +
+                                            config.PROPORTIONAL_GUTTER * self.width))
+
         default_margin = (config.BASE_MARGIN + config.PROPORTIONAL_MARGIN * min(pointsize))
+        self.top_margin = kwargs.get('top_margin', default_margin)
+        self.side_margin = kwargs.get('top_margin', default_margin)
+        self.bottom_margin = kwargs.get('top_margin', default_margin)
+        self.moz_printer = kwargs.get('moz_printer', ('objavi_' + self.papersize))
+        self.columns = kwargs.get('columns', 1)
 
-        if bottom_margin is None:
-            bottom_margin = default_margin
-        if side_margin is None:
-            side_margin = default_margin
+        self.column_margin = kwargs.get('column_margin', default_margin * 2 / (4.0 + self.columns))
 
-        self.number_bottom = bottom_margin - 0.6 * config.PAGE_NUMBER_SIZE
-        self.number_margin = side_margin
+        self.number_bottom = self.bottom_margin - 0.6 * config.PAGE_NUMBER_SIZE
+        self.number_margin = self.side_margin
 
-        self.printable_width = self.width - 2.0 * side_margin - gutter
-
-        self.raw_margins = [top_margin, side_margin, bottom_margin]
         # calculate margins in mm for browsers
         self.margins = []
-        for m, clip in ((top_margin, clipy),
-                        (side_margin, clipx + 0.5 * gutter),
-                        (bottom_margin, clipy + 0.5 * config.PAGE_NUMBER_SIZE),
-                        (side_margin, clipx + 0.5 * gutter),
+        for m, clip in ((self.top_margin, clipy),
+                        (self.side_margin, clipx + 0.5 * self.gutter),
+                        (self.bottom_margin, clipy + 0.5 * config.PAGE_NUMBER_SIZE),
+                        (self.side_margin, clipx + 0.5 * self.gutter),
                         ):
             if m is None:
                 m = default_margin
             self.margins.append((m + clip) * POINT_2_MM)
 
-        # completely ad-hoc formula for default column margins
-        if column_margin is None:
-            column_margin = default_margin * 2 / (4.0 + columns)
-
-        self.column_margin = column_margin
-        self.columns = columns
-
-        self.moz_printer = moz_printer or ('objavi_' + self.papersize)
-
         for x in locals().iteritems():
             log("%s: %s" % x, debug='PDFGEN')
         for x in dir(self):
             log("%s: %s" % (x, getattr(self, x)), debug='PDFGEN')
-
 
 
 
@@ -201,13 +186,14 @@ class PageSettings(object):
             cmd = func(html, pdf)
             run(cmd)
         else:
-            column_width = (self.printable_width - (self.columns - 1) * self.column_margin) / self.columns
+            printable_width = self.width - 2.0 * self.side_margin - self.gutter
+            column_width = (printable_width - (self.columns - 1) * self.column_margin) / self.columns
             page_width = column_width + self.column_margin
 
-            columnmaker = PageSettings((page_width, self.height), self.moz_printer,
-                                       gutter=0, top_margin=self.raw_margins[0],
+            columnmaker = PageSettings((page_width, self.height), moz_printer=self.moz_printer,
+                                       gutter=0, top_margin=self.top_margin,
                                        side_margin=self.column_margin * 0.5,
-                                       bottom_margin=self.raw_margins[2])
+                                       bottom_margin=self.bottom_margin)
 
             column_pdf = pdf[:-4] + '-single-column.pdf'
             columnmaker.make_raw_pdf(html, column_pdf, engine=engine)
