@@ -122,7 +122,7 @@ class Postscript:
         return rval
 
     def eps(self,creator="",title="",cmyk=(0,0,0,1),comments="",
-            padding=(1,1,1,1)):
+            padding=(1,1,1,1), position=None):
         if max(cmyk)>1 or min(cmyk)<0:
             raise PostscriptError("cmyk value out of range")
 
@@ -133,10 +133,23 @@ class Postscript:
                 bbox[i] += 1 + padding[i]
             elif bbox[i] < 0:
                 bbox[i] -= 1 + padding[i]
-        
-        # center it in the middle of a letter page:
-        x0 = int(612/2) - (bbox[2]-bbox[0])/2.
-        y0 = int(792/2) - (bbox[3]-bbox[1])/2.
+
+        if position is None:
+            # by default, center it in the middle of a US letter page:
+            x0 = int(612/2) - (bbox[2]-bbox[0])/2.
+            y0 = int(792/2) - (bbox[3]-bbox[1])/2.
+        else:
+            width, height, xl, yb = position[1:]
+            xr = width + bbox[0] - bbox[2] - xl
+            yt = height + bbox[1] - bbox[3] - yb
+            print >> sys.stderr, xl, xr, yb, yt
+            x0, y0 = {'tl': (xl, yt),
+                      'tr': (xr, yt),
+                      'bl': (xl, yb),
+                      'br': (xr, yb),
+                      }[position[0]]
+            print >> sys.stderr, x0, y0
+
         for i in [0,2]:
             bbox[i] += x0
         for i in [1,3]:
@@ -423,7 +436,7 @@ def colorValOK(color):
         return True
 
 def doTheRightThing(s,font,price,moduleHeight,
-                    barWidthReduction,zone,cmyk,labelScale,padding):
+                    barWidthReduction,zone,cmyk,labelScale,padding, position):
 
     if not colorValOK(cmyk):
         raise ProductCodeError("invalid CMYK = %s" % (cmyk,))
@@ -463,7 +476,8 @@ def doTheRightThing(s,font,price,moduleHeight,
                      title=title,
                      creator=creator,
                      cmyk=cmyk,
-                     padding=padding)
+                     padding=padding,
+                     position=position)
     return (epslines,filename)
 
 
@@ -490,10 +504,10 @@ Usage: %s [-h|--help] [-V|--version] [-f|--font=fontname] [-q]
         sys.stderr.write("Bugs to %s\n" % MAINTAINER)
 
     try:
-        format = "hVb:f:s:r:o:nxaq"
+        format = "hVb:f:s:r:o:nxaqp:c"
         extendedFormat = [ "reduction=","outfile=","height=","version",
                            "help","font=","noquietzone","cmyk=","rgb=",
-                           "autofile", "labelScale=" ]
+                           "autofile", "labelScale=", "padding=", "position=" ]
         opts,args = getopt.getopt(sys.argv[1:],format,extendedFormat)
     except:
         printUsage()
@@ -515,6 +529,7 @@ Usage: %s [-h|--help] [-V|--version] [-f|--font=fontname] [-q]
     quiet=False
     labelScale = 9
     padding = (1,1,1,1)
+    position = None
 
     commandLine = " ".join(sys.argv)
 
@@ -554,6 +569,10 @@ Usage: %s [-h|--help] [-V|--version] [-f|--font=fontname] [-q]
             labelScale = float(val)
         elif opt in ("-p","padding"):
             padding = map(int,val.split(","))
+        elif opt in ("-c","--position"):
+            corner, width, height, x0, y0 = val.split(",")
+            position = (corner, float(width), float(height), float(x0), float(y0))
+            print >> sys.stderr, position
         else:
             printUsage()
             sys.exit(1)
@@ -582,7 +601,9 @@ Usage: %s [-h|--help] [-V|--version] [-f|--font=fontname] [-q]
         epslines,filename = doTheRightThing(s,font,priceCode,heightScale*72,
                                             barWidthReduction,zone,cmyk,
                                             labelScale,
-                                            padding)
+                                            padding,
+                                            position
+                                            )
     except ProductCodeError,e:
         for msg in e.msgs: print msg
         printUsage()
