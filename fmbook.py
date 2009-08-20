@@ -706,10 +706,9 @@ class Book(object):
                 self.title = 'A Manual About ' + self.webname
         return self.title
 
-
-    def compose_inside_cover(self, license='GPL', isbn=None):
+    def compose_inside_cover(self, license=config.DEFAULT_LICENSE, isbn=None):
         """create the markup for the preamble inside cover, storing it
-        in self.inside_cover_html"""
+        in self.inside_cover_html."""
         #XXX this should go in make_preamble_pdf, but that needs to be extracted from make_pdf
 
         if isbn:
