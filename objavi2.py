@@ -28,10 +28,9 @@ from urllib2 import urlopen
 from getopt import gnu_getopt
 
 from fmbook import log, Book
-from fmbook import SERVER_DEFAULTS, DEFAULT_SERVER
 
 import config
-from config import BOOK_LIST_CACHE, BOOK_LIST_CACHE_DIR, PAGE_SIZE_DATA
+from config import SERVER_DEFAULTS, DEFAULT_SERVER
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
 PROGRESS_TEMPLATE = os.path.abspath('templates/progress.html')
@@ -59,7 +58,7 @@ ARG_VALIDATORS = {
     "license": lambda x: len(x) < 999, #should be a codename?
     "server": SERVER_DEFAULTS.__contains__,
     "engine": config.ENGINES.__contains__,
-    "booksize": PAGE_SIZE_DATA.__contains__,
+    "booksize": config.PAGE_SIZE_DATA.__contains__,
     "page_width": isfloat,
     "page_height": isfloat,
     "gutter": isfloat_or_auto,
@@ -108,10 +107,10 @@ def get_book_list(server):
     If BOOK_LIST_CACHE is non-zero, the book list won't be re-fetched
     in that many seconds, rather it will be read from disk.
     """
-    if BOOK_LIST_CACHE:
-       cache_name = os.path.join(BOOK_LIST_CACHE_DIR, '%s.booklist' % server)
+    if config.BOOK_LIST_CACHE:
+       cache_name = os.path.join(config.BOOK_LIST_CACHE_DIR, '%s.booklist' % server)
        if (os.path.exists(cache_name) and
-           os.stat(cache_name).st_mtime + BOOK_LIST_CACHE > time.time()):
+           os.stat(cache_name).st_mtime + config.BOOK_LIST_CACHE > time.time()):
            f = open(cache_name)
            s = f.read()
            f.close()
@@ -124,7 +123,7 @@ def get_book_list(server):
     s = f.read()
     f.close()
     items = sorted(re.findall(r'/bin/view/([\w/]+)/WebHome', s))
-    if BOOK_LIST_CACHE:
+    if config.BOOK_LIST_CACHE:
         f = open(cache_name, 'w')
         f.write('\n'.join(items))
         f.close()
@@ -142,7 +141,7 @@ def get_size_list():
         return (0, name, klass, name) # presumably 'custom'
 
     return [x[1:] for x in sorted(calc_size(k, v.get('pointsize'), v.get('class', ''))
-                                  for k, v in PAGE_SIZE_DATA.iteritems())
+                                  for k, v in config.PAGE_SIZE_DATA.iteritems())
             ]
 
 
