@@ -1,0 +1,41 @@
+2007-03-18    <milgram@mite.cgpp.com>
+
+	* bookland: Add option "labelScale" (-b) to control size of
+	human-readable label above bars. If 0 < b <= 2, string is sized to
+	width of the bars multiplied by this factor. If b>2, then string
+	font is sized directly to "b" points.
+
+	(EAN13Symbol):  Added a quiet zone to the straight EAN-13 symbol.
+
+2007-03-11    <milgram@mite.cgpp.com>
+
+	* bookland (Postscript.eps): add extraPadding option
+
+	* Version 1.2 released.
+
+2007-02-24    <milgram@mite.cgpp.com>
+
+	* Version 1.1 released.
+
+	* productcode.py (ISBN10.__init__): make "x" in ISBN-10 case
+	insensitive.
+
+	* bookland (doTheRightThing): New function, rolls up most of the
+	chores.
+
+
+2007-02-18    <milgram@mite.cgpp.com>
+
+	* Version 1.0 released
+
+2007-02-12    <milgram@mite.cgpp.com>
+
+	* bookland.py: complete re-write. Automatic handling of product
+	code. Any one digit in product code can be a wildcard. Color can
+	be input as rgb or cmyk, in either case EPS file written with cmyk
+	(thanks to Aaron Shepard, www.aaronshep.com/publishing, for this
+	suggestion). All references to regsub module updated to re. Added
+	"-q" operation. Better exception handling (I hope).
+
+	* scan13: new utility for reading bar codes from eps files.
+
