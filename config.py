@@ -196,10 +196,10 @@ FORM_INPUTS = (
 
     ("isbn", "ISBN", "input[type=text]", None, "advanced", "(13 digits)"),
     ("rotate", "Rotate pages for binding", "input[type=checkbox]", None, "advanced", "(for RTL books on LTR printing presses, and vice versa)."),
-    ("engine", "Layout engine", "select", "engines", "advanced", ""),    
+    ("engine", "Layout engine", "select", "engines", "advanced", ""),
     #("header", "Header Text", "input[type=text]", None, "advanced", ""),
-    
-    ("booksize", "Page size", "select", "size_options", "advanced", ""),
+
+    ("booksize", "Page size", "select", "size_options", "advanced", '(Size compatibility: <span class="lulu">Lulu</span>, <span class="newspaper">newspapers</span>, <span class="iso">ISO standards</span>)'),
     ("page_width", "Page width", "input[type=text]", None, "advanced booksize numeric-field", ""),
     ("page_height", "Page height", "input[type=text]", None, "advanced booksize numeric-field", ""),
 
