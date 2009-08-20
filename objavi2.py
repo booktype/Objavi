@@ -132,15 +132,16 @@ def get_book_list(server):
 
 def get_size_list():
     #order by increasing areal size.
-    def calc_size(name, pointsize):
+    def calc_size(name, pointsize, klass):
         if pointsize:
             mmx = pointsize[0] * config.POINT_2_MM
-            mmy = pointsize[1] * config.POINT_2_MM
-            return (mmx * mmy, name,
+            mmy = pointsize[1] * config.POINT_2_MM            
+            return (mmx * mmy, name, klass,
                     '%s (%dmm x %dmm)' % (name, mmx, mmy))
-        return (0, name, name) # presumably 'custom'
+            
+        return (0, name, klass, name) # presumably 'custom'
 
-    return [x[1:] for x in sorted(calc_size(k, v.get('pointsize'))
+    return [x[1:] for x in sorted(calc_size(k, v.get('pointsize'), v.get('class', ''))
                                   for k, v in PAGE_SIZE_DATA.iteritems())
             ]
 
@@ -151,17 +152,19 @@ def optionise(items, default=None):
     options = []
     for x in items:
         if isinstance(x, str):
-            if x == default:
-                options.append('<option selected="selected">%s</option>' % x)
-            else:
-                options.append('<option>%s</option>' % x)
-        else:
-            log(x, x[0])
+            x = (x, x)
+        if len(x) == 2:
             # couple: value, name
             if x[0] == default:
                 options.append('<option selected="selected" value="%s">%s</option>' % x)
             else:
                 options.append('<option value="%s">%s</option>' % x)
+        else:
+            # triple: value, class, name
+            if x[0] == default:
+                options.append('<option selected="selected" class="%s" value="%s">%s</option>' % x)
+            else:
+                options.append('<option value="%s" class="%s">%s</option>' % x)
 
     return '\n'.join(options)
 
