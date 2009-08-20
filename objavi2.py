@@ -167,7 +167,7 @@ def optionise(items, default=None):
 
     return '\n'.join(options)
 
-def listise(items):
+def listify(items):
     """Make a list of strings into html <li> items, to fit in a <ul>
     or <ol> element."""
     return '\n'.join('<li>%s</li>' % x for x in items)
@@ -308,8 +308,8 @@ def mode_form(args):
         'size_options': optionise(get_size_list(), default=size),
         'engines': optionise(config.ENGINES.keys(), default=engine),
         'css': get_default_css(server),
-        'font_links': listise(font_links()),
-        'font_list': listise(font_list),
+        'font_links': listify(font_links()),
+        'font_list': listify(font_list),
         'default_license' : config.DEFAULT_LICENSE,
         'licenses' : optionise(config.LICENSES, default=config.DEFAULT_LICENSE),
         None: '',
