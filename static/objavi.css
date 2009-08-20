@@ -128,3 +128,20 @@ div.form-item {
   margin: 0px 3px;
 }
 
+.lulu {
+  background: #fe6;
+}
+
+.iso {
+  font-weight: bold;
+}
+
+.newspaper {
+  color: #06a;
+}
+.custom {
+  color: #c00;
+  font-style: italic;
+}
+
+
