@@ -32,24 +32,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
   <body>
     <div id="main">
       <h1>OBJAVI! generating %(webname)s manual!</h1>
-      
+
       <p>
         OBJAVI is working...
       </p>
       <ol class="tasklist">
-        <li id="__init__">Initialise the book</li>
-        <li id="load_book">Fetch the book</li>
-        <li id="load_toc">Fetch TOC metadata</li>
-        <li id="add_css">Add css</li>
-        <li id="add_section_titles">Add section titles</li>
-        <li id="generate_pdf">Generate the main pdf</li>
-        <li id="number_pdf">Number pages and add gutters</li>
-        <li id="make_contents">Calculate Table of Contents</li>
-        <li id="make_preamble_pdf">Generate preamble pdf</li>
-        <li id="concatenated_pdfs">concatenate the pdfs</li>
-        <li id="finished">Finished!</li>
+        %(progress_list)s
       </ol>
-      
+
       <p class="oncomplete">
         <a href="/books/%(bookname)s">Download the completed manual</a>
       </p>
@@ -58,10 +48,10 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
     <script src="/static/jquery.js" type="text/javascript"></script>
     <script src="/static/progress.js" type="text/javascript"></script>
-      
-<!-- 
+
+<!--
     After this comes a series of update script tags, as the server
     does stuff.
-    The script eventually adds </body></html> for good form. 
+    The script eventually adds </body></html> for good form.
 -->
 

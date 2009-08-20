@@ -199,9 +199,12 @@ def make_progress_page(webname, bookname):
     f = open(PROGRESS_TEMPLATE)
     template = f.read()
     f.close()
+    progress_list = ''.join('<li id="%s">%s</li>\n' for x in config.PROGRESS_POINTS)
+
     d = {
         'webname': webname,
         'bookname': bookname,
+        'progress_list': progress_list,
     }
     print template % d
     def progress_notifier(message):

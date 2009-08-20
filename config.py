@@ -227,6 +227,19 @@ FORM_ELEMENT_TYPES = {
     'ul': '<ul id="%(id)s" name="%(id)s">%(val)s</ul>',
 }
 
+PROGRESS_POINTS = (
+    ("__init__", "Initialise the book"),
+    ("load_book", "Fetch the book"),
+    ("load_toc", "Fetch TOC metadata"),
+    ("add_css", "Add css"),
+    ("add_section_titles", "Add section titles"),
+    ("generate_pdf", "Generate the main pdf"),
+    ("number_pdf", "Number pages and add gutters"),
+    ("make_contents", "Calculate Table of Contents"),
+    ("make_preamble_pdf", "Generate preamble pdf"),
+    ("concatenated_pdfs", "concatenate the pdfs"),
+    ("finished", "Finished!"),
+)
 
 
 if __name__ == '__main__':
