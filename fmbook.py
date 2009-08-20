@@ -555,6 +555,7 @@ class Book(object):
 
 
     def load(self):
+        """Wrapper around all necessary load methods."""
         self.load_book()
         self.load_toc()
 
@@ -780,6 +781,8 @@ class Book(object):
         log(self.xserver_no)
 
     def wait_for_xvfb(self):
+        """wait until a previously set time before continuing.  This
+        is so Xvfb has time to properly start."""
         if hasattr(self, 'xvfb'):
             d = self.xvfb_ready_time - time.time()
             if d > 0:
@@ -787,6 +790,9 @@ class Book(object):
                 self.notify_watcher()
 
     def cleanup_x(self):
+        """Try very hard to kill off Xvfb.  In addition to killing
+        this instance's xvfb, occasionally (randomly) search for
+        escaped Xvfb instances and kill those too."""
         if not hasattr(self, 'xvfb'):
             return
         check_call(['xauth', 'remove', self.xserver_no])
