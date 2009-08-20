@@ -139,20 +139,35 @@ PAGE_EXTREMA = {
 PAGE_NUMBER_SIZE = 11 #XXX this is not used by pdfedit! (ie, it is a guess)
 
 PAGE_SIZE_DATA = {
-    'COMICBOOK':    {'pointsize': ((6.625 * 72), (10.25 * 72))},
-    "A4":           {'pointsize': (210 * MM_2_POINT, 297 * MM_2_POINT)},
-    "POCKET":       {'pointsize': (4.25 * 72, 6.875 * 72)},
+    'COMICBOOK':      {'pointsize': ((6.625 * 72), (10.25 * 72)), 'class': "lulu"},
+    "POCKET":         {'pointsize': (4.25 * 72, 6.875 * 72), 'class': "lulu"},
 
-    "USLETTER":     {'pointsize': (8.5 * 72, 11 * 72)},
-    "USTRADE":      {'pointsize': (6 * 72, 9 * 72)},
-    "LANDSCAPE9x7": {'pointsize': (9 * 72, 7 * 72)},
-    "SQUARE7.5":    {'pointsize': (7.5 * 72, 7.5 * 72)},
-    "ROYAL":        {'pointsize': (6.139 * 72, 9.21 * 72)},
-    "CROWNQUARTO":  {'pointsize': (7.444 * 72, 9.681 * 72)},
-    "SQUARE8.5":    {'pointsize': (8.5 * 72, 8.5 * 72)},
-    "A5":           {'pointsize': (148 * MM_2_POINT, 210 * MM_2_POINT)},
+    "USLETTER":       {'pointsize': (8.5 * 72, 11 * 72), 'class': "lulu"},
+    "USTRADE":        {'pointsize': (6 * 72, 9 * 72), 'class': "lulu"},
+    "LANDSCAPE9x7":   {'pointsize': (9 * 72, 7 * 72), 'class': "lulu"},
+    "SQUARE7.5":      {'pointsize': (7.5 * 72, 7.5 * 72), 'class': "lulu"},
+    "ROYAL":          {'pointsize': (6.139 * 72, 9.21 * 72), 'class': "lulu"},
+    "CROWNQUARTO":    {'pointsize': (7.444 * 72, 9.681 * 72), 'class': "lulu"},
+    "SQUARE8.5":      {'pointsize': (8.5 * 72, 8.5 * 72), 'class': "lulu"},
 
-    "custom":       {},
+    "A5":             {'pointsize': (148 * MM_2_POINT, 210 * MM_2_POINT), 'class': "lulu iso"},
+    "A4":             {'pointsize': (210 * MM_2_POINT, 297 * MM_2_POINT), 'class': "lulu iso"},
+    "A3 (NZ Tabloid)": {'pointsize': (297 * MM_2_POINT, 420 * MM_2_POINT), 'class': 'iso newspaper'},
+    "A2 (NZ Broadsheet)": {'pointsize': (420 * MM_2_POINT, 594 * MM_2_POINT), 'class': 'iso newspaper'},
+    "A1":             {'pointsize': (594 * MM_2_POINT, 841 * MM_2_POINT), 'class': 'iso'},
+    "B4":             {'pointsize': (250 * MM_2_POINT, 353 * MM_2_POINT), 'class': 'iso'},
+    "B3":             {'pointsize': (353 * MM_2_POINT, 500 * MM_2_POINT), 'class': 'iso'},
+    "B2":             {'pointsize': (500 * MM_2_POINT, 707 * MM_2_POINT), 'class': 'iso'},
+    "B1":             {'pointsize': (707 * MM_2_POINT, 1000 * MM_2_POINT), 'class': 'iso'},
+
+    "UK Tabloid":     {'pointsize': (11 * INCH_2_POINT, 17 * INCH_2_POINT), 'class': 'newspaper'},
+    "UK Broadsheet":  {'pointsize': (18 * INCH_2_POINT, 24 * INCH_2_POINT), 'class': 'newspaper'},
+    "US Broadsheet":  {'pointsize': (15 * INCH_2_POINT, 22.75 * INCH_2_POINT), 'class': 'newspaper'},
+    "Berliner"     :  {'pointsize': (315 * MM_2_POINT, 470 * MM_2_POINT), 'class': 'newspaper'},
+    "Foolscap (F4)":  {'pointsize': (210 * MM_2_POINT, 330 * MM_2_POINT)},
+    #"Foolscap Folio": {'pointsize': (8.5 * INCH_2_POINT, 13.5 * INCH_2_POINT)},
+
+    "custom":         {'class': "custom"},
 }
 
 PAGE_MIN_SIZE = (1.0, 1.0)
