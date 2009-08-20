@@ -557,17 +557,17 @@ Usage: %s [-h|--help] [-V|--version] [-f|--font=fontname] [-q]
             outfile=val
         elif opt in ("-a","--autofile"):
             outfile="auto"
-        elif opt in ("--cmyk"):
+        elif opt in ("--cmyk",):
             v = val.split(",")
             cmyk = (v[0],v[1],v[2],v[3])
-        elif opt in ("--rgb"):
+        elif opt in ("--rgb",):
             rgb = map(float,val.split(","))
             cmyk = rgbtocmyk(rgb)
-        elif opt in ("-q"):
+        elif opt in ("-q",):
             quiet = True
         elif opt in ("-b","labelScale"):
             labelScale = float(val)
-        elif opt in ("-p","padding"):
+        elif opt in ("-p","--padding"):
             padding = map(int,val.split(","))
         elif opt in ("-c","--position"):
             corner, width, height, x0, y0 = val.split(",")
