@@ -1,6 +1,6 @@
-This is a reduced version of the bookland package by Judah Milgram,
-found at http://www.tux.org/~milgram/bookland/.  The doc/ directory
-and a .pyc have been removed.
+This is a subset of version 1.3 of the bookland package by Judah
+Milgram, as found at http://www.tux.org/~milgram/bookland/.  The doc/
+directory and a .pyc have been removed.
 
 Unlike the rest of Objavi, these files are copyright Judah Milgram,
 but just like the rest, they are available under version 2 of the GPL.
