@@ -26,7 +26,7 @@
 #Not really configurable (72 pt per inch / 25.4 mm per inch)
 POINT_2_MM = 25.4 / 72.0
 MM_2_POINT = 72.0 / 25.4
-INCH_TO_POINT = 72
+INCH_2_POINT = 72
 
 KEEP_TEMP_FILES=True
 TMPDIR = 'tmp'
