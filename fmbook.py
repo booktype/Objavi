@@ -284,6 +284,27 @@ class PageSettings(object):
 
             concat_pdfs(pdf, *pdf_sections)
 
+    def make_barcode_pdf(self, isbn, pdf, corner='br'):
+        """Put ann ISBN barcode in a corner of a single blank page."""
+
+        position = '%s,%s,%s,%s,%s' %(corner, self.width, self.height, self.side_margin, self.bottom_margin)
+        cmd1 = [config.BOOKLAND,
+                '--position', position,
+                str(isbn)]
+        cmd2 = ['ps2pdf',
+                '-dFIXEDMEDIA',
+                '-dDEVICEWIDTHPOINTS=%s' % self.width,
+                '-dDEVICEHEIGHTPOINTS=%s' % self.height,
+                '-', pdf]
+
+        p1 = Popen(cmd1, stdout=PIPE)
+        p2 = Popen(cmd2, stdin=p1.stdout, stdout=PIPE, stderr=PIPE)
+        out, err = p2.communicate()
+
+        log('ran:\n%s | %s' % (' '.join(cmd1), ' '.join(cmd2)))
+        log("return: %s and %s \nstdout:%s \nstderr:%s" % (p1.poll(), p2.poll(), out, err))
+
+
 
 
 def concat_pdfs(name, *args):

@@ -36,6 +36,9 @@ WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
 #WKHTMLTOPDF_EXTRA_COMMANDS = ['--outline',  '-t']
 
+#bookland is used to make isbn barcodes
+BOOKLAND = 'bookland/bookland'
+
 # how many pages to number in one pdfedit process (which has
 # exponential memory leak)
 PDFEDIT_MAX_PAGES = 40
