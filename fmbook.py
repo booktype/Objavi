@@ -213,9 +213,15 @@ class PageSettings(object):
 
 
 
-    def reshape_pdf(self, pdf, dir='LTR', centre_start=False, centre_end=False):
+    def reshape_pdf(self, pdf, dir='LTR', centre_start=False, centre_end=False,
+                    even_pages=True):
         """Spin the pdf for RTL text, resize it to the right size, and
         shift the gutter left and right"""
+        ops = 'resize'
+        if self.gutter:
+            ops += ',shift'
+        if even_pages:
+            ops += ',even_pages'
         gutter = self.gutter
         if dir == 'RTL':
             gutter = -gutter
@@ -223,7 +229,7 @@ class PageSettings(object):
                'dir=%s' % dir,
                'filename=%s' % pdf,
                'output_filename=%s' % pdf,
-               'operation=resize,shift,even_pages',
+               'operation=%s' % ops,
                'width=%s' % self.width,
                'height=%s' % self.height,
                'offset=%s' % gutter,
