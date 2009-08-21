@@ -310,7 +310,7 @@ class PageSettings(object):
 def concat_pdfs(name, *args):
     """Join all the named pdfs together into one and save it as <name>"""
     cmd = ['pdftk']
-    cmd.extend(args)
+    cmd.extend(x for x in args if x is not None)
     cmd += ['cat', 'output', name]
     run(cmd)
 
