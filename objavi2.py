@@ -205,7 +205,7 @@ def make_progress_page(book, bookname):
     f = open(PROGRESS_TEMPLATE)
     template = f.read()
     f.close()
-    progress_list = ''.join('<li id="%s">%s</li>\n' for x in config.PROGRESS_POINTS)
+    progress_list = ''.join('<li id="%s">%s</li>\n' % x for x in config.PROGRESS_POINTS)
 
     d = {
         'book': book,
