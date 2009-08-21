@@ -47,14 +47,20 @@ def isfloat(s):
 def isfloat_or_auto(s):
     return isfloat(s) or s.lower() in ('', 'auto')
 
+def is_isbn(s):
+    # 10 or 13 digits with any number of hyphens, perhaps with check-digit missing
+    s =s.replace('-', '')
+    return (re.match(r'^\d+[\dXx*]$', s) and len(s) in (9, 10, 12, 13))
+
+
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
 # functions to validate their values. (None means no validation).
 ARG_VALIDATORS = {
     "book": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah
     "css": None, # an url, empty (for default), or css content
     "title": lambda x: len(x) < 999,
-    "header": None, # header text, UNUSED
-    "isbn": lambda x: x.isdigit() and len(x) == 13,
+    #"header": None, # header text, UNUSED
+    "isbn": is_isbn,
     "license": lambda x: len(x) < 999, #should be a codename?
     "server": SERVER_DEFAULTS.__contains__,
     "engine": config.ENGINES.__contains__,
