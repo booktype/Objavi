@@ -140,10 +140,10 @@ def get_size_list():
     def calc_size(name, pointsize, klass):
         if pointsize:
             mmx = pointsize[0] * config.POINT_2_MM
-            mmy = pointsize[1] * config.POINT_2_MM            
+            mmy = pointsize[1] * config.POINT_2_MM
             return (mmx * mmy, name, klass,
                     '%s (%dmm x %dmm)' % (name, mmx, mmy))
-            
+
         return (0, name, klass, name) # presumably 'custom'
 
     return [x[1:] for x in sorted(calc_size(k, v.get('pointsize'), v.get('class', ''))
@@ -167,7 +167,7 @@ def optionise(items, default=None):
         else:
             # triple: value, class, name
             if x[0] == default:
-                options.append('<option selected="selected" class="%s" value="%s">%s</option>' % x)
+                options.append('<option selected="selected" value="%s" class="%s">%s</option>' % x)
             else:
                 options.append('<option value="%s" class="%s">%s</option>' % x)
 
