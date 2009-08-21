@@ -350,7 +350,7 @@ class Book(object):
                 #XXX look at using inspect module
                 import traceback
                 message = traceback.extract_stack(None, 2)[0][2]
-                log("notify_watcher called by '%s'" % message)
+            log("notify_watcher called with '%s'" % message)
             self.watcher(message)
 
     def __enter__(self):
