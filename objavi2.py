@@ -351,7 +351,6 @@ def mode_book(args):
         book.set_title(args.get('title'))
         book.add_css(args.get('css'))
 
-        book.compose_inside_cover(args.get('license'), args.get('isbn'))
         book.add_section_titles()
         book.make_pdf()
 

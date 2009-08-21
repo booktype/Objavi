@@ -381,6 +381,9 @@ class Book(object):
         self.body_index_file = self.filepath('body.txt')
         self.preamble_html_file = self.filepath('preamble.html')
         self.preamble_pdf_file = self.filepath('preamble.pdf')
+        self.tail_html_file = self.filepath('tail.html')
+        self.tail_pdf_file = self.filepath('tail.pdf')
+        self.isbn_pdf_file = None
         self.pdf_file = self.filepath('final.pdf')
 
         self.publish_name = bookname
@@ -474,6 +477,7 @@ class Book(object):
 
     def make_preamble_pdf(self):
         contents = self.make_contents()
+        inside_cover_html = self.compose_inside_cover()
         html = ('<html dir="%s"><head>\n'
                 '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
                 '<link rel="stylesheet" href="%s" />\n'
@@ -483,7 +487,7 @@ class Book(object):
                 '<div class="contents">%s</div>\n'
                 '<div style="page-break-after: always; color:#fff" class="unseen">.'
                 '<!--%s--></div></body></html>'
-                ) % (self.dir, self.css_url, self.title, self.inside_cover_html,
+                ) % (self.dir, self.css_url, self.title, inside_cover_html,
                      contents, self.title)
         self.save_data(self.preamble_html_file, html)
 
@@ -504,7 +508,12 @@ class Book(object):
         self.wait_for_xvfb()
         self.make_body_pdf()
         self.make_preamble_pdf()
-        concat_pdfs(self.pdf_file, self.preamble_pdf_file, self.body_pdf_file)
+        self.make_end_matter_pdf()
+
+        concat_pdfs(self.pdf_file, self.preamble_pdf_file,
+                    self.body_pdf_file, self.tail_pdf_file,
+                    self.isbn_pdf_file)
+
         self.notify_watcher('concatenated_pdfs')
         #and move it into place (what place?)
 
@@ -737,32 +746,54 @@ class Book(object):
                 self.title = 'A Manual About ' + self.book
         return self.title
 
-    def compose_inside_cover(self, license=config.DEFAULT_LICENSE, isbn=None):
-        """create the markup for the preamble inside cover, storing it
-        in self.inside_cover_html."""
-        #XXX this should go in make_preamble_pdf, but that needs to be extracted from make_pdf
-
-        if isbn:
-            isbn_text = '<b>ISBN :</b> %s <br>' % isbn
-            #XXX make a barcode
-        else:
-            isbn_text = ''
-
-        for lang in (self.lang, 'en'):
+    def _read_localised_template(self, template, fallbacks=['en']):
+        """Try to get the template in the approriate language, otherwise in english."""
+        for lang in [self.lang] + fallbacks:
             try:
-                fn = INSIDE_FRONT_COVER_TEMPLATE % (lang)
+                fn = template % (lang)
                 f = open(fn)
+                break
             except IOError, e:
                 log("couldn't open inside front cover for lang %s (filename %s)" % (lang, fn))
                 log(e)
-
         template = f.read()
         f.close()
+        return template
 
-        self.inside_cover_html = template % {'date': time.strftime('%Y-%m-%d'),
-                                             'isbn': isbn_text,
-                                             'license': license,
-                                             }
+    def compose_inside_cover(self):
+        """create the markup for the preamble inside cover."""
+        template = self._read_localised_template(config.INSIDE_FRONT_COVER_TEMPLATE)
+
+        if self.isbn:
+            isbn_text = '<b>ISBN :</b> %s <br>' % self.isbn
+        else:
+            isbn_text = ''
+
+        return template % {'date': time.strftime('%Y-%m-%d'),
+                           'isbn': isbn_text,
+                           'license': self.license,
+                           }
+
+
+    def compose_end_matter(self):
+        """create the markup for the end_matter inside cover.  If
+        self.isbn is not set, the html will result in a pdf that
+        spills onto two pages.
+        """
+        template = self._read_localised_template(config.END_MATTER_TEMPLATE)
+
+        d = {'css_url': self.css_url,
+             'title': self.title
+             }
+
+        if self.isbn:
+            d['inside_cover_style'] = ''
+        else:
+            d['inside_cover_style'] = 'page-break-after: always'
+
+        return template % d
+
+
 
 
     def spawn_x(self):

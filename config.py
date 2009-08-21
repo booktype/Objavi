@@ -182,6 +182,7 @@ ENGINES = {
 }
 
 INSIDE_FRONT_COVER_TEMPLATE = 'templates/inside-front-cover.%s.html'
+END_MATTER_TEMPLATE = 'templates/end_matter.%s.html'
 
 FONT_LIST_INCLUDE = 'cache/font-list.inc'
 FONT_LIST_URL = '/font-list.cgi.pdf'
