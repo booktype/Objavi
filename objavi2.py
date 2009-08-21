@@ -343,7 +343,8 @@ def mode_book(args):
         progress_bar = print_progress
 
     with Book(book, server, bookname, page_settings=page_settings, engine=engine,
-              watcher=progress_bar) as book:
+              watcher=progress_bar, isbn=args.get('isbn'),
+              license=args.get('license')) as book:
         if cgi_context(args):
             book.spawn_x()
         book.load()

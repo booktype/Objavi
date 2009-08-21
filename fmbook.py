@@ -361,11 +361,14 @@ class Book(object):
         #could deal with exceptions here and return true
 
     def __init__(self, book, server, bookname,
-                 page_settings=None, engine=None, watcher=None):
+                 page_settings=None, engine=None, watcher=None, isbn=None,
+                 license=config.DEFAULT_LICENSE):
         log("*** Starting new book %s ***" % bookname)
         self.book = book
         self.server = server
         self.watcher = watcher
+        self.isbn = isbn
+        self.license = license
         self.workdir = tempfile.mkdtemp(prefix=bookname, dir=TMPDIR)
         os.chmod(self.workdir, 0755)
         defaults = SERVER_DEFAULTS.get(server, SERVER_DEFAULTS[DEFAULT_SERVER])
