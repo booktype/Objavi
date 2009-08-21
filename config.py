@@ -240,13 +240,16 @@ PROGRESS_POINTS = (
     ("add_css", "Add css"),
     ("add_section_titles", "Add section titles"),
     ("generate_pdf", "Generate the main pdf"),
+    ("reshape_pdf", "Add gutter, cut paper to size"),
+    #('make_body_pdf', "Generate the main pdf"),
     ("number_pdf", "Number pages and add gutters"),
     ("make_contents", "Calculate Table of Contents"),
     ("make_preamble_pdf", "Generate preamble pdf"),
+    ('make_end_matter_pdf', "Generate end matter pdf"),
     ("concatenated_pdfs", "concatenate the pdfs"),
+    #("publish_pdf", "Publish the pdf"),
     ("finished", "Finished!"),
 )
-
 
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))
