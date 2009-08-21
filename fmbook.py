@@ -513,8 +513,7 @@ class Book(object):
         self.save_data(self.tail_html_file, self.compose_end_matter())
         self.maker.make_raw_pdf(self.tail_html_file, self.tail_pdf_file,
                                 engine=self.engine)
-        import shutil
-        shutil.copy(self.tail_pdf_file, '/tmp/test.pdf')
+
         self.maker.reshape_pdf(self.tail_pdf_file, self.dir, centre_start=True,
                                centre_end=True, even_pages=False)
         self.notify_watcher()
