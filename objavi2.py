@@ -275,13 +275,11 @@ def get_page_settings(args):
     return settings
 
 
-
-def cgi_context(args):
-    return 'SERVER_NAME' in os.environ or args.get('cgi-context', 'NO').lower() in '1true'
-
 def output_and_exit(f):
+    """Decorator: prefix function output with http headers and exit
+    immediately after."""
     def output(args):
-        if cgi_context(args):
+        if CGI_CONTEXT:
             print "Content-type: text/html; charset=utf-8\n"
         f(args)
         sys.exit()
@@ -345,15 +343,15 @@ def mode_book(args):
     page_settings = get_page_settings(args)
     bookname = make_book_name(bookid, server)
 
-    if cgi_context(args):
-        progress_bar = make_progress_page(bookid, bookname)
+    if CGI_CONTEXT:
+        progress_bar = make_progress_page(bookid, bookname, mode)
     else:
         progress_bar = print_progress
 
     with Book(bookid, server, bookname, page_settings=page_settings, engine=engine,
               watcher=progress_bar, isbn=args.get('isbn'),
               license=args.get('license')) as book:
-        if cgi_context(args):
+        if CGI_CONTEXT:
             book.spawn_x()
         book.load()
         book.set_title(args.get('title'))
@@ -374,22 +372,23 @@ def mode_book(args):
 
 
 
-if __name__ == '__main__':
-    _valid_inputs = set(ARG_VALIDATORS)
-    _form_inputs = set(x[0] for x in config.FORM_INPUTS)
-    log("valid but not used inputs: %s" % (_valid_inputs - _form_inputs))
-    log("invalid form inputs: %s" % (_form_inputs - _valid_inputs))
 
+def main():
     args = parse_args()
     mode = args.get('mode')
     if mode is None and 'book' in args:
         mode = 'book'
 
-    if not args and not cgi_context(args):
+    global CGI_CONTEXT
+    CGI_CONTEXT = 'SERVER_NAME' in os.environ or args.get('cgi-context', 'no').lower() in '1true'
+
+    if not args and not CGI_CONTEXT:
         print __doc__
         sys.exit()
 
     output_function = globals().get('mode_%s' % mode, mode_form)
     output_function(args)
 
+if __name__ == '__main__':
+    main()
 
