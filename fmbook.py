@@ -163,27 +163,28 @@ class PageSettings(object):
 
 
 
-    def _webkit_command(self, html, pdf):
+    def _webkit_command(self, html, pdf, outline=False):
         m = [str(x) for x in self.margins]
-        cmd = [config.WKHTMLTOPDF, '-q', '-s', self.papersize,
+        outline_args = ['--outline'] * outline
+        cmd = ([config.WKHTMLTOPDF, '-q', '-s', self.papersize,
                '-T', m[0], '-R', m[1], '-B', m[2], '-L', m[3],
-               ] + config.WKHTMLTOPDF_EXTRA_COMMANDS + [
-               html, pdf]
+               ] + outline_args +
+               config.WKHTMLTOPDF_EXTRA_COMMANDS + [html, pdf])
         log(' '.join(cmd))
         return cmd
 
-    def _gecko_command(self, html, pdf):
+    def _gecko_command(self, html, pdf, outline=False):
         m = [str(x) for x in self.margins]
         #firefox -P pdfprint -print URL -printprinter "printer_settings"
-        cmd = [FIREFOX, '-P', 'pdfprint', '-print',
+        cmd = [config.FIREFOX, '-P', 'pdfprint', '-print',
                html, '-printprinter', self.moz_printer]
         log(' '.join(cmd))
         return cmd
 
-    def make_raw_pdf(self, html, pdf, engine='webkit'):
+    def make_raw_pdf(self, html, pdf, engine='webkit', outline=False):
         func = getattr(self, '_%s_command' % engine)
         if self.columns == 1:
-            cmd = func(html, pdf)
+            cmd = func(html, pdf, outline=outline)
             run(cmd)
         else:
             printable_width = self.width - 2.0 * self.side_margin - self.gutter
