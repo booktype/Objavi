@@ -106,7 +106,6 @@ def parse_args():
 def get_server_list():
     return sorted(SERVER_DEFAULTS.keys())
 
-
 def get_book_list(server):
     """Ask the server for a list of books.  Floss Manual TWikis keep such a list at
     /bin/view/TWiki/WebLeftBarWebsList?skin=text but it needs a bit of processing
@@ -188,7 +187,6 @@ def get_default_css(server=DEFAULT_SERVER, mode='book'):
     f = open(cssfile)
     s = f.read()
     f.close()
-    #log(s)
     return s
 
 def font_links():
@@ -246,7 +244,10 @@ def get_page_settings(args):
     margins all set themselves automatically based on the page
     dimensions, but they can be overridden.  Any that are are
     collected here."""
-    #get all the values including sizes first
+    # get all the values including sizes first
+    # the sizes are found as 'page_width' and 'page_height',
+    # but the Book class expects them as a 'pointsize' tuple, so
+    # they are easily ignored.
     settings = {}
     for k, extrema in config.PAGE_EXTREMA.iteritems():
         try:
@@ -254,19 +255,20 @@ def get_page_settings(args):
         except (ValueError, TypeError):
             log("don't like %r as a float value for %s!" % (args.get(k), k))
             continue
-        if v < extrema[0] or v > extrema[1]:
+        min_val, max_val, multiplier = extrema
+        if v < min_val or v > max_val:
             log('rejecting %s: outside %s' % (v,) + extrema)
         else:
             log('found %s=%s' % (k, v))
-            settings[k] = v * extrema[2]
+            settings[k] = v * multiplier #convert to points in many cases
 
-    #now if args['size'] is not 'custom', the width height above
-    # is overruled.
+    # now if args['size'] is not 'custom', the width and height found
+    # above are ignored.
 
     size = args.get('booksize', config.DEFAULT_SIZE)
-    if size != 'custom':
-        settings.update(config.PAGE_SIZE_DATA[size])
-    else:
+    settings.update(config.PAGE_SIZE_DATA[size])
+
+    if size == 'custom':
         #will raise KeyError if width, height aren't set
         settings['pointsize'] = (settings['page_width'], settings['page_height'])
         del settings['page_width']
@@ -330,6 +332,11 @@ def mode_form(args):
                     '<div class="input_contents"> %(e)s %(epilogue)s\n</div>'
                     '</div>\n' % locals())
 
+    if True:
+        _valid_inputs = set(ARG_VALIDATORS)
+        _form_inputs = set(x[0] for x in config.FORM_INPUTS)
+        log("valid but not used inputs: %s" % (_valid_inputs - _form_inputs))
+        log("invalid form inputs: %s" % (_form_inputs - _valid_inputs))
 
     print template % {'form': ''.join(form)}
 
@@ -368,8 +375,6 @@ def mode_book(args):
 
         book.publish_pdf()
         book.notify_watcher('finished')
-        #book.cleanup()
-
 
 
 

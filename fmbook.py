@@ -210,6 +210,7 @@ class PageSettings(object):
                    #'--tidy', 'false',
                    column_pdf
                    ]
+
             run(cmd)
 
 
@@ -286,7 +287,7 @@ class PageSettings(object):
             concat_pdfs(pdf, *pdf_sections)
 
     def make_barcode_pdf(self, isbn, pdf, corner='br'):
-        """Put ann ISBN barcode in a corner of a single blank page."""
+        """Put an ISBN barcode in a corner of a single blank page."""
 
         position = '%s,%s,%s,%s,%s' %(corner, self.width, self.height, self.side_margin, self.bottom_margin)
         cmd1 = [config.BOOKLAND,
@@ -466,7 +467,7 @@ class Book(object):
         #3. extract the text for finding contents.
         n_pages = self.extract_pdf_text()
         log ("found %s pages in pdf" % n_pages)
-        #4. resize pages, shift gutters, and rotate 180 degrees for RTL
+        #4. resize pages, shift gutters, even pages
         self.maker.reshape_pdf(self.body_pdf_file, self.dir, centre_end=True)
         self.notify_watcher('reshape_pdf')
 
@@ -713,7 +714,6 @@ class Book(object):
 
         Also add initial numbers to chapters.
         """
-        log(self.headings)
         headings = iter(self.headings)
         chapter = 1
         section = None
