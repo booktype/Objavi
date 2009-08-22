@@ -74,6 +74,7 @@ ARG_VALIDATORS = {
     "columns": isfloat_or_auto,
     "column_margin": isfloat_or_auto,
     "cgi-context": lambda x: x.lower() in '1true0false',
+    "pdftype": lambda x: config.CGI_MODES.get(x, [False])[0],
     "mode": str.isalnum,
     "rotate": u"rotate".__eq__,
 }
@@ -179,10 +180,10 @@ def listify(items):
     return '\n'.join('<li>%s</li>' % x for x in items)
 
 
-def get_default_css(server=DEFAULT_SERVER):
+def get_default_css(server=DEFAULT_SERVER, mode='book'):
     """Get the default CSS text for the selected server"""
     log(server)
-    cssfile = SERVER_DEFAULTS[server]['css']
+    cssfile = SERVER_DEFAULTS[server]['css-%s' % mode]
     log(cssfile)
     f = open(cssfile)
     s = f.read()
@@ -293,7 +294,7 @@ def mode_booklist(args):
 @output_and_exit
 def mode_css(args):
     #XX sending as text/html, but it doesn't really matter
-    print get_default_css(args.get('server', config.DEFAULT_SERVER))
+    print get_default_css(args.get('server', config.DEFAULT_SERVER), args.get('pdftype', 'book'))
 
 
 @output_and_exit
@@ -355,8 +356,7 @@ def mode_book(args):
             book.spawn_x()
         book.load()
         book.set_title(args.get('title'))
-        book.add_css(args.get('css'))
-
+        book.add_css(args.get('css'), mode)
         book.add_section_titles()
         book.make_book_pdf()
 

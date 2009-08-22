@@ -61,34 +61,50 @@ DEFAULT_ENGINE = 'webkit'
 
 RTL_SCRIPTS = ['persian', 'arabic', 'hebrew', 'urdu']
 
-#DEFAULT_CSS = 'file://' + os.path.abspath('static/default.css')
 SERVER_DEFAULTS = {
     'en.flossmanuals.net': {
-        'css': 'static/en.flossmanuals.net.css',
+        'css-book': 'static/en.flossmanuals.net.css',
+        'css-web': 'static/en.flossmanuals.net-web.css',
+        'css-newspaper': 'static/en.flossmanuals.net-newspaper.css',
         'lang': 'en',
         'dir': 'LTR',
         },
     'fr.flossmanuals.net': {
+        'css-book': 'static/fr.flossmanuals.net.css',
+        'css-web': 'static/fr.flossmanuals.net.css',
+        'css-newspaper': 'static/fr.flossmanuals.net.css',
         'css': 'static/fr.flossmanuals.net.css',
         'lang': 'fr',
         'dir': 'LTR',
         },
     'translate.flossmanuals.net': {
+        'css-book': 'static/translate.flossmanuals.net.css',
+        'css-web': 'static/translate.flossmanuals.net.css',
+        'css-newspaper': 'static/translate.flossmanuals.net.css',
         'css': 'static/translate.flossmanuals.net.css',
         'lang': 'translate',
         'dir': 'LTR',
         },
     'nl.flossmanuals.net': {
+        'css-book': 'static/nl.flossmanuals.net.css',
+        'css-web': 'static/nl.flossmanuals.net.css',
+        'css-newspaper': 'static/nl.flossmanuals.net.css',
         'css': 'static/nl.flossmanuals.net.css',
         'lang': 'nl',
         'dir': 'LTR',
         },
     'bn.flossmanuals.net': {
+        'css-book': 'static/bn.flossmanuals.net.css',
+        'css-web': 'static/bn.flossmanuals.net.css',
+        'css-newspaper': 'static/bn.flossmanuals.net.css',
         'css': 'static/bn.flossmanuals.net.css',
         'lang': 'bn',
         'dir': 'LTR',
         },
     'fa.flossmanuals.net': {
+        'css-book': 'static/fa.flossmanuals.net.css',
+        'css-web': 'static/fa.flossmanuals.net.css',
+        'css-newspaper': 'static/fa.flossmanuals.net.css',
         'css': 'static/fa.flossmanuals.net.css',
         'lang': 'fa',
         'dir': 'RTL',

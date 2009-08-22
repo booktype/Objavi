@@ -1,0 +1,86 @@
+body {
+  font-family: 'Gillius ADF';
+  background: #fff;
+  color: #000;
+}
+
+#book-title {
+  font-size: 3em;
+  margin-bottom: 12em;  
+}
+
+.unseen{
+  display: none;
+}
+
+.chapter{
+  color: #000;
+}
+
+h1 .initial{
+  color: #000;
+  font-size: 2em;
+}
+
+.subsection{
+  display: block;
+  text-transform: uppercase;
+  font-size: 20pt;
+}
+
+
+.subsection .initial {
+  font-size: 1em;
+  color: #000;
+}
+
+.subsection-heading{
+  font-size: 36pt;
+  font-weight: bold;
+}
+
+
+h1 {
+  text-transform: uppercase;
+  margin: 1em 0 1em 0;  
+}
+
+h2 {
+  text-transform: uppercase;
+}
+
+table {
+  float: none;
+}
+
+h1.frontpage{
+  font-size: 64pt;
+  text-align: center;
+  max-width: 700px;
+}
+
+div.copyright{
+  padding: 1em;
+  margin: 2em 0 2em 0;
+}
+
+p, ul, ol {
+  page-break-inside: avoid;
+}
+
+pre, code, tt {
+  font-family: "Courier", "Courier New", monospace;
+  font-size: 0.8em;
+}
+
+pre {
+  max-width:700px;
+  overflow: hidden;
+}
+
+img {
+  max-width: 700px;
+  height: auto;
+}
+
+

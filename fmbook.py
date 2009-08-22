@@ -717,14 +717,15 @@ class Book(object):
         self.notify_watcher()
 
 
-    def add_css(self, css=None):
+    def add_css(self, css=None, mode='book'):
         """If css looks like a url, use it as a stylesheet link.
         Otherwise it is the CSS itself, which is saved to a temporary file
         and linked to."""
         log("css is %r" % css)
         htmltree = self.tree
         if css is None or not css.strip():
-            url = 'file://' + os.path.abspath(self.default_css)
+            defaults = SERVER_DEFAULTS[self.server]
+            url = 'file://' + os.path.abspath(defaults['css-%s' % mode])
         elif not re.match(r'^http://\S+$', css):
             fn = self.save_tempfile('objavi.css', css)
             url = 'file://' + fn
