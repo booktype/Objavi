@@ -337,18 +337,18 @@ def mode_form(args):
 @output_and_exit
 def mode_book(args):
     # so we're making a book.
-    book = args.get('book')
+    bookid = args.get('book')
     server = args.get('server', config.DEFAULT_SERVER)
     engine = args.get('engine', config.DEFAULT_ENGINE)
     page_settings = get_page_settings(args)
-    bookname = make_book_name(book, server)
+    bookname = make_book_name(bookid, server)
 
     if cgi_context(args):
-        progress_bar = make_progress_page(book, bookname)
+        progress_bar = make_progress_page(bookid, bookname)
     else:
         progress_bar = print_progress
 
-    with Book(book, server, bookname, page_settings=page_settings, engine=engine,
+    with Book(bookid, server, bookname, page_settings=page_settings, engine=engine,
               watcher=progress_bar, isbn=args.get('isbn'),
               license=args.get('license')) as book:
         if cgi_context(args):
