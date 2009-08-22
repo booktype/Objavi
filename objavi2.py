@@ -315,6 +315,7 @@ def mode_form(args):
         'book_options': optionise(get_book_list(server), default=book),
         'size_options': optionise(get_size_list(), default=size),
         'engines': optionise(config.ENGINES.keys(), default=engine),
+        'pdf_types': optionise(sorted(k for k, v in config.CGI_MODES.iteritems() if v[0])),
         'css': get_default_css(server),
         'font_links': listify(font_links()),
         'font_list': listify(font_list),
