@@ -74,8 +74,8 @@ ARG_VALIDATORS = {
     "columns": isfloat_or_auto,
     "column_margin": isfloat_or_auto,
     "cgi-context": lambda x: x.lower() in '1true0false',
+    "mode": config.CGI_MODES.__contains__,
     "pdftype": lambda x: config.CGI_MODES.get(x, [False])[0],
-    "mode": str.isalnum,
     "rotate": u"rotate".__eq__,
 }
 

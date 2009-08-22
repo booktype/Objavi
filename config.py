@@ -210,6 +210,19 @@ LICENSES = ('GPL', 'GPLv2', 'GPLv2+', 'GPLv3', 'GPLv3+', 'LGPL', 'LGPLv2.1',
 
 DEFAULT_LICENSE = 'GPLv2+'
 
+CGI_MODES = { # arguments are: (publication, )
+    'book': (True,),
+    'newspaper': (True,),
+    'web': (True,),
+    #'openoffice': (True,),
+    'booklist': (False,),
+    'css': (False,),
+    'form': (False,),
+}
+
+DEFAULT_MODE = 'book'
+
+
 FORM_INPUTS = (
     ("server", "FLOSS Manuals server", "select", "server_options", "", ""),
     ("book", "Manual", "select", "book_options", "", ""),
