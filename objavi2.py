@@ -61,7 +61,7 @@ ARG_VALIDATORS = {
     "title": lambda x: len(x) < 999,
     #"header": None, # header text, UNUSED
     "isbn": is_isbn,
-    "license": lambda x: len(x) < 999, #should be a codename?
+    "license": config.LICENSES.__contains__,
     "server": SERVER_DEFAULTS.__contains__,
     "engine": config.ENGINES.__contains__,
     "booksize": config.PAGE_SIZE_DATA.__contains__,
