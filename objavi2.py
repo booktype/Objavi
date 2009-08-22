@@ -358,7 +358,7 @@ def mode_book(args):
         book.add_css(args.get('css'))
 
         book.add_section_titles()
-        book.make_pdf()
+        book.make_book_pdf()
 
         if "rotate" in args:
             book.rotate180()

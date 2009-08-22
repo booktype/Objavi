@@ -518,7 +518,7 @@ class Book(object):
                                centre_end=True, even_pages=False)
         self.notify_watcher()
 
-    def make_pdf(self):
+    def make_book_pdf(self):
         """A convenient wrapper of a few necessary steps"""
         # now the Xvfb server is needed. make sure it has had long enough to get going
         self.wait_for_xvfb()
