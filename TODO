@@ -1,16 +1,10 @@
 * use pdftk dump_data to fond tables of contents
 
-* multi-column and map fold pdf 
-
 * localised inside cover text
-
-* ISBN numbers and barcode
 
 * fancier, more intuitive form.
 
 * open office output
-
-* web pdf ouytput (no gutters, with outline)
 
 * cgi admin interface for changing CSS, server list, adding fonts
 
@@ -27,12 +21,9 @@
 
 * experiment with print css options in wkhtmltopdf
 
-* customisable margins and gutter
-
-* custom sizes
-
 * Installer and packaging
 
 * look into wkhtml2pdf's hacks to make outline, contents.
    (+ perhaps something similar for mozilla - <h1> hooks)
 
+* map fold pdf
