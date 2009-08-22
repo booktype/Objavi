@@ -230,9 +230,7 @@ FORM_INPUTS = (
     ("license", "License", "select", "licenses", "", ""),
 
     ("isbn", "ISBN", "input[type=text]", None, "advanced", "(13 digits)"),
-    ("rotate", "Rotate pages for binding", "input[type=checkbox]", None, "advanced", "(for RTL books on LTR printing presses, and vice versa)."),
-    ("engine", "Layout engine", "select", "engines", "advanced", ""),
-    #("header", "Header Text", "input[type=text]", None, "advanced", ""),
+    ("mode", "Document type", "select", "pdf_types", "advanced", ""),
 
     ("booksize", "Page size", "select", "size_options", "advanced", '(Size compatibility: <span class="lulu">Lulu</span>, <span class="newspaper">newspapers</span>, <span class="iso">ISO standards</span>)'),
     ("page_width", "Page width", "input[type=text]", None, "advanced booksize numeric-field", ""),
@@ -251,6 +249,10 @@ FORM_INPUTS = (
     ("font_list", "Available fonts", "ul", "font_list", "advanced css-custom", ""),
     ("font_links", "Font examples", "ul", "font_links", "advanced css-custom", ""),
     ("css", "CSS", "textarea", "css", "advanced css-custom", ""),
+
+    ("rotate", "Rotate pages for binding", "input[type=checkbox]", None, "advanced", "(for RTL books on LTR printing presses, and vice versa)."),
+    ("engine", "Layout engine", "select", "engines", "advanced", ""),
+    #("header", "Header Text", "input[type=text]", None, "advanced", ""),
 )
 
 FORM_ELEMENT_TYPES = {
