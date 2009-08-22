@@ -532,7 +532,45 @@ class Book(object):
                     self.isbn_pdf_file)
 
         self.notify_watcher('concatenated_pdfs')
-        #and move it into place (what place?)
+
+
+    def make_simple_pdf(self, mode):
+        """Make a simple pdf document without contents or separate
+        title page.  This is used for multicolumn newspapers and for
+        web-destined pdfs."""
+        self.wait_for_xvfb()
+        #0. Add heading to begining of html
+        body = list(self.tree.cssselect('body'))[0]
+        e = body.makeelement('h1', {'id': 'book-title'})
+        e.text = self.title
+        body.insert(0, e)
+        intro = lxml.html.fragment_fromstring(self.compose_inside_cover())
+        e.addnext(intro)
+
+        #0.5 adjust parameters to suit the particular kind of output
+        if mode == 'web':
+            self.maker.gutter = 0
+
+        #1. Save the html
+        html_text = lxml.etree.tostring(self.tree, method="html")
+        self.save_data(self.body_html_file, html_text)
+
+        #2. Make a pdf of it (direct to to final pdf)
+        self.maker.make_raw_pdf(self.body_html_file, self.pdf_file,
+                                engine=self.engine, outline=True)
+        self.notify_watcher('generate_pdf')
+
+        if mode != 'web':
+            #3. resize pages and shift gutters.
+            self.maker.reshape_pdf(self.pdf_file, self.dir, centre_end=True)
+            self.notify_watcher('reshape_pdf')
+
+            #4. add page numbers
+            self.maker.number_pdf(self.pdf_file, None, dir=self.dir,
+                                  numbers=self.page_numbers)
+            self.notify_watcher("number_pdf")
+        self.notify_watcher()
+
 
     def rotate180(self):
         """Rotate the pdf 180 degrees so an RTL book can print on LTR
