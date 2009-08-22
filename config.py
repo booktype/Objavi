@@ -250,21 +250,21 @@ FORM_ELEMENT_TYPES = {
 }
 
 PROGRESS_POINTS = (
-    ("__init__", "Initialise the book"),
-    ("load_book", "Fetch the book"),
-    ("load_toc", "Fetch TOC metadata"),
-    ("add_css", "Add css"),
-    ("add_section_titles", "Add section titles"),
-    ("generate_pdf", "Generate the main pdf"),
-    ("reshape_pdf", "Add gutter, cut paper to size"),
-    #('make_body_pdf', "Generate the main pdf"),
-    ("number_pdf", "Number pages and add gutters"),
-    ("make_contents", "Calculate Table of Contents"),
-    ("make_preamble_pdf", "Generate preamble pdf"),
-    ('make_end_matter_pdf', "Generate end matter pdf"),
-    ("concatenated_pdfs", "concatenate the pdfs"),
-    #("publish_pdf", "Publish the pdf"),
-    ("finished", "Finished!"),
+    ("__init__", "Initialise the book", ('book', 'newspaper', 'web')),
+    ("load_book", "Fetch the book", ('book', 'newspaper', 'web')),
+    ("load_toc", "Fetch TOC metadata", ('book', 'newspaper', 'web')),
+    ("add_css", "Add css", ('book', 'newspaper', 'web')),
+    ("add_section_titles", "Add section titles", ('book', 'newspaper', 'web')),
+    ("generate_pdf", "Generate the main pdf", ('book', 'newspaper', 'web')),
+    ("reshape_pdf", "Cut pages to size", ('book', 'newspaper',)),
+    #('make_body_pdf', "Generate the main pdf", ('book', 'newspaper', 'web')),
+    ("number_pdf", "Number pages", ('book', 'newspaper',)),
+    ("make_contents", "Calculate Table of Contents", ('book',)),
+    ("make_preamble_pdf", "Generate preamble pdf", ('book',)),
+    ('make_end_matter_pdf', "Generate end matter pdf", ('book',)),
+    ("concatenated_pdfs", "concatenate the pdfs", ('book',)),
+    #("publish_pdf", "Publish the pdf", ('book', 'newspaper', 'web')),
+    ("finished", "Finished!", ('book', 'newspaper', 'web')),
 )
 
 if __name__ == '__main__':

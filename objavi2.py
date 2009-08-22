@@ -202,11 +202,12 @@ def font_links():
     return links
 
 
-def make_progress_page(book, bookname):
+def make_progress_page(book, bookname, mode):
     f = open(PROGRESS_TEMPLATE)
     template = f.read()
     f.close()
-    progress_list = ''.join('<li id="%s">%s</li>\n' % x for x in config.PROGRESS_POINTS)
+    progress_list = ''.join('<li id="%s">%s</li>\n' % x[:2] for x in config.PROGRESS_POINTS
+                            if mode in x[2])
 
     d = {
         'book': book,
