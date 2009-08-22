@@ -261,7 +261,7 @@ FORM_ELEMENT_TYPES = {
     'input[type=checkbox]' : '<input type="checkbox" id="%(id)s" name="%(id)s" value="%(val)s" />',
     'textarea' : '<textarea id="%(id)s" name="%(id)s">%(val)s</textarea>',
     'select': '<select id="%(id)s" name="%(id)s">%(val)s</select>',
-    'ul': '<ul id="%(id)s" name="%(id)s">%(val)s</ul>',
+    'ul': '<ul id="%(id)s">%(val)s</ul>',
 }
 
 PROGRESS_POINTS = (
