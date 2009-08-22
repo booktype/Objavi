@@ -72,9 +72,10 @@ function load_css(){
     var server = $("#server").val();
     var textarea = $('#css');
 
-    $.get("?server=" + server + "&mode=css",
+    //Try to get CSS to suit current mode
+    $.get("?server=" + server + "&mode=css&pdftype=" + $("#mode").val(),
           undefined, function(data){textarea.val(data);}
-        );
+    );
 }
 
 
@@ -111,7 +112,8 @@ function onload(){
                              '</select></div>'
                             ).attr("name", 'css');
         $('#css_div .input_title').after('<a href="#" onclick="load_css(); return false;">' +
-                                            'Load server default CSS (lose changes)</a>');
+                                         'Load default CSS for this server and mode ' +
+                                         '(lose changes)</a>');
     }
 
     $("#css-control").change(css_mode_switch);

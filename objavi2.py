@@ -344,7 +344,8 @@ def mode_form(args):
 
 @output_and_exit
 def mode_book(args):
-    # so we're making a book.
+    # so we're making a pdf.
+    mode = args.get('mode', 'book')
     bookid = args.get('book')
     server = args.get('server', config.DEFAULT_SERVER)
     engine = args.get('engine', config.DEFAULT_ENGINE)
@@ -378,6 +379,9 @@ def mode_book(args):
         book.notify_watcher('finished')
 
 
+#These ones are similar enought to be handled by the one function
+mode_newspaper = mode_book
+mode_web = mode_book
 
 def main():
     args = parse_args()

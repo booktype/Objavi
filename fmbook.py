@@ -197,7 +197,7 @@ class PageSettings(object):
                                        bottom_margin=self.bottom_margin)
 
             column_pdf = pdf[:-4] + '-single-column.pdf'
-            columnmaker.make_raw_pdf(html, column_pdf, engine=engine)
+            columnmaker.make_raw_pdf(html, column_pdf, engine=engine, outline=outline)
             columnmaker.reshape_pdf(column_pdf)
 
             cmd = ['pdfnup',
@@ -373,8 +373,7 @@ class Book(object):
         self.license = license
         self.workdir = tempfile.mkdtemp(prefix=bookname, dir=TMPDIR)
         os.chmod(self.workdir, 0755)
-        defaults = SERVER_DEFAULTS.get(server, SERVER_DEFAULTS[DEFAULT_SERVER])
-        self.default_css = defaults['css']
+        defaults = SERVER_DEFAULTS[server]
         self.lang = defaults['lang']
         self.dir  = defaults['dir']
 
