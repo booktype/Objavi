@@ -60,17 +60,6 @@ def _add_initial_number(e, n):
     e.text = ''
     initial.text = "%s." % n
 
-def _add_chapter_cookie(e):
-    """add magic hidden text to help with contents generation"""
-    cookie = e.makeelement("span", Class="heading-cookie", dir="ltr",
-                           style="font-size:6pt; line-height: 6pt; color: #fff; width:0;"
-                           " float:left; margin:-2em; z-index: -67; display: block;"
-                           )
-    cookie.text = ''.join(random.choice(config.CHAPTER_COOKIE_CHARS) for x in range(8))
-    e.cookie = cookie.text
-    e.addnext(cookie)
-    #e.append(cookie)
-
 
 class TocItem(object):
     """This makes sense of the tuples from TOC.txt files"""
@@ -487,20 +476,6 @@ class Book(object):
         self.save_data(fn, data)
         return fn
 
-
-    def extract_pdf_text(self):
-        """Extract the text from the body pdf, split into pages, so
-        that the correct page can be found to generate the table of
-        contents."""
-        index_pdf(self.body_pdf_file, self.body_index_file)
-        f = open(self.body_index_file)
-        s = unicode(f.read(), 'utf8')
-        f.close()
-        #pages are spearated by formfeed character "^L", "\f" or chr(12)
-        self.text_pages = s.split("\f")
-        #there is sometimes (probably always) an unwanted ^L at the end
-        return len(self.text_pages)
-
     def extract_pdf_outline(self):
         self.outline_contents, self.outline_text, number_of_pages = parse_outline(self.body_pdf_file, 1)
         for x in self.outline_contents:
@@ -697,30 +672,14 @@ class Book(object):
         self.headings = [x for x in tree.cssselect('h1')]
         if self.headings:
             self.headings[0].set('class', "first-heading")
-        #self.heading_texts = [x.textcontent() for x in self.headings]
         for h1 in self.headings:
             h1.title = h1.text_content().strip()
         self.notify_watcher()
-
 
     def load(self):
         """Wrapper around all necessary load methods."""
         self.load_book()
         self.load_toc()
-
-    def find_page(self, element, start_page=1):
-        """Search through a page iterator and return the page
-        number which the element probably occurs."""
-        text = element.cookie
-        for i, content in enumerate(self.text_pages[start_page - 1:]):
-            log("looking for '%s' in page %s below:\n%s[...]" %
-                (text, i + start_page, content[:160]), debug='INDEX')
-            #remove spaces: they can appear spuriously
-            content = ''.join(content.split())
-            if text in content:
-                return i + start_page, True
-        #If it isn't found, return the start page so the next chapter has a chance
-        return start_page, False
 
     def make_contents(self):
         """Generate HTML containing the table of contents.  This can
@@ -791,9 +750,8 @@ class Book(object):
                 else:
                     log("NOT placing section", debug='HTMLGEN')
 
-                #put a bold number at the beginning of the h1, and a hidden cookie at the end.
+                #put a bold number at the beginning of the h1.
                 _add_initial_number(h1, chapter)
-                _add_chapter_cookie(h1)
                 chapter += 1
 
             elif t.is_section():
