@@ -446,7 +446,7 @@ class Book(object):
         self.book_url = config.BOOK_URL % (self.server, self.book)
         self.toc_url = config.TOC_URL % (self.server, self.book)
 
-        self.set_page_dimensions(page_settings)
+        self.maker = PageSettings(**page_settings)
 
         if engine is not None:
             self.engine = engine
@@ -486,9 +486,6 @@ class Book(object):
         fn = self.filepath(fn)
         self.save_data(fn, data)
         return fn
-
-    def set_page_dimensions(self, dimensions):
-        self.maker = PageSettings(**dimensions)
 
 
     def extract_pdf_text(self):
