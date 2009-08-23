@@ -338,6 +338,50 @@ def rotate_pdf(pdfin, pdfout):
            ]
     run(cmd)
 
+def parse_outline(pdf, level_threshold):
+    """Create a structure reflecting the outline of a PDF.
+
+    BookmarkTitle: 2. What is sound?
+    BookmarkLevel: 1
+    BookmarkPageNumber: 3
+    """
+
+    cmd = ('pdftk', pdf, 'dump_data')
+    p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+    out, err = p.communicate()
+    log(' '.join(cmd))
+    log(out)
+    lines = (x.strip() for x in out.split('\n') if x.strip())
+    contents = []
+
+    def extract(expected, conv=str.strip):
+        line = lines.next()
+        try:
+            k, v = line.split(':', 1)
+            if k == expected:
+                return conv(v)
+        except ValueError:
+            log("trouble with line %r" %line)
+
+    #There are a few useless variables, then the pagecount, then the contents.
+    #The pagecount is useful, so pick it up first.
+    page_count = None
+    while page_count == None:
+        page_count = extract('NumberOfPages', int)
+
+    try:
+        while True:
+            title = extract('BookmarkTitle')
+            if title is not None:
+                level = extract('BookmarkLevel', int)
+                pagenum = extract('BookmarkPageNumber', int)
+                if level <= level_threshold and None not in (level, pagenum):
+                    contents.append((title, level, pagenum))
+    except StopIteration:
+        pass
+
+    return contents, page_count
+
 
 class Book(object):
     page_numbers = 'latin'
@@ -452,6 +496,12 @@ class Book(object):
         #there is sometimes (probably always) an unwanted ^L at the end
         return len(self.text_pages)
 
+    def extract_pdf_outline(self):
+        self.outline_contents, number_of_pages = parse_outline(self.body_pdf_file, 1)
+        for x in self.outline_contents:
+            log(x)
+        return number_of_pages
+
     def make_body_pdf(self):
         """Make a pdf of the HTML, using webkit"""
         #1. Save the html
@@ -460,11 +510,11 @@ class Book(object):
 
         #2. Make a pdf of it
         self.maker.make_raw_pdf(self.body_html_file, self.body_pdf_file,
-                                engine=self.engine)
+                                engine=self.engine, outline=True)
         self.notify_watcher('generate_pdf')
 
-        #3. extract the text for finding contents.
-        n_pages = self.extract_pdf_text()
+        n_pages = self.extract_pdf_outline()
+
         log ("found %s pages in pdf" % n_pages)
         #4. resize pages, shift gutters, even pages
         self.maker.reshape_pdf(self.body_pdf_file, self.dir, centre_end=True)
@@ -682,6 +732,7 @@ class Book(object):
         page_num = 1
         subsections = [] # for the subsection heading pages.
 
+        outline_contents = iter(self.outline_contents)
         headings = iter(self.headings)
 
         for t in self.toc:
@@ -691,12 +742,9 @@ class Book(object):
                 except StopIteration:
                     log("heading not found for %s (previous h1 missing?). Stopping" % t)
                     break
-                page_num, found = self.find_page(h1, page_num)
-                # sometimes the heading isn't found, which is shown as a frown
-                if found:
-                    contents.append(row_tmpl % (chapter, h1.title, page_num))
-                else:
-                    contents.append(row_tmpl % (chapter, h1.title, ':-('))
+                h1_text, level, page_num = outline_contents.next()
+                log("%r %r" % (h1.title, h1_text))
+                contents.append(row_tmpl % (chapter, h1.title, page_num))
                 chapter += 1
             elif t.is_section():
                 contents.append(section_tmpl % t.title)
