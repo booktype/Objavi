@@ -388,7 +388,7 @@ def parse_outline(pdf, level_threshold):
     except StopIteration:
         pass
 
-    return contents, page_count
+    return contents, outline, page_count
 
 
 class Book(object):
@@ -502,7 +502,7 @@ class Book(object):
         return len(self.text_pages)
 
     def extract_pdf_outline(self):
-        self.outline_contents, number_of_pages = parse_outline(self.body_pdf_file, 1)
+        self.outline_contents, self.outline_text, number_of_pages = parse_outline(self.body_pdf_file, 1)
         for x in self.outline_contents:
             log(x)
         return number_of_pages
