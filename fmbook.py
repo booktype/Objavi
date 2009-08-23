@@ -337,18 +337,16 @@ def rotate_pdf(pdfin, pdfout):
 
 def parse_outline(pdf, level_threshold):
     """Create a structure reflecting the outline of a PDF.
+    A chapter heading looks like this:
 
     BookmarkTitle: 2. What is sound?
     BookmarkLevel: 1
     BookmarkPageNumber: 3
     """
-
     cmd = ('pdftk', pdf, 'dump_data')
     p = Popen(cmd, stdout=PIPE, stderr=PIPE)
-    out, err = p.communicate()
-    log(' '.join(cmd))
-    log(out)
-    lines = (x.strip() for x in out.split('\n') if x.strip())
+    outline, err = p.communicate()
+    lines = (x.strip() for x in outline.split('\n') if x.strip())
     contents = []
 
     def extract(expected, conv=str.strip):
