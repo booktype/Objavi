@@ -400,5 +400,8 @@ def main():
     output_function(args)
 
 if __name__ == '__main__':
+    if config.CGITB_DOMAINS and os.environ.get('REMOTE_ADDR') in config.CGITB_DOMAINS:
+        import cgitb
+        cgitb.enable()
     main()
 

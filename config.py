@@ -36,6 +36,9 @@ WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
 #WKHTMLTOPDF_EXTRA_COMMANDS = ['--outline',  '-t']
 
+#CGITB_DOMAINS = ('203.97.236.46', '202.78.240.7')
+CGITB_DOMAINS = False
+
 #bookland is used to make isbn barcodes
 BOOKLAND = 'bookland/bookland'
 
