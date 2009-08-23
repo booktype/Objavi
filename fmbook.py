@@ -307,13 +307,21 @@ class PageSettings(object):
         log("return: %s and %s \nstdout:%s \nstderr:%s" % (p1.poll(), p2.poll(), out, err))
 
 
+def count_pdf_pages(pdf):
+    """How many pages in the PDF?"""
+    #XXX could also use python-pypdf or python-poppler
+    cmd = ('pdfinfo', pdf)
+    p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+    out, err = p.communicate()
+    m = re.search(r'^\s*Pages:\s*(\d+)\s*$', re.MULTILINE)
+    return int(m.group(1))
 
 
-def concat_pdfs(name, *args):
+def concat_pdfs(destination, *pdfs):
     """Join all the named pdfs together into one and save it as <name>"""
     cmd = ['pdftk']
-    cmd.extend(x for x in args if x is not None)
-    cmd += ['cat', 'output', name]
+    cmd.extend(x for x in pdfs if x is not None)
+    cmd += ['cat', 'output', destination]
     run(cmd)
 
 def index_pdf(pdf, text=None):
