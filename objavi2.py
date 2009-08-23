@@ -253,7 +253,7 @@ def get_page_settings(args):
         try:
             v = float(args.get(k))
         except (ValueError, TypeError):
-            log("don't like %r as a float value for %s!" % (args.get(k), k))
+            #log("don't like %r as a float value for %s!" % (args.get(k), k))
             continue
         min_val, max_val, multiplier = extrema
         if v < min_val or v > max_val:

@@ -65,6 +65,9 @@ DEFAULT_ENGINE = 'webkit'
 RTL_SCRIPTS = ['persian', 'arabic', 'hebrew', 'urdu']
 
 USE_TAGS_FOR_CONTENTS = False
+
+TRY_BOOK_CLEANUP_ON_DEL = False
+
 SERVER_DEFAULTS = {
     'en.flossmanuals.net': {
         'css-book': 'static/en.flossmanuals.net.css',

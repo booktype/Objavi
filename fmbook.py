@@ -387,7 +387,7 @@ class Book(object):
     page_numbers = 'latin'
     preamble_page_numbers = 'roman'
     engine= 'webkit'
-    _try_cleanup_on_del = True
+    _try_cleanup_on_del = config.TRY_BOOK_CLEANUP_ON_DEL
 
     def notify_watcher(self, message=None):
         if self.watcher:
@@ -445,7 +445,7 @@ class Book(object):
         self.notify_watcher()
 
     def __del__(self):
-        if os.path.exists(self.workdir) and self._try_cleanup_on_del:
+        if self._try_cleanup_on_del and os.path.exists(self.workdir):
             self._try_cleanup_on_del = False #or else you can get in bad cycles
             self.cleanup()
 
