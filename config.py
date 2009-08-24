@@ -233,13 +233,14 @@ DEFAULT_MODE = 'book'
 
 
 FORM_INPUTS = (
+    # input, name, input type, contents key, CSS classes, extra text
     ("server", "FLOSS Manuals server", "select", "server_options", "", ""),
     ("book", "Manual", "select", "book_options", "", ""),
     ("title", "Book title", "input[type=text]", None, "", ""),
     ("license", "License", "select", "licenses", "", ""),
 
-    ("isbn", "ISBN", "input[type=text]", None, "advanced", "(13 digits)"),
     ("mode", "Document type", "select", "pdf_types", "advanced", ""),
+    ("isbn", "ISBN", "input[type=text]", None, "advanced", "(13 digits)"),
 
     ("booksize", "Page size", "select", "size_options", "advanced", '(Size compatibility: <span class="lulu">Lulu</span>, <span class="newspaper">newspapers</span>, <span class="iso">ISO standards</span>)'),
     ("page_width", "Page width", "input[type=text]", None, "advanced booksize numeric-field", ""),
