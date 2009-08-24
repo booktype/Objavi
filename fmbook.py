@@ -120,17 +120,22 @@ class PageSettings(object):
         self.papersize, clipx, clipy = find_containing_paper(self.width, self.height)
         self.grey_scale = 'grey_scale' in kwargs
 
-        self.gutter = kwargs.get('gutter', (config.BASE_GUTTER +
-                                            config.PROPORTIONAL_GUTTER * self.width))
-
+        # All measurements in points unless otherwise stated
+        # user interaction is in *mm*, but is converted in objavi2.py
         default_margin = (config.BASE_MARGIN + config.PROPORTIONAL_MARGIN * min(pointsize))
+        default_gutter = (config.BASE_GUTTER + config.PROPORTIONAL_GUTTER * self.width)
+
         self.top_margin = kwargs.get('top_margin', default_margin)
-        self.moz_printer = kwargs.get('moz_printer', ('objavi_' + self.papersize))
         self.side_margin = kwargs.get('side_margin', default_margin)
         self.bottom_margin = kwargs.get('bottom_margin', default_margin)
-        self.columns = kwargs.get('columns', 1)
+        self.gutter = kwargs.get('gutter', default_gutter)
 
-        self.column_margin = kwargs.get('column_margin', default_margin * 2 / (4.0 + self.columns))
+        self.columns = kwargs.get('columns', 1)
+        if self.columns == 'auto': #default for newspapers is to work out columns
+            self.columns = int(self.width // config.MIN_COLUMN_WIDTH)
+
+        self.column_margin = kwargs.get('column_margin',
+                                        default_margin * 2 / (5.0 + self.columns))
 
         self.number_bottom = self.bottom_margin - 0.6 * config.PAGE_NUMBER_SIZE
         self.number_margin = self.side_margin
@@ -142,10 +147,9 @@ class PageSettings(object):
                         (self.bottom_margin, clipy + 0.5 * config.PAGE_NUMBER_SIZE),
                         (self.side_margin, clipx + 0.5 * self.gutter),
                         ):
-            if m is None:
-                m = default_margin
             self.margins.append((m + clip) * POINT_2_MM)
 
+        self.moz_printer = kwargs.get('moz_printer', ('objavi_' + self.papersize))
         for x in locals().iteritems():
             log("%s: %s" % x, debug='PDFGEN')
         for x in dir(self):
@@ -181,11 +185,14 @@ class PageSettings(object):
             printable_width = self.width - 2.0 * self.side_margin - self.gutter
             column_width = (printable_width - (self.columns - 1) * self.column_margin) / self.columns
             page_width = column_width + self.column_margin
+            side_margin = self.column_margin * 0.5
 
             columnmaker = PageSettings((page_width, self.height), moz_printer=self.moz_printer,
                                        gutter=0, top_margin=self.top_margin,
-                                       side_margin=self.column_margin * 0.5,
-                                       bottom_margin=self.bottom_margin)
+                                       side_margin=side_margin,
+                                       bottom_margin=self.bottom_margin,
+                                       grey_scale=self.grey_scale,
+                                       )
 
             column_pdf = pdf[:-4] + '-single-column.pdf'
             columnmaker.make_raw_pdf(html, column_pdf, engine=engine, outline=outline)
