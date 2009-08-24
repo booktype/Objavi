@@ -63,7 +63,8 @@ input[type=text] {
 }
 
 div.form-item {
-  margin: 5px 0px;
+  margin: 0px;
+  padding: 5px;
   clear: both;
 }
 
@@ -139,9 +140,56 @@ div.form-item {
 .newspaper {
   color: #06a;
 }
+
 .custom {
   color: #c00;
   font-style: italic;
 }
 
+/*form advanced divs */
+
+#mode_div {
+  background: #feb;
+}
+
+#isbn_div {
+  background: #fff;
+}
+
+
+#booksize_div{
+  background: #feb;
+}
+
+.booksize {
+  background: #feb;
+}
+
+.margins {
+  background: #fff;
+}
+
+.columns {
+  background: #feb;
+}
+
+#grey_scale_div {
+  background: #fff;
+}
+
+.css-url, .css-custom, #css-control_div {
+  background: #feb;
+}
+
+#rotate_div {
+  background: #fff;
+}
+
+#engine_div {
+  background: #feb;
+}
+
+.advanced {
+/*  border-left: 2px solid #faa;*/
+}
 
