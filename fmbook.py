@@ -150,10 +150,14 @@ class PageSettings(object):
             self.margins.append((m + clip) * POINT_2_MM)
 
         self.moz_printer = kwargs.get('moz_printer', ('objavi_' + self.papersize))
-        for x in locals().iteritems():
-            log("%s: %s" % x, debug='PDFGEN')
-        for x in dir(self):
-            log("%s: %s" % (x, getattr(self, x)), debug='PDFGEN')
+
+        if 'PDFGEN' in config.DEBUG_MODES:
+            log("making PageSettings with:")
+            for x in locals().iteritems():
+                log("%s: %s" % x, debug='PDFGEN')
+            for x in dir(self):
+                if not x.startswith('__'):
+                    log("self.%s: %s" % (x, getattr(self, x)), debug='PDFGEN')
 
 
 
@@ -186,6 +190,12 @@ class PageSettings(object):
             column_width = (printable_width - (self.columns - 1) * self.column_margin) / self.columns
             page_width = column_width + self.column_margin
             side_margin = self.column_margin * 0.5
+            if 'PDFGEN' in config.DEBUG_MODES:
+                log("making columns with:")
+                for k, v in locals().iteritems():
+                    log("%s: %r" % (k, v))
+                for k in ('width', 'side_margin', 'gutter', 'column_margin', 'columns', 'height'):
+                    log("self.%s: %r" % (k, getattr(self, k)))
 
             columnmaker = PageSettings((page_width, self.height), moz_printer=self.moz_printer,
                                        gutter=0, top_margin=self.top_margin,
