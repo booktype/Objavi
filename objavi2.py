@@ -76,7 +76,7 @@ ARG_VALIDATORS = {
     "cgi-context": lambda x: x.lower() in '1true0false',
     "mode": config.CGI_MODES.__contains__,
     "pdftype": lambda x: config.CGI_MODES.get(x, [False])[0],
-    "rotate": u"rotate".__eq__,
+    "rotate": u"yes".__eq__,
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
@@ -321,6 +321,7 @@ def mode_form(args):
         'font_list': listify(font_list),
         'default_license' : config.DEFAULT_LICENSE,
         'licenses' : optionise(config.LICENSES, default=config.DEFAULT_LICENSE),
+        'yes': 'yes',
         None: '',
     }
 
