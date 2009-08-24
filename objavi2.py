@@ -269,6 +269,7 @@ def get_page_settings(args):
     size = args.get('booksize', config.DEFAULT_SIZE)
     settings.update(config.PAGE_SIZE_DATA[size])
 
+    #automatically determined unless set -- otherwise default is 1.
     if args.get('grey_scale'):
         settings['grey_scale'] = True
 
