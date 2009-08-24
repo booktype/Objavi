@@ -158,7 +158,7 @@ PAGE_EXTREMA = {
     'top_margin': (0, 1500, MM_2_POINT),
     'side_margin': (0, 1500, MM_2_POINT),
     'bottom_margin': (0, 1500, MM_2_POINT),
-    "columns": (1, 20, 1),
+    "columns": (1, 12, 1),
     "column_margin": (0, 1000, MM_2_POINT),
 }
 
