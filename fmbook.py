@@ -125,9 +125,9 @@ class PageSettings(object):
 
         default_margin = (config.BASE_MARGIN + config.PROPORTIONAL_MARGIN * min(pointsize))
         self.top_margin = kwargs.get('top_margin', default_margin)
-        self.side_margin = kwargs.get('top_margin', default_margin)
-        self.bottom_margin = kwargs.get('top_margin', default_margin)
         self.moz_printer = kwargs.get('moz_printer', ('objavi_' + self.papersize))
+        self.side_margin = kwargs.get('side_margin', default_margin)
+        self.bottom_margin = kwargs.get('bottom_margin', default_margin)
         self.columns = kwargs.get('columns', 1)
 
         self.column_margin = kwargs.get('column_margin', default_margin * 2 / (4.0 + self.columns))
