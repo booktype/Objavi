@@ -5,8 +5,10 @@ body {
 }
 
 #book-title {
-  font-size: 3em;
+  font-size: 64pt;
+  page-break-before: avoid;
   margin-bottom: 12em;  
+  max-width: 700px;
 }
 
 .unseen{
