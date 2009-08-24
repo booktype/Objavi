@@ -609,7 +609,8 @@ class Book(object):
         self.maker.make_raw_pdf(self.body_html_file, self.pdf_file,
                                 engine=self.engine, outline=True)
         self.notify_watcher('generate_pdf')
-        n_pages = self.extract_pdf_outline()
+        #n_pages = self.extract_pdf_outline()
+        n_pages = count_pdf_pages(self.pdf_file)
 
         if mode != 'web':
             #3. resize pages and shift gutters.
