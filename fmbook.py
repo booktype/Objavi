@@ -321,7 +321,7 @@ def count_pdf_pages(pdf):
     cmd = ('pdfinfo', pdf)
     p = Popen(cmd, stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
-    m = re.search(r'^\s*Pages:\s*(\d+)\s*$', out, re.MULTILINE)
+    m = re.search(r'^\s*Pages:\s*(\d+)\s*$', re.MULTILINE)
     return int(m.group(1))
 
 
@@ -500,6 +500,7 @@ class Book(object):
         self.outline_contents, self.outline_text, number_of_pages = parse_outline(self.body_pdf_file, 1)
         for x in self.outline_contents:
             log(x)
+        self.notify_watcher()
         return number_of_pages
 
     def make_body_pdf(self):

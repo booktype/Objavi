@@ -283,6 +283,7 @@ PROGRESS_POINTS = (
     ("add_css", "Add css", ('book', 'newspaper', 'web')),
     ("add_section_titles", "Add section titles", ('book', 'newspaper', 'web')),
     ("generate_pdf", "Generate the main pdf", ('book', 'newspaper', 'web')),
+    ("extract_pdf_outline", "Find page numbers", ('book',)),
     ("reshape_pdf", "Cut pages to size", ('book', 'newspaper',)),
     #('make_body_pdf', "Generate the main pdf", ('book', 'newspaper', 'web')),
     ("number_pdf", "Number pages", ('book', 'newspaper',)),
