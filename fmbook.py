@@ -401,7 +401,6 @@ class Book(object):
     page_numbers = 'latin'
     preamble_page_numbers = 'roman'
     engine= 'webkit'
-    _try_cleanup_on_del = config.TRY_BOOK_CLEANUP_ON_DEL
 
     def notify_watcher(self, message=None):
         if self.watcher:
