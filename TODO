@@ -1,6 +1,4 @@
-* use pdftk dump_data to fond tables of contents
-
-* localised inside cover text
+* localised inside cover text -- more templates
 
 * fancier, more intuitive form.
 
@@ -19,11 +17,8 @@
 
 * arbitrary fonts for page numbers (so non-western numbers work)
 
-* experiment with print css options in wkhtmltopdf
-
 * Installer and packaging
 
-* look into wkhtml2pdf's hacks to make outline, contents.
-   (+ perhaps something similar for mozilla - <h1> hooks)
+* See if mozilla can do outlines like wkhtml2pdf
 
 * map fold pdf
