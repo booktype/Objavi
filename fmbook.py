@@ -448,10 +448,13 @@ class Book(object):
             self.engine = engine
         self.notify_watcher()
 
-    def __del__(self):
-        if self._try_cleanup_on_del and os.path.exists(self.workdir):
-            self._try_cleanup_on_del = False #or else you can get in bad cycles
-            self.cleanup()
+    if config.TRY_BOOK_CLEANUP_ON_DEL:
+        #Dont even define __del__ if it is not used.
+        _try_cleanup_on_del = True
+        def __del__(self):
+            if self._try_cleanup_on_del and os.path.exists(self.workdir):
+                self._try_cleanup_on_del = False #or else you can get in bad cycles
+                self.cleanup()
 
     def __getattr__(self, attr):
         """catch unloaded books and load them"""
