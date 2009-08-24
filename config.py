@@ -251,6 +251,8 @@ FORM_INPUTS = (
     ("columns", "Columns", "input[type=text]", None, "advanced columns numeric-field", ""),
     ("column_margin", "Column margin", "input[type=text]", None, "advanced columns numeric-field", ""),
 
+    ("grey_scale", "Grey-scale", "input[type=checkbox]", 'yes', "advanced", "(for black and white printing)"),
+
     #("css_customise", "Customise CSS", "input[type=checkbox]", None, "advanced", "Enter a URL or "),
     ("css-url", "CSS URL", "input[type=text][disabled]", "css_url", "advanced css-url", ""),
     ("font_list", "Available fonts", "ul", "font_list", "advanced css-custom", ""),

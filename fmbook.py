@@ -118,6 +118,7 @@ class PageSettings(object):
 
         self.width, self.height = pointsize
         self.papersize, clipx, clipy = find_containing_paper(self.width, self.height)
+        self.grey_scale = 'grey_scale' in kwargs
 
         self.gutter = kwargs.get('gutter', (config.BASE_GUTTER +
                                             config.PROPORTIONAL_GUTTER * self.width))
@@ -155,9 +156,10 @@ class PageSettings(object):
     def _webkit_command(self, html, pdf, outline=False):
         m = [str(x) for x in self.margins]
         outline_args = ['--outline'] * outline
+        greyscale_args = ['-g'] * self.grey_scale
         cmd = ([config.WKHTMLTOPDF, '-q', '-s', self.papersize,
                '-T', m[0], '-R', m[1], '-B', m[2], '-L', m[3],
-               ] + outline_args +
+               '-d', '100'] + outline_args + greyscale_args +
                config.WKHTMLTOPDF_EXTRA_COMMANDS + [html, pdf])
         log(' '.join(cmd))
         return cmd

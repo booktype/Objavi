@@ -77,6 +77,7 @@ ARG_VALIDATORS = {
     "mode": config.CGI_MODES.__contains__,
     "pdftype": lambda x: config.CGI_MODES.get(x, [False])[0],
     "rotate": u"yes".__eq__,
+    "grey_scale": u"yes".__eq__,
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
@@ -267,6 +268,9 @@ def get_page_settings(args):
 
     size = args.get('booksize', config.DEFAULT_SIZE)
     settings.update(config.PAGE_SIZE_DATA[size])
+
+    if args.get('grey_scale'):
+        settings['grey_scale'] = True
 
     if size == 'custom':
         #will raise KeyError if width, height aren't set
