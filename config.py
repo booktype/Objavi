@@ -199,6 +199,8 @@ PAGE_SIZE_DATA = {
 PAGE_MIN_SIZE = (1.0, 1.0)
 PAGE_MAX_SIZE = (3000.0, 3000.0)
 
+MIN_COLUMN_WIDTH = (110 * MM_2_POINT)
+
 ENGINES = {
     'webkit' : [],
     #'gecko' : [],
