@@ -321,7 +321,7 @@ def count_pdf_pages(pdf):
     cmd = ('pdfinfo', pdf)
     p = Popen(cmd, stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
-    m = re.search(r'^\s*Pages:\s*(\d+)\s*$', re.MULTILINE)
+    m = re.search(r'^\s*Pages:\s*(\d+)\s*$', out, re.MULTILINE)
     return int(m.group(1))
 
 
