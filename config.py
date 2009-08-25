@@ -152,8 +152,8 @@ BASE_GUTTER = 15
 PROPORTIONAL_GUTTER = 0.011
 
 PAGE_EXTREMA = {
-    'page_width':  (1, 3000, MM_2_POINT),
-    'page_height': (1, 3000, MM_2_POINT),
+    'page_width':  (1, 1000, MM_2_POINT),
+    'page_height': (1, 1414, MM_2_POINT), #can't be bigger than biggest PAPER_SIZE
     'gutter': (-1000, 1000, MM_2_POINT),
     'top_margin': (0, 1500, MM_2_POINT),
     'side_margin': (0, 1500, MM_2_POINT),
