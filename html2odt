@@ -87,8 +87,8 @@ class Oo(object):
 
         #Reset each graphic object to an embedded copy of itself.
         #there are probably simpler ways to iterate, but this works.
-        for gn in doc.GraphicObjects.ElementNames:
-            g = doc.GraphicObjects.getByName(gn)
+        for name in doc.GraphicObjects.ElementNames:
+            g = doc.GraphicObjects.getByName(name)
             props = (PropertyValue("URL", 0, g.GraphicURL, 0),)
             g.setPropertyValue("Graphic", gp.queryGraphic(props))
 
