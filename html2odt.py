@@ -9,6 +9,15 @@ import sys, os, subprocess, time
 
 import uno
 from com.sun.star.beans import PropertyValue
+from com.sun.star.connection import NoConnectException
+
+def _inspect_obj(o):
+    print >> sys.stdout, 'inspecting %r' % o
+    for a in  dir(o):
+        try:
+            print >> sys.stdout, "%25s %s" % (a, getattr(o, a))
+        except Exception, e:
+            print >> sys.stdout, "%s DOES NOT WORK! (%s)" % (a, e)
 
 def file_url(path):
     if path.startswith('file:///'):
@@ -58,18 +67,9 @@ class Oo(object):
 
         gp = self.unobject("com.sun.star.graphic.GraphicProvider")
 
-
-        if True:
-            for a in  dir(doc.GraphicObjects):
-                try:
-                    print "%25s %s" % (a, getattr(doc.GraphicObjects, a))
-                except:
-                    print "%s DOES NOT WORK!" % a
-
-    
-        #there are probably simpleer ways to iterate, but this works.
-        #Reset each graphic object to an embedded copy of itself. 
-        for gn in doc.GraphicObjects.ElementNames:            
+        #Reset each graphic object to an embedded copy of itself.
+        #there are probably simpler ways to iterate, but this works.
+        for gn in doc.GraphicObjects.ElementNames:
             g = doc.GraphicObjects.getByName(gn)
             props = (PropertyValue("URL", 0, g.GraphicURL, 0),)
             g.setPropertyValue("Graphic", gp.queryGraphic(props))
@@ -85,7 +85,6 @@ class Oo(object):
         self.desktop.dispose()
         self.context.dispose()
         self.ooffice.kill()
-
 
 
 if __name__ == '__main__':
