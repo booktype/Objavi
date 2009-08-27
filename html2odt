@@ -54,6 +54,26 @@ class Oo(object):
             return self.context.ServiceManager.createInstance(klass)
         return self.context.ServiceManager.createInstanceWithContext(klass, context)
 
+    def load(self, src):
+        """Attempt to load as TextDocument format, but fall back to
+        WebDocument if that doesn't work.  (WebDocument is called
+        writer/web in the gui and is less exportable."""
+        # import property values:
+        # http://api.openoffice.org/docs/common/ref/com/sun/star/document/MediaDescriptor.html
+        try:
+            return self.desktop.loadComponentFromURL(src, "_blank", 0,
+                                                     (PropertyValue("Hidden" , 0 , True, 0),
+                                                      PropertyValue("FilterName" , 0 , 'HTML (StarWriter)', 0),
+                                                      ))
+        except Exception, e:
+            print e
+        #fall back on default WebDocument format
+        return self.desktop.loadComponentFromURL(src, "_blank", 0,
+                                                 (PropertyValue("Hidden" , 0 , True, 0),
+                                                  ))
+
+
+
     def convert(self, src, dest):
         """Use the connected open office instance to convert the file
         named by <src> into odf and save it as <dest>.
@@ -62,9 +82,7 @@ class Oo(object):
         src = file_url(src)
         dest = file_url(dest)
 
-        doc = self.desktop.loadComponentFromURL(src, "_blank", 0,
-                                                (PropertyValue("Hidden" , 0 , True, 0),))
-
+        doc = self.load(src)
         gp = self.unobject("com.sun.star.graphic.GraphicProvider")
 
         #Reset each graphic object to an embedded copy of itself.
