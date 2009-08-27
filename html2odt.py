@@ -1,4 +1,9 @@
 #!/usr/bin/python
+"""Convert html files to ODF.
+
+html2odt source.html destination.odt
+"""
+
 from __future__ import with_statement
 import sys, os, subprocess, time
 
@@ -12,9 +17,7 @@ def file_url(path):
 
 class Oo(object):
     def __init__(self):
-        self.connect()
-
-    def connect(self):
+        """Start up an open office and connect to it."""
         accept_string = "socket,host=localhost,port=2002;urp;StarOffice.ComponentContext"
 
         self.ooffice = subprocess.Popen(["ooffice", "-nologo", "-nodefault",
@@ -22,19 +25,31 @@ class Oo(object):
                                          "-headless", # "-invisible",
                                          "-accept=%s" % accept_string])
 
-        time.sleep(3)
+        for i in range(10):
+            time.sleep(0.5)
+            try:
+                local = uno.getComponentContext()
+                self.resolver = local.ServiceManager.createInstanceWithContext("com.sun.star.bridge.UnoUrlResolver", local)
+                self.context = self.resolver.resolve("uno:" + accept_string)
+                self.desktop = self.unobject("com.sun.star.frame.Desktop", self.context)
+                return
 
-        local = uno.getComponentContext()
-        self.resolver = local.ServiceManager.createInstanceWithContext("com.sun.star.bridge.UnoUrlResolver", local)
-        self.context = self.resolver.resolve("uno:" + accept_string)
-        self.desktop = self.unobject("com.sun.star.frame.Desktop", self.context)
+            except NoConnectException:
+                print '.',
 
     def unobject(self, klass, context=None):
+        """get an instance of the class named by <klass>.  It will
+        probably be a string that looks like
+        'com.sun.something.SomeThing'."""
         if context is None:
             return self.context.ServiceManager.createInstance(klass)
         return self.context.ServiceManager.createInstanceWithContext(klass, context)
 
     def convert(self, src, dest):
+        """Use the connected open office instance to convert the file
+        named by <src> into odf and save it as <dest>.
+
+        The main trick here is forcing the images to be stored inline."""
         src = file_url(src)
         dest = file_url(dest)
 
@@ -69,7 +84,6 @@ class Oo(object):
     def __exit__(self, exc_type, exc_value, traceback):
         self.desktop.dispose()
         self.context.dispose()
-        #self.resolver.dispose()
         self.ooffice.kill()
 
 
