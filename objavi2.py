@@ -224,14 +224,12 @@ def make_progress_page(book, bookname, mode):
         sys.stdout.flush()
     return progress_notifier
 
-def print_progress(message):
-    print '******* got message "%s"' %message
-
-def make_book_name(book, server):
+def make_book_name(book, server, suffix='.pdf'):
     lang = SERVER_DEFAULTS.get(server, SERVER_DEFAULTS[DEFAULT_SERVER])['lang']
     book = ''.join(x for x in book if x.isalnum())
-    return '%s-%s-%s.pdf' % (book, lang,
-                             time.strftime('%Y.%m.%d-%H.%M.%S'))
+    return '%s-%s-%s%s' % (book, lang,
+                           time.strftime('%Y.%m.%d-%H.%M.%S'),
+                           suffix)
 
 
 def get_page_settings(args):
@@ -393,6 +391,30 @@ def mode_book(args):
 #These ones are similar enought to be handled by the one function
 mode_newspaper = mode_book
 mode_web = mode_book
+
+
+@output_and_exit
+def mode_openoffice(args):
+    """Make an openoffice document.  A whole lot of the inputs have no
+    effect."""
+    bookid = args.get('book')
+    server = args.get('server', config.DEFAULT_SERVER)
+    #page_settings = get_page_settings(args)
+    bookname = make_book_name(bookid, server, '.odt')
+    progress_bar = make_progress_page(bookid, bookname, 'openoffice')
+
+    with Book(bookid, server, bookname,
+              watcher=progress_bar, isbn=args.get('isbn'),
+              license=args.get('license')) as book:
+        if CGI_CONTEXT:
+            book.spawn_x()
+        book.load()
+        book.set_title(args.get('title'))
+        book.add_css(args.get('css'), 'openoffice')
+        book.add_section_titles()
+        book.make_oo_doc()
+        book.notify_watcher('finished')
+
 
 def main():
     args = parse_args()

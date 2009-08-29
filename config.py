@@ -35,6 +35,8 @@ FIREFOX = 'firefox'
 WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
 #WKHTMLTOPDF_EXTRA_COMMANDS = ['--outline',  '-t']
+HTML2ODT = './html2odt'
+
 
 #CGITB_DOMAINS = ('203.97.236.46', '202.78.240.7')
 CGITB_DOMAINS = False
@@ -229,7 +231,7 @@ CGI_MODES = { # arguments are: (publication, )
     'book': (True,),
     'newspaper': (True,),
     'web': (True,),
-    #'openoffice': (True,),
+    'openoffice': (True,),
     'booklist': (False,),
     'css': (False,),
     'form': (False,),
@@ -283,11 +285,12 @@ FORM_ELEMENT_TYPES = {
 }
 
 PROGRESS_POINTS = (
-    ("__init__", "Initialise the book", ('book', 'newspaper', 'web')),
-    ("load_book", "Fetch the book", ('book', 'newspaper', 'web')),
-    ("load_toc", "Fetch TOC metadata", ('book', 'newspaper', 'web')),
-    ("add_css", "Add css", ('book', 'newspaper', 'web')),
-    ("add_section_titles", "Add section titles", ('book', 'newspaper', 'web')),
+    ("__init__", "Initialise the book", ('book', 'newspaper', 'web', 'openoffice')),
+    ("load_book", "Fetch the book", ('book', 'newspaper', 'web', 'openoffice')),
+    ("load_toc", "Fetch TOC metadata", ('book', 'newspaper', 'web', 'openoffice')),
+    ("add_css", "Add css", ('book', 'newspaper', 'web', 'openoffice')),
+    ("add_section_titles", "Add section titles", ('book', 'newspaper', 'web', 'openoffice')),
+    ("make_oo_doc", "Make the OpenOffice document", ('openoffice',)),
     ("generate_pdf", "Generate the main pdf", ('book', 'newspaper', 'web')),
     ("extract_pdf_outline", "Find page numbers", ('book',)),
     ("reshape_pdf", "Cut pages to size", ('book', 'newspaper',)),
@@ -298,7 +301,7 @@ PROGRESS_POINTS = (
     ('make_end_matter_pdf', "Generate end matter pdf", ('book',)),
     ("concatenated_pdfs", "concatenate the pdfs", ('book',)),
     #("publish_pdf", "Publish the pdf", ('book', 'newspaper', 'web')),
-    ("finished", "Finished!", ('book', 'newspaper', 'web')),
+    ("finished", "Finished!", ('book', 'newspaper', 'web', 'openoffice')),
 )
 
 if __name__ == '__main__':

@@ -443,6 +443,7 @@ class Book(object):
         self.tail_pdf_file = self.filepath('tail.pdf')
         self.isbn_pdf_file = None
         self.pdf_file = self.filepath('final.pdf')
+        self.body_odt_file = self.filepath('body.odt')
 
         self.publish_name = bookname
         self.publish_file = os.path.join(PUBLISH_PATH, self.publish_name)
@@ -492,6 +493,16 @@ class Book(object):
         fn = self.filepath(fn)
         self.save_data(fn, data)
         return fn
+
+    def make_oo_doc(self):
+        """Make an openoffice document, using the html2odt script."""
+        self.wait_for_xvfb()
+        html_text = lxml.etree.tostring(self.tree, method="html")
+        self.save_data(self.body_html_file, html_text)
+        run([config.HTML2ODT, self.workdir, self.body_html_file, self.body_odt_file])
+        log("Publishing %r as %r" % (self.body_odt_file, self.publish_file))
+        os.rename(self.body_odt_file, self.publish_file)
+        self.notify_watcher()
 
     def extract_pdf_outline(self):
         self.outline_contents, self.outline_text, number_of_pages = parse_outline(self.body_pdf_file, 1)
