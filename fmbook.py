@@ -964,23 +964,25 @@ class Book(object):
             os.kill(p.pid, 9)
 
         if random.random() < 0.1:
-            #kill old xvfbs occasionally, if there are any.
-            self.kill_old_xvfbs()
+            # occasionally kill old xvfbs and soffices, if there are any.
+            self.kill_old_processes()
 
-    def kill_old_xvfbs(self):
-        """Sometimes, despite everything, Xvfb instances hang around
-        well after they are wanted -- for example if the cgi process
-        dies particularly badly. So kill them if they have been
-        running for a long time."""
-        log("running kill_old_xvfbs")
-        p = Popen(['ps', '-C' 'Xvfb', '-o', 'pid,etime', '--no-headers'], stdout=PIPE)
+    def kill_old_processes(self):
+        """Sometimes, despite everything, Xvfb or soffice instances
+        hang around well after they are wanted -- for example if the
+        cgi process dies particularly badly. So kill them if they have
+        been running for a long time."""
+        log("running kill_old_processes")
+        p = Popen(['ps', '-C' 'Xvfb soffice soffice.bin html2odt ooffice wkhtmltopdf',
+                   '-o', 'pid,etime', '--no-headers'], stdout=PIPE)
         data = p.communicate()[0].strip()
         if data:
             lines = data.split('\n')
             for line in lines:
                 log('dealing with ps output "%s"' % line)
                 try:
-                    pid, days, hours, minutes, seconds = re.match(r'^(\d+)\s+(\d+-)?(\d{2})?:?(\d{2}):(\d+)\s*$', line).groups()
+                    pid, days, hours, minutes, seconds \
+                         = re.match(r'^(\d+)\s+(\d+-)?(\d{2})?:?(\d{2}):(\d+)\s*$', line).groups()
                 except AttributeError:
                     log("Couldn't parse that line!")
                 # 50 minutes should be enough xvfb time for anyone
