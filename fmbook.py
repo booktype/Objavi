@@ -120,6 +120,7 @@ class PageSettings(object):
         self.papersize, clipx, clipy = find_containing_paper(self.width, self.height)
         self.grey_scale = 'grey_scale' in kwargs
 
+        self.engine = kwargs.get('engine', config.DEFAULT_ENGINE)
         # All measurements in points unless otherwise stated
         # user interaction is in *mm*, but is converted in objavi2.py
         default_margin = (config.BASE_MARGIN + config.PROPORTIONAL_MARGIN * min(pointsize))
@@ -180,8 +181,8 @@ class PageSettings(object):
         log(' '.join(cmd))
         return cmd
 
-    def make_raw_pdf(self, html, pdf, engine='webkit', outline=False):
-        func = getattr(self, '_%s_command' % engine)
+    def make_raw_pdf(self, html, pdf, outline=False):
+        func = getattr(self, '_%s_command' % self.engine)
         if self.columns == 1:
             cmd = func(html, pdf, outline=outline)
             run(cmd)
@@ -202,12 +203,12 @@ class PageSettings(object):
                                        side_margin=side_margin,
                                        bottom_margin=self.bottom_margin,
                                        grey_scale=self.grey_scale,
+                                       engine=self.engine
                                        )
 
             column_pdf = pdf[:-4] + '-single-column.pdf'
-            columnmaker.make_raw_pdf(html, column_pdf, engine=engine, outline=outline)
+            columnmaker.make_raw_pdf(html, column_pdf, outline=outline)
             columnmaker.reshape_pdf(column_pdf)
-
             cmd = ['pdfnup',
                    '--nup', '%sx1' % int(self.columns),
                    '--paper', self.papersize.lower() + 'paper',
@@ -400,7 +401,6 @@ def parse_outline(pdf, level_threshold):
 class Book(object):
     page_numbers = 'latin'
     preamble_page_numbers = 'roman'
-    engine= 'webkit'
 
     def notify_watcher(self, message=None):
         if self.watcher:
@@ -420,7 +420,7 @@ class Book(object):
         #could deal with exceptions here and return true
 
     def __init__(self, book, server, bookname,
-                 page_settings=None, engine=None, watcher=None, isbn=None,
+                 page_settings=None, watcher=None, isbn=None,
                  license=config.DEFAULT_LICENSE):
         log("*** Starting new book %s ***" % bookname)
         self.book = book
@@ -450,11 +450,9 @@ class Book(object):
 
         self.book_url = config.BOOK_URL % (self.server, self.book)
         self.toc_url = config.TOC_URL % (self.server, self.book)
+        if page_settings is not None:
+            self.maker = PageSettings(**page_settings)
 
-        self.maker = PageSettings(**page_settings)
-
-        if engine is not None:
-            self.engine = engine
         self.notify_watcher()
 
     if config.TRY_BOOK_CLEANUP_ON_DEL:
@@ -509,8 +507,7 @@ class Book(object):
         self.save_data(self.body_html_file, html_text)
 
         #2. Make a pdf of it
-        self.maker.make_raw_pdf(self.body_html_file, self.body_pdf_file,
-                                engine=self.engine, outline=True)
+        self.maker.make_raw_pdf(self.body_html_file, self.body_pdf_file, outline=True)
         self.notify_watcher('generate_pdf')
 
         n_pages = self.extract_pdf_outline()
@@ -542,8 +539,8 @@ class Book(object):
                      contents, self.title)
         self.save_data(self.preamble_html_file, html)
 
-        self.maker.make_raw_pdf(self.preamble_html_file, self.preamble_pdf_file,
-                                engine=self.engine)
+        self.maker.make_raw_pdf(self.preamble_html_file, self.preamble_pdf_file)
+
 
         self.maker.reshape_pdf(self.preamble_pdf_file, self.dir, centre_start=True)
 
@@ -562,8 +559,7 @@ class Book(object):
             self.notify_watcher('make_barcode_pdf')
 
         self.save_data(self.tail_html_file, self.compose_end_matter())
-        self.maker.make_raw_pdf(self.tail_html_file, self.tail_pdf_file,
-                                engine=self.engine)
+        self.maker.make_raw_pdf(self.tail_html_file, self.tail_pdf_file)
 
         self.maker.reshape_pdf(self.tail_pdf_file, self.dir, centre_start=True,
                                centre_end=True, even_pages=False)
@@ -606,8 +602,7 @@ class Book(object):
         self.save_data(self.body_html_file, html_text)
 
         #2. Make a pdf of it (direct to to final pdf)
-        self.maker.make_raw_pdf(self.body_html_file, self.pdf_file,
-                                engine=self.engine, outline=True)
+        self.maker.make_raw_pdf(self.body_html_file, self.pdf_file, outline=True)
         self.notify_watcher('generate_pdf')
         #n_pages = self.extract_pdf_outline()
         n_pages = count_pdf_pages(self.pdf_file)
