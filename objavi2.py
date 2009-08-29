@@ -202,6 +202,13 @@ def font_links():
 
 
 def make_progress_page(book, bookname, mode):
+    """Return a function that will notify the user of progress.  In
+    CGI context this means making an html page to display the
+    messages, which are then sent as javascript snippets on the same
+    connection."""
+    if not CGI_CONTEXT:
+        return lambda message: '******* got message "%s"' %message
+
     f = open(PROGRESS_TEMPLATE)
     template = f.read()
     f.close()
@@ -360,11 +367,7 @@ def mode_book(args):
     engine = args.get('engine', config.DEFAULT_ENGINE)
     page_settings = get_page_settings(args)
     bookname = make_book_name(bookid, server)
-
-    if CGI_CONTEXT:
-        progress_bar = make_progress_page(bookid, bookname, mode)
-    else:
-        progress_bar = print_progress
+    progress_bar = make_progress_page(bookid, bookname, mode)
 
     with Book(bookid, server, bookname, page_settings=page_settings, engine=engine,
               watcher=progress_bar, isbn=args.get('isbn'),
