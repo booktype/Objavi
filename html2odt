@@ -72,7 +72,13 @@ class Oo(object):
                                                  (PropertyValue("Hidden" , 0 , True, 0),
                                                   ))
 
-
+    def embed_graphics(self, doc):
+        """Reset each graphic object to an embedded copy of itself."""
+        gp = self.unobject("com.sun.star.graphic.GraphicProvider")
+        for i in range(doc.GraphicObjects.Count):
+            g = doc.GraphicObjects.getByIndex(i)
+            props = (PropertyValue("URL", 0, g.GraphicURL, 0),)
+            g.setPropertyValue("Graphic", gp.queryGraphic(props))
 
     def convert(self, src, dest):
         """Use the connected open office instance to convert the file
@@ -81,17 +87,11 @@ class Oo(object):
         The main trick here is forcing the images to be stored inline."""
         src = file_url(src)
         dest = file_url(dest)
+        print src
+        print dest
 
         doc = self.load(src)
-        gp = self.unobject("com.sun.star.graphic.GraphicProvider")
-
-        #Reset each graphic object to an embedded copy of itself.
-        #there are probably simpler ways to iterate, but this works.
-        for name in doc.GraphicObjects.ElementNames:
-            g = doc.GraphicObjects.getByName(name)
-            props = (PropertyValue("URL", 0, g.GraphicURL, 0),)
-            g.setPropertyValue("Graphic", gp.queryGraphic(props))
-
+        self.embed_graphics(doc)
         doc.storeToURL(dest, (PropertyValue("FilterName", 0, 'writer8', 0),
                               PropertyValue("Overwrite", 0, True, 0 )))
         doc.dispose()
