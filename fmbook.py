@@ -964,7 +964,7 @@ class Book(object):
             log("Xvfb would not die! kill -9! kill -9!")
             os.kill(p.pid, 9)
 
-        if random.random() < 0.05:
+        if random.random() < 0.1:
             #kill old xvfbs occasionally, if there are any.
             self.kill_old_xvfbs()
 
@@ -981,7 +981,7 @@ class Book(object):
             for line in lines:
                 log('dealing with ps output "%s"' % line)
                 try:
-                    pid, days_, hours, minutes, seconds = re.match(r'^(\d+)\s+(\d+-)?(\d{2})?:?(\d{2}):(\d+)\s*$').groups()
+                    pid, days, hours, minutes, seconds = re.match(r'^(\d+)\s+(\d+-)?(\d{2})?:?(\d{2}):(\d+)\s*$', line).groups()
                 except AttributeError:
                     log("Couldn't parse that line!")
                 # 50 minutes should be enough xvfb time for anyone
@@ -989,7 +989,11 @@ class Book(object):
                     log("going to kill pid %s" % pid)
                     os.kill(int(pid), 15)
                     time.sleep(0.5)
-                    os.kill(int(pid), 9)
+                    try:
+                        os.kill(int(pid), 9)
+                        log('killing %s with -9')
+                    except OSError, e:
+                        pass
         self.notify_watcher()
 
     def cleanup(self):
