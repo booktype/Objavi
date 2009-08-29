@@ -271,7 +271,7 @@ FORM_INPUTS = (
     ("css", "CSS", "textarea", "css", "advanced css-custom", ""),
 
     ("rotate", "Rotate pages for binding", "input[type=checkbox]", 'yes', "advanced", "(for RTL books on LTR printing presses, and vice versa)."),
-    ("engine", "Layout engine", "select", "engines", "advanced", ""),
+    #("engine", "Layout engine", "select", "engines", "advanced", ""),
     #("header", "Header Text", "input[type=text]", None, "advanced", ""),
 )
 
