@@ -115,7 +115,6 @@ class PageSettings(object):
     def __init__(self, pointsize, **kwargs):
         # the formulas for default gutters, margins and column margins
         # are quite ad-hoc and certainly improvable.
-
         self.width, self.height = pointsize
         self.papersize, clipx, clipy = find_containing_paper(self.width, self.height)
         self.grey_scale = 'grey_scale' in kwargs

@@ -90,7 +90,6 @@ def parse_args():
     query = cgi.FieldStorage()
     options, args = gnu_getopt(sys.argv[1:], '', [x + '=' for x in ARG_VALIDATORS])
     options = dict(options)
-    log(options)
     data = {}
     for key, validator in ARG_VALIDATORS.items():
         value = query.getfirst(key, options.get('--' + key, None))
@@ -270,7 +269,6 @@ def get_page_settings(args):
 
     # now if args['size'] is not 'custom', the width and height found
     # above are ignored.
-
     size = args.get('booksize', config.DEFAULT_SIZE)
     settings.update(config.PAGE_SIZE_DATA[size])
 
@@ -383,13 +381,11 @@ def mode_book(args):
             book.make_book_pdf()
         elif mode in ('web', 'newspaper'):
             book.make_simple_pdf(mode)
-
         if "rotate" in args:
             book.rotate180()
 
         book.publish_pdf()
         book.notify_watcher('finished')
-
 
 #These ones are similar enought to be handled by the one function
 mode_newspaper = mode_book
