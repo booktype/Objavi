@@ -37,14 +37,14 @@ function css_mode_switch(){
     var v = $("#css-control").val();
 
     function on(s){
-        $('.css-' + s).removeClass("hidden");
+        $('.css-' + s).removeClass("hidden-css");
         $('.css-' + s + ' input').removeAttr('disabled');
         $('.css-' + s + ' textarea').removeAttr('disabled');
     }
     function off(s){
         $('.css-' + s + ' input').attr('disabled', 'disabled');
         $('.css-' + s + ' textarea').attr('disabled', 'disabled');
-        $('.css-' + s).addClass("hidden");
+        $('.css-' + s).addClass("hidden-css");
     }
 
     if (v == 'default'){
@@ -55,6 +55,17 @@ function css_mode_switch(){
         var not_v = (v == 'url') ? 'custom' : 'url';
         on(v);
         off(not_v);
+    }
+}
+
+function mode_switch(){
+    /*For openoffice mode, hide the irrelevant inputs */
+    var mode = $("#mode").val();
+    if (mode == 'openoffice'){
+        $('.advanced').not($('.openoffice')).addClass('hidden-mode');
+    }
+    else {
+        $('div.advanced').removeClass('hidden-mode');
     }
 }
 
@@ -103,19 +114,20 @@ function onload(){
     $("#server").change(load_booklist);
 
     if ($("#css-control").length == 0){
-        $(".css-url").before('<div id="css-control_div" class="advanced form-item">' +
+        $(".css-url").before('<div id="css-control_div" class="advanced form-item openoffice">' +
                              '<div class="input_title">CSS mode</div>' +
-                             '<select id="css-control">' +
+                             '<div><select id="css-control">' +
                              '<option value="default" selected="selected">Server default</option>' +
                              '<option value="url">URL</option>' +
                              '<option value="custom">Custom</option>' +
-                             '</select></div>'
+                             '</select></div></div>'
                             ).attr("name", 'css');
         $('#css_div .input_title').after('<a href="#" onclick="load_css(); return false;">' +
                                          'Load default CSS for this server and mode ' +
                                          '(lose changes)</a>');
     }
 
+    $("#mode").change(mode_switch);
     $("#css-control").change(css_mode_switch);
     css_mode_switch();
     //load the booklist for the selected server

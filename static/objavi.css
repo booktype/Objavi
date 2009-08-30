@@ -41,7 +41,7 @@ input[type=text] {
   display: none;
 }
 
-.hidden {
+.hidden, .hidden-css, .hidden-mode {
   display: none;
 }
 

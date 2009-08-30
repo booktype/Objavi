@@ -247,7 +247,7 @@ FORM_INPUTS = (
     ("title", "Book title", "input[type=text]", None, "", ""),
     ("license", "License", "select", "licenses", "", ""),
 
-    ("mode", "Document type", "select", "pdf_types", "advanced", ""),
+    ("mode", "Document type", "select", "pdf_types", "advanced openoffice", ""),
     ("isbn", "ISBN", "input[type=text]", None, "advanced", "(13 digits)"),
 
     ("booksize", "Page size", "select", "size_options", "advanced", '(Size compatibility: <span class="lulu">Lulu</span>, <span class="newspaper">newspapers</span>, <span class="iso">ISO standards</span>)'),
@@ -265,10 +265,10 @@ FORM_INPUTS = (
     ("grey_scale", "Grey-scale", "input[type=checkbox]", 'yes', "advanced", "(for black and white printing)"),
 
     #("css_customise", "Customise CSS", "input[type=checkbox]", None, "advanced", "Enter a URL or "),
-    ("css-url", "CSS URL", "input[type=text][disabled]", "css_url", "advanced css-url", ""),
-    ("font_list", "Available fonts", "ul", "font_list", "advanced css-custom", ""),
-    ("font_links", "Font examples", "ul", "font_links", "advanced css-custom", ""),
-    ("css", "CSS", "textarea", "css", "advanced css-custom", ""),
+    ("css-url", "CSS URL", "input[type=text][disabled]", "css_url", "advanced css-url openoffice", ""),
+    ("font_list", "Available fonts", "ul", "font_list", "advanced css-custom openoffice", ""),
+    ("font_links", "Font examples", "ul", "font_links", "advanced css-custom openoffice", ""),
+    ("css", "CSS", "textarea", "css", "advanced css-custom openoffice", ""),
 
     ("rotate", "Rotate pages for binding", "input[type=checkbox]", 'yes', "advanced", "(for RTL books on LTR printing presses, and vice versa)."),
     #("engine", "Layout engine", "select", "engines", "advanced", ""),
