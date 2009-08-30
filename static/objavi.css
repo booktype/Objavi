@@ -71,8 +71,10 @@ div.form-item {
 .input_title {
   float: left;
   width: 200px;
-  margin-right: 5px;
-/*  font-weight: bold;*/
+  margin: 3px 5px 3px 2px;
+}
+
+.input_contents {
 }
 
 #submit {
