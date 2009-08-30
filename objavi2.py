@@ -349,7 +349,7 @@ def mode_form(args):
 
     if True:
         _valid_inputs = set(ARG_VALIDATORS)
-        _form_inputs = set(x[0] for x in config.FORM_INPUTS)
+        _form_inputs = set(x[0] for x in config.FORM_INPUTS if x[2] != 'ul')
         log("valid but not used inputs: %s" % (_valid_inputs - _form_inputs))
         log("invalid form inputs: %s" % (_form_inputs - _valid_inputs))
 
