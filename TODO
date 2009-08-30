@@ -1,8 +1,4 @@
-* localised inside cover text -- more templates
-
 * fancier, more intuitive form.
-
-* open office output
 
 * cgi admin interface for changing CSS, server list, adding fonts
 
@@ -20,5 +16,7 @@
 * Installer and packaging
 
 * See if mozilla can do outlines like wkhtml2pdf
+
+* localised inside cover text -- more templates
 
 * map fold pdf
