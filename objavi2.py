@@ -362,12 +362,11 @@ def mode_book(args):
     mode = args.get('mode', 'book')
     bookid = args.get('book')
     server = args.get('server', config.DEFAULT_SERVER)
-    engine = args.get('engine', config.DEFAULT_ENGINE)
     page_settings = get_page_settings(args)
     bookname = make_book_name(bookid, server)
     progress_bar = make_progress_page(bookid, bookname, mode)
 
-    with Book(bookid, server, bookname, page_settings=page_settings, engine=engine,
+    with Book(bookid, server, bookname, page_settings=page_settings,
               watcher=progress_bar, isbn=args.get('isbn'),
               license=args.get('license')) as book:
         if CGI_CONTEXT:
