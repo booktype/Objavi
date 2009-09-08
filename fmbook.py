@@ -28,7 +28,6 @@ import random
 from urllib2 import urlopen
 from subprocess import Popen, check_call, PIPE
 
-import lxml.etree, lxml.html
 import lxml, lxml.html, lxml.etree
 
 import config
