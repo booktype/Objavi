@@ -8,13 +8,15 @@ body
 }
 
 #main {
-  margin: 15px 80px;
-  padding: 15px;
+  margin: 15px 60px;
+  padding: 15px 20px;
   background: white;
+  /*border: 4px double #fb7;*/
 }
 
 h1 {
   color: #ff7f00;
+  margin-top: 0px;
 }
 
 h2 {
