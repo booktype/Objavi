@@ -221,13 +221,16 @@ def make_progress_page(book, bookname, mode):
     }
     print template % d
     def progress_notifier(message):
-        print ('<script type="text/javascript">\n'
-               'objavi_show_progress("%s");\n'
-               '</script>' % message
-               )
-        if message == 'finished':
-            print '</body></html>'
-        sys.stdout.flush()
+        try:
+            print ('<script type="text/javascript">\n'
+                   'objavi_show_progress("%s");\n'
+                   '</script>' % message
+                   )
+            if message == 'finished':
+                print '</body></html>'
+            sys.stdout.flush()
+        except ValueError, e:
+            log("failed to send message %r, got exception %r" % (message, e))
     return progress_notifier
 
 def make_book_name(book, server, suffix='.pdf'):
