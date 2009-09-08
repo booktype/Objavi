@@ -35,6 +35,8 @@
 		Order allow,deny
 		Allow from all
 		AddHandler cgi-script .py .cgi
+                # Remove input filters in case mod_deflate is being used.
+                RemoveOutputFilter .py .cgi
 	</Directory>
 
         DirectoryIndex index.html objavi2.py

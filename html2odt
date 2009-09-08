@@ -12,12 +12,12 @@ from com.sun.star.beans import PropertyValue
 from com.sun.star.connection import NoConnectException
 
 def _inspect_obj(o):
-    print >> sys.stdout, 'inspecting %r' % o
+    print >> sys.stderr, 'inspecting %r' % o
     for a in  dir(o):
         try:
-            print >> sys.stdout, "%25s %s" % (a, getattr(o, a))
+            print >> sys.stderr, "%25s %s" % (a, getattr(o, a))
         except Exception, e:
-            print >> sys.stdout, "%s DOES NOT WORK! (%s)" % (a, e)
+            print >> sys.stderr, "%s DOES NOT WORK! (%s)" % (a, e)
 
 def file_url(path):
     if path.startswith('file:///'):
@@ -44,7 +44,7 @@ class Oo(object):
                 return
 
             except NoConnectException:
-                print '.',
+                print >> sys.stderr, '.',
 
     def unobject(self, klass, context=None):
         """get an instance of the class named by <klass>.  It will
@@ -66,7 +66,7 @@ class Oo(object):
                                                       PropertyValue("FilterName" , 0 , 'HTML (StarWriter)', 0),
                                                       ))
         except Exception, e:
-            print e
+            print >> sys.stderr, e
         #fall back on default WebDocument format
         return self.desktop.loadComponentFromURL(src, "_blank", 0,
                                                  (PropertyValue("Hidden" , 0 , True, 0),
@@ -87,8 +87,8 @@ class Oo(object):
         The main trick here is forcing the images to be stored inline."""
         src = file_url(src)
         dest = file_url(dest)
-        print src
-        print dest
+        print >> sys.stderr, src
+        print >> sys.stderr, dest
 
         doc = self.load(src)
         self.embed_graphics(doc)
@@ -107,17 +107,16 @@ class Oo(object):
             time.sleep(0.25)
             if self.ooffice.poll():
                 break
-            print '*',
+            print >> sys.stderr, '*',
         else:
             os.kill(self.ooffice.pid, 9)
 
 
 def set_env(workdir):
-    print workdir
     workdir = os.path.abspath(workdir)
     os.environ['HOME'] = workdir
     os.chdir(workdir)
-    print os.environ
+    print >> sys.stderr, os.environ
 
 if __name__ == '__main__':
     workdir, src, dest = sys.argv[1:4]

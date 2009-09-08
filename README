@@ -30,16 +30,18 @@ you want a source tarball without worrying about git, try this link:
 It is primarily written in Python, with a substantial amount of
 QSAScript (an ECMAscript variant) and some Javascript, HTML, and CSS.
 
+The development of Objavi2 was supported by Internews.
+
 Which Objavi should I use?
 ==========================
 
-Short answer 
-~~~~~~~~~~~~ 
+Short answer
+~~~~~~~~~~~~
 Try both and see which you like, unless the book in question has
 right-to-left text, in which case you want Objavi2.
 
-Details 
-~~~~~~~ 
+Details
+~~~~~~~
 Objavi beta (written in 2008 by Aleksandar Erkalovic) is a TWiki
 extension that uses Pisa to make PDFs.  Pisa lets you use CSS rules to
 avoid widowed or orphaned text and to adjust margins.  In other
@@ -64,13 +66,6 @@ each chapter start on a new page, but not to avoid breaking up
 paragraphs in unfortunate ways.
 
 Objavi2 is somewhat faster than Objavi beta.
-
-Compatibility
-~~~~~~~~~~~~~
-The two objavis share no code but have a similar CGI interface, so
-sending the same request might result in a PDF being produced
-whichever Objavi was installed.  This behaviour is inherited rather
-than guaranteed, and might fade away.
 
 
 The FLOSS Manuals Book Format
@@ -110,7 +105,7 @@ This has led to simplified HTML that has the following properties:
  * All of these guidelines are regularly broken if the printed page
    looks OK.
 
-TOC.txt file 
+TOC.txt file
 ~~~~~~~~~~~~
 In addition to the HTML chapters, the source of a FLOSS Manuals book
 contains a file named TOC.txt which orders the chapters and groups
@@ -137,15 +132,13 @@ and separately fetches the TOC.txt file described above.  Using lxml
 (an xml/html library), it finds and numbers chapter headings,
 canonicalises image links, and inserts section headings which group
 related chapters together.  This modified HTML is sent to wkhtmltopdf,
-a command-line interface to Webkit that renders a PDF.  
+a command-line interface to Webkit that renders a PDF.
 
 At this point the PDF has no page numbers, no gutters, no table of
 contents, and is using a too big paper size.  In order to write a
-table of contents, the text is re-extracted from the PDF and searched
-for invisible tags that were added along with the chapter numbers. (It
-is not possible to know what page a chapter will end up on before the
-PDF has been laid out).  The table of contents thus generated is
-combined with other preliminary pages and another PDF is created.
+table of contents, an outline of the PDF is extracted and laid out as
+html.  The table of contents thus generated is combined with other
+preliminary pages and another PDF is created.
 
 Pdfedit is used to crop the pages down to size and to shift them
 alternately left and right, creating a gutter for the spine of the
@@ -158,7 +151,7 @@ printed like this on a left-to-right printer, the binding will be on
 the correct side.
 
 Pdfedit and wkhtmltopdf both require an X server to run, for which
-Xvfb is used.  
+Xvfb is used.
 
 How this differs from Objavi beta
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -168,12 +161,17 @@ the html using the TWiki library.  Pisa adds page numbers and
 generates a table of contents as it goes, and the gutter is set using
 its advanced CSS page support.
 
+OpenOffice output
+~~~~~~~~~~~~~~~~~
+ODF output was introduced with Objavi 2.1.  This uses an Open Office
+instance controlled by pyuno.
+
 
 Future plans
 ============
 
 There is a TODO in the git repository, but one or two items are worth
-expanding.  
+expanding.
 
 It should be easy to add Gecko as an optional layout engine, so people
 can choose between the Webkit and Gecko versions.  Some languages

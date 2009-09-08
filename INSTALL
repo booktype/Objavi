@@ -9,8 +9,9 @@ Installing Objavi2 on a Debian machine.
 found this file).
 
 
-1. Install dependencies.  Everything is apt-gettable in Debian Lenny except wkhtml2pdf, 
-   which is available in Squeeze (testing).
+1. Install dependencies.  Everything is apt-gettable in Debian Lenny
+   except wkhtml2pdf, which is available in Squeeze (testing), and
+   openoffice 3, which is in Squeeze and in lenny-backports.
 
 lxml
 pdfedit          (4.1+)
@@ -18,6 +19,7 @@ xvfb             (unnecessary if you're just testing under another X server)
 fontconfig
 ttf-???          (you'll need some fonts)
 pdftk
+psutils
 pdfedit
 poppler-utils or xpdf-utils
 httpd            (apache2 is easiest because a config file is included)
@@ -25,14 +27,27 @@ httpd            (apache2 is easiest because a config file is included)
 wkhtmltopdf     (download from http://code.google.com/p/wkhtmltopdf/ - you
                  can choose whether to compile or use the existing binary)
 
-2. Make sure the following two files are executable (and no others):
+To make ODF documents, you need a whole lot of openoffice 3.  The
+following packages and their dependencies might be sufficient, though
+you might also need to install a java runtime.
+
+openoffice.org-common     (1:3 +)
+openoffice.org-core
+openoffice.org-filter-binfilter
+openoffice.org-gcj        (not certain about this)
+openoffice.org-writer
+python-uno
+
+
+2. Make sure the following three files are executable (and no others):
 
 ./objavi2.py
 ./font-list.cgi.pdf
+./html2odt
 
 
 3. Make sure the following directories exist and are writable by
-   www-data (or whoever is you webserver user):
+   www-data (or whoever is your webserver user):
 
 books
 cache
@@ -46,11 +61,13 @@ The file ./setup.sh shows a way of doing this.
   4.1 edit the file apache-config-objavi2 and replace each occurrence
       of '/home/douglas/objavi2' with the name of your objavi
       directory.  Adjust other parameters as you see fit.
- 
+
   4.2 Copy apache-config-objavi2 to /etc/apache2/sites-available/objavi2
-  
-  4.3 sudo a2ensite objavi2 
 
+  4.3 sudo a2ensite objavi2
 
-5. Restart or reload the webserver. 
+  4.4 Turn off http compression (mod_deflate, etc) for objavi.py -- it
+      breaks the progress reporting.  (Apologies for this).
+
+5. Restart or reload the webserver.
 
