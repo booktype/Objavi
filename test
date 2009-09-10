@@ -1,0 +1,5 @@
+#!/bin/sh
+
+#nose is supposed to find tests automatically, just not for me.
+
+nosetests --exe  -s tests/_*.py
