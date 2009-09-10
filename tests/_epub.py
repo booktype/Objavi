@@ -7,7 +7,7 @@ import tempfile
 
 import epub
 
-TEST_FILE_DIR = '/home/douglas/fm-data/epub-examples/'
+TEST_FILE_DIR = 'tests/epub-examples/'
 TEST_FILES =  sorted( TEST_FILE_DIR + x for x in os.listdir(TEST_FILE_DIR) )
 
 def _test_file(x):
