@@ -20,7 +20,8 @@ and that is OK too.
 Objavi2 is free software, distributed under the version 2 or greater
 of the GNU General Public License.  The source can be viewed at
 
- http://repo.or.cz/w/objavi2.git
+ http://booki-dev.flossmanuals.net/git?p=objavi2.git
+ (or, alternatively, http://repo.or.cz/w/objavi2.git)
 
 which also contains instructions for cloning the git repository.  If
 you want a source tarball without worrying about git, try this link:
