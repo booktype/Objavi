@@ -83,11 +83,13 @@ def test_opf():
         e = _load_epub(book, verbose=True)
         e.parse_meta()
         metadata = e.parse_opf()
-        pprint(metadata)
+        #pprint(metadata)
 
 
 
 def test_parse_metadata():
+    #XXX check unicode!
+    
     print "TESTING metadata"
     import lxml
     f = open('tests/metadata.xml')
@@ -95,11 +97,15 @@ def test_parse_metadata():
     f.close()
     #nsmap = {'opf': 'http://www.idpf.org/2007/opf'}
     #metadata = root.xpath('.//opf:metadata', namespaces=nsmap)[0]
-
+    results = []
     for metadata in tree.iter('{http://www.idpf.org/2007/opf}metadata'):
-        pprint(epub.parse_metadata(metadata))
+        results.append(epub.parse_metadata(metadata))
 
+    f = open('tests/metadata.result')
+    correct = eval(f.read())
+    f.close()
 
+    assert results == correct
 
 #test_load()
 
