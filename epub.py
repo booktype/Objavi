@@ -113,6 +113,7 @@ class Epub(object):
         <itemref idref="WHume_NatureC01" />
         </spine>
         """
+        pwd = os.path.dirname(self.opf_file)
         tree = self.zip2tree(self.opf_file)
         root = tree.getroot()
         #print tree.getroot().nsmap
@@ -122,6 +123,7 @@ class Epub(object):
         spine = root.xpath('.//opf:spine', namespaces=nsmap)[0]
 
         md = parse_metadata(metadata)
+        items = parse_manifest(manifest, pwd)
 
 
         return md
@@ -192,6 +194,32 @@ def parse_metadata(metadata, nsmap=None, recurse=True):
 
     return nsdict
 
+def parse_manifest(manifest, pwd):
+    """
+    Only contains <item>s; each <item> has id, href, and media-type.
 
+    It includes 'toc.ncx', but not 'media-type', 'META-INF/container.xml' or
+    the pbf file (i.e., the files needed to get this far).
+
+    <manifest>
+    <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
+    <item id="W000Title" href="000Title.html" media-type="application/xhtml+xml" />
+    <item id="WHume_NatureC01" href="Hume_NatureC01.html" media-type="application/xhtml+xml" />
+    <item id="style" href="style.css" media-type="text/css" />
+    <item id="cover" href="cover.jpg" media-type="image/jpeg" />
+    </manifest>
+    """
+    items = {}
+    #print manifest
+    ns = '{%s}' % manifest.nsmap[None]
+
+    for t in manifest.iterchildren(ns + 'item'):
+        id = t.get('id')
+        href = os.path.join(pwd, t.get('href'))
+        media_type = t.get('media-type')
+        items[id] = (href, media_type)
+
+    #pprint(items)
+    return items
 
 
