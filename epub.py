@@ -131,6 +131,7 @@ class Epub(object):
         spine = root.xpath('.//opf:spine', namespaces=nsmap)[0]
 
         md = parse_metadata(metadata)
+        ncx, order = parse_spine(spine)
         items = parse_manifest(manifest, pwd)
 
 
@@ -220,5 +221,35 @@ def parse_manifest(manifest, pwd):
 
     #pprint(items)
     return items
+
+def parse_spine(spine):
+    """The spine is an ordered list of xhtml documents (or dtbook, but
+    Booki can't edit that, or manifest items that 'fallback' to xhtml,
+    which Espri doesn't yet handle).  Also, anything in the manifest
+    that can be in the spine, must be.
+
+    Spine itemrefs can have a 'linear' attribute, with a value of
+    'yes' or 'no' (defaulting to 'yes').  If an item is linear, it is
+    in the main stream of the book.  Readers are allowed to ignore
+    this distinction (maybe Booki will).
+
+    The toc attribute points to the ncx file (via manifest id).
+    """
+    items = []
+    ns = '{%s}' % spine.nsmap[None]
+    for t in spine.iterchildren(ns + 'itemref'):
+        items.append( t.get('idref'))
+
+    for attr in ('toc', ns + 'toc'):
+        toc = spine.get(attr)
+
+    return toc, items
+
+def parse_ncx(ncx):
+    """
+    The NCX file is the closest thing to FLOSS Manuals TOC.txt.  It
+    describes the heirarchical structure of the document (wheras the
+    spine describes its 'physical' structure).
+    """
 
 
