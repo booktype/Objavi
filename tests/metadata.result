@@ -32,9 +32,9 @@
          'title': [("'Something of Them Is Here Recorded': Official History in New Zealand",
                     ())]},
  'http://purl.org/dc/terms/': {},
- 'http://www.idpf.org/2007/opf': {'DC.relation.isFormatOf': ('http://www.nzetc.org/tm/scholarly/tei-McGSome.html',
-                                                             []),
-                                  'cover': ('cover', [])},
+ 'http://www.idpf.org/2007/opf': {'DC.relation.isFormatOf': [('http://www.nzetc.org/tm/scholarly/tei-McGSome.html',
+                                                             ())],
+                                  'cover': [('cover', ())]},
  'http://www.w3.org/2001/XMLSchema-instance': {},
  'not.what.you.think': {}},
 
@@ -65,9 +65,9 @@
                                       'title': [('Letter from James Cowan to Horace Fildes',
                                                  ())]},
  'http://purl.org/dc/terms/': {},
- 'http://www.idpf.org/2007/opf': {'DC.relation.isFormatOf': ('http://www.nzetc.org/tm/scholarly/tei-Fil001.html',
-                                                             []),
-                                  'cover': ('cover', [])},
+ 'http://www.idpf.org/2007/opf': {'DC.relation.isFormatOf': [('http://www.nzetc.org/tm/scholarly/tei-Fil001.html',
+                                                              ())],
+                                  'cover': [('cover', ())]},
  'http://www.w3.org/2001/XMLSchema-instance': {}},
 
 # 1 meta tag
@@ -78,7 +78,7 @@
                                       'title': [('The little road : the story of the Macomb Industry & Littleton Railway',
                                                  ())],
                                       'type': [('Text', ())]},
- 'http://www.idpf.org/2007/opf': {'cover': ('cover-image1', [])}},
+ 'http://www.idpf.org/2007/opf': {'cover': [('cover-image1', ())]}},
 
 # x-metadata and dc-metadata (2 subjects)
 {'http://purl.org/dc/elements/1.1/': {'subject': [('Arctic regions -- Description and travel',
@@ -92,7 +92,7 @@
  'http://www.idpf.org/2007/opf': {'cover': [('cover-image1', ())]}},
 
 # 2 dates and a meta
-{'http://calibre.kovidgoyal.net/2009/metadata': {'series_index': ('1', [])},
+{'http://calibre.kovidgoyal.net/2009/metadata': {'series_index': [('1', ())]},
  'http://purl.org/dc/elements/1.1/': {'contributor': [('calibre (0.4.143) [http://calibre.kovidgoyal.net]',
                                                        (('role', 'bkp'),
                                                         ('file-as',

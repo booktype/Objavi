@@ -4,7 +4,7 @@
 
 import os, sys
 import tempfile
-from pprint import pprint
+from pprint import pprint, pformat
 import epub
 
 TEST_FILE_DIR = 'tests/epub-examples/'
@@ -105,7 +105,12 @@ def test_parse_metadata():
     correct = eval(f.read())
     f.close()
 
-    assert results == correct
+    if results != correct:
+        # how to do semantic diff of dicts?
+        from difflib import unified_diff
+        print '\n'.join(unified_diff(pformat(results).split('\n'), pformat(correct).split('\n')))
+        raise AssertionError('bad metadata parsing')
+
 
 #test_load()
 

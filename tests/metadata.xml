@@ -52,10 +52,10 @@
         <cover>cover-image1</cover>
       </x-metadata>
       <dc-metadata>
-        <type>Text</type>
-        <title>Half hours in the far north / life amid snow and ice</title>
-        <subject>Arctic regions -- Description and travel</subject>
-        <subject>Iceland -- Description and travel</subject>
+        <dc:type>Text</dc:type>
+        <dc:title>Half hours in the far north / life amid snow and ice</dc:title>
+        <dc:subject>Arctic regions -- Description and travel</dc:subject>
+        <dc:subject>Iceland -- Description and travel</dc:subject>
       </dc-metadata>
     </metadata>
 

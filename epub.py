@@ -7,6 +7,14 @@ from cStringIO import StringIO
 
 import lxml, lxml.html, lxml.etree, lxml.cssselect
 
+def log(*messages, **kwargs):
+    for m in messages:
+        try:
+            print >> sys.stderr, m
+        except Exception:
+            print >> sys.stderr, repr(m)
+
+
 NAMESPACES = {
     'opf': 'http://www.idpf.org/2007/opf',
     'dc': 'http://purl.org/dc/elements/1.1/', #dublin core
@@ -129,8 +137,8 @@ class Epub(object):
         return md
 
 
+def parse_metadata(metadata, nsmap=None):
 
-def parse_metadata(metadata, nsmap=None, recurse=True):
     """metadata is an OPF metadata node, as defined at
     http://www.idpf.org/2007/opf/OPF_2.0_final_spec.html#Section2.2
     (or a dc-metadata or x-metadata child thereof).
@@ -148,49 +156,40 @@ def parse_metadata(metadata, nsmap=None, recurse=True):
     nstags = dict((k, '{%s}' % v) for k, v in nsmap.iteritems())
     default_ns = nstags[None]
 
-    for t in metadata.iterchildren():
+    def add_item(prefix, tag, value, extra):
+        #any key can be duplicate, so store in a list        
+        values = pfdict[prefix].setdefault(tag, [])
+        values.append((value, extra))
+
+    for t in metadata.iterdescendants():
         #look for special OPF tags
-        if t.tag == nstags[None] + 'meta':
+        if t.tag == default_ns + 'meta':
             #meta tags <meta name="" content="" />
-            #del t.nsmap[None]
-            #print lxml.etree.tostring(t)
             name = t.get('name')
             content = t.get('content')
-            others = [(k, v) for k, v in t.items() if k not in ('name', 'content')]
-            prefix = None
+            others = tuple((k, v) for k, v in t.items() if k not in ('name', 'content'))
             if ':' in name:
-                # the meta tag is using xml namespaces
+                # the meta tag is using xml namespaces.
                 prefix, name = name.split(':', 1)
-            pfdict.get(prefix, pfdict[None])[name] = (content, others)
+            else:
+                prefix = None
+            add_item(prefix, name, content, others)
             continue
 
-        if t.tag == nstags[None] + 'dc-metadata' and recurse:
-            #contents are DC metadata tags, which means (i think) we
-            #need to look for sub-elements and set their namespace to
-            #DC.  There should only be one level of nesting, so set
-            #recurse to False.
-            submap = nsmap.copy()
-            submap[None] = NAMESPACES['dc']
-            subdict = parse_metadata(t, submap, recurse=False)
-            for k, v in subdict.items():
-                if k not in nsdict:
-                    nsdict[k] = {}
-                nsdict[k].update(v)
+        if t.tag in (default_ns + 'dc-metadata', default_ns + 'x-metadata'):
+            # Subelements of these deprecated elements are in either
+            # DC or non-DC namespace (respectively).  Of course, this
+            # is true of any element anyway, so it is sufficent to
+            # ignore this.
+            #
+            # In an earlier version I assumed this tag cast the child
+            # namespace, but it seems not.
+            log("found a live %s tag; descending into but otherwise ignoring it" % t.tag[len(default_ns):])
             continue
 
-        if t.tag == nstags[None] + 'x-metadata' and recurse:
-            #contents are non-dc-metadata tags.  Namespace is presumably unchanged.
-            subdict = parse_metadata(t, nsmap, recurse=False)
-            for k, v in subdict.items():
-                if k not in nsdict:
-                    nsdict[k] = {}
-                nsdict[k].update(v)
-            continue
-        tag = t.tag.replace('{' + nsmap[t.prefix] + '}', '')
-
-        #any key can be duplicate, so store in a list
-        values = pfdict[t.prefix].setdefault(tag, [])
-        values.append((t.text, tuple((k.replace(default_ns, ''), v) for k, v in t.items())))
+        tag = t.tag[len(nstags[t.prefix]):]
+        add_item(t.prefix, tag, t.text,
+                 tuple((k.replace(default_ns, ''), v) for k, v in t.items()))
 
     return nsdict
 
