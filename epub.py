@@ -131,8 +131,8 @@ class Epub(object):
         spine = root.xpath('.//opf:spine', namespaces=nsmap)[0]
 
         md = parse_metadata(metadata)
+        files = parse_manifest(manifest, pwd)
         ncx, order = parse_spine(spine)
-        items = parse_manifest(manifest, pwd)
 
 
         return md
@@ -198,8 +198,12 @@ def parse_manifest(manifest, pwd):
     """
     Only contains <item>s; each <item> has id, href, and media-type.
 
-    It includes 'toc.ncx', but not 'media-type', 'META-INF/container.xml' or
-    the pbf file (i.e., the files needed to get this far).
+    It includes 'toc.ncx', but not 'media-type',
+    'META-INF/container.xml' or the pbf file (i.e., the files needed
+    to get this far).
+
+    The manifest can specify fallbacks for unrecognised documents, but
+    Espri does not use that.
 
     <manifest>
     <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
@@ -210,7 +214,6 @@ def parse_manifest(manifest, pwd):
     </manifest>
     """
     items = {}
-    #print manifest
     ns = '{%s}' % manifest.nsmap[None]
 
     for t in manifest.iterchildren(ns + 'item'):
