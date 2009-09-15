@@ -51,7 +51,7 @@ def _test_file(x):
 def _load_epub(filename, verbose=False):
     fn = _test_file(filename)
     if fn is None:
-        raise ValueError("'%s' doesn't refer to a known file")
+        raise ValueError("'%s' doesn't refer to a known file" % filename)
     if verbose:
         print fn
     e = epub.Epub()
@@ -84,14 +84,19 @@ def test_opf():
                  ]:
         e = _load_epub(book, verbose=True)
         e.parse_meta()
-        metadata = e.parse_opf()
-        #pprint(metadata)
+        e.parse_opf()
 
-
+        for a, t in [('metadata', dict),
+                     ('files', dict),
+                     ('order', list),
+                     ('ncxfile', basestring),
+            ]:
+            assert hasattr(e, a)
+            assert isinstance(getattr(e, a), t)
 
 def test_parse_metadata():
     #XXX check unicode!
-    
+
     print "TESTING metadata"
     import lxml
     f = open('tests/metadata.xml')
