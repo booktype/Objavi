@@ -119,25 +119,75 @@ def test_parse_metadata():
         raise AssertionError('bad metadata parsing')
 
 
-#test_load()
+def _get_elements(book, elements):
+    e = _load_epub(book)
+    e.parse_meta()
+    tree = e.gettree(e.opf_file)
+    ns = '{http://www.idpf.org/2007/opf}'
+    return [tree.find(ns + x) for x in elements] + [e]
 
 
+def test_parse_manifest():
+    # manifest should be dict of ids pointing to name, mime-type pairs
+    # names should be found in zipfile
+    all_mimetypes = {}
+    for book in TEST_FILES:
+        manifest, e = _get_elements(book, ['manifest'])
+        pwd = os.path.dirname(e.opf_file)
+        files = epub.parse_manifest(manifest, pwd)
+        #print book
+        mimetypes = set()
+        filenames = e.names
+
+        for name, mimetype in files.values():
+            assert isinstance(name, basestring)
+            assert isinstance(mimetype, basestring)
+            mimetypes.add(mimetype)
+            all_mimetypes[mimetype] = all_mimetypes.get(mimetype, 0) + 1
+            if  name not in filenames:
+                print book, name, filenames
+            assert name in filenames
+
+        print "%s: %s files, %s different types" % (book, len(files), len(mimetypes))
+
+    for x in all_mimetypes.items():
+        print "%30s: %s" % x
 
 
+def test_parse_spine():
+    #every item in the spine should be a string
+    # the toc should be a string
+    #no duplicates
+    for book in TEST_FILES:
+        spine, e = _get_elements(book, ('spine',))
+        toc, order = epub.parse_spine(spine)
+        assert isinstance(order, (list, tuple))
+        if not isinstance(toc, basestring):
+            print book, toc, basestring
 
+        assert isinstance(toc, basestring)
+        assert all(isinstance(x, basestring) for x in order)
+        assert len(order) == len(set(order))
 
+def test_spine_manifest_match():
+    #every item in the spine should be in the manifest (thence in the zip, tested above)
+    #every xhtml in the manifest should be in the spine. (XXX unless there are fallbacks)
+    for book in TEST_FILES:
+        spine, manifest, e = _get_elements(book, ('spine', 'manifest'))
+        toc, order = epub.parse_spine(spine)
+        pwd = os.path.dirname(e.opf_file)
+        files = epub.parse_manifest(manifest, pwd)
 
+        assert toc not in order
+        xhtmls = set(order)
+        for x in order:
+            name, mimetype = files.pop(x)
+            assert mimetype == 'application/xhtml+xml'
+        name, mimetype = files.pop(toc)
+        assert mimetype == 'application/x-dtbncx+xml'
+        remaining = (x[1] for x in files.values())
+        if any(x in ('application/x-dtbncx+xml', 'application/xhtml+xml') for x in remaining):
+            print book, set(remaining)
 
-DC_METATAGS = ['abstract', 'accessRights', 'accrualMethod', 'accrualPeriodicity',
-               'accrualPolicy', 'alternative', 'audience', 'available', 'bibliographicCitation',
-               'conformsTo', 'contributor', 'coverage', 'created', 'creator', 'date',
-               'dateAccepted', 'dateCopyrighted', 'dateSubmitted', 'description',
-               'educationLevel', 'extent', 'format', 'hasFormat', 'hasPart',
-               'hasVersion', 'identifier', 'instructionalMethod', 'isFormatOf',
-               'isPartOf', 'isReferencedBy', 'isReplacedBy', 'isRequiredBy',
-               'issued', 'isVersionOf', 'language', 'license', 'mediator',
-               'medium', 'modified', 'provenance', 'publisher', 'references',
-               'relation', 'replaces', 'requires', 'rights', 'rightsHolder',
-               'source', 'spatial', 'subject', 'tableOfContents', 'temporal',
-               'title', 'type', 'valid'
-               ]
+        assert not any(x in ('application/x-dtbncx+xml', 'application/xhtml+xml') for x in remaining)
+
