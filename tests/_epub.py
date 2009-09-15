@@ -8,7 +8,7 @@ from pprint import pprint, pformat
 import epub
 
 TEST_FILE_DIR = 'tests/epub-examples/'
-TEST_FILES =  sorted( TEST_FILE_DIR + x for x in os.listdir(TEST_FILE_DIR) )
+TEST_FILES =  sorted( TEST_FILE_DIR + x for x in os.listdir(TEST_FILE_DIR) if x.endswith('.epub'))
 #print '\n'.join(TEST_FILES)
 
 # Best_of_TOC.epub
@@ -38,7 +38,9 @@ TEST_FILES =  sorted( TEST_FILE_DIR + x for x in os.listdir(TEST_FILE_DIR) )
 def _test_file(x):
     if isinstance(x, int):
         return TEST_FILES[x]
-    elif isinstance(x, str):
+    elif x in TEST_FILES:
+        return x
+    elif isinstance(x, basestring):
         for fn in TEST_FILES:
             if x in fn.rsplit('/', 1)[1]:
                 return fn
