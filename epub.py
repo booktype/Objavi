@@ -224,10 +224,9 @@ def parse_spine(spine):
     items = []
     ns = '{%s}' % spine.nsmap[None]
     for t in spine.iterchildren(ns + 'itemref'):
-        items.append( t.get('idref'))
+        items.append(t.get('idref'))
 
-    for attr in ('toc', ns + 'toc'):
-        toc = spine.get(attr)
+    toc = spine.get('toc')
 
     return toc, items
 
