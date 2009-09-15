@@ -150,11 +150,12 @@ def parse_metadata(metadata):
     # Collect element data in namespace-bins, and map prefixes to
     # those bins for convenience
     nsdict = dict((v, {}) for v in nsmap.values())
-    pfdict = dict((k, nsdict[v]) for k, v in nsmap.iteritems())
 
-    def add_item(prefix, tag, value, extra):
+    def add_item(ns, tag, value, extra):
         #any key can be duplicate, so store in a list
-        values = pfdict[prefix].setdefault(tag, [])
+        if ns not in nsdict:
+            nsdict[ns] = {}
+        values = nsdict[ns].setdefault(tag, [])
         values.append((value, extra))
 
     for t in metadata.iterdescendants():
@@ -169,7 +170,7 @@ def parse_metadata(metadata):
                 prefix, name = name.split(':', 1)
             else:
                 prefix = None
-            add_item(prefix, name, content, others)
+            add_item(t.nsmap[prefix], name, content, others)
             continue
 
         if t.tag in (default_ns + 'dc-metadata', default_ns + 'x-metadata'):
@@ -181,8 +182,8 @@ def parse_metadata(metadata):
                 % t.tag[len(default_ns):])
             continue
 
-        tag = t.tag[len(nstags[t.prefix]):]
-        add_item(t.prefix, tag, t.text,
+        tag = t.tag[t.tag.rfind('}') + 1:]
+        add_item(t.nsmap[t.prefix], tag, t.text,
                  tuple((k.replace(default_ns, ''), v) for k, v in t.items()))
 
     return nsdict
