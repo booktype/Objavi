@@ -100,26 +100,16 @@ class Epub(object):
 
     def parse_opf(self):
         """
-        <metadata>
-        <dc:title>A Treatise of Human Nature</dc:title>
-        <dc:creator>David Hume</dc:creator>
-        <dc:date>2008-09-04</dc:date>
-        <dc:subject>Philosophy</dc:subject>
-        <dc:language>en</dc:language>
-        <dc:publisher>web-books.com</dc:publisher>
-        <dc:identifier id="BookId">web-books-1053</dc:identifier>
-        </metadata>
-        <manifest>
-        <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
-        <item id="W000Title" href="000Title.html" media-type="application/xhtml+xml" />
-        <item id="WHume_NatureC01" href="Hume_NatureC01.html" media-type="application/xhtml+xml" />
-        <item id="style" href="style.css" media-type="text/css" />
-        <item id="cover" href="cover.jpg" media-type="image/jpeg" />
-        </manifest>
-        <spine toc="ncx">
-        <itemref idref="W000Title" />
-        <itemref idref="WHume_NatureC01" />
-        </spine>
+        The opf file is arranged like this:
+        <package>
+        <metadata />
+        <manifest />
+        <spine />
+        <guide />
+        </package>
+
+        Metadata, manifest and spine are parsed in separate helper
+        functions.
         """
         pwd = os.path.dirname(self.opf_file)
         tree = self.gettree(self.opf_file)
@@ -158,7 +148,7 @@ def parse_metadata(metadata, nsmap=None):
     default_ns = nstags[None]
 
     def add_item(prefix, tag, value, extra):
-        #any key can be duplicate, so store in a list        
+        #any key can be duplicate, so store in a list
         values = pfdict[prefix].setdefault(tag, [])
         values.append((value, extra))
 
@@ -170,7 +160,7 @@ def parse_metadata(metadata, nsmap=None):
             content = t.get('content')
             others = tuple((k, v) for k, v in t.items() if k not in ('name', 'content'))
             if ':' in name:
-                # the meta tag is using xml namespaces.
+                # the meta tag is using xml namespaces in attribute values.
                 prefix, name = name.split(':', 1)
             else:
                 prefix = None
@@ -181,11 +171,9 @@ def parse_metadata(metadata, nsmap=None):
             # Subelements of these deprecated elements are in either
             # DC or non-DC namespace (respectively).  Of course, this
             # is true of any element anyway, so it is sufficent to
-            # ignore this.
-            #
-            # In an earlier version I assumed this tag cast the child
-            # namespace, but it seems not.
-            log("found a live %s tag; descending into but otherwise ignoring it" % t.tag[len(default_ns):])
+            # ignore this (unless we want to cause pedantic errors).
+            log("found a live %s tag; descending into but otherwise ignoring it"
+                % t.tag[len(default_ns):])
             continue
 
         tag = t.tag[len(nstags[t.prefix]):]
@@ -198,18 +186,15 @@ def parse_manifest(manifest, pwd):
     """
     Only contains <item>s; each <item> has id, href, and media-type.
 
-    It includes 'toc.ncx', but not 'media-type',
-    'META-INF/container.xml' or the pbf file (i.e., the files needed
-    to get this far).
+    It includes 'toc.ncx', but not 'META-INF/container.xml' or the pbf
+    file (i.e., the files needed to get this far).
 
     The manifest can specify fallbacks for unrecognised documents, but
-    Espri does not use that.
+    Espri does not use that (nor do any of the test epub files).
 
     <manifest>
     <item id="ncx" href="toc.ncx" media-type="application/x-dtbncx+xml" />
-    <item id="W000Title" href="000Title.html" media-type="application/xhtml+xml" />
     <item id="WHume_NatureC01" href="Hume_NatureC01.html" media-type="application/xhtml+xml" />
-    <item id="style" href="style.css" media-type="text/css" />
     <item id="cover" href="cover.jpg" media-type="image/jpeg" />
     </manifest>
     """
@@ -220,7 +205,7 @@ def parse_manifest(manifest, pwd):
         id = t.get('id')
         href = os.path.join(pwd, t.get('href'))
         media_type = t.get('media-type')
-        items[id] = (href, media_type)
+        items[id] = (href, media_type) #XXX does media-type matter?
 
     #pprint(items)
     return items
@@ -233,8 +218,8 @@ def parse_spine(spine):
 
     Spine itemrefs can have a 'linear' attribute, with a value of
     'yes' or 'no' (defaulting to 'yes').  If an item is linear, it is
-    in the main stream of the book.  Readers are allowed to ignore
-    this distinction (maybe Booki will).
+    in the main stream of the book.  Reader software is allowed to
+    ignore this distinction, as Espri does.
 
     The toc attribute points to the ncx file (via manifest id).
     """
