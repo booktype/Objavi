@@ -127,25 +127,23 @@ class Epub(object):
 
 
 
-
-def parse_metadata(metadata, nsmap=None):
-
+def parse_metadata(metadata):
     """metadata is an OPF metadata node, as defined at
     http://www.idpf.org/2007/opf/OPF_2.0_final_spec.html#Section2.2
     (or a dc-metadata or x-metadata child thereof).
 
     """
-    if nsmap is None:
-        nsmap = metadata.nsmap
-
-    #print nsmap
-    # the node probably has at least dc, opf, and None namespace prefixes.
-    # None and opf probably map to the same thing.
-    # We ultimately don't care about the prefixes because they are local to the file.
-    nsdict = dict((v, {}) for v in nsmap.values())
-    pfdict = dict((k, nsdict[v]) for k, v in nsmap.iteritems())
+    # the node probably has at least 'dc', 'opf', and None namespace
+    # prefixes.  None and opf probably map to the same thing. 'dc' is
+    # Dublin Core.
+    nsmap = metadata.nsmap
     nstags = dict((k, '{%s}' % v) for k, v in nsmap.iteritems())
     default_ns = nstags[None]
+
+    # Collect element data in namespace-bins, and map prefixes to
+    # those bins for convenience
+    nsdict = dict((v, {}) for v in nsmap.values())
+    pfdict = dict((k, nsdict[v]) for k, v in nsmap.iteritems())
 
     def add_item(prefix, tag, value, extra):
         #any key can be duplicate, so store in a list
