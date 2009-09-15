@@ -114,18 +114,18 @@ class Epub(object):
         pwd = os.path.dirname(self.opf_file)
         tree = self.gettree(self.opf_file)
         root = tree.getroot()
-        #print tree.getroot().nsmap
-        nsmap = {'opf': 'http://www.idpf.org/2007/opf'}
-        metadata = root.xpath('.//opf:metadata', namespaces=nsmap)[0]
-        manifest = root.xpath('.//opf:manifest', namespaces=nsmap)[0]
-        spine = root.xpath('.//opf:spine', namespaces=nsmap)[0]
+        ns = '{http://www.idpf.org/2007/opf}'
+        metadata = root.find(ns + 'metadata')
+        manifest = root.find(ns + 'manifest')
+        spine = root.find(ns + 'spine')
+        #there is also an optional guide section, which we ignore
 
-        md = parse_metadata(metadata)
-        files = parse_manifest(manifest, pwd)
-        ncx, order = parse_spine(spine)
+        self.metadata = parse_metadata(metadata)
+        self.files = parse_manifest(manifest, pwd)
+        ncxid, self.order = parse_spine(spine)
+        self.ncxfile = self.files[ncxid][0]
 
 
-        return md
 
 
 def parse_metadata(metadata, nsmap=None):
