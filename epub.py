@@ -7,6 +7,9 @@ from cStringIO import StringIO
 
 import lxml, lxml.html, lxml.etree, lxml.cssselect
 
+XMLNS = '{http://www.w3.org/XML/1998/namespace}'
+DAISYNS = '{http://www.daisy.org/z3986/2005/ncx/}'
+
 def log(*messages, **kwargs):
     for m in messages:
         try:
@@ -125,6 +128,10 @@ class Epub(object):
         ncxid, self.order = parse_spine(spine)
         self.ncxfile = self.files[ncxid][0]
 
+    def parse_ncx(self):
+        ncx = self.gettree(self.ncxfile)
+        toc = parse_ncx(ncx)
+        return toc
 
 
 def parse_metadata(metadata):
@@ -230,11 +237,141 @@ def parse_spine(spine):
 
     return toc, items
 
+
+def get_ncxtext(e):
+    #get text from an <xx><text>...</text></xx> xconstruct
+    t = e.find(DAISYNS + 'text')
+    if t is not None:
+        return t.text
+    return '' # or leave it at None?
+
+def get_labels(e, tag='{http://www.daisy.org/z3986/2005/ncx/}navLabel'):
+    """Make a mapping of languages to labels."""
+    # This reads navInfo or navLabel tags. navInfo is unlikely, but
+    # navLabel is ubiquitous.  There can be one for each language, so
+    # construct a dict.
+    labels = {}
+    for label in e.findall(DAISYNS + 'navLabel'):
+        lang = label.get(XMLNS + 'lang')
+        labels[lang] = get_ncxtext(e)
+    return labels
+
 def parse_ncx(ncx):
     """
     The NCX file is the closest thing to FLOSS Manuals TOC.txt.  It
     describes the heirarchical structure of the document (wheras the
     spine describes its 'physical' structure).
     """
+    #<!ELEMENT ncx (head, docTitle, docAuthor*, navMap, pageList?, navList*)>
+
+    headers = {}
+    #if a header is set multiple times, keep all
+    def setheader(name, content, scheme=None):
+        values = headers.setdefault(name, [])
+        values.append((content, scheme))
+
+    head = ncx.find(DAISYNS + 'head')
+    #<!ELEMENT head (meta+)>
+    for meta in head.findall(DAISYNS + 'itemref'):
+        #whatever 'scheme' is
+        setheader(meta.get('name'), meta.get('content'), meta.get('scheme'))
+
+    for t in ('docTitle', 'docAuthor'):
+        for e in ncx.findall(DAISYNS + t):
+            if e is not None:
+                setheader(t, get_ncxtext(e))
+
+    root = ncx.getroot()
+    for attr, header in (('dir', 'dir'),
+                         (XMLNS + 'lang', 'lang')):
+        value = root.get(attr)
+        if value is not None:
+            setheader(header, value)
+
+    #print lxml.etree.tostring(ncx)
+    print [x for x in root.getchildren()]
+    ret = {
+        'headers':  headers,
+        'navmap':   parse_navmap(root.find(DAISYNS + 'navMap')),
+    }
+
+    #Try adding these bits, even though noone has them and they are no use.
+    pagelist = ncx.find(DAISYNS + 'pageList')
+    navlist = ncx.find(DAISYNS + 'navList')
+    if pagelist is not None:
+        ret['pagelist'] = parse_pagelist(pagelist)
+    if navlist is not None:
+        ret['navlist'] = parse_navlist(navlist)
+
+    return ret
 
 
+def parse_navmap(e):
+    #<!ELEMENT navMap (navInfo*, navLabel*, navPoint+)>
+    print e
+    return {
+        'info': get_labels(e, DAISYNS + 'navInfo'),
+        'labels': get_labels(e),
+        'points': tuple(parse_navpoint(x) for x in e.findall(DAISYNS + 'navPoint')),
+        }
+
+def parse_navpoint(e):
+    #<!ELEMENT navPoint (navLabel+, content, navPoint*)>
+    c = e.find(DAISYNS + 'content')
+    subpoints = tuple(parse_navpoint(x) for x in e.findall(DAISYNS + 'navPoint'))
+    return {
+        'id': e.get('id'),
+        'play_order': e.get('playOrder'), #cast to int?
+        #'content_id': c.get('id'),
+        'content_src': c.get('src'),
+        'labels': get_labels(e),
+        'points': subpoints,
+        }
+
+
+def parse_pagelist(e):
+    # <!ELEMENT pageList (navInfo*, navLabel*, pageTarget+)>
+    return {
+        'info': get_labels(e, DAISYNS + 'navInfo'),
+        'labels': get_labels(e),
+        'targets': tuple(parse_pagetarget(x) for point in e.findall(DAISYNS + 'pageTarget')),
+        }
+
+def parse_pagetarget(e):
+    #<!ELEMENT pageTarget (navLabel+, content)>
+    labels = get_labels(e)
+    c = e.find(DAISYNS + 'content')
+    ret = {
+        'id': e.get('id'),
+        'type': e.get('type'),
+        'play_order': e.get('playOrder'),
+        'content_src': c.get('src'),
+        'labels': get_labels(e),
+    }
+    value = e.get('value')
+    if value is not None:
+        ret['value'] = value
+    return ret
+
+def parse_navlist(e):
+    #<!ELEMENT navList (navInfo*, navLabel+, navTarget+)>
+    return {
+        'info': get_labels(e, DAISYNS + 'navInfo'),
+        'labels': get_labels(e),
+        'targets': tuple(parse_pagetarget(x) for point in e.findall(DAISYNS + 'navTarget')),
+        }
+
+def parse_navtarget(e):
+    #<!ELEMENT navTarget (navLabel+, content)>
+    labels = get_labels(e)
+    c = e.find(DAISYNS + 'content')
+    ret = {
+        'id': e.get('id'),
+        'play_order': e.get('playOrder'),
+        'content_src': c.get('src'),
+        'labels': get_labels(e),
+    }
+    value = e.get('value')
+    if value is not None:
+        ret['value'] = value
+    return ret

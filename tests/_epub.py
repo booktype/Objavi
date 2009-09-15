@@ -94,6 +94,16 @@ def test_opf():
             assert hasattr(e, a)
             assert isinstance(getattr(e, a), t)
 
+
+def test_parse_ncx():
+    for book in TEST_FILES:
+        print book
+        e = _load_epub(book, verbose=True)
+        e.parse_meta()
+        e.parse_opf()
+        pprint(e.parse_ncx())
+
+
 def test_parse_metadata():
     #XXX check unicode!
 
