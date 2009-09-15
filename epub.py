@@ -88,7 +88,7 @@ class Epub(object):
 
         self.opf_file = rootfile
 
-    def zip2tree(self, name):
+    def gettree(self, name):
         """get an etree from the given zip filename"""
         #Note: python 2.6 (not 2.5) has zipfile.open
         s = self.zip.read(name)
@@ -122,7 +122,7 @@ class Epub(object):
         </spine>
         """
         pwd = os.path.dirname(self.opf_file)
-        tree = self.zip2tree(self.opf_file)
+        tree = self.gettree(self.opf_file)
         root = tree.getroot()
         #print tree.getroot().nsmap
         nsmap = {'opf': 'http://www.idpf.org/2007/opf'}
