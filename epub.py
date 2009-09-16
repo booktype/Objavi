@@ -213,7 +213,6 @@ def parse_manifest(manifest, pwd):
         media_type = t.get('media-type')
         items[id] = (href, media_type) #XXX does media-type matter?
 
-    #pprint(items)
     return items
 
 def parse_spine(spine):
@@ -289,8 +288,6 @@ def parse_ncx(ncx):
         if value is not None:
             setheader(header, value)
 
-    #print lxml.etree.tostring(ncx)
-    print [x for x in root.getchildren()]
     ret = {
         'headers':  headers,
         'navmap':   parse_navmap(root.find(DAISYNS + 'navMap')),
@@ -309,7 +306,6 @@ def parse_ncx(ncx):
 
 def parse_navmap(e):
     #<!ELEMENT navMap (navInfo*, navLabel*, navPoint+)>
-    print e
     return {
         'info': get_labels(e, DAISYNS + 'navInfo'),
         'labels': get_labels(e),
