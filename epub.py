@@ -322,7 +322,7 @@ def parse_navpoint(e):
     subpoints = tuple(parse_navpoint(x) for x in e.findall(DAISYNS + 'navPoint'))
     return {
         'id': e.get('id'),
-        'play_order': e.get('playOrder'), #cast to int?
+        'play_order': int(e.get('playOrder')),
         #'content_id': c.get('id'),
         'content_src': c.get('src'),
         'labels': get_labels(e),
@@ -345,7 +345,7 @@ def parse_pagetarget(e):
     ret = {
         'id': e.get('id'),
         'type': e.get('type'),
-        'play_order': e.get('playOrder'),
+        'play_order': int(e.get('playOrder')),
         'content_src': c.get('src'),
         'labels': get_labels(e),
     }
@@ -368,7 +368,7 @@ def parse_navtarget(e):
     c = e.find(DAISYNS + 'content')
     ret = {
         'id': e.get('id'),
-        'play_order': e.get('playOrder'),
+        'play_order': int(e.get('playOrder')),
         'content_src': c.get('src'),
         'labels': get_labels(e),
     }
