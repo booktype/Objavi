@@ -199,7 +199,9 @@ PAGE_SIZE_DATA = {
     "US Broadsheet":  {'pointsize': (15 * INCH_2_POINT, 22.75 * INCH_2_POINT), 'class': 'newspaper'},
     "Berliner"     :  {'pointsize': (315 * MM_2_POINT, 470 * MM_2_POINT), 'class': 'newspaper'},
     "Foolscap (F4)":  {'pointsize': (210 * MM_2_POINT, 330 * MM_2_POINT)},
-    #"Foolscap Folio": {'pointsize': (8.5 * INCH_2_POINT, 13.5 * INCH_2_POINT)},
+
+    "Oamaru Broadsheet":{'pointsize': (382 * MM_2_POINT, 540 * MM_2_POINT), 'class': 'newspaper'},
+    "Oamaru Tabloid": {'pointsize': (265 * MM_2_POINT, 380 * MM_2_POINT), 'class': 'newspaper'},
 
     "custom":         {'class': "custom"},
 }
