@@ -94,6 +94,19 @@ def test_opf():
             assert hasattr(e, a)
             assert isinstance(getattr(e, a), t)
 
+def test_example_ncx():
+    import lxml
+    f = open('tests/example.ncx')
+    tree = lxml.etree.parse(f)
+    f.close()
+    data = epub.parse_ncx(tree)
+    #pprint(data)
+    f = open('tests/example.ncx.result')
+    answer = eval(f.read())
+    f.close()
+    assert data == answer
+
+
 
 def test_parse_ncx():
     for book in TEST_FILES:

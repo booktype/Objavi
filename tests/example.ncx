@@ -1,0 +1,168 @@
+<?xml version="1.0"  encoding="UTF-8"?>
+
+<!-- example ncx file from http://www.niso.org/workrooms/daisy/Z39-86-2005.html#NCXEx -->
+
+<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" 
+  "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
+<ncx version="2005-1" xml:lang="en" xmlns="http://www.daisy.org/z3986/2005/ncx/">
+  <head>
+    <smilCustomTest id="pagenum" defaultState="false" 
+    override="visible" bookStruct="PAGE_NUMBER"/>
+    <smilCustomTest id="note" defaultState="true" 
+    override="visible" bookStruct="NOTE"/>
+    <meta name="dtb:uid" content="us-nls-00001"/>
+    <meta name="dtb:depth" content="6"/>
+    <meta name="dtb:generator" content="NLSv001"/>
+    <meta name="dtb:totalPageCount" content="53"/>
+    <meta name="dtb:maxPageNumber" content="49"/>
+  </head>
+  <docTitle>
+     <text>Revised Standards and Guidelines of Service 
+     for the Library of Congress Network of Libraries for the 
+     Blind and Physically Handicapped 1995</text>
+     <audio src="rs_title.mp3" clipBegin="00:00.00" clipEnd="00:09.04"/>
+     <img src="rs_title.png" />
+  </docTitle>
+  <docAuthor>
+       <text>Association of Specialized and Cooperative 
+       Library Agencies</text>
+       <audio src="rs_title.mp3" clipBegin="00:09.50" clipEnd="00:14.70"/>
+  </docAuthor>
+  <navMap>
+      <navPoint class="chapter" id="lvl1_3" playOrder="2">
+        <navLabel>
+          <text>Foreword</text>
+          <audio src="rs_fwdx.mp3" clipBegin="00:01.50" 
+          clipEnd="00:02.00" />
+        </navLabel>
+        <content src="sample.smil#h1_3" />
+        <navPoint class="section" id="lvl2_1" playOrder="3">
+          <navLabel>
+            <text>History</text>
+            <audio src="rs_fwdx.mp3" clipBegin="00:03.40" 
+            clipEnd="00:03.90" />
+          </navLabel>
+          <content src="sample.smil#h2_1" />
+        </navPoint>
+        <navPoint class="section" id="lvl2_2" playOrder="5">
+          <navLabel>
+            <text>Development of Standards</text>
+            <audio src="rs_fwdx.mp3" clipBegin="00:56.30" 
+            clipEnd="00:57.70" />
+          </navLabel>
+          <content src="sample.smil#h2_2" />
+        </navPoint>
+      </navPoint>
+      <navPoint class="chapter" id="lvl1_7" playOrder="10">
+        <navLabel>
+          <text>Standards</text>
+          <audio src="rs_stdx.mp3" clipBegin="00:01.30" 
+          clipEnd="00:02.10" />
+        </navLabel>
+        <content src="sample.smil#h1_7" />
+        <navPoint class="section" id="lvl2_11" playOrder="11">
+          <navLabel>
+            <text>1 Core Services</text>
+            <audio src="rs_stdx.mp3" clipBegin="00:02.90" 
+            clipEnd="00:04.90" />
+          </navLabel>
+          <content src="sample.smil#h2_10" />
+          <navPoint class="subsection" id="lvl3_1" playOrder="12">
+            <navLabel>
+              <text>1.1</text>
+              <audio src="rs_stdx.mp3" clipBegin="00:05.70" 
+              clipEnd="00:06.70" />
+            </navLabel>
+            <content src="sample.smil#h3_1" />
+            <navPoint class="sub-subsection" id="lvl4_1" playOrder="13">
+              <navLabel>
+                <text>a.</text>
+                <audio src="rs_stdx.mp3" clipBegin="00:18.70" 
+                clipEnd="00:19.10" />
+              </navLabel>
+              <content src="sample.smil#h4_1" />
+            </navPoint>
+          </navPoint>
+          <navPoint class="subsection" id="lvl3_2" playOrder="14">
+            <navLabel>
+              <text>1.2</text>
+              <audio src="rs_stdx.mp3" clipBegin="00:50.50" 
+              clipEnd="00:51.40" />
+            </navLabel>
+            <content src="sample.smil#h3_2" />
+          </navPoint>
+        </navPoint>
+      </navPoint>
+<!--      . . . -->
+  </navMap>
+  <pageList id="pages">
+    <navLabel>
+        <text>Pages</text>
+        <audio src="navlabels.mp3" clipBegin="00:00.00" 
+        clipEnd="00:01.10" />
+    </navLabel>
+    <pageTarget class="pagenum" type="normal" id="p1" value="1" playOrder="1">
+      <navLabel>
+        <text>1</text>
+        <audio src="rs_fwdx.mp3" clipBegin="00:00.00" 
+        clipEnd="00:00.90" />
+      </navLabel>
+      <content src="sample.smil#p1" />
+    </pageTarget>
+    <pageTarget class="pagenum" type="normal" id="p2" value="2" playOrder="4">
+      <navLabel>
+        <text>2</text>
+        <audio src="rs_fwdx.mp3" clipBegin="00:53.90" 
+        clipEnd="00:54.60" />
+      </navLabel>
+      <content src="sample.smil#p2" />
+    </pageTarget>
+    <pageTarget class="pagenum" type="normal" id="p3" value="3" playOrder="9">
+      <navLabel>
+        <text>3</text>
+        <audio src="rs_stdx.mp3" clipBegin="00:00.00" 
+        clipEnd="00:00.70" />
+      </navLabel>
+      <content src="sample.smil#p3" />
+    </pageTarget>
+<!--    . . .-->
+  </pageList>
+  <navList id="notes" class="note">
+    <navInfo>
+        <text>This list contains the three notes found in this book.
+              Each entry in the list, numbered 1 through 3, points to a note reference.
+        </text>
+        <audio src="rs_info.mp3" clipBegin="00:00.00"
+        clipEnd="00:05.592" />
+    </navInfo>
+    <navLabel>
+        <text>Notes</text>
+        <audio src="navlabels.mp3" clipBegin="00:01.50" 
+        clipEnd="00:02.60" />
+    </navLabel>
+    <navTarget class="note" id="nref_1" playOrder="6">
+      <navLabel>
+        <text>1</text>
+        <audio src="rs_fwdx.mp3" clipBegin="01:22.60" 
+        clipEnd="01:23.50" />
+      </navLabel>
+      <content src="sample.smil#nref_1" />
+    </navTarget>
+    <navTarget class="note" id="nref_2" playOrder="7">
+      <navLabel>
+        <text>2</text>
+        <audio src="rs_fwdx.mp3" clipBegin="02:00.60" 
+        clipEnd="02:01.40" />
+      </navLabel>
+      <content src="sample.smil#nref_2" />
+    </navTarget>
+    <navTarget class="note" id="nref_3" playOrder="8">
+      <navLabel>
+        <text>3</text>
+        <audio src="rs_fwdx.mp3" clipBegin="03:13.30" 
+        clipEnd="03:14.10" />
+      </navLabel>
+      <content src="sample.smil#nref_3" />
+    </navTarget>
+  </navList>
+</ncx>

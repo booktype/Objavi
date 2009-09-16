@@ -335,7 +335,7 @@ def parse_pagelist(e):
     return {
         'info': get_labels(e, DAISYNS + 'navInfo'),
         'labels': get_labels(e),
-        'targets': tuple(parse_pagetarget(x) for point in e.findall(DAISYNS + 'pageTarget')),
+        'targets': tuple(parse_pagetarget(x) for x in e.findall(DAISYNS + 'pageTarget')),
         }
 
 def parse_pagetarget(e):
@@ -359,7 +359,7 @@ def parse_navlist(e):
     return {
         'info': get_labels(e, DAISYNS + 'navInfo'),
         'labels': get_labels(e),
-        'targets': tuple(parse_pagetarget(x) for point in e.findall(DAISYNS + 'navTarget')),
+        'targets': tuple(parse_pagetarget(x) for x in e.findall(DAISYNS + 'navTarget')),
         }
 
 def parse_navtarget(e):
