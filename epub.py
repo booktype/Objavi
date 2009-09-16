@@ -14,14 +14,9 @@ import lxml, lxml.html, lxml.etree, lxml.cssselect
 
 XMLNS = '{http://www.w3.org/XML/1998/namespace}'
 DAISYNS = '{http://www.daisy.org/z3986/2005/ncx/}'
+OPFNS = '{http://www.idpf.org/2007/opf}'
 
-def log(*messages, **kwargs):
-    for m in messages:
-        try:
-            print >> sys.stderr, m
-        except Exception:
-            print >> sys.stderr, repr(m)
-
+CONTAINERNS = '{urn:oasis:names:tc:opendocument:xmlns:container}'
 
 NAMESPACES = {
     'opf': 'http://www.idpf.org/2007/opf',
@@ -32,9 +27,17 @@ NAMESPACES = {
     'xsi': 'http://www.w3.org/2001/XMLSchema-instance'
 }
 
+def log(*messages, **kwargs):
+    for m in messages:
+        try:
+            print >> sys.stderr, m
+        except Exception:
+            print >> sys.stderr, repr(m)
+
+
+
 class EpubError(Exception):
     pass
-
 
 class Epub(object):
     """
@@ -71,6 +74,14 @@ class Epub(object):
         self.names = self.zip.namelist()
         self.info = self.zip.infolist()
 
+    def gettree(self, name):
+        """get an etree from the given zip filename"""
+        #Note: python 2.6 (not 2.5) has zipfile.open
+        s = self.zip.read(name)
+        f = StringIO(s)
+        tree = lxml.etree.parse(f)
+        f.close()
+        return tree
 
     def parse_meta(self):
         '''META-INF/container.xml contains one or more <rootfile>
@@ -85,26 +96,15 @@ class Epub(object):
         use.  They are manifest.xml, metadata.xml, signatures.xml,
         encryption.xml, and rights.xml.
         '''
-        xml = self.zip.read('META-INF/container.xml')
-        tree = lxml.etree.XML(xml)
-        for r in tree.xpath('.//a:rootfile', namespaces={'a': tree.nsmap[None]}):
-            if r.attrib['media-type'] == "application/oebps-package+xml":
-                rootfile = r.attrib['full-path']
+        tree = self.gettree('META-INF/container.xml')
+        for r in tree.getiterator(CONTAINERNS + 'rootfile'):
+            if r.get('media-type') == "application/oebps-package+xml":
+                rootfile = r.get('full-path')
                 break
         else:
             raise EpubError("No OPF rootfile found")
 
         self.opf_file = rootfile
-
-    def gettree(self, name):
-        """get an etree from the given zip filename"""
-        #Note: python 2.6 (not 2.5) has zipfile.open
-        s = self.zip.read(name)
-        f = StringIO(s)
-        tree = lxml.etree.parse(f)
-        f.close()
-        return tree
-
 
     def parse_opf(self):
         """
@@ -119,13 +119,12 @@ class Epub(object):
         Metadata, manifest and spine are parsed in separate helper
         functions.
         """
-        pwd = os.path.dirname(self.opf_file)
+        pwd = os.path.dirname(self.opf_file) #needed for mainfest parsing
         tree = self.gettree(self.opf_file)
         root = tree.getroot()
-        ns = '{http://www.idpf.org/2007/opf}'
-        metadata = root.find(ns + 'metadata')
-        manifest = root.find(ns + 'manifest')
-        spine = root.find(ns + 'spine')
+        metadata = root.find(OPFNS + 'metadata')
+        manifest = root.find(OPFNS + 'manifest')
+        spine = root.find(OPFNS + 'spine')
         #there is also an optional guide section, which we ignore
 
         self.metadata = parse_metadata(metadata)
