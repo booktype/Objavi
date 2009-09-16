@@ -108,14 +108,24 @@ def test_example_ncx():
 
 
 
-def test_parse_ncx():
+
+## def test_parse_ncx():
+##     for book in TEST_FILES:
+##         print book
+##         e = _load_epub(book, verbose=True)
+##         e.parse_meta()
+##         e.parse_opf()
+##         e.parse_ncx()
+##        #pprint(e.ncxdata)
+
+def test_raw_json():
     for book in TEST_FILES:
-        print book
         e = _load_epub(book, verbose=True)
         e.parse_meta()
         e.parse_opf()
-        pprint(e.parse_ncx())
-
+        e.parse_ncx()
+        js = e.raw_json()
+        #print js
 
 def test_parse_metadata():
     #XXX check unicode!

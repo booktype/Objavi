@@ -5,6 +5,11 @@ from pprint import pprint
 import zipfile
 from cStringIO import StringIO
 
+try:
+    from json import dumps
+except ImportError:
+    from simplejson import dumps
+
 import lxml, lxml.html, lxml.etree, lxml.cssselect
 
 XMLNS = '{http://www.w3.org/XML/1998/namespace}'
@@ -130,8 +135,20 @@ class Epub(object):
 
     def parse_ncx(self):
         ncx = self.gettree(self.ncxfile)
-        toc = parse_ncx(ncx)
-        return toc
+        self.ncxdata = parse_ncx(ncx)
+
+    def raw_json(self):
+        """get all the known metadata and nav data as json."""
+        data = {
+            'metadata': self.metadata,
+            'manifest': self.files,
+            'spine': self.order,
+            'ncx': self.ncxdata
+            }
+        return dumps(data, indent=2)
+
+
+
 
 
 def parse_metadata(metadata):
