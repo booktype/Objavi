@@ -265,7 +265,14 @@ def test_spine_manifest_match():
         assert not any(x in ('application/x-dtbncx+xml', 'application/xhtml+xml') for x in remaining)
 
     if bad_spine_files:
-        raise AssertionError('bad spine files: %s' % bad_spine_files)
+        bsf = {}
+        for book, fn, mt in bad_spine_files:
+            mimecount = bsf.setdefault(book, {})
+            mimecount[mt] = mimecount.get(mt, 0) + 1
+
+        pprint(bsf)
+
+        raise AssertionError('bad spine files in %s' % bsf.keys())
 
 
 
