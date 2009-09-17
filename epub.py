@@ -15,8 +15,9 @@ import lxml, lxml.html, lxml.etree, lxml.cssselect
 XMLNS = '{http://www.w3.org/XML/1998/namespace}'
 DAISYNS = '{http://www.daisy.org/z3986/2005/ncx/}'
 OPFNS = '{http://www.idpf.org/2007/opf}'
-
 CONTAINERNS = '{urn:oasis:names:tc:opendocument:xmlns:container}'
+
+DC = "http://purl.org/dc/elements/1.1/"
 
 NAMESPACES = {
     'opf': 'http://www.idpf.org/2007/opf',
@@ -146,6 +147,22 @@ class Epub(object):
             }
         return dumps(data, indent=2)
 
+    def find_language(self):
+        opflang = [x[0].lower() for x in
+                   self.metadata.get(DC, {}).get('language', ())]
+
+        # XXX Should the ncx language enter into it? Being xml:lang,
+        # it is in theory just the language of the ncx document
+        # itself.  But if the metadata lacks language, should it be
+        # used instead? At present, NO.
+        #ncxlang = self.ncxdata['headers'].get('lang', ())
+
+        # XXX also, for now, ignoring case of badly formed language
+        # codes, conflicting or supplementary languages, etc.
+        opflang = [x for x in opflang if x not in ('und', '')]
+        if not opflang:
+            return None
+        return opflang[0]
 
 
 

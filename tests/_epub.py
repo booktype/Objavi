@@ -154,7 +154,7 @@ def test_raw_json():
 
 def test_find_language():
     for book in TEST_FILES:
-        e = _load_epub(book, verbose=True)
+        e = _load_epub(book)
         e.parse_meta()
         e.parse_opf()
         e.parse_ncx()
