@@ -110,7 +110,7 @@ def test_metadata_count():
                 name = v[0]
                 if name:
                     nsdict[k] = nsdict.get(k, 0) + 1
-    
+
     pprint(counts)
     #sys.exit()
 
@@ -149,7 +149,7 @@ def test_raw_json():
         print >> f, '/* %s */' % book
         print >> f, js
         f.close()
-        
+
         #print js
 
 def test_find_language():
@@ -261,11 +261,11 @@ def test_spine_manifest_match():
         remaining = (x[1] for x in files.values())
         if any(x in ('application/x-dtbncx+xml', 'application/xhtml+xml') for x in remaining):
             print book, set(remaining)
-            
-        if bad_spine_files:
-            raise AssertionError('bad spine files: %s' % bad_spine_files)
-        
+
         assert not any(x in ('application/x-dtbncx+xml', 'application/xhtml+xml') for x in remaining)
+
+    if bad_spine_files:
+        raise AssertionError('bad spine files: %s' % bad_spine_files)
 
 
 
