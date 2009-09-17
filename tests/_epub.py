@@ -9,31 +9,33 @@ import epub
 
 TEST_FILE_DIR = 'tests/epub-examples/'
 TEST_FILES =  sorted( TEST_FILE_DIR + x for x in os.listdir(TEST_FILE_DIR) if x.endswith('.epub'))
-#print '\n'.join(TEST_FILES)
-
-# Best_of_TOC.epub
-# Bonaparte.epub
-# Cowan-Kimberly.epub
-# GalCuri.epub
-# Hume_Nature.epub
-# LittleBrother.epub
-# Treasure_Island.epub
-# beaglehole-letter-61.epub
-# cowan-to-fildes.epub
-# ctaquarterly13197477chic.epub
-# cyclopedia-wellington.epub
-# darwin-autobiography-of-charles-darwin.epub
-# early-life-notes.epub
-# halfhoursinfarno00newy.epub
-# littleroadstoryo00hick.epub
-# official-history-nz.epub
-# songssourdough00servuoft.epub
-# stevenson-black-arrow.epub
-# stevenson-calibre-pathological.epub
-# takitimu.epub
-# war-economy-recipes.epub
-# wells-calibre-pathological.epub
-# wells-war-of-the-worlds.epub
+print '\n'.join(os.path.basename(x) for x in TEST_FILES)
+## Best_of_TOC.epub
+## Bonaparte.epub
+## Cowan-Kimberly.epub
+## GalCuri.epub
+## Hume_Nature.epub
+## LittleBrother.epub
+## Treasure_Island.epub
+## beaglehole-letter-61.epub
+## cowan-to-fildes.epub
+## ctaquarterly13197477chic.epub
+## cyclopedia-wellington.epub
+## darwin-autobiography-of-charles-darwin.epub
+## early-life-notes.epub
+## halfhoursinfarno00newy.epub
+## ia-abroad.epub
+## ia-huckfin.epub
+## ia-letters-from-cat.epub
+## ia-old-french.epub
+## ia-tomsawyer.epub
+## littleroadstoryo00hick.epub
+## songssourdough00servuoft.epub
+## stevenson-black-arrow.epub
+## takitimu.epub
+## war-economy-recipes.epub
+## wells-calibre-pathological.epub
+## wells-war-of-the-worlds.epub
 
 def _test_file(x):
     if isinstance(x, int):
@@ -94,6 +96,24 @@ def test_opf():
             assert hasattr(e, a)
             assert isinstance(getattr(e, a), t)
 
+
+def test_metadata_count():
+    counts = {}
+    for book in TEST_FILES:
+        e = _load_epub(book)
+        e.parse_meta()
+        e.parse_opf()
+        md = e.metadata
+        for ns, values in md.items():
+            nsdict = counts.setdefault(ns, {})
+            for k, v in values.items():
+                name = v[0]
+                if name:
+                    nsdict[k] = nsdict.get(k, 0) + 1
+    
+    pprint(counts)
+    #sys.exit()
+
 def test_example_ncx():
     import lxml
     f = open('tests/example.ncx')
@@ -125,7 +145,22 @@ def test_raw_json():
         e.parse_opf()
         e.parse_ncx()
         js = e.raw_json()
+        f = open('tests/json/' + os.path.basename(book) + '.js', 'w')
+        print >> f, '/* %s */' % book
+        print >> f, js
+        f.close()
+        
         #print js
+
+def test_find_language():
+    for book in TEST_FILES:
+        e = _load_epub(book, verbose=True)
+        e.parse_meta()
+        e.parse_opf()
+        e.parse_ncx()
+        print e.find_language()
+
+
 
 def test_parse_metadata():
     #XXX check unicode!
@@ -150,6 +185,8 @@ def test_parse_metadata():
         from difflib import unified_diff
         print '\n'.join(unified_diff(pformat(results).split('\n'), pformat(correct).split('\n')))
         raise AssertionError('bad metadata parsing')
+
+
 
 
 def _get_elements(book, elements):
@@ -205,6 +242,7 @@ def test_parse_spine():
 def test_spine_manifest_match():
     #every item in the spine should be in the manifest (thence in the zip, tested above)
     #every xhtml in the manifest should be in the spine. (XXX unless there are fallbacks)
+    bad_spine_files = []
     for book in TEST_FILES:
         spine, manifest, e = _get_elements(book, ('spine', 'manifest'))
         toc, order = epub.parse_spine(spine)
@@ -215,12 +253,19 @@ def test_spine_manifest_match():
         xhtmls = set(order)
         for x in order:
             name, mimetype = files.pop(x)
-            assert mimetype == 'application/xhtml+xml'
+            if mimetype != 'application/xhtml+xml':
+                bad_spine_files.append((book, name, mimetype))
+
         name, mimetype = files.pop(toc)
         assert mimetype == 'application/x-dtbncx+xml'
         remaining = (x[1] for x in files.values())
         if any(x in ('application/x-dtbncx+xml', 'application/xhtml+xml') for x in remaining):
             print book, set(remaining)
-
+            
+        if bad_spine_files:
+            raise AssertionError('bad spine files: %s' % bad_spine_files)
+        
         assert not any(x in ('application/x-dtbncx+xml', 'application/xhtml+xml') for x in remaining)
+
+
 
