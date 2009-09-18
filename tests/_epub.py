@@ -71,10 +71,11 @@ def test_load():
 
 def test_meta():
     for book, root in [('Hume', 'OPS/content.opf'),
-                       ('Treasure', 'OEBPS/volume.opf'),
-                       ('arrow', "OPS/epb.opf"),
+                       ('Treasure_Island', 'OEBPS/volume.opf'),
+                       ('black-arrow', "OPS/epb.opf"),
                        ('LittleBrother', "metadata.opf"),
                        ]:
+        print book
         e = _load_epub(book)
         e.parse_meta()
         assert e.opf_file == root
