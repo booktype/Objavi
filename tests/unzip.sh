@@ -12,7 +12,7 @@ cd $TESTDIR/epub-examples
 for f in *.epub; do
     #echo $f
     d=unzipped/${f/.epub/}
-    [[ -d $d ]] && continue
-    mkdir $d
-    unzip $f -d $d
+    [[ -d "$d" ]] && continue
+    mkdir "$d"
+    unzip "$f" -d "$d"
 done
