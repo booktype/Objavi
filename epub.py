@@ -94,13 +94,16 @@ class Epub(object):
         self.zip = zipfile.ZipFile(src, 'r', compression=zipfile.ZIP_DEFLATED, allowZip64=True)
         self.names = self.zip.namelist()
         self.info = self.zip.infolist()
+        self.origin = src
 
-    def gettree(self, name):
-        """get an etree from the given zip filename"""
+    def gettree(self, name=None, id=None, parse=lxml.etree.parse):
+        """get an etree from the given zip filename or manifest ID"""
+        if name is None:
+            name, mimetype = self.manifest[id]
         #Note: python 2.6 (not 2.5) has zipfile.open
         s = self.zip.read(name)
         f = StringIO(s)
-        tree = lxml.etree.parse(f)
+        tree = parse(f)
         f.close()
         return tree
 
