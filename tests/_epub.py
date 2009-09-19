@@ -140,7 +140,21 @@ def test_example_ncx():
     f.close()
     assert data == answer
 
-
+def test_new_doc():
+    #XXX not very comprehensive.
+    for guts in ('', "hello", "<h1>HELLO!</h1>"):
+        doc = epub.new_doc(guts=guts)
+        try:
+            body = doc.iter(epub.XHTMLNS + 'body').next()
+            print "got %s" % body
+        except StopIteration:
+            body = doc.iter('body').next()
+        guts2 = body.text or ''
+        for x in body:
+            guts2 += lxml.etree.tostring(x)
+        if body.tail is not None:
+            guts2 += body.tail
+        assert guts == guts2
 
 
 ## def test_parse_ncx():
