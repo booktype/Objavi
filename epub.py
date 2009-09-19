@@ -182,6 +182,9 @@ class Epub(object):
         opflang = [x for x in opflang if x not in ('und', '')]
         if not opflang:
             return None
+        if len(set(opflang)) > 1:
+            log('%s metadata has more than one language: %s -- using first one'
+                % (self.origin, opflang))
         return opflang[0]
 
 
