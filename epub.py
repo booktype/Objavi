@@ -16,8 +16,12 @@ XMLNS = '{http://www.w3.org/XML/1998/namespace}'
 DAISYNS = '{http://www.daisy.org/z3986/2005/ncx/}'
 OPFNS = '{http://www.idpf.org/2007/opf}'
 CONTAINERNS = '{urn:oasis:names:tc:opendocument:xmlns:container}'
+XHTMLNS = '{http://www.w3.org/1999/xhtml}'
 
+XHTML = 'http://www.w3.org/1999/xhtml'
 DC = "http://purl.org/dc/elements/1.1/"
+
+
 
 NAMESPACES = {
     'opf': 'http://www.idpf.org/2007/opf',
@@ -36,6 +40,22 @@ def log(*messages, **kwargs):
             print >> sys.stderr, repr(m)
 
 
+
+def new_doc(guts="", version="1.1", lang="en"):
+    xmldec = '<?xml version="1.0" encoding="UTF-8"?>'
+    doctypes = {
+        '1.1': ('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"'
+                '"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">'),
+        '1.0': ('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"'
+                '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n')
+    }
+    doc = ('<html xmlns="%s" version="XHTML %s" xml:lang="%s" lang="%s">'
+           '<head></head><body>%s</body></html>'
+           % (version, XHTML, lang, lang, guts))
+    f = StringIO(xmldec + doctypes.get(version, '') + doc)
+    tree = lxml.html.parse(f)
+    f.close()
+    return tree
 
 class EpubError(Exception):
     pass
