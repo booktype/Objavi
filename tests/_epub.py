@@ -12,14 +12,27 @@ import lxml
 DC = "http://purl.org/dc/elements/1.1/"
 TEST_FILE_DIR = 'tests/epub-examples/'
 TEST_FILES =  sorted( TEST_FILE_DIR + x for x in os.listdir(TEST_FILE_DIR) if x.endswith('.epub'))
-print '\n'.join(os.path.basename(x) for x in TEST_FILES)
+#print '\n'.join(os.path.basename(x) for x in TEST_FILES)
+
 ## Best_of_TOC.epub
 ## Bonaparte.epub
+## Conrad - Heart of Darkness.epub
 ## Cowan-Kimberly.epub
+## Doctorow - I, Robot.epub
+## Doyle - The Adventures of Sherlock Holmes.epub
 ## GalCuri.epub
+## Grimm - Grimm's Fairy Tales.epub
 ## Hume_Nature.epub
+## Lang - The Arabian Nights.epub
 ## LittleBrother.epub
+## McGSome.epub
+## Melville - Moby-Dick.epub
+## Stevenson - Treasure Island.epub
+## Tolstoy - Ivan the Fool.epub
 ## Treasure_Island.epub
+## Twain - The Adventures of Huckleberry Finn.epub
+## Wells - The War of the Worlds.epub
+## Wilde - The Importance of Being Earnest.epub
 ## beaglehole-letter-61.epub
 ## cowan-to-fildes.epub
 ## ctaquarterly13197477chic.epub
@@ -33,12 +46,18 @@ print '\n'.join(os.path.basename(x) for x in TEST_FILES)
 ## ia-old-french.epub
 ## ia-tomsawyer.epub
 ## littleroadstoryo00hick.epub
+## pg2292.epub
+## pg29904-images.epub
+## pg829-images.epub
+## pg829.epub
+## sample.epub
 ## songssourdough00servuoft.epub
 ## stevenson-black-arrow.epub
+## swift-a-modest-proposal.epub
 ## takitimu.epub
+## twain-adventures-of-huckleberry-finn.epub
 ## war-economy-recipes.epub
 ## wells-calibre-pathological.epub
-## wells-war-of-the-worlds.epub
 
 def _test_file(x):
     if isinstance(x, int):
