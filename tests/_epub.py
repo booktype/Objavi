@@ -147,6 +147,28 @@ def test_metadata_count():
     pprint(counts)
     #sys.exit()
 
+def test_metadata_conformance():
+    #at least one:
+    #identifier  title  language
+    for book in TEST_FILES:
+        #print book
+        e = _load_epub(book)
+        e.parse_meta()
+        e.parse_opf()
+        md = e.metadata
+        dc = md[DC]
+        for x in ('identifier', 'title', 'language'):
+            assert dc.get(x)
+
+
+    #the unique-identifier attribute of the package element is a
+    #correct XML IDREF to a Dublin Core identifier element; and
+
+    #any extended values specified for the Dublin Core creator and
+    #contributor elements' OPF role attribute must be taken from the
+    #registered MARC Relator Code list or must begin with oth.; and
+
+
 def test_example_ncx():
     import lxml
     f = open('tests/example.ncx')
