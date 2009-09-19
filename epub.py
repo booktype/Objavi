@@ -149,9 +149,9 @@ class Epub(object):
         #there is also an optional guide section, which we ignore
 
         self.metadata = parse_metadata(metadata)
-        self.files = parse_manifest(manifest, pwd)
+        self.manifest = parse_manifest(manifest, pwd)
         ncxid, self.order = parse_spine(spine)
-        self.ncxfile = self.files[ncxid][0]
+        self.ncxfile = self.manifest[ncxid][0]
 
     def parse_ncx(self):
         ncx = self.gettree(self.ncxfile)
@@ -161,7 +161,7 @@ class Epub(object):
         """get all the known metadata and nav data as json."""
         data = {
             'metadata': self.metadata,
-            'manifest': self.files,
+            'manifest': self.manifest,
             'spine': self.order,
             'ncx': self.ncxdata
             }
