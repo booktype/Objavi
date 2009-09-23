@@ -204,6 +204,10 @@ PAGE_SIZE_DATA = {
     "Oamaru Broadsheet":{'pointsize': (382 * MM_2_POINT, 540 * MM_2_POINT), 'class': 'newspaper'},
     "Oamaru Tabloid": {'pointsize': (265 * MM_2_POINT, 380 * MM_2_POINT), 'class': 'newspaper'},
 
+    #ODT printable 380x560
+    #Aucklander 360x260
+    #Dominion 376x540
+
     "custom":         {'class': "custom"},
 }
 
