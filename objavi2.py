@@ -82,26 +82,6 @@ ARG_VALIDATORS = {
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
 
-def parse_args():
-    """Read and validate CGI or commandline arguments, putting the
-    good ones into the returned dictionary.  Command line arguments
-    should be in the form --title='A Book'.
-    """
-    query = cgi.FieldStorage()
-    options, args = gnu_getopt(sys.argv[1:], '', [x + '=' for x in ARG_VALIDATORS])
-    options = dict(options)
-    data = {}
-    for key, validator in ARG_VALIDATORS.items():
-        value = query.getfirst(key, options.get('--' + key, None))
-        log('%s: %s' % (key, value), debug='STARTUP')
-        if value is not None:
-            if validator is not None and not validator(value):
-                log("argument '%s' is not valid ('%s')" % (key, value))
-                continue
-            data[key] = value
-
-    log(data, debug='STARTUP')
-    return data
 
 def get_server_list():
     return sorted(config.SERVER_DEFAULTS.keys())
@@ -418,7 +398,7 @@ def mode_openoffice(args):
 
 
 def main():
-    args = parse_args()
+    args = parse_args(ARG_VALIDATORS)
     mode = args.get('mode')
     if mode is None and 'book' in args:
         mode = 'book'
