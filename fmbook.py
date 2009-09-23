@@ -466,18 +466,6 @@ class Book(object):
                 self._try_cleanup_on_del = False #or else you can get in bad cycles
                 self.cleanup()
 
-    def __getattr__(self, attr):
-        """catch unloaded books and load them"""
-        #log('looking for missing attribute "%s"' % (attr))
-        if attr == 'tree':
-            self.load_book()
-            return self.tree
-        if attr == 'toc':
-            self.load_toc()
-            return self.toc
-        raise AttributeError("no such member: '%s'" % attr)
-
-
     def filepath(self, fn):
         return os.path.join(self.workdir, fn)
 
