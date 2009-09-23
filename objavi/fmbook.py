@@ -30,8 +30,8 @@ from subprocess import Popen, check_call, PIPE
 
 import lxml, lxml.html, lxml.etree
 
-import config
-from config import SERVER_DEFAULTS, DEFAULT_SERVER, POINT_2_MM, PDFEDIT_MAX_PAGES
+from objavi import config
+
 
 TMPDIR = os.path.abspath(config.TMPDIR)
 DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
@@ -108,7 +108,7 @@ def find_containing_paper(w, h):
             return (name, mw, mh)
 
     raise ValueError("page sized %.2fmm x %.2fmm won't fit on any paper!" %
-                     (w * POINT_2_MM, h * POINT_2_MM))
+                     (w * config.POINT_2_MM, h * config.POINT_2_MM))
 
 
 
@@ -150,7 +150,7 @@ class PageSettings(object):
                         (self.bottom_margin, clipy + 0.5 * config.PAGE_NUMBER_SIZE),
                         (self.side_margin, clipx + 0.5 * self.gutter),
                         ):
-            self.margins.append((m + clip) * POINT_2_MM)
+            self.margins.append((m + clip) * config.POINT_2_MM)
 
         self.moz_printer = kwargs.get('moz_printer', ('objavi_' + self.papersize))
 
@@ -268,11 +268,11 @@ class PageSettings(object):
     def number_pdf(self, pdf, pages, **kwargs):
         # if there are too many pages for pdfedit to handle in one go,
         # split the job into bits.  <pages> may not be exact
-        if pages is None or pages <= PDFEDIT_MAX_PAGES:
+        if pages is None or pages <= config.PDFEDIT_MAX_PAGES:
             self._number_pdf(pdf, **kwargs)
         else:
             # section_size must be even
-            sections = pages // PDFEDIT_MAX_PAGES + 1
+            sections = pages // config.PDFEDIT_MAX_PAGES + 1
             section_size = (pages // sections + 2) & ~1
 
             pdf_sections = []
@@ -432,7 +432,7 @@ class Book(object):
         self.license = license
         self.workdir = tempfile.mkdtemp(prefix=bookname, dir=TMPDIR)
         os.chmod(self.workdir, 0755)
-        defaults = SERVER_DEFAULTS[server]
+        defaults = config.SERVER_DEFAULTS[server]
         self.lang = defaults['lang']
         self.dir  = defaults['dir']
 
@@ -874,7 +874,7 @@ class Book(object):
         log("css is %r" % css)
         htmltree = self.tree
         if css is None or not css.strip():
-            defaults = SERVER_DEFAULTS[self.server]
+            defaults = config.SERVER_DEFAULTS[self.server]
             url = 'file://' + os.path.abspath(defaults['css-%s' % mode])
         elif not re.match(r'^http://\S+$', css):
             fn = self.save_tempfile('objavi.css', css)

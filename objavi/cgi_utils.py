@@ -20,9 +20,8 @@ import os, sys
 import cgi
 from getopt import gnu_getopt
 
-from fmbook import log
-import config
-
+from objavi.fmbook import log
+from objavi import config
 
 def parse_args(arg_validators):
     """Read and validate CGI or commandline arguments, putting the

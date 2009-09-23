@@ -27,10 +27,10 @@ import re, time
 from urllib2 import urlopen
 from getopt import gnu_getopt
 
-from fmbook import log, Book
+from objavi.fmbook import log, Book
+from objavi import config
+from objavi.cgi_utils import parse_args
 
-import config
-from config import SERVER_DEFAULTS, DEFAULT_SERVER
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
 PROGRESS_TEMPLATE = os.path.abspath('templates/progress.html')
@@ -62,7 +62,7 @@ ARG_VALIDATORS = {
     #"header": None, # header text, UNUSED
     "isbn": is_isbn,
     "license": config.LICENSES.__contains__,
-    "server": SERVER_DEFAULTS.__contains__,
+    "server": config.SERVER_DEFAULTS.__contains__,
     "engine": config.ENGINES.__contains__,
     "booksize": config.PAGE_SIZE_DATA.__contains__,
     "page_width": isfloat,
@@ -104,7 +104,7 @@ def parse_args():
     return data
 
 def get_server_list():
-    return sorted(SERVER_DEFAULTS.keys())
+    return sorted(config.SERVER_DEFAULTS.keys())
 
 def get_book_list(server):
     """Ask the server for a list of books.  Floss Manual TWikis keep such a list at
@@ -179,10 +179,10 @@ def listify(items):
     return '\n'.join('<li>%s</li>' % x for x in items)
 
 
-def get_default_css(server=DEFAULT_SERVER, mode='book'):
+def get_default_css(server=config.DEFAULT_SERVER, mode='book'):
     """Get the default CSS text for the selected server"""
     log(server)
-    cssfile = SERVER_DEFAULTS[server]['css-%s' % mode]
+    cssfile = config.SERVER_DEFAULTS[server]['css-%s' % mode]
     log(cssfile)
     f = open(cssfile)
     s = f.read()
@@ -234,7 +234,7 @@ def make_progress_page(book, bookname, mode):
     return progress_notifier
 
 def make_book_name(book, server, suffix='.pdf'):
-    lang = SERVER_DEFAULTS.get(server, SERVER_DEFAULTS[DEFAULT_SERVER])['lang']
+    lang = config.SERVER_DEFAULTS.get(server, config.SERVER_DEFAULTS[config.DEFAULT_SERVER])['lang']
     book = ''.join(x for x in book if x.isalnum())
     return '%s-%s-%s%s' % (book, lang,
                            time.strftime('%Y.%m.%d-%H.%M.%S'),
@@ -389,7 +389,7 @@ def mode_book(args):
         book.publish_pdf()
         book.notify_watcher('finished')
 
-#These ones are similar enought to be handled by the one function
+#These ones are similar enough to be handled by the one function
 mode_newspaper = mode_book
 mode_web = mode_book
 
