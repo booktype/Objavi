@@ -54,6 +54,7 @@ BOOK_LIST_CACHE_DIR = 'cache'
 
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 BOOK_URL = "http://%s/bin/view/%s/_all?skin=text"
+CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
 PUBLISH_URL = "/books/"
 
 #leave out vowels so as to avoid accidental words, and punctuation for bidi consistency
