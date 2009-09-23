@@ -80,8 +80,12 @@ class TocItem(object):
     def is_section(self):
         return self.status == '0'
 
+    def is_title(self):
+        return self.status == '2'
+
     def __str__(self):
         return '<toc: %s>' %  ', '.join('%s: %s' % x for x in self.__dict__.iteritems())
+
 
 
 def run(cmd):
@@ -644,6 +648,89 @@ class Book(object):
         log("Publishing %r as %r" % (self.pdf_file, self.publish_file))
         os.rename(self.pdf_file, self.publish_file)
         self.notify_watcher()
+
+    def get_twiki_metadata(self):
+        """Get information about a twiki book (as much as is easy and useful)."""
+        if not hasattr(self, 'toc'):
+            self.load_toc()
+
+        title_map = {}
+        authors = {}
+        meta = {
+            'language': self.lang,
+            'identifier': 'http://%s/epub/%s/%s' %(self.server, self.book, time.strftime('%Y.%m.%d-%H.%M.%S')),
+            'publisher': 'FLOSS Manuals http://flossmanuals.net',
+            'date': time.strftime('%Y-%m-%d'),
+            }
+        spine = []
+        #manifest = []
+        ncx = []
+        section = ncx
+        for t in self.toc:
+            if t.is_chapter():
+                spine.append(t.chapter)
+                section.append((t.title, t.chapter))
+                title_map[t.title] = t.chapter
+            elif t.is_section():
+                section = [(t.title, None)]
+                ncx.append(section)
+            elif t.is_title():
+                meta['title'] = t.title
+
+        # open the Credits chapter that has a list of authors for each chapter.
+        # each chapter is listed thus (linebreaks added):
+        #   <i>CHAPTER TITLE</i><br/>&copy; First Author 2007<br/>
+        #   Modifications:<br/>Second Author 2007, 2008<br/>
+        #   Third Author 2008<br/>Fourth Author 2008<br/><hr/>
+        #
+        # where "CHAPTER TITLE" is as appears in TOC.txt, and "X
+        # Author" are the names TWiki has for authors.  So the thing
+        # to do is look for the <i> tags and match them to the toc.
+        #
+        # the chapter title is not guaranteed unique (but usually is).
+
+        credits_url = config.CHAPTER_URL % (self.server, self.book, 'Credits')
+        f = urlopen(credits_url)
+        tree = lxml.html.document_fromstring(f.read())
+        f.close()
+        chapter_copy = {}
+        author_copy = {}
+
+        name_re = re.compile(r'^\s*(.+?) ((?:\d{4},? ?)+)$')
+        for e in tree.iter('i'):
+            log(e.text)
+            if e.tail or e.getnext().tag != 'br':
+                continue
+
+            chapter = title_map.get(e.text)
+            authors = chapter_copy.setdefault(chapter, [])
+            while True:
+                e = e.getnext()
+                if not e.tail or e.tag != 'br':
+                    break
+                log(e.tail)
+                if e.tail.startswith(u'\u00a9'): # \u00a9 == copyright symbol
+                    m = name_re.match(e.tail[1:])
+                    author, dates = m.groups()
+                    author_copy.setdefault(author, []).append((chapter, 1))
+                    authors.append(('primary', author, dates))
+                    #log(author, dates)
+                else:
+                    m = name_re.match(e.tail)
+                    if m is not None:
+                        author, dates = m.groups()
+                        author_copy.setdefault(author, []).append((chapter, 2))
+                        authors.append(('secondary', author, dates))
+                        #log(author, dates)
+
+        return {
+            'meta': meta,
+            'ncx': ncx,
+            'spine': spine,
+            'authors_copyright': author_copy,
+            #'chapter_copyright': chapter_copy,
+        }
+
 
     def load_toc(self):
         """From the TOC.txt file create a list of TocItems with
