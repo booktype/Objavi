@@ -144,7 +144,7 @@ if __name__ == '__main__':
     clean = bool(args.get('clean', False))
     if 'server' in args and 'book' in args:
         zfn = make_booki_package(args['server'], args['book'], clean)
-        ziplink = '<a href="%s">%s zip file</a>' %(zfn, args['book'])
+        ziplink = '<p><a href="%s">%s zip file.</a></p>' %(zfn, args['book'])
     else:
         ziplink = ''
 
