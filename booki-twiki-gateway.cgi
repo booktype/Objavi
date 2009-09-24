@@ -32,6 +32,10 @@ from booki import xhtml_utils
 
 from pprint import pformat
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
 # functions to validate their values. (None means no validation).
 ARG_VALIDATORS = {
@@ -68,6 +72,10 @@ def make_booki_package(server, bookid):
         c.remove_bad_tags()
         add_to_package(chapter, c.as_xhtml())
 
+    info['manifest'] = manifest
+    log(pformat(info))
+    infojson = json.dumps(info, indent=2)
+    add_to_package('info.json', 'info.json', infojson, 'application/json')
 
 
 def get_server_list():
