@@ -23,64 +23,121 @@ import cgi
 import re, time
 from urllib2 import urlopen
 from getopt import gnu_getopt
+from pprint import pformat
 
+from objavi.fmbook import log, Book
 from objavi.cgi_utils import parse_args, optionise
-from fmbook import log, Book
-import config
+from objavi import config
 
 from booki import xhtml_utils
 
-from pprint import pformat
+import zipfile
 
 try:
     import simplejson as json
 except ImportError:
     import json
-# ARG_VALIDATORS is a mapping between the expected cgi arguments and
-# functions to validate their values. (None means no validation).
-ARG_VALIDATORS = {
-    "book": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah
-    "server": config.SERVER_DEFAULTS.__contains__,
+
+
+
+MEDIATYPES = {
+    'html': "text/html",
+    'xhtml': "application/xhtml+xml",
+    'css': 'text/css',
+    'json': "application/json",
+
+    'png': 'image/png',
+    'gif': 'image/gif',
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'svg': 'image/svg+xml',
+
+    'ncx': 'application/x-dtbncx+xml',
+    'dtb': 'application/x-dtbook+xml',
+    'xml': 'application/xml',
+
+    'pdf': "application/pdf",
+    'txt': 'text/plain',
+
+    'epub': "application/epub+zip",
+    'booki': "application/booki+zip",
+
+    None: 'application/octet-stream',
 }
 
 
-def make_booki_package(server, bookid):
+
+def open_booki_zip(filename):
+    """Start a new zip and put an uncompressed 'mimetype' file at the
+    start.  This idea is copied from the epub specification, and
+    allows the file type to be dscovered by reading the first few
+    bytes."""
+    z = zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
+    mimetype = zipfile.ZipInfo('mimetype') # defaults to uncompressed
+    z.writestr(mimetype, MEDIATYPES['booki'])
+    return z
+
+def make_booki_package(server, bookid, clean=False):
+    """Extract all chapters from the specified book, as well as
+    associated images and metadata, and zip it all up for conversion
+    to epub.
+
+    If clean is True, the chapters will be cleaned up and converted to
+    XHTML 1.1.
+    """
+
     book = Book(bookid, server, bookid)
     book.load_toc()
     info = book.get_twiki_metadata()
 
-    log(pformat(info))
     manifest = {}
-    package_dir = book.filepath('epub')
-    os.mkdir(package_dir)
-    def add_to_package(fn, blob):
-        log("saving %s bytes to %s" % (len(blob), fn))
-        f = open(os.path.join(package_dir, fn), 'w')
-        f.write(blob)
-        f.close()
+    zfn = book.filepath('book.zip')
+    zf = open_booki_zip(zfn)
+
+    imagedir = book.filepath('images')
+    os.mkdir(imagedir)
+
+    def add_to_package(ID, fn, blob, mediatype=None):
+        #log("saving %s bytes to %s, identified as %s" % (len(blob), fn, ID))
+        zf.writestr(fn, blob)
+        if mediatype is None:
+            ext = fn[fn.rfind('.') + 1:]
+            mediatype = MEDIATYPES.get(ext, MEDIATYPES[None])
+        manifest[ID] = (fn, mediatype)
 
     for chapter in info['spine']:
-        c = xhtml_utils.EpubChapter(server, bookid, chapter, cache_dir=package_dir)
+        c = xhtml_utils.EpubChapter(server, bookid, chapter, cache_dir=imagedir)
         c.fetch()
         c.load_tree()
         images = c.localise_links()
-
         for image in images:
             imgdata = c.image_cache.read_local_url(image)
-            add_to_package(image, imgdata)
+            add_to_package(image, image, imgdata)
 
-        c.remove_bad_tags()
-        add_to_package(chapter, c.as_xhtml())
+        if clean:
+            c.remove_bad_tags()
+            add_to_package(chapter, chapter + '.xhtml', c.as_xhtml())
+        else:
+            add_to_package(chapter, chapter + '.html', c.as_html())
 
     info['manifest'] = manifest
     log(pformat(info))
     infojson = json.dumps(info, indent=2)
     add_to_package('info.json', 'info.json', infojson, 'application/json')
+    zf.close()
+    return zfn
 
 
 def get_server_list():
     return sorted(config.SERVER_DEFAULTS.keys())
 
+# ARG_VALIDATORS is a mapping between the expected cgi arguments and
+# functions to validate their values. (None means no validation).
+ARG_VALIDATORS = {
+    "book": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah
+    "server": config.SERVER_DEFAULTS.__contains__,
+    "clean": None,
+}
 
 if __name__ == '__main__':
     args = parse_args(ARG_VALIDATORS)
