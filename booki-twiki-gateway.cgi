@@ -1,6 +1,7 @@
 #!/usr/bin/python
 #
-# Part of Objavi2, which turns html manuals into books
+# Part of Objavi2, which turns html manuals into books.  This emulates
+# the Booki-epub-Espri interface for old TWiki books.
 #
 # Copyright (C) 2009 Douglas Bagnall
 #
@@ -58,13 +59,13 @@ def make_booki_package(server, bookid, clean=False):
     If clean is True, the chapters will be cleaned up and converted to
     XHTML 1.1.
     """
-
     book = Book(bookid, server, bookid)
     book.load_toc()
     info = book.get_twiki_metadata()
 
     manifest = {}
-    zfn = book.filepath('book.zip')
+
+    zfn = book.filepath('%s.zip' % bookid)
     zf = open_booki_zip(zfn)
 
     imagedir = book.filepath('images')
@@ -81,7 +82,6 @@ def make_booki_package(server, bookid, clean=False):
     for chapter in info['spine']:
         c = xhtml_utils.EpubChapter(server, bookid, chapter, cache_dir=imagedir)
         c.fetch()
-        c.load_tree()
         images = c.localise_links()
         for image in images:
             imgdata = c.image_cache.read_local_url(image)
@@ -101,9 +101,6 @@ def make_booki_package(server, bookid, clean=False):
     return zfn
 
 
-def get_server_list():
-    return sorted(config.SERVER_DEFAULTS.keys())
-
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
 # functions to validate their values. (None means no validation).
 ARG_VALIDATORS = {
@@ -117,16 +114,17 @@ if __name__ == '__main__':
     clean = bool(args.get('clean', False))
     if 'server' in args and 'book' in args:
         zfn = make_booki_package(args['server'], args['book'], clean)
-        ziplink = '<p><a href="%s">%s zip file.</a></p>' %(zfn, args['book'])
+        here = os.path.abspath('.')
+        assert zfn.startswith(here)
+        ziplink = '<p><a href="%s">%s zip file.</a></p>' % (zfn[len(here):], args['book'])
     else:
         ziplink = ''
 
+    print "Content-type: text/html; charset=utf-8\n"
     f = open('templates/booki-twiki-gateway.html')
     template = f.read()
     f.close()
-    print "Content-type: text/html; charset=utf-8\n"
+
     print template % {'ziplink': ziplink,
-                      'server-list': optionise(get_server_list())}
-
-
+                      'server-list': optionise(sorted(config.SERVER_DEFAULTS.keys()))}
 
