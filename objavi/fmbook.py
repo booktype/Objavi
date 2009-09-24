@@ -652,8 +652,8 @@ class Book(object):
             }
         spine = []
         #manifest = []
-        ncx = []
-        section = ncx
+        toc = []
+        section = toc
         for t in self.toc:
             if t.is_chapter():
                 spine.append(t.chapter)
@@ -661,7 +661,7 @@ class Book(object):
                 title_map[t.title] = t.chapter
             elif t.is_section():
                 section = [(t.title, None)]
-                ncx.append(section)
+                toc.append(section)
             elif t.is_title():
                 meta['title'] = t.title
 
@@ -700,22 +700,22 @@ class Book(object):
                 if e.tail.startswith(u'\u00a9'): # \u00a9 == copyright symbol
                     m = name_re.match(e.tail[1:])
                     author, dates = m.groups()
-                    author_copy.setdefault(author, []).append((chapter, 1))
+                    author_copy.setdefault(author, []).append((chapter, 'primary'))
                     authors.append(('primary', author, dates))
                     #log(author, dates)
                 else:
                     m = name_re.match(e.tail)
                     if m is not None:
                         author, dates = m.groups()
-                        author_copy.setdefault(author, []).append((chapter, 2))
+                        author_copy.setdefault(author, []).append((chapter, 'secondary'))
                         authors.append(('secondary', author, dates))
                         #log(author, dates)
 
         return {
-            'meta': meta,
-            'ncx': ncx,
+            'metadata': meta,
+            'TOC': toc,
             'spine': spine,
-            'authors_copyright': author_copy,
+            'copyright': author_copy,
             #'chapter_copyright': chapter_copy,
         }
 
