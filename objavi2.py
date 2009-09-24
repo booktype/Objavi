@@ -29,7 +29,7 @@ from getopt import gnu_getopt
 
 from objavi.fmbook import log, Book
 from objavi import config
-from objavi.cgi_utils import parse_args
+from objavi.cgi_utils import parse_args, optionise, listify
 
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
@@ -129,35 +129,6 @@ def get_size_list():
     return [x[1:] for x in sorted(calc_size(k, v.get('pointsize'), v.get('class', ''))
                                   for k, v in config.PAGE_SIZE_DATA.iteritems())
             ]
-
-
-def optionise(items, default=None):
-    """Make a list of strings into an html option string, as would fit
-    inside <select> tags."""
-    options = []
-    for x in items:
-        if isinstance(x, str):
-            x = (x, x)
-        if len(x) == 2:
-            # couple: value, name
-            if x[0] == default:
-                options.append('<option selected="selected" value="%s">%s</option>' % x)
-            else:
-                options.append('<option value="%s">%s</option>' % x)
-        else:
-            # triple: value, class, name
-            if x[0] == default:
-                options.append('<option selected="selected" value="%s" class="%s">%s</option>' % x)
-            else:
-                options.append('<option value="%s" class="%s">%s</option>' % x)
-
-    return '\n'.join(options)
-
-def listify(items):
-    """Make a list of strings into html <li> items, to fit in a <ul>
-    or <ol> element."""
-    return '\n'.join('<li>%s</li>' % x for x in items)
-
 
 def get_default_css(server=config.DEFAULT_SERVER, mode='book'):
     """Get the default CSS text for the selected server"""

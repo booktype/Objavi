@@ -44,3 +44,30 @@ def parse_args(arg_validators):
     log(data, debug='STARTUP')
     return data
 
+def optionise(items, default=None):
+    """Make a list of strings into an html option string, as would fit
+    inside <select> tags."""
+    options = []
+    for x in items:
+        if isinstance(x, str):
+            x = (x, x)
+        if len(x) == 2:
+            # couple: value, name
+            if x[0] == default:
+                options.append('<option selected="selected" value="%s">%s</option>' % x)
+            else:
+                options.append('<option value="%s">%s</option>' % x)
+        else:
+            # triple: value, class, name
+            if x[0] == default:
+                options.append('<option selected="selected" value="%s" class="%s">%s</option>' % x)
+            else:
+                options.append('<option value="%s" class="%s">%s</option>' % x)
+
+    return '\n'.join(options)
+
+def listify(items):
+    """Make a list of strings into html <li> items, to fit in a <ul>
+    or <ol> element."""
+    return '\n'.join('<li>%s</li>' % x for x in items)
+
