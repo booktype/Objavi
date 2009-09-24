@@ -30,6 +30,7 @@ from objavi.cgi_utils import parse_args, optionise
 from objavi import config
 
 from booki import xhtml_utils
+from booki.xhtml_utils import MEDIATYPES
 
 import zipfile
 
@@ -37,34 +38,6 @@ try:
     import simplejson as json
 except ImportError:
     import json
-
-
-
-MEDIATYPES = {
-    'html': "text/html",
-    'xhtml': "application/xhtml+xml",
-    'css': 'text/css',
-    'json': "application/json",
-
-    'png': 'image/png',
-    'gif': 'image/gif',
-    'jpg': 'image/jpeg',
-    'jpeg': 'image/jpeg',
-    'svg': 'image/svg+xml',
-
-    'ncx': 'application/x-dtbncx+xml',
-    'dtb': 'application/x-dtbook+xml',
-    'xml': 'application/xml',
-
-    'pdf': "application/pdf",
-    'txt': 'text/plain',
-
-    'epub': "application/epub+zip",
-    'booki': "application/booki+zip",
-
-    None: 'application/octet-stream',
-}
-
 
 
 def open_booki_zip(filename):
