@@ -24,8 +24,8 @@ import re, time
 from urllib2 import urlopen
 from getopt import gnu_getopt
 
+from objavi.cgi_utils import parse_args, optionise
 from fmbook import log, Book
-from cgi_utils import parse_args
 import config
 
 from booki import xhtml_utils
@@ -70,9 +70,25 @@ def make_booki_package(server, bookid):
 
 
 
+def get_server_list():
+    return sorted(config.SERVER_DEFAULTS.keys())
 
 
 if __name__ == '__main__':
     args = parse_args(ARG_VALIDATORS)
-    make_booki_package(args['server'], args['book'])
+    clean = bool(args.get('clean', False))
+    if 'server' in args and 'book' in args:
+        zfn = make_booki_package(args['server'], args['book'], clean)
+        ziplink = '<a href="%s">%s zip file</a>' %(zfn, args['book'])
+    else:
+        ziplink = ''
+
+    f = open('templates/booki-twiki-gateway.html')
+    template = f.read()
+    f.close()
+    print "Content-type: text/html; charset=utf-8\n"
+    print template % {'ziplink': ziplink,
+                      'server-list': optionise(get_server_list())}
+
+
 
