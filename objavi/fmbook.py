@@ -37,17 +37,6 @@ DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
 PUBLISH_PATH = "%s/books/" % DOC_ROOT
 
 
-def log(*messages, **kwargs):
-    """Send the messages to the appropriate place (stderr, or syslog).
-    If a <debug> keyword is specified, the message is only printed if
-    its value ias in the global DEBUG_MODES."""
-    if 'debug' not in kwargs or config.DEBUG_ALL or kwargs['debug'] in config.DEBUG_MODES:
-        for m in messages:
-            try:
-                print >> sys.stderr, m
-            except Exception:
-                print >> sys.stderr, repr(m)
-
 def _add_initial_number(e, n):
     """Put a styled chapter number n at the beginning of element e."""
     initial = e.makeelement("strong", Class="initial")

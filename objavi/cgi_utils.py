@@ -20,8 +20,21 @@ import os, sys
 import cgi
 from getopt import gnu_getopt
 
-from objavi.fmbook import log
+#from objavi.fmbook import log
 from objavi import config
+
+
+def log(*messages, **kwargs):
+    """Send the messages to the appropriate place (stderr, or syslog).
+    If a <debug> keyword is specified, the message is only printed if
+    its value ias in the global DEBUG_MODES."""
+    if 'debug' not in kwargs or config.DEBUG_ALL or kwargs['debug'] in config.DEBUG_MODES:
+        for m in messages:
+            try:
+                print >> sys.stderr, m
+            except Exception:
+                print >> sys.stderr, repr(m)
+
 
 def parse_args(arg_validators):
     """Read and validate CGI or commandline arguments, putting the
