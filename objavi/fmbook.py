@@ -25,13 +25,12 @@ import os, sys
 import tempfile
 import re, time
 import random
-from urllib2 import urlopen
 from subprocess import Popen, check_call, PIPE
 
 import lxml, lxml.html, lxml.etree
 
-from objavi import config
-
+from objavi import config, twiki_wrapper
+from objavi.cgi_utils import log
 
 TMPDIR = os.path.abspath(config.TMPDIR)
 DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
@@ -451,8 +450,6 @@ class Book(object):
         self.publish_file = os.path.join(PUBLISH_PATH, self.publish_name)
         self.publish_url = os.path.join(config.PUBLISH_URL, self.publish_name)
 
-        self.book_url = config.BOOK_URL % (self.server, self.book)
-        self.toc_url = config.TOC_URL % (self.server, self.book)
         if page_settings is not None:
             self.maker = PageSettings(**page_settings)
 
@@ -677,10 +674,8 @@ class Book(object):
         #
         # the chapter title is not guaranteed unique (but usually is).
 
-        credits_url = config.CHAPTER_URL % (self.server, self.book, 'Credits')
-        f = urlopen(credits_url)
-        tree = lxml.html.document_fromstring(f.read())
-        f.close()
+        credits_html = twiki_wrapper.get_chapter_html(self.server, self.book, 'Credits')
+        tree = lxml.html.document_fromstring(credits_html)
         chapter_copy = {}
         author_copy = {}
 
@@ -738,24 +733,16 @@ class Book(object):
         <title> is a human readable title for the chapter.  It is likely to
         differ from the title given in the chapter's <h1> heading.
         """
-        f = urlopen(self.toc_url)
         self.toc = []
-        while True:
-            try:
-                self.toc.append(TocItem(f.next().strip(),
-                                        f.next().strip(),
-                                        f.next().strip()))
-            except StopIteration:
-                break
-        f.close()
+        for status, chapter, title in twiki_wrapper.toc_iterator(self.server, self.book):
+            self.toc.append(TocItem(status, chapter, title))
         self.notify_watcher()
 
     def load_book(self, tidy=True):
         """Fetch and parse the raw html of the book.  If tidy is true
         (default) links in the document will be made absolute."""
-        f = urlopen(self.book_url)
-        html = f.read()
-        f.close()
+        html = twiki_wrapper.get_book_html(self.server, self.book)
+
         html = ('<html dir="%s"><head>\n<title>%s</title>\n'
                 '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
                 '</head>\n<body>\n'
@@ -768,7 +755,7 @@ class Book(object):
 
         tree = lxml.html.document_fromstring(html)
         if tidy:
-            tree.make_links_absolute(self.book_url)
+            tree.make_links_absolute(config.BOOK_URL % (self.server, self.book))
         self.tree = tree
         self.headings = [x for x in tree.cssselect('h1')]
         if self.headings:
