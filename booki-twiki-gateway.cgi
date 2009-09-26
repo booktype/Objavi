@@ -30,75 +30,47 @@ from objavi.fmbook import log, Book
 from objavi.cgi_utils import parse_args, optionise
 from objavi import config
 
-from booki import xhtml_utils
-from booki.xhtml_utils import MEDIATYPES
-
-import zipfile
-
-try:
-    import simplejson as json
-except ImportError:
-    import json
+from booki.xhtml_utils import MEDIATYPES, EpubChapter, BookiZip
 
 
-def open_booki_zip(filename):
-    """Start a new zip and put an uncompressed 'mimetype' file at the
-    start.  This idea is copied from the epub specification, and
-    allows the file type to be dscovered by reading the first few
-    bytes."""
-    z = zipfile.ZipFile(filename, 'w', zipfile.ZIP_DEFLATED, allowZip64=True)
-    mimetype = zipfile.ZipInfo('mimetype') # defaults to uncompressed
-    z.writestr(mimetype, MEDIATYPES['booki'])
-    return z
 
-def make_booki_package(server, bookid, clean=False):
+def make_booki_package(server, bookid, clean=False, use_cache=False):
     """Extract all chapters from the specified book, as well as
     associated images and metadata, and zip it all up for conversion
     to epub.
 
     If clean is True, the chapters will be cleaned up and converted to
-    XHTML 1.1.
+    XHTML 1.1.  If cache is true, images that have been fetched on
+    previous runs will be reused.
     """
     book = Book(bookid, server, bookid)
     book.load_toc()
-    info = book.get_twiki_metadata()
-
-    manifest = {}
 
     zfn = book.filepath('%s.zip' % bookid)
-    zf = open_booki_zip(zfn)
+    bz = BookiZip(zfn)
+    bz.info = book.get_twiki_metadata()
 
-    imagedir = book.filepath('images')
-    os.mkdir(imagedir)
-
-    def add_to_package(ID, fn, blob, mediatype=None):
-        #log("saving %s bytes to %s, identified as %s" % (len(blob), fn, ID))
-        zf.writestr(fn, blob)
-        if mediatype is None:
-            ext = fn[fn.rfind('.') + 1:]
-            mediatype = MEDIATYPES.get(ext, MEDIATYPES[None])
-        manifest[ID] = (fn, mediatype)
-
-    for chapter in info['spine']:
-        c = xhtml_utils.EpubChapter(server, bookid, chapter, cache_dir=imagedir)
+    all_images = set()
+    for chapter in bz.info['spine']:
+        url = config.CHAPTER_URL % (server, bookid, chapter)
+        c = EpubChapter(server, bookid, chapter, url,
+                        use_cache=use_cache)
         c.fetch()
         images = c.localise_links()
-        for image in images:
-            imgdata = c.image_cache.read_local_url(image)
-            add_to_package(image, image, imgdata)
-
+        all_images.update(images)
         if clean:
             c.remove_bad_tags()
-            add_to_package(chapter, chapter + '.xhtml', c.as_xhtml())
+            bz.add_to_package(chapter, chapter + '.xhtml', c.as_xhtml())
         else:
-            add_to_package(chapter, chapter + '.html', c.as_html())
+            bz.add_to_package(chapter, chapter + '.html', c.as_html())
 
-    info['manifest'] = manifest
-    log(pformat(info))
-    infojson = json.dumps(info, indent=2)
-    add_to_package('info.json', 'info.json', infojson, 'application/json')
-    zf.close()
-    return zfn
+    # Add images afterwards, to sift out duplicates
+    for image in all_images:
+        imgdata = c.image_cache.read_local_url(image)
+        bz.add_to_package(image, image, imgdata)
+
+    bz.finish()
+    return bz.filename
 
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
@@ -106,14 +78,16 @@ def make_booki_package(server, bookid, clean=False):
 ARG_VALIDATORS = {
     "book": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah
     "server": config.SERVER_DEFAULTS.__contains__,
+    "use-cache": None,
     "clean": None,
 }
 
 if __name__ == '__main__':
     args = parse_args(ARG_VALIDATORS)
     clean = bool(args.get('clean', False))
+    use_cache = bool(args.get('use-cache', False))
     if 'server' in args and 'book' in args:
-        zfn = make_booki_package(args['server'], args['book'], clean)
+        zfn = make_booki_package(args['server'], args['book'], clean, use_cache)
         here = os.path.abspath('.')
         assert zfn.startswith(here)
         ziplink = '<p><a href="%s">%s zip file.</a></p>' % (zfn[len(here):], args['book'])
