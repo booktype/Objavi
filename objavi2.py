@@ -22,9 +22,7 @@
 from __future__ import with_statement
 
 import os, sys
-import cgi
 import re, time
-from getopt import gnu_getopt
 
 from objavi.fmbook import log, Book
 from objavi import config
