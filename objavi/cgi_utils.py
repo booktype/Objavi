@@ -44,6 +44,50 @@ def parse_args(arg_validators):
     log(data, debug='STARTUP')
     return data
 
+def clean_args(arg_convertors):
+    """Like parse_args, but instead of the validator functions
+    returning true or false, they return None if the argument is
+    invalid, and a cleansed version if the argument is good.
+    """
+    query = cgi.FieldStorage()
+    options, args = gnu_getopt(sys.argv[1:], '', [x + '=' for x in arg_convertors])
+    options = dict(options)
+    data = {}
+    for key, convertor in arg_convertors.items():
+        raw_value = query.getfirst(key, options.get('--' + key, None))
+        if raw_value is not None:
+            val = convertor(raw_value)
+            if val is None:
+                log("argument '%s' is not valid ('%s')" % (key, raw_value))
+                continue
+            data[key] = val
+    return data
+
+
+## Helper functions for parse_args & clean_args
+
+def is_url(s):
+    """Check whether the string approximates a valid http URL."""
+    s = s.strip()
+    if not '://' in s:
+        s = 'http://' + s
+    m = re.match(r'^https?://'
+                 r'(?:(?:[a-z0-9]+(?:-*[a-z0-9]+)*\.)+[a-z]{2,8}|'
+                 r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
+                 r'(?::\d+)?'
+                 r'(?:/?|/\S+)$', s, re.I
+                 )
+    if not m:
+        return False
+    return s
+
+def is_name(s):
+    if re.match(r'^[\w-]+$', s):
+        return s
+
+
+## Formatting of lists
+
 def optionise(items, default=None):
     """Make a list of strings into an html option string, as would fit
     inside <select> tags."""
@@ -66,8 +110,21 @@ def optionise(items, default=None):
 
     return '\n'.join(options)
 
+
 def listify(items):
     """Make a list of strings into html <li> items, to fit in a <ul>
     or <ol> element."""
     return '\n'.join('<li>%s</li>' % x for x in items)
 
+
+
+##Decorator functions for output
+
+def output_and_exit(f, content_type="text/html; charset=utf-8"):
+    """Decorator: prefix function output with http headers and exit
+    immediately after."""
+    def output(args):
+        print "Content-type: %s\n" % (content_type,)
+        f(args)
+        sys.exit()
+    return output
