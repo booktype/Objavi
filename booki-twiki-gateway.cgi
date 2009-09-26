@@ -20,10 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os, sys
-import cgi
 import re, time
-from urllib2 import urlopen
-from getopt import gnu_getopt
 from pprint import pformat
 
 from objavi.fmbook import log, Book
@@ -32,6 +29,7 @@ from objavi import config
 
 from booki.xhtml_utils import MEDIATYPES, EpubChapter, BookiZip
 
+DEST_DIR = 'booki-books'
 
 
 def make_booki_package(server, bookid, clean=False, use_cache=False):
@@ -46,7 +44,7 @@ def make_booki_package(server, bookid, clean=False, use_cache=False):
     book = Book(bookid, server, bookid)
     book.load_toc()
 
-    zfn = book.filepath('%s.zip' % bookid)
+    zfn = book.filepath('%s%s.zip' % (bookid, clean and '-clean' or ''))
     bz = BookiZip(zfn)
     bz.info = book.get_twiki_metadata()
 
@@ -82,15 +80,24 @@ ARG_VALIDATORS = {
     "clean": None,
 }
 
+def shift_file(fn, dir):
+    """Shift a file and save backup (only works on same filesystem)"""
+    base = os.path.basename(fn)
+    dest = os.path.join(dir, base)
+    if os.path.exists(dest):
+        os.rename(dest, dest + '~')
+    os.rename(fn, dest)
+    return dest
+
 if __name__ == '__main__':
+
     args = parse_args(ARG_VALIDATORS)
     clean = bool(args.get('clean', False))
     use_cache = bool(args.get('use-cache', False))
     if 'server' in args and 'book' in args:
         zfn = make_booki_package(args['server'], args['book'], clean, use_cache)
-        here = os.path.abspath('.')
-        assert zfn.startswith(here)
-        ziplink = '<p><a href="%s">%s zip file.</a></p>' % (zfn[len(here):], args['book'])
+        fn = shift_file(zfn, DEST_DIR)
+        ziplink = '<p><a href="%s">%s zip file.</a></p>' % (fn, args['book'])
     else:
         ziplink = ''
 
