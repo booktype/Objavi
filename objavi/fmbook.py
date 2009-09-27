@@ -655,8 +655,8 @@ class Book(object):
                 section.append((t.title, t.chapter))
                 title_map[t.title] = t.chapter
             elif t.is_section():
-                section = [(t.title, None)]
-                toc.append(section)
+                section = []
+                toc.append([[t.title, None], section])
             elif t.is_title():
                 meta['title'] = t.title
 
