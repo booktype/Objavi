@@ -641,6 +641,9 @@ class Book(object):
             'identifier': 'http://%s/epub/%s/%s' %(self.server, self.book, time.strftime('%Y.%m.%d-%H.%M.%S')),
             'publisher': 'FLOSS Manuals http://flossmanuals.net',
             'date': time.strftime('%Y-%m-%d'),
+            'fm:server': self.server,
+            'fm:book': self.book,
+            'title': self.book,
             }
         spine = []
         #manifest = []
