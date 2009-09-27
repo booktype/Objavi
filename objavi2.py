@@ -24,7 +24,7 @@ from __future__ import with_statement
 import os, sys
 import re, time
 
-from objavi.fmbook import log, Book
+from objavi.fmbook import log, Book, make_book_name
 from objavi import config
 from objavi.cgi_utils import parse_args, optionise, listify
 
