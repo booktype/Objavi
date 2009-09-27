@@ -25,7 +25,7 @@ from pprint import pformat
 
 from objavi.fmbook import log, Book
 from objavi.cgi_utils import parse_args, optionise
-from objavi import config
+from objavi import config, twiki_wrapper
 
 from booki.xhtml_utils import MEDIATYPES, EpubChapter, BookiZip
 
@@ -50,10 +50,9 @@ def make_booki_package(server, bookid, clean=False, use_cache=False):
 
     all_images = set()
     for chapter in bz.info['spine']:
-        url = config.CHAPTER_URL % (server, bookid, chapter)
-        c = EpubChapter(server, bookid, chapter, url,
+        contents = twiki_wrapper.get_chapter_html(server, bookid, chapter)
+        c = EpubChapter(server, bookid, chapter, contents,
                         use_cache=use_cache)
-        c.fetch()
         images = c.localise_links()
         all_images.update(images)
         if clean:
