@@ -36,6 +36,12 @@ TMPDIR = os.path.abspath(config.TMPDIR)
 DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
 PUBLISH_PATH = "%s/books/" % DOC_ROOT
 
+def make_book_name(book, server, suffix='.pdf'):
+    lang = config.SERVER_DEFAULTS.get(server, config.SERVER_DEFAULTS[config.DEFAULT_SERVER])['lang']
+    book = ''.join(x for x in book if x.isalnum())
+    return '%s-%s-%s%s' % (book, lang,
+                           time.strftime('%Y.%m.%d-%H.%M.%S'),
+                           suffix)
 
 def _add_initial_number(e, n):
     """Put a styled chapter number n at the beginning of element e."""

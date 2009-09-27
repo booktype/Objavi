@@ -154,13 +154,6 @@ def make_progress_page(book, bookname, mode):
             log("failed to send message %r, got exception %r" % (message, e))
     return progress_notifier
 
-def make_book_name(book, server, suffix='.pdf'):
-    lang = config.SERVER_DEFAULTS.get(server, config.SERVER_DEFAULTS[config.DEFAULT_SERVER])['lang']
-    book = ''.join(x for x in book if x.isalnum())
-    return '%s-%s-%s%s' % (book, lang,
-                           time.strftime('%Y.%m.%d-%H.%M.%S'),
-                           suffix)
-
 
 def get_page_settings(args):
     """Find the size and any optional layout settings.
