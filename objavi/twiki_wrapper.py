@@ -71,7 +71,7 @@ def get_chapter_html(server, book, chapter):
     return html
 
 
-def get_book_copyright(server, book):
+def get_book_copyright(server, book, title_map):
     # open the Credits chapter that has a list of authors for each chapter.
     # each chapter is listed thus (linebreaks added):
     #   <i>CHAPTER TITLE</i><br/>&copy; First Author 2007<br/>

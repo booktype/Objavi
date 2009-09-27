@@ -660,7 +660,7 @@ class Book(object):
             elif t.is_title():
                 meta['title'] = t.title
 
-        author_copyright, chapter_copyright = twiki_wrapper.get_book_copyright(self.server, self.book)
+        author_copyright, chapter_copyright = twiki_wrapper.get_book_copyright(self.server, self.book, title_map)
 
         return {
             'metadata': meta,
