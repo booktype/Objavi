@@ -651,56 +651,14 @@ class Book(object):
             elif t.is_title():
                 meta['title'] = t.title
 
-        # open the Credits chapter that has a list of authors for each chapter.
-        # each chapter is listed thus (linebreaks added):
-        #   <i>CHAPTER TITLE</i><br/>&copy; First Author 2007<br/>
-        #   Modifications:<br/>Second Author 2007, 2008<br/>
-        #   Third Author 2008<br/>Fourth Author 2008<br/><hr/>
-        #
-        # where "CHAPTER TITLE" is as appears in TOC.txt, and "X
-        # Author" are the names TWiki has for authors.  So the thing
-        # to do is look for the <i> tags and match them to the toc.
-        #
-        # the chapter title is not guaranteed unique (but usually is).
-
-        credits_html = twiki_wrapper.get_chapter_html(self.server, self.book, 'Credits')
-        tree = lxml.html.document_fromstring(credits_html)
-        chapter_copy = {}
-        author_copy = {}
-
-        name_re = re.compile(r'^\s*(.+?) ((?:\d{4},? ?)+)$')
-        for e in tree.iter('i'):
-            log(e.text)
-            if e.tail or e.getnext().tag != 'br':
-                continue
-
-            chapter = title_map.get(e.text)
-            authors = chapter_copy.setdefault(chapter, [])
-            while True:
-                e = e.getnext()
-                if not e.tail or e.tag != 'br':
-                    break
-                log(e.tail)
-                if e.tail.startswith(u'\u00a9'): # \u00a9 == copyright symbol
-                    m = name_re.match(e.tail[1:])
-                    author, dates = m.groups()
-                    author_copy.setdefault(author, []).append((chapter, 'primary'))
-                    authors.append(('primary', author, dates))
-                    #log(author, dates)
-                else:
-                    m = name_re.match(e.tail)
-                    if m is not None:
-                        author, dates = m.groups()
-                        author_copy.setdefault(author, []).append((chapter, 'secondary'))
-                        authors.append(('secondary', author, dates))
-                        #log(author, dates)
+        author_copyright, chapter_copyright = twiki_wrapper.get_book_copyright(self.server, self.book)
 
         return {
             'metadata': meta,
             'TOC': toc,
             'spine': spine,
-            'copyright': author_copy,
-            #'chapter_copyright': chapter_copy,
+            'copyright': author_copyright,
+            #'chapter_copyright': chapter_copyright,
         }
 
 
