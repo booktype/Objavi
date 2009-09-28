@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os, sys
-import re, time
+import re, time, traceback
 from pprint import pformat
 
 from objavi.fmbook import log, Book
@@ -77,7 +77,7 @@ ARG_VALIDATORS = {
     "server": config.SERVER_DEFAULTS.__contains__,
     "use-cache": None,
     "clean": None,
-    "all": None,
+    "all": ['all', 'skip-existing'].__contains__,
 }
 
 if __name__ == '__main__':
@@ -85,21 +85,24 @@ if __name__ == '__main__':
     args = parse_args(ARG_VALIDATORS)
     clean = bool(args.get('clean', False))
     use_cache = bool(args.get('use-cache', False))
-    make_all = bool(args.get('all', False))
+    make_all = args.get('all')
     if 'server' in args and 'book' in args:
         zfn = make_booki_package(args['server'], args['book'], clean, use_cache)
         fn = shift_file(zfn, DEST_DIR)
         ziplink = '<p><a href="%s">%s zip file.</a></p>' % (fn, args['book'])
-    elif 'server' in args and make_all:
+    elif 'server' in args and make_all is not None:
         links = []
         for book in twiki_wrapper.get_book_list(args['server']):
+            if make_all == 'skip-existing' and book + '.zip' in os.listdir(DEST_DIR):
+                log("skipping %s" % book)
+                continue
             try:
                 zfn = make_booki_package(args['server'], book, use_cache=True)
                 fn = shift_file(zfn, DEST_DIR)
+                links.append('<a href="%s">%s</a> ' % (fn, book))
             except Exception:
                 log('FAILED to make book "%s"' % book)
                 traceback.print_exc()
-            links.append('<a href="%s">%s</a> ' % (fn, book))
         ziplink = ''.join(links)
     else:
         ziplink = ''
