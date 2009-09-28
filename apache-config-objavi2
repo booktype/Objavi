@@ -24,6 +24,9 @@
 	# limit MEM to 800 million bytes
 	RLimitMEM 800000000
 
+        #Sometimes it takes a while. Wait.
+        TimeOut 600
+
 	DocumentRoot /home/douglas/objavi2
 	<Directory />
 		Options FollowSymLinks
