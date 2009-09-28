@@ -10,7 +10,8 @@ try:
 except ImportError:
     from simplejson import dumps
 
-import lxml, lxml.html, lxml.etree, lxml.cssselect
+import lxml, lxml.html, lxml.cssselect
+from lxml import etree
 
 XMLNS = '{http://www.w3.org/XML/1998/namespace}'
 DAISYNS = '{http://www.daisy.org/z3986/2005/ncx/}'
@@ -96,7 +97,7 @@ class Epub(object):
         self.info = self.zip.infolist()
         self.origin = src
 
-    def gettree(self, name=None, id=None, parse=lxml.etree.parse):
+    def gettree(self, name=None, id=None, parse=etree.parse):
         """get an etree from the given zip filename or manifest ID"""
         if name is None:
             name, mimetype = self.manifest[id]
