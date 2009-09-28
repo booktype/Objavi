@@ -31,6 +31,8 @@ INCH_2_POINT = 72
 KEEP_TEMP_FILES=True
 TMPDIR = 'tmp'
 
+EPUB_DIR = 'epub'
+
 FIREFOX = 'firefox'
 WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
