@@ -130,6 +130,15 @@ def listify(items):
     return '\n'.join('<li>%s</li>' % x for x in items)
 
 
+def shift_file(fn, dir, backup='~'):
+    """Shift a file and save backup (only works on same filesystem)"""
+    base = os.path.basename(fn)
+    dest = os.path.join(dir, base)
+    if backup and os.path.exists(dest):
+        os.rename(dest, dest + backup)
+    os.rename(fn, dest)
+    return dest
+
 
 ##Decorator functions for output
 

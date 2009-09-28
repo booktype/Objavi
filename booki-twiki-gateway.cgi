@@ -24,7 +24,7 @@ import re, time
 from pprint import pformat
 
 from objavi.fmbook import log, Book
-from objavi.cgi_utils import parse_args, optionise
+from objavi.cgi_utils import parse_args, optionise, shift_file
 from objavi import config, twiki_wrapper
 
 from booki.xhtml_utils import MEDIATYPES, EpubChapter, BookiZip
@@ -79,15 +79,6 @@ ARG_VALIDATORS = {
     "clean": None,
     "all": None,
 }
-
-def shift_file(fn, dir):
-    """Shift a file and save backup (only works on same filesystem)"""
-    base = os.path.basename(fn)
-    dest = os.path.join(dir, base)
-    if os.path.exists(dest):
-        os.rename(dest, dest + '~')
-    os.rename(fn, dest)
-    return dest
 
 if __name__ == '__main__':
 
