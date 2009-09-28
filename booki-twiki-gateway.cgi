@@ -50,7 +50,7 @@ def make_booki_package(server, bookid, clean=False, use_cache=False):
 
     all_images = set()
     for chapter in bz.info['spine']:
-        contents = twiki_wrapper.get_chapter_html(server, bookid, chapter)
+        contents = twiki_wrapper.get_chapter_html(server, bookid, chapter, wrapped=True)
         c = EpubChapter(server, bookid, chapter, contents,
                         use_cache=use_cache)
         images = c.localise_links()

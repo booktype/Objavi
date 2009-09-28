@@ -8,6 +8,17 @@ from urllib2 import urlopen
 
 import lxml.html
 
+CHAPTER_TEMPLATE = '''<html>
+<head>
+<title>%(title)s</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+</head>
+<body>
+%(text)s
+</body>
+</html>
+'''
+
 def get_book_list(server):
     """Ask the server for a list of books.  Floss Manual TWikis keep such a list at
     /bin/view/TWiki/WebLeftBarWebsList?skin=text but it needs a bit of processing
@@ -64,12 +75,16 @@ def get_book_html(server, book):
     return html
 
 
-def get_chapter_html(server, book, chapter):
+def get_chapter_html(server, book, chapter, wrapped=False):
     f = urlopen(config.CHAPTER_URL % (server, book, chapter))
     html = f.read()
     f.close()
+    if wrapped:
+        html = CHAPTER_TEMPLATE % {
+            'title': '%s: %s' % (book, chapter),
+            'text': html
+        }
     return html
-
 
 def get_book_copyright(server, book, title_map):
     # open the Credits chapter that has a list of authors for each chapter.
@@ -84,7 +99,7 @@ def get_book_copyright(server, book, title_map):
     #
     # the chapter title is not guaranteed unique (but usually is).
 
-    credits_html = get_chapter_html(server, book, 'Credits')
+    credits_html = get_chapter_html(server, book, 'Credits', wrapped=True)
     tree = lxml.html.document_fromstring(credits_html)
     chapter_copy = {}
     author_copy = {}
