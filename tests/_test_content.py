@@ -101,9 +101,10 @@ def add_guts(src, dest):
         pass
 
 
-def add_marker(doc, ID, title=None):
+def add_marker(doc, ID, title=None, klass="espri-marker"):
     marker = lxml.etree.Element('hr')
     marker.set('id', ID)
+    marker.set('class', klass)
     if title is not None:
         marker.set('title', title)
     try:
