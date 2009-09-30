@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<!-- Part of Objavi2, which turns html manuals into books.
+This form select the manual and production options.
+
+Copyright (C) 2009 Douglas Bagnall
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with this program; if not, write to the Free Software Foundation, Inc.,
+51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+-->
+  <head>
+    <title>OBJAVI! ePub Publisher</title>
+    <meta  name="robots" content="noindex" />
+    <link rel="stylesheet" href="/static/objavi.css" type="text/css" media="screen" />
+  </head>
+
+  <body>
+    <form action="" method="post" id="obform" name="obform">
+    <div id="main">
+        <h1>ePubJavi epub-publisher</h1>
+        <p>
+          Make an epub from a booki-book.
+        </p>
+
+        %(booklink)s
+
+        <div id="server_div" class="form-item">
+          <div class="input_title">Booki book</div>
+          <div class="input_contents">
+            <select id="book" name="book">
+              %(booklist)s
+            </select>
+          </div>
+        </div>
+
+        <button id="submit">export</button>
+
+    </div>
+    </form>
+  </body>
+</html>
