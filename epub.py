@@ -22,17 +22,6 @@ XHTMLNS = '{http://www.w3.org/1999/xhtml}'
 XHTML = 'http://www.w3.org/1999/xhtml'
 DC = "http://purl.org/dc/elements/1.1/"
 
-
-
-NAMESPACES = {
-    'opf': 'http://www.idpf.org/2007/opf',
-    'dc': 'http://purl.org/dc/elements/1.1/', #dublin core
-    'tei': 'http://www.tei-c.org/ns/1.0',
-    'dcterms': 'http://purl.org/dc/terms/',
-    'nzetc': 'http://www.nzetc.org/structure',
-    'xsi': 'http://www.w3.org/2001/XMLSchema-instance'
-}
-
 def log(*messages, **kwargs):
     for m in messages:
         try:
