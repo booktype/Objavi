@@ -1,9 +1,10 @@
 .emacs*
 *~
 *.pyc
-examples
-books
-tmp
-misc
-cache
-booki-books
+examples/
+books/
+tmp/
+misc/
+cache/
+booki-books/
+epub/
