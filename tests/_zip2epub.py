@@ -14,7 +14,7 @@ from objavi.config import EPUB_DIR
 from iarchive import epub as ia_epub
 from booki.xhtml_utils import EpubChapter
 
-import epub
+from objavi import epub_utils
 
 DCNS = "{http://purl.org/dc/elements/1.1/}"
 
@@ -68,7 +68,7 @@ class ZipBook(Book):
             ebook.add_spine_item({'idref': ID})
 
         #toc
-        ncx = epub.make_ncx(toc, metadata, filemap)
+        ncx = epub_utils.make_ncx(toc, metadata, filemap)
         ebook.add(ebook.content_dir + 'toc.ncx', ncx)
 
 
@@ -101,14 +101,6 @@ class ZipBook(Book):
 
         ebook.z.close()
 
-
-
-    #XXX need to overload:
-    # load_book(self, tidy=True)
-    # load_toc(self)
-    #
-    #def load_book(self):
-    #    pass
 
 if __name__ == '__main__':
     try:
