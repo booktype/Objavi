@@ -313,5 +313,8 @@ PROGRESS_POINTS = (
     ("finished", "Finished!", ('book', 'newspaper', 'web', 'openoffice')),
 )
 
+#XML namespace stuff
+DCNS = "{http://purl.org/dc/elements/1.1/}"
+
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))
