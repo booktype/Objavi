@@ -339,18 +339,6 @@ def concat_pdfs(destination, *pdfs):
     cmd += ['cat', 'output', destination]
     run(cmd)
 
-def index_pdf(pdf, text=None):
-    """Use pdftotext to extract utf-8 text from a pdf, using ^L to
-    separate pages."""
-    if text is None:
-        text = pdf + '.index.txt'
-    cmd = ['pdftotext',
-           #'-layout', #keeps more original formatting
-           pdf,
-           text]
-    run(cmd)
-    return text
-
 def rotate_pdf(pdfin, pdfout):
     """Turn the PDF on its head"""
     cmd = ['pdftk', pdfin,
@@ -442,7 +430,6 @@ class Book(object):
 
         self.body_html_file = self.filepath('body.html')
         self.body_pdf_file = self.filepath('body.pdf')
-        self.body_index_file = self.filepath('body.txt')
         self.preamble_html_file = self.filepath('preamble.html')
         self.preamble_pdf_file = self.filepath('preamble.pdf')
         self.tail_html_file = self.filepath('tail.html')
@@ -656,7 +643,6 @@ class Book(object):
             'title': self.book,
             }
         spine = []
-        #manifest = []
         toc = []
         section = toc
         for t in self.toc:
@@ -679,7 +665,6 @@ class Book(object):
             'copyright': author_copyright,
             #'chapter_copyright': chapter_copyright,
         }
-
 
     def load_toc(self):
         """From the TOC.txt file create a list of TocItems with
