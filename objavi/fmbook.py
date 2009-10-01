@@ -26,11 +26,21 @@ import tempfile
 import re, time
 import random
 from subprocess import Popen, check_call, PIPE
+from cStringIO import StringIO
+import zipfile
+try:
+    import simplejson as json
+except ImportError:
+    import json
 
 import lxml, lxml.html, lxml.etree
 
 from objavi import config, twiki_wrapper
 from objavi.cgi_utils import log
+from iarchive import epub as ia_epub
+from booki.xhtml_utils import EpubChapter
+from objavi import epub_utils
+
 
 TMPDIR = os.path.abspath(config.TMPDIR)
 DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
@@ -1027,3 +1037,87 @@ class Book(object):
         self.notify_watcher()
 
 
+
+
+class ZipBook(Book):
+    """A Book based on a booki-zip file.  Depending how out-of-date
+    this docstring is, some of the parent's methods will not work.
+    """
+    def __init__(self, zipstring, **kwargs):
+        f = StringIO(zipstring)
+        self.store = zipfile.ZipFile(f, 'r')
+        self.info = json.loads(self.store.read('info.json'))
+
+        metadata = self.info['metadata']
+        book = metadata['fm:book']
+        server = metadata['fm:server']
+        bookname = make_book_name(book, server)
+
+        Book.__init__(self, book, server, bookname, **kwargs)
+        self.set_title(metadata['title'])
+
+    def make_epub(self, use_cache=False):
+        """Make an epub version of the book"""
+        self.epubfile = self.filepath('%s.epub' % self.book)
+        ebook = ia_epub.Book(self.epubfile, content_dir='')
+        manifest = self.info['manifest']
+        metadata = self.info['metadata']
+        toc = self.info['TOC']
+        spine = self.info['spine']
+
+        #manifest
+        filemap = {} #reformualted manifest for NCX
+        for ID in manifest:
+            fn, mediatype = manifest[ID]
+            content = self.store.read(fn)
+            if mediatype == 'text/html':
+                #convert to application/xhtml+xml
+                c = EpubChapter(self.server, self.book, ID, content,
+                                use_cache=use_cache)
+                c.remove_bad_tags()
+                c.prepare_for_epub()
+                content = c.as_xhtml()
+                fn = fn[:-5] + '.xhtml'
+                mediatype = 'application/xhtml+xml'
+            if mediatype == 'application/xhtml+xml':
+                filemap[ID] = fn
+
+            info = {'id': ID, 'href': fn, 'media-type': mediatype}
+            ebook.add_content(info, content)
+
+        #spine
+        for ID in spine:
+            ebook.add_spine_item({'idref': ID})
+
+        #toc
+        ncx = epub_utils.make_ncx(toc, metadata, filemap)
+        ebook.add(ebook.content_dir + 'toc.ncx', ncx)
+
+        #metadata -- no use of attributes (yet)
+        # and fm: metadata disappears for now
+        dcns = config.DCNS
+        meta_info_items = []
+        for k, v in metadata.iteritems():
+            if k.startswith('fm:'):
+                continue
+            meta_info_items.append({'item': dcns + k,
+                                    'text': v}
+                                   )
+
+        #copyright
+        authors = sorted(self.info['copyright'])
+        for a in authors:
+            meta_info_items.append({'item': dcns + 'creator',
+                                    'text': a}
+                                   )
+        meta_info_items.append({'item': dcns + 'rights',
+                                'text': 'This book is free. Copyright %s' % (', '.join(authors))}
+                               )
+
+        tree_str = ia_epub.make_opf(meta_info_items,
+                                    ebook.manifest_items,
+                                    ebook.spine_items,
+                                    ebook.guide_items,
+                                    ebook.cover_id)
+        ebook.add(ebook.content_dir + 'content.opf', tree_str)
+        ebook.z.close()
