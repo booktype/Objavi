@@ -19,10 +19,20 @@
 import os, sys
 import cgi
 from getopt import gnu_getopt
+from subprocess import Popen, PIPE
 
 #from objavi.fmbook import log
 from objavi import config
 
+def run(cmd):
+    try:
+        p = Popen(cmd, stdout=PIPE, stderr=PIPE)
+        out, err = p.communicate()
+    except Exception:
+        log("Failed on command: %r" % cmd)
+        raise
+    log("%s\n%s returned %s and produced\nstdout:%s\nstderr:%s" %
+        (' '.join(cmd), cmd[0], p.poll(), out, err))
 
 def log(*messages, **kwargs):
     """Send the messages to the appropriate place (stderr, or syslog).
