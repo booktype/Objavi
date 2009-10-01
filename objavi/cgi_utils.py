@@ -145,8 +145,16 @@ def shift_file(fn, dir, backup='~'):
 def output_and_exit(f, content_type="text/html; charset=utf-8"):
     """Decorator: prefix function output with http headers and exit
     immediately after."""
-    def output(args):
+    def output(*args):
         print "Content-type: %s\n" % (content_type,)
-        f(args)
+        f(*args)
         sys.exit()
     return output
+
+@output_and_exit
+def print_template(template, mapping):
+    f = open(template)
+    string = f.read()
+    f.close()
+    print string % mapping
+

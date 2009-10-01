@@ -13,15 +13,10 @@ BOOKI_BOOK_DIR = 'booki-books'
 BOOKS = [x[:-4] for x in os.listdir(BOOKI_BOOK_DIR) if x.endswith('.zip')]
 
 def print_form(booklink):
-    print "Content-type: text/html; charset=utf-8\n"
-    f = open('templates/epubjavi.html')
-    template = f.read()
-    f.close()
-
-    print template % {'booklink': booklink,
-                      'booklist': optionise(sorted(BOOKS))}
-
-
+    print_template('templates/epubjavi.html',
+                   {'booklink': booklink,
+                    'booklist': optionise(sorted(BOOKS))}
+                   )
 
 def epubjavi(book,use_cached_images=USE_CACHED_IMAGES):
     f = open('%s/%s.zip' % (BOOKI_BOOK_DIR, book))
