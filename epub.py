@@ -368,6 +368,7 @@ def parse_navpoint(e):
     subpoints = tuple(parse_navpoint(x) for x in e.findall(DAISYNS + 'navPoint'))
     return {
         'id': e.get('id'),
+        'class': e.get('class'),
         'play_order': int(e.get('playOrder')),
         #'content_id': c.get('id'),
         'content_src': c.get('src'),
