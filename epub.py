@@ -186,6 +186,73 @@ class Epub(object):
                 % (self.origin, opflang))
         return opflang[0]
 
+    def find_probable_chapters(self):
+        """Try to find the real chapters from the NCX file.  The
+        problem is that different epubs all use their own level of
+        nesting."""
+        # the Black Arrow has (book 1 (c1, c2, c3), book2 (c4, c5, c6..))
+        # and FM books have (section 1 (c1, c2,..),..)
+        # i.e super-chapter blocks
+        # some have (((c1, c2, c3))) -- deeply nested chapters
+        # some have no real chapters, but stupid structure
+        points = self.ncxdata['navmap']['points']
+        chapter_depth, serial_points, splits = get_chapter_breaks(points)
+        return chapter_depth, serial_points, splits
+
+def get_chapter_breaks(points):
+    #
+    # first go is quite naive: go to deepest level that is in
+    # every branch, not counting top level divisions (which may be
+    # cover, prologue, etc).
+    serial_points = []
+    #pprint(points)
+    #lcb == lowest common depth (> 1)
+    def serialise(p, depth):
+        serial_points.append((depth, p))
+        #if p['class']:
+        #    log("found class=='%s' at depth %s" % (p['class'], depth))
+        if not p.get('points'):
+            return depth
+        lcd = 1e999
+        for child in p['points']:
+            bottom = serialise(child, depth + 1)
+            lcd = min(bottom, lcd)
+        return lcd
+
+    lcd = 999
+    depths = []
+    for p in points:
+        depth = serialise(p, 1)
+        depths.append(depth)
+        if 1 < depth < lcd:
+            lcd = depth
+    if lcd == 999:
+        lcd = 1
+    #log(depths)
+
+    # The book should now be split on all the points at chapter depth
+    # (lcd), and all higher points butnot if the higher point is at
+    # the same location as the chapter.  If the chapter start url has
+    # a fragment id (e.g. "something.html#chapter-6"), then the split
+    # is internal to the chapter.  What the book serialiser needs is a
+    # mapping from file names to the split-ids in that chapter, so
+    # construct that.
+
+    splits = {}
+    for depth, p in serial_points:
+        if depth > lcd:
+            continue #ignore the sub-sections
+        url, ID = p['content_src'], None
+        if '#' in url:
+            log("GOT a fragment! %s" % url)
+            url, ID = url.split('#', 1)
+        s = splits.setdefault(url, [])
+        s.append((depth, ID, p))
+
+    return lcd, serial_points, splits
+
+
+
 
 
 

@@ -206,14 +206,16 @@ def test_new_doc():
         assert guts == guts2
 
 
-## def test_parse_ncx():
-##     for book in TEST_FILES:
-##         print book
-##         e = _load_epub(book, verbose=True)
-##         e.parse_meta()
-##         e.parse_opf()
-##         e.parse_ncx()
-##        #pprint(e.ncxdata)
+def test_find_chapters():
+    for book in TEST_FILES:
+        print book
+        e = _load_epub(book, verbose=False)
+        e.parse_meta()
+        e.parse_opf()
+        e.parse_ncx()
+        depth, points, mapping = e.find_probable_chapters()
+        pprint("found %s points, chapter depth %s, amping of %s files" % (len(points), depth, len(mapping)))
+        #pprint(mapping)
 
 def test_raw_json():
     for book in TEST_FILES:
