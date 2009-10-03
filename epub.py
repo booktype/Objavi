@@ -199,6 +199,88 @@ class Epub(object):
         chapter_depth, serial_points, splits = get_chapter_breaks(points)
         return chapter_depth, serial_points, splits
 
+    def concat_document(self):
+        lang = self.find_language()
+        points = self.ncxdata['navmap']['points']
+        chapter_depth, serial_points, chapter_markers = get_chapter_breaks(points)
+        doc = new_doc(lang=lang)
+        for ID in self.spine:
+            fn, mimetype = self.manifest[ID]
+            if mimetype.startswith('image'):
+                tree = new_doc(guts='<img src="%s" alt="" />' % fn)
+            else:
+                tree = self.gettree(fn, parse=_html_parse)
+
+            #add_marker(doc, 'espri-new-file-%s' % ID, fn)
+
+            for depth, fragment, point in chapter_markers.get(fn, ()):
+                if fragment:
+                    start = tree.xpath("//*[@id='%s']" % fragment)[0]
+                else:
+                    start = _find_tag(tree, 'body')[0]
+                labels = point['labels']
+                add_marker(start, 'espri-chapter-%(id)s' % point,
+                           labels.get(lang, '\n'.join(labels.values())))
+
+            add_marker(_find_tag(tree, 'body')[0], 'espri-new-file-%s' % ID, fn)
+            add_guts(tree, doc)
+        return doc
+
+class NavPoint(dict):
+    def get_label(self, lang=None):
+        """Usually there is just one label, for the None language"""
+        labels = self['labels']
+        return labels.get(lang, '\n'.join(labels.values()))
+
+
+
+def add_guts(src, dest):
+    """Append the contents of the <body> of one tree onto that of
+    another.  The source tree will be emptied."""
+    #print  lxml.etree.tostring(src)
+    sbody = _find_tag(src, 'body')
+    dbody = _find_tag(dest, 'body')
+    if len(dbody):
+        dbody[-1].tail = ((dbody[-1].tail or '') +
+                          (sbody.text or '')) or None
+    else:
+        dbody.text = sbody.text
+
+    for x in sbody:
+        dbody.append(x)
+
+    dbody.tail = ((dbody.tail or '') +
+                  (sbody.tail or '')) or None
+
+
+def _xhtml_parse(*args, **kwargs):
+    kwargs['parser'] = lxml.html.XHTMLParser(encoding="utf-8")
+    return lxml.html.parse(*args, **kwargs)
+
+def _html_parse(*args, **kwargs):
+    kwargs['parser'] = lxml.etree.HTMLParser(encoding="utf-8")
+    return lxml.html.parse(*args, **kwargs)
+
+
+def _find_tag(doc, tag):
+    #log(lxml.etree.tostring(doc, encoding='utf-8', method='html').replace('&#13;', ''))
+    try:
+        return doc.iter(XHTMLNS + tag).next()
+    except StopIteration:
+        return doc.iter(tag).next()
+
+def add_marker(el, ID, title=None, klass="espri-marker"):
+    marker = el.makeelement('hr')
+    marker.set('id', ID)
+    marker.set('class', klass)
+    if title is not None:
+        marker.set('title', title)
+    parent = el.getparent()
+    index = parent.index(el)
+    parent.insert(index, marker)
+
+
+
 def get_chapter_breaks(points):
     #
     # first go is quite naive: go to deepest level that is in
