@@ -112,8 +112,6 @@ class Epub(object):
         <rootfile full-path="OEBPS/Great Expectations.opf" media-type="application/oebps-package+xml" />
         <rootfile full-path="PDF/Great Expectations.pdf" media-type="application/pdf" />
 
-        If there is only one (as is common), forget the media-type.
-
         Other files are allowed in META-INF, but none of them are much
         use.  They are manifest.xml, metadata.xml, signatures.xml,
         encryption.xml, and rights.xml.
@@ -351,7 +349,7 @@ def parse_ncx(ncx):
         'navmap':   parse_navmap(root.find(DAISYNS + 'navMap')),
     }
 
-    #Try adding these bits, even though noone has them and they are no use.
+    #Try adding these bits, even though no-one has them and they are no use.
     pagelist = ncx.find(DAISYNS + 'pageList')
     navlist = ncx.find(DAISYNS + 'navList')
     if pagelist is not None:
@@ -364,6 +362,7 @@ def parse_ncx(ncx):
 
 def parse_navmap(e):
     #<!ELEMENT navMap (navInfo*, navLabel*, navPoint+)>
+    #XXX move info and labels out of navmap, and into headers?
     return {
         'info': get_labels(e, DAISYNS + 'navInfo'),
         'labels': get_labels(e),
