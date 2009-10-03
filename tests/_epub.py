@@ -122,7 +122,7 @@ def test_opf():
 
         for a, t in [('metadata', dict),
                      ('manifest', dict),
-                     ('order', list),
+                     ('spine', list),
                      ('ncxfile', basestring),
             ]:
             assert hasattr(e, a)

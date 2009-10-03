@@ -30,7 +30,7 @@ OK_TAGS = [
 
 def _xhtml_parse(*args, **kwargs):
     kwargs['parser'] = lxml.html.XHTMLParser(encoding="utf-8")
-    
+
     return lxml.html.parse(*args, **kwargs)
 
 def _html_parse(*args, **kwargs):
@@ -43,12 +43,12 @@ def test_tags(parse=_html_parse):
     good_tags = dict((x, 0) for x in OK_TAGS)
     bad_tags = {}
     for book in TEST_FILES:
-        print book
+        #print book
         e = _load_epub(book, verbose=True)
         e.parse_meta()
         e.parse_opf()
         #e.parse_ncx()
-        for ID in e.order:
+        for ID in e.spine:
             try:
                 tree = e.gettree(id=ID, parse=parse)
             except Exception, exc:
@@ -115,21 +115,21 @@ def add_marker(doc, ID, title=None, klass="espri-marker"):
 
 def concat_books():
     for book in TEST_FILES:
-        print book
+        #print book
         e = _load_epub(book, verbose=True)
         e.parse_meta()
         e.parse_opf()
         e.parse_ncx()
         lang = e.find_language() or 'UND'
         doc = epub.new_doc(lang=lang)
-        for ID in e.order:
+        for ID in e.spine:
             fn, mimetype = e.manifest[ID]
             print fn
             if mimetype.startswith('image'):
                 tree = epub.new_doc(guts='<img src="%s" alt="" />' % fn)
             else:
                 tree = e.gettree(fn, parse=_html_parse)
-                
+
             add_marker(doc, 'espri-new-page-%s' % ID, fn)
             add_guts(tree, doc)
 
@@ -140,7 +140,7 @@ def concat_books():
 
 def test_concat():
     for book in TEST_FILES:
-        print book
+        #print book
         e = _load_epub(book, verbose=True)
         e.parse_meta()
         e.parse_opf()

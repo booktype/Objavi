@@ -149,7 +149,7 @@ class Epub(object):
 
         self.metadata = parse_metadata(metadata)
         self.manifest = parse_manifest(manifest, pwd)
-        ncxid, self.order = parse_spine(spine)
+        ncxid, self.spine = parse_spine(spine)
         self.ncxfile = self.manifest[ncxid][0]
 
     def parse_ncx(self):
@@ -161,7 +161,7 @@ class Epub(object):
         data = {
             'metadata': self.metadata,
             'manifest': self.manifest,
-            'spine': self.order,
+            'spine': self.spine,
             'ncx': self.ncxdata
             }
         return dumps(data, indent=2)
