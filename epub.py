@@ -288,9 +288,10 @@ def parse_spine(spine):
 
 
 def get_ncxtext(e):
-    #get text from an <xx><text>...</text></xx> xconstruct
-    t = e.find(DAISYNS + 'text')
-    if t is not None:
+    """get text content from an <xx><text>...</text></xx> construct,
+    as is common in NCX files."""
+    # there will only be one <text>, but for...iter is still easiest
+    for t in e.iter(DAISYNS + 'text'):
         return t.text
     return '' # or leave it at None?
 
