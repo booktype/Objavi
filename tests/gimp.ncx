@@ -1,0 +1,86 @@
+<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1">
+  <head>
+    <meta content="http://en.flossmanuals.net/epub/Gimp/2009.09.27-22.17.09" name="dtb:uid"/>
+    <meta content="2" name="dtb:depth"/>
+    <meta content="0" name="dtb:totalPageCount"/>
+    <meta content="0" name="dtb:maxPageNumber"/>
+  </head>
+  <docTitle>
+    <text>GIMP</text>
+  </docTitle>
+  <navMap>
+    <navPoint id="navpoint_1" playOrder="1">
+      <navLabel>
+        <text>INTRODUCTION</text>
+      </navLabel>
+      <content src="Introduction.xhtml"/>
+      <navPoint id="navpoint_2" playOrder="2">
+        <navLabel>
+          <text>INTRODUCTION</text>
+        </navLabel>
+        <content src="Introduction.xhtml"/>
+      </navPoint>
+      <navPoint id="navpoint_3" playOrder="3">
+        <navLabel>
+          <text>WHAT IS AN IMAGE?</text>
+        </navLabel>
+        <content src="WhatIsAnImage.xhtml"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="navpoint_4" playOrder="4">
+      <navLabel>
+        <text>INSTALLING</text>
+      </navLabel>
+      <content src="InstallingWindows.xhtml"/>
+      <navPoint id="navpoint_5" playOrder="5">
+        <navLabel>
+          <text>WINDOWS</text>
+        </navLabel>
+        <content src="InstallingWindows.xhtml"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="navpoint_7" playOrder="7">
+      <navLabel>
+        <text>USING</text>
+      </navLabel>
+      <content src="OpenAFile.xhtml"/>
+      <navPoint id="navpoint_8" playOrder="8">
+        <navLabel>
+          <text>OPEN A FILE</text>
+        </navLabel>
+        <content src="OpenAFile.xhtml"/>
+      </navPoint>
+      <navPoint id="navpoint_9" playOrder="9">
+        <navLabel>
+          <text>CROPPING IMAGES</text>
+        </navLabel>
+        <content src="Cropping.xhtml"/>
+      </navPoint>
+      <navPoint id="navpoint_10" playOrder="10">
+        <navLabel>
+          <text>RESIZING IMAGES</text>
+        </navLabel>
+        <content src="Scaling.xhtml"/>
+      </navPoint>
+      <navPoint id="navpoint_11" playOrder="11">
+        <navLabel>
+          <text>SAVING IMAGES FOR THE WEB</text>
+        </navLabel>
+        <content src="OptimisingImagesForWeb.xhtml"/>
+      </navPoint>
+    </navPoint>
+    <navPoint id="navpoint_12" playOrder="12">
+      <navLabel>
+        <text>APPENDICES</text>
+      </navLabel>
+      <content src="Help.xhtml"/>
+      <navPoint id="navpoint_13" playOrder="13">
+        <navLabel>
+          <text>HELP</text>
+        </navLabel>
+        <content src="Help.xhtml"/>
+      </navPoint>
+    </navPoint>
+  </navMap>
+</ncx>
