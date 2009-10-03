@@ -137,6 +137,23 @@ def concat_books():
         print >> f, lxml.etree.tostring(doc, encoding='utf-8', method='html').replace('&#13;', '')#.encode('utf-8')
         f.close()
 
+
+def test_concat():
+    for book in TEST_FILES:
+        print book
+        e = _load_epub(book, verbose=True)
+        e.parse_meta()
+        e.parse_opf()
+        e.parse_ncx()
+
+        doc = e.concat_document()
+
+        f = open('tests/xhtml/' + os.path.basename(book) + '.html', 'w')
+        print >> f, lxml.etree.tostring(doc, encoding='utf-8', method='html').replace('&#13;', '')#.encode('utf-8')
+        f.close()
+
+
 if __name__ == '__main__':
     #test_tags()
-    concat_books()
+    #concat_books()
+    test_concat()
