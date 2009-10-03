@@ -168,18 +168,26 @@ def test_metadata_conformance():
     #contributor elements' OPF role attribute must be taken from the
     #registered MARC Relator Code list or must begin with oth.; and
 
-
 def test_example_ncx():
     import lxml
-    f = open('tests/example.ncx')
-    tree = lxml.etree.parse(f)
-    f.close()
-    data = epub.parse_ncx(tree)
-    #pprint(data)
-    f = open('tests/example.ncx.result')
-    answer = eval(f.read())
-    f.close()
-    assert data == answer
+    fail = False
+    for fn in ('tests/example.ncx',
+               'tests/gimp.ncx',):
+        f = open(fn)
+        tree = lxml.etree.parse(f)
+        f.close()
+        data = epub.parse_ncx(tree)
+        f = open('%s.result' % fn)
+        answer = eval(f.read())
+        f.close()
+        if data != answer:
+            pprint(data)
+            f = open('%s.result-bad' % fn, 'w')
+            f.write('#-*-mode: python-*-\n# Maybe incorrect.\n')
+            f.write(pformat(data))
+            fail = True
+    assert not fail
+
 
 def test_new_doc():
     #XXX not very comprehensive.
