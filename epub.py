@@ -322,7 +322,7 @@ def parse_ncx(ncx):
 
     head = ncx.find(DAISYNS + 'head')
     #<!ELEMENT head (meta+)>
-    for meta in head.findall(DAISYNS + 'itemref'):
+    for meta in head.findall(DAISYNS + 'meta'):
         #whatever 'scheme' is
         setheader(meta.get('name'), meta.get('content'), meta.get('scheme'))
 
