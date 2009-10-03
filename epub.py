@@ -31,7 +31,7 @@ def log(*messages, **kwargs):
 
 
 
-def new_doc(guts="", version="1.1", lang="en"):
+def new_doc(guts="", version="1.1", lang=None):
     xmldec = '<?xml version="1.0" encoding="UTF-8"?>'
     doctypes = {
         '1.1': ('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"'
@@ -39,13 +39,21 @@ def new_doc(guts="", version="1.1", lang="en"):
         '1.0': ('<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"'
                 '"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">\n')
     }
-    doc = ('<html xmlns="%s" version="XHTML %s" xml:lang="%s" lang="%s">'
+
+    if lang in (None, 'und', 'UND'):
+        langdec = ''
+    else:
+        langdec = 'xml:lang="%s" lang="%s"' % (lang, lang)
+
+    doc = ('<html xmlns="%s" version="XHTML %s" %s>'
            '<head></head><body>%s</body></html>'
-           % (version, XHTML, lang, lang, guts))
+           % (XHTML, version, langdec, guts))
+
     f = StringIO(xmldec + doctypes.get(version, '') + doc)
     tree = lxml.html.parse(f)
     f.close()
     return tree
+
 
 class EpubError(Exception):
     pass
