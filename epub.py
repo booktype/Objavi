@@ -202,6 +202,9 @@ class Epub(object):
         return chapter_depth, serial_points, splits
 
     def concat_document(self):
+        """Join all the xhtml files together, putting in markers
+        indicating where the splits should be.
+        """
         lang = self.find_language()
         points = self.ncxdata['navmap']['points']
         chapter_depth, serial_points, chapter_markers = get_chapter_breaks(points)
@@ -219,12 +222,13 @@ class Epub(object):
                 if fragment:
                     start = tree.xpath("//*[@id='%s']" % fragment)[0]
                 else:
-                    start = _find_tag(tree, 'body')[0]
+                    start = body
                 labels = point['labels']
                 add_marker(start, 'espri-chapter-%(id)s' % point,
-                           labels.get(lang, '\n'.join(labels.values())))
+                           title=labels.get(lang, '\n'.join(labels.values())),
+                           subsections=str(bool(point['points'])))
 
-            add_marker(_find_tag(tree, 'body')[0], 'espri-new-file-%s' % ID, fn)
+                add_marker(body, 'espri-new-file-%s' % ID, title=fn)
             add_guts(tree, doc)
         return doc
 
