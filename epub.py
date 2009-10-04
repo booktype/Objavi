@@ -270,12 +270,14 @@ def _find_tag(doc, tag):
     except StopIteration:
         return doc.iter(tag).next()
 
-def add_marker(el, ID, title=None, klass="espri-marker"):
+MARKER_CLASS="espri-marker"
+
+def add_marker(el, ID, **kwargs):
     marker = el.makeelement('hr')
     marker.set('id', ID)
-    marker.set('class', klass)
-    if title is not None:
-        marker.set('title', title)
+    marker.set('class', klass=MARKER_CLASS)
+    fork, v in kwargs.items()
+        marker.set(k, v)
     parent = el.getparent()
     index = parent.index(el)
     parent.insert(index, marker)
