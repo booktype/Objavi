@@ -5,6 +5,8 @@ from pprint import pprint
 import zipfile
 from cStringIO import StringIO
 
+from booki.xhtml_utils import new_html_doc()
+
 try:
     from json import dumps
 except ImportError:
