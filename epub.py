@@ -232,11 +232,6 @@ class Epub(object):
             add_guts(tree, doc)
         return doc
 
-class NavPoint(dict):
-    def get_label(self, lang=None):
-        """Usually there is just one label, for the None language"""
-        labels = self['labels']
-        return labels.get(lang, '\n'.join(labels.values()))
 
 
 
