@@ -459,7 +459,7 @@ def get_labels(e, tag='{http://www.daisy.org/z3986/2005/ncx/}navLabel'):
     # navLabel is ubiquitous.  There can be one for each language, so
     # construct a dict.
     labels = {}
-    for label in e.findall(DAISYNS + 'navLabel'):
+    for label in e.findall(tag):
         lang = label.get(XMLNS + 'lang')
         labels[lang] = get_ncxtext(e)
     return labels
@@ -496,9 +496,10 @@ def parse_ncx(ncx):
         if value is not None:
             setheader(header, value)
 
+    navmap = root.find(DAISYNS + 'navMap')
     ret = {
         'headers':  headers,
-        'navmap':   parse_navmap(root.find(DAISYNS + 'navMap')),
+        'navmap':   parse_navmap(navmap),
     }
 
     #Try adding these bits, even though no-one has them and they are no use.
