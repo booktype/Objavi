@@ -5,8 +5,6 @@ from pprint import pprint
 import zipfile
 from cStringIO import StringIO
 
-from booki.xhtml_utils import new_html_doc()
-
 try:
     from json import dumps
 except ImportError:
@@ -14,6 +12,7 @@ except ImportError:
 
 import lxml, lxml.html, lxml.cssselect
 from lxml import etree
+
 
 XMLNS = '{http://www.w3.org/XML/1998/namespace}'
 DAISYNS = '{http://www.daisy.org/z3986/2005/ncx/}'
@@ -55,6 +54,8 @@ def new_doc(guts="", version="1.1", lang=None):
     tree = lxml.html.parse(f)
     f.close()
     return tree
+
+
 
 
 class EpubError(Exception):
@@ -215,8 +216,7 @@ class Epub(object):
                 tree = new_doc(guts='<img src="%s" alt="" />' % fn)
             else:
                 tree = self.gettree(fn, parse=_html_parse)
-
-            #add_marker(doc, 'espri-new-file-%s' % ID, fn)
+            body = _find_tag(tree, 'body')[0]
 
             for depth, fragment, point in chapter_markers.get(fn, ()):
                 if fragment:
@@ -233,6 +233,111 @@ class Epub(object):
         return doc
 
 
+    def make_bookizip(self, zfn):
+        """Split up the document and construct a booki-toc for it."""
+        doc = self.concat_document()
+        bz = BookiZip(zfn)
+
+        chapters = split_document(doc)
+        spine = []
+        for id, title, tree in chapters:
+            if title:
+                root = tree.getroot()
+                head = root.makeelement('head')
+                _title = head.SubElement('title')
+                _title.text = title
+                root.insert(0, head)
+            blob = etree.tostring(tree)
+            bz.add_to_package(id, '%s.html' % id,
+                              blob, mediatype='text/html')
+            spine.append(id)
+
+        #add the images ad other non-html data unchanged.
+        for id, data in self.manifest.iteritems():
+            fn, mimetype = data
+            if mimetype not in ('application/xhtml+xml', 'text/html'):
+                blob = self.zip.read(fn)
+                bz.add_to_package(id, fn, blob, mimetype)
+
+        #now to construct a table of contents
+
+        def write_toc(point, section):
+            ID = point['id']
+            if ID in spine:
+                section.append((ID, ID + '.html'))
+            else:
+                section.append((ID, None))
+            subsection = []
+            for child in point['points']:
+                write_toc(child, subsection)
+            if subsection:
+                section.append(subsection)
+
+        toc = []
+        for p in points:
+            write_toc(p, toc)
+
+        bz.info = {
+            'spine': spine,
+            'TOC': toc,
+            'metadata': self.metadata["http://purl.org/dc/elements/1.1/"],
+            'copyright': {'The Contributors': [(x, 'primary') for x in spine]},
+            }
+
+        bz.finish()
+
+
+def split_document(doc):
+    """Split the document along chapter boundaries."""
+    try:
+        root = doc.getroot()
+    except AttributeError:
+        root = doc
+
+    chapters = []
+    def climb(src, dest):
+        for child in src.iterchildren():
+            if child.tag == 'hr' and child.get('class') == MARKER_CLASS:
+                ID = child.get('id')
+                if ID.startswith('espri-chapter-'):
+                    title = child.get('title') or ID
+                    new = copy_element(src, src.makeelement)
+                    root = new
+
+                    for a in src.iterancestors():
+                        a2 = copy_element(a, root.makeelement)
+                        a2.append(root)
+                        root = a2
+
+                    chapters.append((ID[14:], title, root))
+
+                    if dest is not None:
+                        dest.tail = None
+                        for a in dest.iterancestors():
+                            a.tail = None
+
+                    dest = new
+                else:
+                    log("skipping %s" % etree.tostring(child))
+
+            elif dest is not None:
+                new = copy_element(child, dest.makeelement)
+                new.text = child.text
+                dest.append(new)
+                climb(child, new)
+            else:
+                #not saving to anywhere, keep looking for start
+                climb(child, None)
+
+    climb(root, None)
+    return chapters
+
+def save_chapters(chapters):
+    for id, tree in chapters.items():
+        string = etree.tostring(tree)
+        f = open('/tmp/x%s.html' % id, 'w')
+        f.write(string)
+        f.close()
 
 
 def add_guts(src, dest):
@@ -394,6 +499,7 @@ def parse_metadata(metadata):
                  tuple((k.replace(default_ns, ''), v) for k, v in t.items()))
 
     return nsdict
+
 
 def parse_manifest(manifest, pwd):
     """
