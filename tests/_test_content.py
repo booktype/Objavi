@@ -115,7 +115,7 @@ def add_marker(doc, ID, title=None, klass="espri-marker"):
 
 def concat_books():
     for book in TEST_FILES:
-        #print book
+        print book
         e = _load_epub(book, verbose=True)
         e.parse_meta()
         e.parse_opf()
@@ -152,8 +152,18 @@ def test_concat():
         print >> f, lxml.etree.tostring(doc, encoding='utf-8', method='html').replace('&#13;', '')#.encode('utf-8')
         f.close()
 
+def test_bookizip():
+    for book in TEST_FILES:
+        #print book
+        e = _load_epub(book, verbose=True)
+        e.parse_meta()
+        e.parse_opf()
+        e.parse_ncx()
+        e.make_bookizip('tests/booki_books/%s.zip' % os.path.basename(book))
+        if 'Gimp' in book:
+            sys.exit()
 
 if __name__ == '__main__':
     #test_tags()
     #concat_books()
-    test_concat()
+    test_bookizip()

@@ -13,6 +13,7 @@ except ImportError:
 import lxml, lxml.html, lxml.cssselect
 from lxml import etree
 
+from booki.xhtml_utils import BookiZip
 
 XMLNS = '{http://www.w3.org/XML/1998/namespace}'
 DAISYNS = '{http://www.daisy.org/z3986/2005/ncx/}'
@@ -240,11 +241,14 @@ class Epub(object):
 
         chapters = split_document(doc)
         spine = []
-        for id, title, tree in chapters:
+        for id, title, tree, marker in chapters:
             if title:
-                root = tree.getroot()
+                try:
+                    root = tree.getroot()
+                except:
+                    root = tree
                 head = root.makeelement('head')
-                _title = head.SubElement('title')
+                _title = etree.SubElement(head, 'title')
                 _title.text = title
                 root.insert(0, head)
             blob = etree.tostring(tree)
@@ -274,6 +278,7 @@ class Epub(object):
                 section.append(subsection)
 
         toc = []
+        points = self.ncxdata['navmap']['points']
         for p in points:
             write_toc(p, toc)
 
@@ -286,6 +291,22 @@ class Epub(object):
 
         bz.finish()
 
+import copy
+
+def copy_element(src, create):
+    """Return a copy of the src element, with all its attributes and
+    tail, using create to make the copy. create is probably an
+    Element._makeelement method, to associate the copy with the right
+    tree, but it could be etree.HTMLElement."""
+    if isinstance(src.tag, basestring):
+        dest = create(src.tag)
+    else:
+        dest = copy.copy(src)
+
+    for k, v in src.items():
+        dest.set(k, v)
+    dest.tail = src.tail
+    return dest
 
 def split_document(doc):
     """Split the document along chapter boundaries."""
@@ -295,13 +316,16 @@ def split_document(doc):
         root = doc
 
     chapters = []
+    empty_chapter = None
     def climb(src, dest):
+        #chapter_is_empty = False
         for child in src.iterchildren():
-            if child.tag == 'hr' and child.get('class') == MARKER_CLASS:
+            if child.tag == 'hr' and child.get('class') == MARKER_CLASS:                
                 ID = child.get('id')
                 if ID.startswith('espri-chapter-'):
+                    
                     title = child.get('title') or ID
-                    new = copy_element(src, src.makeelement)
+                    new = copy_element(src, lxml.html.Element)
                     root = new
 
                     for a in src.iterancestors():
@@ -309,8 +333,12 @@ def split_document(doc):
                         a2.append(root)
                         root = a2
 
-                    chapters.append((ID[14:], title, root))
-
+                    #if the previous chapter turns out to be empty, delete it.
+                    #if chapter_is_empty:
+                    #    log('deleting! %s ' % (chapters[-1],))
+                    #    del chapters[-1]
+                    #chapter_is_empty = True
+                    chapters.append((ID[14:], title, root, child))
                     if dest is not None:
                         dest.tail = None
                         for a in dest.iterancestors():
@@ -324,17 +352,19 @@ def split_document(doc):
                 new = copy_element(child, dest.makeelement)
                 new.text = child.text
                 dest.append(new)
+                #chapter_is_empty = False                
                 climb(child, new)
             else:
                 #not saving to anywhere, keep looking for start
                 climb(child, None)
 
-    climb(root, None)
+    front_matter = copy_element(root, lxml.html.Element)
+    climb(root, front_matter)
     return chapters
 
 def save_chapters(chapters):
     for id, tree in chapters.items():
-        string = etree.tostring(tree)
+        string = lxml.html.tostring(tree, method='html')
         f = open('/tmp/x%s.html' % id, 'w')
         f.write(string)
         f.close()
@@ -380,8 +410,8 @@ MARKER_CLASS="espri-marker"
 def add_marker(el, ID, **kwargs):
     marker = el.makeelement('hr')
     marker.set('id', ID)
-    marker.set('class', klass=MARKER_CLASS)
-    fork, v in kwargs.items()
+    marker.set('class', MARKER_CLASS)
+    for k, v in kwargs.items():
         marker.set(k, v)
     parent = el.getparent()
     index = parent.index(el)
