@@ -5,3 +5,5 @@ tests/epub-examples/unzipped/*
 tests/bad-epub/unzipped/*
 tests/json/*
 tests/xhtml/*
+tests/booki_books/*
+
