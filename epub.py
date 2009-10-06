@@ -241,7 +241,7 @@ class Epub(object):
 
         chapters = split_document(doc)
         spine = []
-        for id, title, tree, marker in chapters:
+        for id, title, tree in chapters:
             if title:
                 try:
                     root = tree.getroot()
@@ -315,52 +315,49 @@ def split_document(doc):
     except AttributeError:
         root = doc
 
-    chapters = []
-    empty_chapter = None
-    def climb(src, dest):
-        #chapter_is_empty = False
-        for child in src.iterchildren():
-            if child.tag == 'hr' and child.get('class') == MARKER_CLASS:                
-                ID = child.get('id')
-                if ID.startswith('espri-chapter-'):
-                    
-                    title = child.get('title') or ID
-                    new = copy_element(src, lxml.html.Element)
-                    root = new
-
-                    for a in src.iterancestors():
-                        a2 = copy_element(a, root.makeelement)
-                        a2.append(root)
-                        root = a2
-
-                    #if the previous chapter turns out to be empty, delete it.
-                    #if chapter_is_empty:
-                    #    log('deleting! %s ' % (chapters[-1],))
-                    #    del chapters[-1]
-                    #chapter_is_empty = True
-                    chapters.append((ID[14:], title, root, child))
-                    if dest is not None:
-                        dest.tail = None
-                        for a in dest.iterancestors():
-                            a.tail = None
-
-                    dest = new
-                else:
-                    log("skipping %s" % etree.tostring(child))
-
-            elif dest is not None:
-                new = copy_element(child, dest.makeelement)
-                new.text = child.text
-                dest.append(new)
-                #chapter_is_empty = False                
-                climb(child, new)
-            else:
-                #not saving to anywhere, keep looking for start
-                climb(child, None)
-
     front_matter = copy_element(root, lxml.html.Element)
-    climb(root, front_matter)
+    chapters = [('espri-unindexed-front-matter',
+                 'Unindexed Front Matter',
+                 front_matter)]
+
+    _climb_and_split(root, front_matter, chapters)
+    print chapters
     return chapters
+
+def _climb_and_split(src, dest, chapters):
+    for child in src.iterchildren():
+        if child.tag == 'hr' and child.get('class') == MARKER_CLASS:
+            ID = child.get('id')
+            if ID.startswith('espri-chapter-'):
+                title = child.get('title') or ID
+                new = copy_element(src, lxml.html.Element)
+                root = new
+
+                for a in src.iterancestors():
+                    a2 = copy_element(a, root.makeelement)
+                    a2.append(root)
+                    root = a2
+
+                chapters.append((ID[14:], title, root))
+                if True:
+                    f = open('/tmp/x%s.html' % ID[14:], 'w')
+                    f.write(lxml.html.tostring(tree, method='html'))
+                    f.close()
+
+                dest.tail = None
+                for a in dest.iterancestors():
+                    a.tail = None
+
+                dest = new
+            else:
+                log("skipping %s" % etree.tostring(child))
+
+        else:
+            new = copy_element(child, dest.makeelement)
+            new.text = child.text
+            dest.append(new)
+            _climb_and_split(child, new, chapters)
+
 
 def save_chapters(chapters):
     for id, tree in chapters.items():
