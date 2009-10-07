@@ -243,26 +243,31 @@ class Epub(object):
         pwd = os.path.dirname(self.ncxfile)
         chapter_depth, serial_points, chapter_markers = get_chapter_breaks(points, pwd)
         doc = new_doc(lang=lang)
+        #log(chapter_markers)
         for ID in self.spine:
             fn, mimetype = self.manifest[ID]
             if mimetype.startswith('image'):
-                tree = new_doc(guts='<img src="%s" alt="" />' % fn)
+                root = lxml.html.Element('html')
+                body = etree.SubElement(root, 'body')
+                first_el = etree.SubElement(body, 'img', src=self.media_map.get(fn, fn), alt='')
             else:
                 tree = self.gettree(fn, parse=_html_parse)
-            body = _find_tag(tree, 'body')[0]
-
+                root = tree.getroot()
+                first_el = _find_tag(root, 'body')[0]
+            #point the links to the new names. XXX probably fragile
+            root.rewrite_links(lambda x: self.media_map.get(os.path.join(self.opfdir, x), x))
             for depth, fragment, point in chapter_markers.get(fn, ()):
                 if fragment:
-                    start = tree.xpath("//*[@id='%s']" % fragment)[0]
+                    start = root.xpath("//*[@id='%s']" % fragment)[0]
                 else:
-                    start = body
+                    start = first_el
                 labels = point['labels']
                 add_marker(start, 'espri-chapter-%(id)s' % point,
                            title=labels.get(lang, '\n'.join(labels.values())),
                            subsections=str(bool(point['points'])))
 
-                add_marker(body, 'espri-new-file-%s' % ID, title=fn)
-            add_guts(tree, doc)
+            add_marker(first_el, 'espri-new-file-%s' % ID, title=fn)
+            add_guts(root, doc)
         return doc
 
 
