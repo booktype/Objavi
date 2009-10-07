@@ -277,8 +277,10 @@ class Epub(object):
         bz = BookiZip(zfn)
 
         chapters = split_document(doc)
+        real_chapters = drop_empty_chapters(chapters)
+
         spine = []
-        for id, title, tree in chapters:
+        for id, title, tree in real_chapters:
             if title:
                 try:
                     root = tree.getroot()
@@ -328,6 +330,22 @@ class Epub(object):
 
         bz.finish()
 
+
+def drop_empty_chapters(chapters):
+    """If the chapter has no content, ignore it.  Content is defined
+    as images or text."""
+    good_chapters = []
+    for c in chapters:
+        good = False
+        for e in c[2].iter():
+            if ((e.text and e.text.strip()) or
+                (e.tail and e.tail.strip()) or
+                e.tag in ('img',)):
+                good = True
+                break
+        if good:
+            good_chapters.append(c)
+    return good_chapters
 
 
 def copy_element(src, create):
