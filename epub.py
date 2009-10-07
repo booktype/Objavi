@@ -281,16 +281,23 @@ class Epub(object):
 
         spine = []
         for id, title, tree in real_chapters:
+            try:
+                root = tree.getroot()
+            except:
+                root = tree
+            try:
+                del root.attrib['xmlns']
+                del root.attrib['version']
+                del root.attrib['xml:lang']
+            except KeyError,e:
+                log(e)
             if title:
-                try:
-                    root = tree.getroot()
-                except:
-                    root = tree
                 head = root.makeelement('head')
                 _title = etree.SubElement(head, 'title')
                 _title.text = title
                 root.insert(0, head)
-            blob = etree.tostring(tree)
+            #blob = etree.tostring(tree)
+            blob = lxml.html.tostring(tree)
             bz.add_to_package(id, '%s.html' % id,
                               blob, mediatype='text/html')
             spine.append(id)
