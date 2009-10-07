@@ -387,26 +387,15 @@ class Book(object):
             self.toc.append(TocItem(status, chapter, title))
         self.notify_watcher()
 
-    def load_book(self, tidy=True):
-        """Fetch and parse the raw html of the book.  If tidy is true
-        (default) links in the document will be made absolute."""
-        html = twiki_wrapper.get_book_html(self.server, self.book)
-
-        html = ('<html dir="%s"><head>\n<title>%s</title>\n'
-                '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
-                '</head>\n<body>\n'
-                '%s\n'
-                '<div style="page-break-before: always; color:#fff;" class="unseen">'
-                'A FLOSSManuals book</div>\n</body></html>'
-                ) % (self.dir, self.book, html)
-
+    def load_book(self):
+        """Fetch and parse the raw html of the book.  Links in the
+        document will be made absolute."""
+        html = twiki_wrapper.get_book_html(self.server, self.book, self.dir)
         self.save_tempfile('raw.html', html)
 
-        tree = lxml.html.document_fromstring(html)
-        if tidy:
-            tree.make_links_absolute(config.BOOK_URL % (self.server, self.book))
-        self.tree = tree
-        self.headings = [x for x in tree.cssselect('h1')]
+        self.tree = lxml.html.document_fromstring(html)
+        self.tree.make_links_absolute(config.BOOK_URL % (self.server, self.book))
+        self.headings = [x for x in self.tree.cssselect('h1')]
         if self.headings:
             self.headings[0].set('class', "first-heading")
         for h1 in self.headings:

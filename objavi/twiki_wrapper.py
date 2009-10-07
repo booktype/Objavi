@@ -66,12 +66,19 @@ def toc_iterator(server, book):
     f.close()
 
 
-def get_book_html(server, book):
+def get_book_html(server, book, dir):
     """Fetch and parse the raw html of the book.  If tidy is true
     (default) links in the document will be made absolute."""
     f = urlopen(config.BOOK_URL % (server, book))
-    html = f.read()
+    rawhtml = f.read()
     f.close()
+    html = ('<html dir="%s"><head>\n<title>%s</title>\n'
+            '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
+            '</head>\n<body>\n'
+            '%s\n'
+            '<div style="page-break-before: always; color:#fff;" class="unseen">'
+            'A FLOSS Manuals book</div>\n</body></html>'
+    ) % (dir, self.book, rawhtml)
     return html
 
 
