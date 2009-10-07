@@ -215,7 +215,8 @@ class Epub(object):
         """
         lang = self.find_language()
         points = self.ncxdata['navmap']['points']
-        chapter_depth, serial_points, chapter_markers = get_chapter_breaks(points)
+        pwd = os.path.dirname(self.ncxfile)
+        chapter_depth, serial_points, chapter_markers = get_chapter_breaks(points, pwd)
         doc = new_doc(lang=lang)
         for ID in self.spine:
             fn, mimetype = self.manifest[ID]
@@ -423,7 +424,7 @@ def add_marker(el, ID, **kwargs):
 
 
 
-def get_chapter_breaks(points):
+def get_chapter_breaks(points, pwd):
     #
     # first go is quite naive: go to deepest level that is in
     # every branch, not counting top level divisions (which may be
@@ -467,6 +468,7 @@ def get_chapter_breaks(points):
         if depth > lcd:
             continue #ignore the sub-sections
         url, ID = p['content_src'], None
+        url = os.path.join(pwd, url)
         if '#' in url:
             log("GOT a fragment! %s" % url)
             url, ID = url.split('#', 1)
