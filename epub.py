@@ -314,14 +314,16 @@ class Epub(object):
         def write_toc(point, section):
             ID = point['id']
             if ID in spine:
-                section.append((ID, ID + '.html'))
+                item = (ID, ID + '.html')
             else:
-                section.append((ID, None))
-            subsection = []
-            for child in point['points']:
-                write_toc(child, subsection)
-            if subsection:
-                section.append(subsection)
+                item = (ID, None)
+
+            if point['points']:
+                item = [item, []]
+                for child in point['points']:
+                    write_toc(child, item[1])
+
+            section.append(item)
 
         toc = []
         points = self.ncxdata['navmap']['points']
