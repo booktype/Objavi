@@ -25,6 +25,8 @@ XHTMLNS = '{http://www.w3.org/1999/xhtml}'
 XHTML = 'http://www.w3.org/1999/xhtml'
 DC = "http://purl.org/dc/elements/1.1/"
 
+MARKUP_TYPES = ('application/xhtml+xml', 'text/html', "application/x-dtbncx+xml")
+HTML_TYPES = ('application/xhtml+xml', 'text/html')
 
 def log(*messages, **kwargs):
     for m in messages:
@@ -156,7 +158,7 @@ class Epub(object):
         Metadata, manifest and spine are parsed in separate helper
         functions.
         """
-        pwd = os.path.dirname(self.opf_file) #needed for mainfest parsing
+        self.opfdir = os.path.dirname(self.opf_file) #needed for mainfest parsing
         tree = self.gettree(self.opf_file)
         root = tree.getroot()
         metadata = root.find(OPFNS + 'metadata')
@@ -165,7 +167,23 @@ class Epub(object):
         #there is also an optional guide section, which we ignore
 
         self.metadata = parse_metadata(metadata)
-        self.manifest = parse_manifest(manifest, pwd)
+        self.manifest = parse_manifest(manifest, self.opfdir)
+        # mapping of filenames to new filenames.  This needs to be
+        # done early to detect clashes (e.g. '/images/hello.jpg' and
+        # '/images/big/hello.jpg' would both reduce to
+        # 'static/hello.jpg').
+        self.media_map = {}
+        for k, v in self.manifest.items():
+            fn, mimetype = v
+            if mimetype not in MARKUP_TYPES:
+                oldfn = fn
+                if '/' in fn:
+                    fn = fn.rsplit('/', 1)[1]
+                while fn in self.media_map.values():
+                    fn = '_' + fn
+                newfn = 'static/%s' % fn
+                self.media_map[oldfn] = newfn
+
         ncxid, self.spine = parse_spine(spine)
         self.ncxfile = self.manifest[ncxid][0]
 
@@ -271,11 +289,12 @@ class Epub(object):
             spine.append(id)
 
         #add the images ad other non-html data unchanged.
+        from os.path import basename
         for id, data in self.manifest.iteritems():
             fn, mimetype = data
-            if mimetype not in ('application/xhtml+xml', 'text/html'):
+            if mimetype not in MARKUP_TYPES:
                 blob = self.zip.read(fn)
-                bz.add_to_package(id, fn, blob, mimetype)
+                bz.add_to_package(id, self.media_map[fn], blob, mimetype)
 
         #now to construct a table of contents
 
