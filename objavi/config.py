@@ -81,6 +81,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/en.flossmanuals.net-openoffice.css',
         'lang': 'en',
         'dir': 'LTR',
+        'interface': 'TWiki',
         },
     'fr.flossmanuals.net': {
         'css-book': 'static/fr.flossmanuals.net.css',
@@ -90,6 +91,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/fr.flossmanuals.net-openoffice.css',
         'lang': 'fr',
         'dir': 'LTR',
+        'interface': 'TWiki',
         },
     'translate.flossmanuals.net': {
         'css-book': 'static/translate.flossmanuals.net.css',
@@ -99,6 +101,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/translate.flossmanuals.net-openoffice.css',
         'lang': 'translate',
         'dir': 'LTR',
+        'interface': 'TWiki',
         },
     'nl.flossmanuals.net': {
         'css-book': 'static/nl.flossmanuals.net.css',
@@ -108,6 +111,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/nl.flossmanuals.net-openoffice.css',
         'lang': 'nl',
         'dir': 'LTR',
+        'interface': 'TWiki',
         },
     'bn.flossmanuals.net': {
         'css-book': 'static/bn.flossmanuals.net.css',
@@ -117,6 +121,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/bn.flossmanuals.net-openoffice.css',
         'lang': 'bn',
         'dir': 'LTR',
+        'interface': 'TWiki',
         },
     'fa.flossmanuals.net': {
         'css-book': 'static/fa.flossmanuals.net.css',
@@ -126,6 +131,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/fa.flossmanuals.net-openoffice.css',
         'lang': 'fa',
         'dir': 'RTL',
+        'interface': 'TWiki',
         },
 }
 
