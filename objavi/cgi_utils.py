@@ -108,6 +108,15 @@ def is_name(s):
     if re.match(r'^[\w-]+$', s):
         return s
 
+def pass_thru(func, default=None):
+    def test(s):
+        try:
+            if func(s):
+                return s
+        except Exception, e:
+            log('Testing %r with %s raised Exception %r' % (s, func, e))
+        return default
+    return test
 
 ## Formatting of lists
 
