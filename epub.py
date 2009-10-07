@@ -15,6 +15,7 @@ from lxml import etree
 
 from booki.xhtml_utils import BookiZip
 
+#XML namespaces.  The *NS varients are in {curly brackets} for clark's syntax
 XMLNS = '{http://www.w3.org/XML/1998/namespace}'
 DAISYNS = '{http://www.daisy.org/z3986/2005/ncx/}'
 OPFNS = '{http://www.idpf.org/2007/opf}'
@@ -83,8 +84,9 @@ class Epub(object):
 
     """
     def load(self, src):
-        #XXX if zip variability proves a problem, we should just use
-        #an `unzip` subprocess
+        # Zip is a variable format, and zipfile is limited.  If that
+        # becomes a problem we will have to ise an `unzip` subprocess,
+        # but it hasn't been so far.
         if isinstance(src, str):
             # Should end with PK<06><05> + 18 more.
             # Some zips contain 'comments' after that, which breaks ZipFile
@@ -99,7 +101,7 @@ class Epub(object):
         self.origin = src
 
     def gettree(self, name=None, id=None, parse=etree.parse):
-        """get an etree from the given zip filename or manifest ID"""
+        """get an XML tree from the given zip filename or manifest ID"""
         if name is None:
             name, mimetype = self.manifest[id]
         #Note: python 2.6 (not 2.5) has zipfile.open
@@ -405,6 +407,7 @@ def _find_tag(doc, tag):
 MARKER_CLASS="espri-marker"
 
 def add_marker(el, ID, **kwargs):
+    """Add a marker before the elememt"""
     marker = el.makeelement('hr')
     marker.set('id', ID)
     marker.set('class', MARKER_CLASS)
