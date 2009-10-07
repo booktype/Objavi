@@ -766,7 +766,9 @@ class ZipBook(Book):
         #metadata -- no use of attributes (yet)
         # and fm: metadata disappears for now
         dcns = config.DCNS
-        meta_info_items = []
+        meta_info_items = [{'item': dcns + 'creator',
+                            'text': 'The Contributors'}
+                           ]
         for k, v in metadata.iteritems():
             if k.startswith('fm:'):
                 continue
@@ -777,7 +779,7 @@ class ZipBook(Book):
         #copyright
         authors = sorted(self.info['copyright'])
         for a in authors:
-            meta_info_items.append({'item': dcns + 'creator',
+            meta_info_items.append({'item': dcns + 'contributor',
                                     'text': a}
                                    )
         meta_info_items.append({'item': dcns + 'rights',
