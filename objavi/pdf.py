@@ -20,8 +20,7 @@
 """Fiddly stuff to do with pages and PDFs."""
 
 import os, sys
-import re, time
-import random
+import re
 from subprocess import Popen, PIPE
 
 from objavi import config
