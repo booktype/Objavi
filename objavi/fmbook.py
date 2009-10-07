@@ -27,6 +27,7 @@ import random
 from subprocess import Popen, check_call, PIPE
 from cStringIO import StringIO
 import zipfile
+import traceback
 try:
     import simplejson as json
 except ImportError:
@@ -98,8 +99,6 @@ class Book(object):
         if self.watcher:
             if  message is None:
                 #message is the name of the caller
-                #XXX look at using inspect module
-                import traceback
                 message = traceback.extract_stack(None, 2)[0][2]
             log("notify_watcher called with '%s'" % message)
             self.watcher(message)
@@ -229,7 +228,6 @@ class Book(object):
 
         self.maker.make_raw_pdf(self.preamble_html_file, self.preamble_pdf_file)
 
-
         self.maker.reshape_pdf(self.preamble_pdf_file, self.dir, centre_start=True)
 
         self.maker.number_pdf(self.preamble_pdf_file, None, dir=self.dir,
@@ -292,7 +290,6 @@ class Book(object):
         #2. Make a pdf of it (direct to to final pdf)
         self.maker.make_raw_pdf(self.body_html_file, self.pdf_file, outline=True)
         self.notify_watcher('generate_pdf')
-        #n_pages = self.extract_pdf_outline()
         n_pages = count_pdf_pages(self.pdf_file)
 
         if mode != 'web':
