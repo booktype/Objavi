@@ -25,9 +25,6 @@ XHTMLNS = '{http://www.w3.org/1999/xhtml}'
 XHTML = 'http://www.w3.org/1999/xhtml'
 DC = "http://purl.org/dc/elements/1.1/"
 
-html_parser = etree.HTMLParser(encoding="utf-8")
-xhtml_parser = lxml.html.XHTMLParser(encoding="utf-8")
-
 
 def log(*messages, **kwargs):
     for m in messages:
@@ -37,6 +34,16 @@ def log(*messages, **kwargs):
             print >> sys.stderr, repr(m)
 
 
+html_parser = lxml.html.HTMLParser(encoding="utf-8")
+xhtml_parser = lxml.html.XHTMLParser(encoding="utf-8")
+
+def _xhtml_parse(*args, **kwargs):
+    kwargs['parser'] = xhtml_parser
+    return lxml.html.parse(*args, **kwargs)
+
+def _html_parse(*args, **kwargs):
+    kwargs['parser'] = html_parser
+    return lxml.html.parse(*args, **kwargs)
 
 def new_doc(guts="", version="1.1", lang=None):
     xmldec = '<?xml version="1.0" encoding="UTF-8"?>'
@@ -392,14 +399,6 @@ def add_guts(src, dest):
     dbody.tail = ((dbody.tail or '') +
                   (sbody.tail or '')) or None
 
-
-def _xhtml_parse(*args, **kwargs):
-    kwargs['parser'] = lxml.html.XHTMLParser(encoding="utf-8")
-    return lxml.html.parse(*args, **kwargs)
-
-def _html_parse(*args, **kwargs):
-    kwargs['parser'] = lxml.etree.HTMLParser(encoding="utf-8")
-    return lxml.html.parse(*args, **kwargs)
 
 
 def _find_tag(doc, tag):
