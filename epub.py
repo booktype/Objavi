@@ -405,9 +405,15 @@ def _html_parse(*args, **kwargs):
 def _find_tag(doc, tag):
     #log(lxml.etree.tostring(doc, encoding='utf-8', method='html').replace('&#13;', ''))
     try:
-        return doc.iter(XHTMLNS + tag).next()
-    except StopIteration:
-        return doc.iter(tag).next()
+        doc = doc.getroot()
+    except AttributeError:
+        pass
+    if doc.nsmap:
+        try:
+            return doc.iter(XHTMLNS + tag).next()
+        except StopIteration:
+            log('doc had nsmap %s, but did not seem to be xhtml (looking for %s)' % (doc.nsmap, tag))
+    return doc.iter(tag).next()
 
 MARKER_CLASS="espri-marker"
 
