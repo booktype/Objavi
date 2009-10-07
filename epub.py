@@ -25,6 +25,10 @@ XHTMLNS = '{http://www.w3.org/1999/xhtml}'
 XHTML = 'http://www.w3.org/1999/xhtml'
 DC = "http://purl.org/dc/elements/1.1/"
 
+html_parser = etree.HTMLParser(encoding="utf-8")
+xhtml_parser = lxml.html.XHTMLParser(encoding="utf-8")
+
+
 def log(*messages, **kwargs):
     for m in messages:
         try:
