@@ -4,6 +4,7 @@ import os, sys
 from pprint import pprint
 import zipfile
 from cStringIO import StringIO
+import copy
 
 try:
     from json import dumps
@@ -69,8 +70,6 @@ def new_doc(guts="", version="1.1", lang=None):
     tree = lxml.html.parse(f)
     f.close()
     return tree
-
-
 
 
 class EpubError(Exception):
@@ -256,6 +255,7 @@ class Epub(object):
                 first_el = _find_tag(root, 'body')[0]
             #point the links to the new names. XXX probably fragile
             root.rewrite_links(lambda x: self.media_map.get(os.path.join(self.opfdir, x), x))
+
             for depth, fragment, point in chapter_markers.get(fn, ()):
                 if fragment:
                     start = root.xpath("//*[@id='%s']" % fragment)[0]
@@ -294,7 +294,6 @@ class Epub(object):
             spine.append(id)
 
         #add the images ad other non-html data unchanged.
-        from os.path import basename
         for id, data in self.manifest.iteritems():
             fn, mimetype = data
             if mimetype not in MARKUP_TYPES:
@@ -329,7 +328,7 @@ class Epub(object):
 
         bz.finish()
 
-import copy
+
 
 def copy_element(src, create):
     """Return a copy of the src element, with all its attributes and
@@ -359,7 +358,6 @@ def split_document(doc):
                  front_matter)]
 
     _climb_and_split(root, front_matter, chapters)
-    print chapters
     return chapters
 
 def _climb_and_split(src, dest, chapters):
@@ -377,10 +375,6 @@ def _climb_and_split(src, dest, chapters):
                     root = a2
 
                 chapters.append((ID[14:], title, root))
-                if True:
-                    f = open('/tmp/x%s.html' % ID[14:], 'w')
-                    f.write(lxml.html.tostring(tree, method='html'))
-                    f.close()
 
                 dest.tail = None
                 for a in dest.iterancestors():
@@ -482,7 +476,6 @@ def get_chapter_breaks(points, pwd):
             lcd = depth
     if lcd == 999:
         lcd = 1
-    #log(depths)
 
     # The book should now be split on all the points at chapter depth
     # (lcd), and all higher points butnot if the higher point is at
@@ -505,10 +498,6 @@ def get_chapter_breaks(points, pwd):
         s.append((depth, ID, p))
 
     return lcd, serial_points, splits
-
-
-
-
 
 
 def parse_metadata(metadata):
