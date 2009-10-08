@@ -21,9 +21,9 @@
 import os, sys
 import re
 from urllib2 import urlopen
-import epub
 
 
+from objavi import epub
 from objavi.cgi_utils import shift_file, parse_args, optionise, print_template, log
 from objavi.config import EPUB_DIR
 

@@ -5,7 +5,8 @@
 import os, sys
 import tempfile
 from pprint import pprint, pformat
-import epub
+
+from objavi import epub
 
 import lxml
 
@@ -169,7 +170,6 @@ def test_metadata_conformance():
     #registered MARC Relator Code list or must begin with oth.; and
 
 def test_example_ncx():
-    import lxml
     fail = False
     for fn in ('tests/example.ncx',
                'tests/gimp.ncx',):
@@ -245,7 +245,6 @@ def test_parse_metadata():
     #XXX check unicode!
 
     print "TESTING metadata"
-    import lxml
     f = open('tests/metadata.xml')
     tree = lxml.etree.parse(f)
     f.close()

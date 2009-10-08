@@ -9,7 +9,7 @@ sys.path.extend(('.', '..'))
 
 import tempfile
 from pprint import pprint, pformat
-import epub
+from objavi import epub
 
 from lxml.etree import Element
 import lxml
