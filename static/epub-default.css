@@ -1,0 +1,72 @@
+body {
+  font-family: 'Gillius ADF';
+  background: #fff;
+  color: #000;
+}
+
+.unseen{
+  display: none;
+}
+
+h1 .initial{
+  color: #000;
+  font-size: 2em;
+}
+
+.subsection{
+  display: block;
+  page-break-before: always;
+  text-transform: uppercase;
+  font-size: 1.5em;
+}
+
+body .subsection:first-child{
+  page-break-before: avoid;
+}
+
+.subsection .initial {
+  font-size: 1em;
+  color: #000;
+}
+
+.subsection-heading{
+  font-size: 2em;
+  font-weight: bold;
+}
+
+h3 {
+  text-transform: uppercase;
+  page-break-before: always;
+  background: white;
+}
+
+
+h4 {
+  text-transform: uppercase;
+}
+
+table {
+  float: none;
+}
+
+p, ul, ol {
+  page-break-inside: avoid;
+}
+
+pre, code, tt {
+  font-family: "Courier", "Courier New", monospace;
+  font-size: 0.8em;
+}
+
+pre {
+  max-width:640px;
+  overflow: hidden;
+}
+
+img {
+  max-width: 640px;
+  height: auto;
+}
+
+
+
