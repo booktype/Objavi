@@ -1,0 +1,7 @@
+#!/bin/sh
+
+HERE=`dirname $0`
+
+#nose is supposed to find tests automatically, just not for me.
+
+nosetests --exe  -s $@ $HERE/tests/_*.py
