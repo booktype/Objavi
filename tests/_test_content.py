@@ -154,14 +154,16 @@ def test_concat():
 
 def test_bookizip():
     for book in TEST_FILES:
+    #for book in ['tests/epub-examples/Doctorow - I, Robot.epub']:
+    #for book in ['tests/epub-examples/ia-huckfin.epub']:
         #print book
         e = _load_epub(book, verbose=True)
         e.parse_meta()
         e.parse_opf()
         e.parse_ncx()
         e.make_bookizip('tests/booki_books/%s.zip' % os.path.basename(book))
-        if 'Gimp' in book:
-            sys.exit()
+        #if 'Gimp' in book:
+        #    sys.exit()
 
 if __name__ == '__main__':
     #test_tags()
