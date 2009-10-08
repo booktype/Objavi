@@ -56,6 +56,7 @@ def write_navtree(parent, subtoc, counter, depth, maxdepth, filemap):
     if depth > maxdepth:
         maxdepth = depth
     title, url = subtoc
+    log(title, url)
     if isinstance(title, basestring): #leaf node
         subsections = []
     else:
@@ -72,6 +73,7 @@ def write_navtree(parent, subtoc, counter, depth, maxdepth, filemap):
                 return counter, maxdepth
     if filemap:
         url = filemap.get(url, url)
+    log(url, filemap)
 
     navpoint = make_navpoint(parent, counter, title, url)
     for point in subsections:
@@ -82,7 +84,7 @@ def write_navtree(parent, subtoc, counter, depth, maxdepth, filemap):
 def make_navpoint(parent, n, title, url):
     """Make the actual navpoint node"""
     navpoint = etree.SubElement(parent, 'navPoint',
-                                id=('navpoint_%s' % n),
+                                id=('navpoint%s' % (n - 1)),
                                 playOrder=str(n))
     add_ncxtext(navpoint, 'navLabel', title)
     etree.SubElement(navpoint, 'content', src=url)

@@ -736,11 +736,14 @@ class ZipBook(Book):
         spine = self.info['spine']
 
         #manifest
-        filemap = {} #reformualted manifest for NCX
+        filemap = {} #reformulated manifest for NCX
         for ID in manifest:
             fn, mediatype = manifest[ID]
+            oldfn = fn
+            log(ID, fn, mediatype)
             content = self.store.read(fn)
             if mediatype == 'text/html':
+                log('CONVERTING')
                 #convert to application/xhtml+xml
                 c = EpubChapter(self.server, self.book, ID, content,
                                 use_cache=use_cache)
@@ -750,7 +753,8 @@ class ZipBook(Book):
                 fn = fn[:-5] + '.xhtml'
                 mediatype = 'application/xhtml+xml'
             if mediatype == 'application/xhtml+xml':
-                filemap[ID] = fn
+                filemap[oldfn] = fn
+                #log(fn, mediatype)
 
             info = {'id': ID, 'href': fn, 'media-type': mediatype}
             ebook.add_content(info, content)
