@@ -74,6 +74,15 @@ USE_TAGS_FOR_CONTENTS = False
 TRY_BOOK_CLEANUP_ON_DEL = False
 
 SERVER_DEFAULTS = {
+    'booki.flossmanuals.net': {
+        'css-book': 'static/en.flossmanuals.net.css',
+        'css-web': 'static/en.flossmanuals.net-web.css',
+        'css-newspaper': 'static/en.flossmanuals.net-newspaper.css',
+        'css-openoffice': 'static/en.flossmanuals.net-openoffice.css',
+        'lang': 'en',
+        'dir': 'LTR',
+        'interface': 'Booki',
+        },
     'en.flossmanuals.net': {
         'css-book': 'static/en.flossmanuals.net.css',
         'css-web': 'static/en.flossmanuals.net-web.css',
