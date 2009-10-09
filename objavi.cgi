@@ -194,7 +194,7 @@ def get_page_settings(args):
 
     #if args['mode'] is 'newspaper', then the number of columns is
     #automatically determined unless set -- otherwise default is 1.
-    if args['mode'] == 'newspaper' and settings.get('columns') is None:
+    if args.get('mode') == 'newspaper' and settings.get('columns') is None:
         settings['columns'] = 'auto'
 
     if args.get('grey_scale'):
