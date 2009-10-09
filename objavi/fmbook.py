@@ -725,10 +725,11 @@ class ZipBook(Book):
         Book.__init__(self, book, server, bookname, **kwargs)
         self.set_title(metadata['title'])
 
+        self.epubfile = self.filepath('%s.epub' % self.book)
+
     def make_epub(self, use_cache=False):
         """Make an epub version of the book, using Mike McCabe's
         epub module for the Internet Archive."""
-        self.epubfile = self.filepath('%s.epub' % self.book)
         ebook = ia_epub.Book(self.epubfile, content_dir='')
         manifest = self.info['manifest']
         metadata = self.info['metadata']

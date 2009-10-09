@@ -31,7 +31,8 @@ INCH_2_POINT = 72
 KEEP_TEMP_FILES=True
 TMPDIR = 'tmp'
 
-EPUB_DIR = 'epub'
+EPUB_DIR = 'books'
+BOOKI_BOOK_DIR = 'booki-books'
 
 FIREFOX = 'firefox'
 WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
@@ -63,11 +64,14 @@ PUBLISH_URL = "/books/"
 CHAPTER_COOKIE_CHARS = 'BCDFGHJKLMNPQRSTVWXYZ'
 
 DEFAULT_SERVER = 'en.flossmanuals.net'
+BOOKI_SERVER = 'booki.flossmanuals.net'
 DEFAULT_SIZE = 'COMICBOOK'
 DEFAULT_ENGINE = 'webkit'
 #DEFAULT_MODE = None
 
 RTL_SCRIPTS = ['persian', 'arabic', 'hebrew', 'urdu']
+
+USE_CACHED_IMAGES = False
 
 USE_TAGS_FOR_CONTENTS = False
 
@@ -259,9 +263,16 @@ CGI_MODES = { # arguments are: (publication, )
     'booklist': (False,),
     'css': (False,),
     'form': (False,),
+    'epub':(True,),
 }
-
 DEFAULT_MODE = 'book'
+
+EPUB_DESTINATIONS = {
+    'archive.org': None,
+    'download': None,
+    'html': None,
+}
+DEFAULT_EPUB_DESTINATION = 'html'
 
 
 FORM_INPUTS = (
@@ -309,11 +320,12 @@ FORM_ELEMENT_TYPES = {
 }
 
 PROGRESS_POINTS = (
-    ("__init__", "Initialise the book", ('book', 'newspaper', 'web', 'openoffice')),
+    ("__init__", "Initialise the book", ('book', 'newspaper', 'web', 'openoffice', 'epub')),
     ("load_book", "Fetch the book", ('book', 'newspaper', 'web', 'openoffice')),
     ("load_toc", "Fetch TOC metadata", ('book', 'newspaper', 'web', 'openoffice')),
     ("add_css", "Add css", ('book', 'newspaper', 'web', 'openoffice')),
     ("add_section_titles", "Add section titles", ('book', 'newspaper', 'web', 'openoffice')),
+    ("make_epub", "Make the epub file", ('epub',)),
     ("make_oo_doc", "Make the OpenOffice document", ('openoffice',)),
     ("generate_pdf", "Generate the main pdf", ('book', 'newspaper', 'web')),
     ("extract_pdf_outline", "Find page numbers", ('book',)),
@@ -325,7 +337,7 @@ PROGRESS_POINTS = (
     ('make_end_matter_pdf', "Generate end matter pdf", ('book',)),
     ("concatenated_pdfs", "concatenate the pdfs", ('book',)),
     #("publish_pdf", "Publish the pdf", ('book', 'newspaper', 'web')),
-    ("finished", "Finished!", ('book', 'newspaper', 'web', 'openoffice')),
+    ("finished", "Finished!", ('book', 'newspaper', 'web', 'openoffice', 'epub')),
 )
 
 #XML namespace stuff

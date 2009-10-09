@@ -159,6 +159,19 @@ def shift_file(fn, dir, backup='~'):
     return dest
 
 
+
+
+def output_blob_and_exit(blob, content_type="application/octet-stream", filename=None):
+    print 'Content-type: %s\nContent-length: %s' % (content_type, len(blob))
+    if filename is not None:
+        print 'Content-Disposition: attachment; filename="%s"' % filename
+    print
+    print blob
+    sys.exit()
+
+
+
+
 ##Decorator functions for output
 
 def output_and_exit(f, content_type="text/html; charset=utf-8"):

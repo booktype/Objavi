@@ -23,10 +23,12 @@ from __future__ import with_statement
 
 import os, sys
 import re, time
+from pprint import pformat
 
-from objavi.fmbook import log, Book, make_book_name
+from objavi.fmbook import log, Book, ZipBook, make_book_name
 from objavi import config
-from objavi.cgi_utils import parse_args, optionise, listify
+from objavi.cgi_utils import parse_args, optionise, listify, shift_file
+from objavi.cgi_utils import output_blob_and_exit
 
 from objavi.twiki_wrapper import get_book_list
 
@@ -76,6 +78,7 @@ ARG_VALIDATORS = {
     "pdftype": lambda x: config.CGI_MODES.get(x, [False])[0],
     "rotate": u"yes".__eq__,
     "grey_scale": u"yes".__eq__,
+    "destination": config.EPUB_DESTINATIONS.__contains__,
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
@@ -329,6 +332,38 @@ def mode_openoffice(args):
         book.add_section_titles()
         book.make_oo_doc()
         book.notify_watcher('finished')
+
+#Not using output_and_exit, because the content type might not be text/html
+def mode_epub(args):
+    log('making epub with\n%s' % pformat(args))
+    bookid = args.get('book')
+    server = args.get('server', config.BOOKI_SERVER)
+    destination = args.get('destination', config.DEFAULT_EPUB_DESTINATION)
+    f = open('%s/%s.zip' % (config.BOOKI_BOOK_DIR, bookid))
+    zipstring = f.read()
+    f.close()
+    bookname = '%s.epub' % (bookid,)
+
+    if destination == 'html':
+        print 'content-type: text/html\n'
+        progress_bar = make_progress_page(bookid, bookname, 'epub')
+    else:
+        progress_bar = None
+
+    book = ZipBook(zipstring, watcher=progress_bar)
+    book.make_epub(use_cache=config.USE_CACHED_IMAGES)
+    fn = shift_file(book.epubfile, config.EPUB_DIR)
+
+    if destination == 'html':
+        book.notify_watcher('finished')
+    elif destination == 'download':
+        f = open(fn)
+        data = f.read()
+        f.close()
+        output_blob_and_exit(data, 'application/epub+zip', bookname)
+    elif destination == 'archive.org':
+        pass
+
 
 
 def main():
