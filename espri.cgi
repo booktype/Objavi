@@ -24,11 +24,11 @@ from urllib2 import urlopen
 
 
 from objavi import epub
-from objavi.cgi_utils import shift_file, parse_args, optionise, print_template, log
-from objavi.config import EPUB_DIR
+from objavi.cgi_utils import shift_file, parse_args, optionise, print_template
+from objavi.cgi_utils import output_blob_and_exit, log
+from objavi import config
 
 IA_EPUB_URL = "http://www.archive.org/download/%s/%s.epub"
-BOOKI_BOOK_DIR = 'booki-books'
 
 def print_form(booklink):
     print_template('templates/espri.html',
@@ -39,7 +39,7 @@ def print_form(booklink):
 def ia_espri(book_id):
     epuburl = IA_EPUB_URL % (book_id, book_id)
     log(epuburl)
-    zipurl = '%s/%s.zip' % (BOOKI_BOOK_DIR, book_id)
+    zipurl = '%s/%s.zip' % (config.BOOKI_BOOK_DIR, book_id)
     f = urlopen(epuburl)
     s = f.read()
     f.close()
@@ -57,6 +57,7 @@ def is_name(s):
 
 ARG_VALIDATORS = {
     "book": is_name,
+    'mode': ('zip', 'html').__contains__
 }
 
 if __name__ == '__main__':
@@ -66,5 +67,13 @@ if __name__ == '__main__':
         book_link = '<p>Download <a href="%s">%s booki-zip</a>.</p>' % (url, args['book'])
     else:
         book_link = ''
-    print_form(book_link)
+
+    mode = args.get('mode', 'html')
+    if mode == 'zip':
+        f = open(url)
+        data = f.read()
+        f.close()
+        output_blob_and_exit(data, 'application/booki+zip')
+    else:
+        print_form(book_link)
 
