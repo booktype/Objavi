@@ -756,7 +756,9 @@ class ZipBook(Book):
                 filemap[oldfn] = fn
                 #log(fn, mediatype)
 
-            info = {'id': ID, 'href': fn, 'media-type': mediatype}
+            info = {'id': ID.encode('utf-8'),
+                    'href': fn.encode('utf-8'),
+                    'media-type': mediatype.encode('utf-8')}
             ebook.add_content(info, content)
 
         #toc
