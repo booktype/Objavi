@@ -24,7 +24,7 @@ import re, time, traceback
 from pprint import pformat
 
 from objavi.fmbook import log, Book
-from objavi.cgi_utils import parse_args, optionise, shift_file
+from objavi.cgi_utils import parse_args, optionise, shift_file, output_blob_and_exit
 from objavi import config, twiki_wrapper
 
 from booki.xhtml_utils import MEDIATYPES, EpubChapter, BookiZip
@@ -77,6 +77,7 @@ ARG_VALIDATORS = {
     "server": config.SERVER_DEFAULTS.__contains__,
     "use-cache": None,
     "clean": None,
+    'mode': ('zip', 'html').__contains__,
     "all": ['all', 'skip-existing'].__contains__,
 }
 
@@ -90,6 +91,14 @@ if __name__ == '__main__':
         zfn = make_booki_package(args['server'], args['book'], clean, use_cache)
         fn = shift_file(zfn, DEST_DIR)
         ziplink = '<p><a href="%s">%s zip file.</a></p>' % (fn, args['book'])
+
+        mode = args.get('mode', 'html')
+        if mode == 'zip':
+            f = open(fn)
+            data = f.read()
+            f.close()
+            output_blob_and_exit(data, 'application/booki+zip', args['book'] + '.zip')
+
     elif 'server' in args and make_all is not None:
         links = []
         for book in twiki_wrapper.get_book_list(args['server']):
