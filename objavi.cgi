@@ -337,7 +337,8 @@ def mode_openoffice(args):
 def mode_epub(args):
     log('making epub with\n%s' % pformat(args))
     bookid = args.get('book')
-    server = args.get('server', config.BOOKI_SERVER)
+    #server = args.get('server', config.BOOKI_SERVER)
+    server = args.get('server', config.DEFAULT_SERVER)
     destination = args.get('destination', config.DEFAULT_EPUB_DESTINATION)
     f = open('%s/%s.zip' % (config.BOOKI_BOOK_DIR, bookid))
     zipstring = f.read()
