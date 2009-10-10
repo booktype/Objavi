@@ -73,7 +73,7 @@ if __name__ == '__main__':
         f = open(url)
         data = f.read()
         f.close()
-        output_blob_and_exit(data, 'application/booki+zip', args['book'] + '.zip')
+        output_blob_and_exit(data, 'application/x-booki+zip', args['book'] + '.zip')
     else:
         print_form(book_link)
 
