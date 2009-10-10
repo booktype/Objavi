@@ -78,7 +78,7 @@ def get_book_html(server, book, dir):
             '%s\n'
             '<div style="page-break-before: always; color:#fff;" class="unseen">'
             'A FLOSS Manuals book</div>\n</body></html>'
-    ) % (dir, self.book, rawhtml)
+    ) % (dir, book, rawhtml)
     return html
 
 
