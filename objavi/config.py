@@ -60,6 +60,9 @@ BOOK_URL = "http://%s/bin/view/%s/_all?skin=text"
 CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
 PUBLISH_URL = "/books/"
 
+TWIKI_GATEWAY_URL = 'http://%s/booki-twiki-gateway.cgi?server=%s&book=%s&mode=zip'
+BOOKI_ZIP_URL = 'http://%s/export/%s'
+
 #leave out vowels so as to avoid accidental words, and punctuation for bidi consistency
 CHAPTER_COOKIE_CHARS = 'BCDFGHJKLMNPQRSTVWXYZ'
 
@@ -77,7 +80,18 @@ USE_TAGS_FOR_CONTENTS = False
 
 TRY_BOOK_CLEANUP_ON_DEL = False
 
+LOCALHOST = 'localhost'
+
 SERVER_DEFAULTS = {
+    'booki-dev.flossmanuals.net:8080': {
+        'css-book': 'static/en.flossmanuals.net.css',
+        'css-web': 'static/en.flossmanuals.net-web.css',
+        'css-newspaper': 'static/en.flossmanuals.net-newspaper.css',
+        'css-openoffice': 'static/en.flossmanuals.net-openoffice.css',
+        'lang': 'en',
+        'dir': 'LTR',
+        'interface': 'Booki',
+        },
     'booki.flossmanuals.net': {
         'css-book': 'static/en.flossmanuals.net.css',
         'css-web': 'static/en.flossmanuals.net-web.css',
@@ -86,6 +100,15 @@ SERVER_DEFAULTS = {
         'lang': 'en',
         'dir': 'LTR',
         'interface': 'Booki',
+        },
+    LOCALHOST: {
+        'css-book': 'static/en.flossmanuals.net.css',
+        'css-web': 'static/en.flossmanuals.net-web.css',
+        'css-newspaper': 'static/en.flossmanuals.net-newspaper.css',
+        'css-openoffice': 'static/en.flossmanuals.net-openoffice.css',
+        'lang': 'en',
+        'dir': 'LTR',
+        'interface': 'local',
         },
     'en.flossmanuals.net': {
         'css-book': 'static/en.flossmanuals.net.css',

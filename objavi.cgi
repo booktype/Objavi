@@ -340,9 +340,6 @@ def mode_epub(args):
     #server = args.get('server', config.BOOKI_SERVER)
     server = args.get('server', config.DEFAULT_SERVER)
     destination = args.get('destination', config.DEFAULT_EPUB_DESTINATION)
-    f = open('%s/%s.zip' % (config.BOOKI_BOOK_DIR, bookid))
-    zipstring = f.read()
-    f.close()
     bookname = '%s.epub' % (bookid,)
 
     if destination == 'html':
@@ -351,7 +348,7 @@ def mode_epub(args):
     else:
         progress_bar = None
 
-    book = ZipBook(zipstring, watcher=progress_bar)
+    book = ZipBook(server, bookid, watcher=progress_bar)
     book.make_epub(use_cache=config.USE_CACHED_IMAGES)
     fn = shift_file(book.epubfile, config.EPUB_DIR)
 

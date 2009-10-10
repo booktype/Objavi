@@ -44,6 +44,7 @@ from booki.xhtml_utils import EpubChapter
 
 TMPDIR = os.path.abspath(config.TMPDIR)
 DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
+HTTP_HOST = os.environ.get('HTTP_HOST', '')
 PUBLISH_PATH = "%s/books/" % DOC_ROOT
 
 def make_book_name(book, server, suffix='.pdf'):
@@ -707,19 +708,41 @@ class Book(object):
 
 
 
+def fetch_zip(server, book):
+    from urllib2 import urlopen
+    settings = config.SERVER_DEFAULTS[server]
+    interface = settings['interface']
+    if interface == 'Booki':
+        url = config.BOOKI_ZIP_URL  % (server, book)
+        f = urlopen(url)
+    elif interface == 'TWiki':
+        url = config.TWIKI_GATEWAY_URL % (HTTP_HOST, server, book)
+        f = urlopen(url)
+    elif interface == 'local':
+        f = open('%s/%s.zip' % (config.BOOKI_BOOK_DIR, book))
+    else:
+        raise NotImplementedError("Can't handle '%s' interface" % interface)
+    if hasattr(f, 'geturl'):
+        log(f.geturl())
+    blob = f.read()
+    f.close()
+    return blob
 
 class ZipBook(Book):
     """A Book based on a booki-zip file.  Depending how out-of-date
     this docstring is, some of the parent's methods will not work.
     """
-    def __init__(self, zipstring, **kwargs):
-        f = StringIO(zipstring)
+    def __init__(self, server, book, **kwargs):
+        blob = fetch_zip(server, book)
+        f = StringIO(blob)
         self.store = zipfile.ZipFile(f, 'r')
         self.info = json.loads(self.store.read('info.json'))
-
         metadata = self.info['metadata']
-        book = metadata['fm:book']
-        server = metadata['fm:server']
+
+        if server == config.LOCALHOST:
+            server = metadata.get('fm:server', server)
+            book = metadata.get('fm:book', server)
+
         bookname = make_book_name(book, server)
 
         Book.__init__(self, book, server, bookname, **kwargs)
