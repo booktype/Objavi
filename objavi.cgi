@@ -85,7 +85,7 @@ __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
 
 
 def get_server_list():
-    return sorted(config.SERVER_DEFAULTS.keys())
+    return sorted(k for k, v in config.SERVER_DEFAULTS.items() if v['display'])
 
 
 def get_size_list():

@@ -90,6 +90,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/en.flossmanuals.net-openoffice.css',
         'lang': 'en',
         'dir': 'LTR',
+        'display': False,
         'interface': 'Booki',
         },
     'booki.flossmanuals.net': {
@@ -99,6 +100,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/en.flossmanuals.net-openoffice.css',
         'lang': 'en',
         'dir': 'LTR',
+        'display': False,
         'interface': 'Booki',
         },
     LOCALHOST: {
@@ -108,6 +110,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/en.flossmanuals.net-openoffice.css',
         'lang': 'en',
         'dir': 'LTR',
+        'display': False,
         'interface': 'local',
         },
     'en.flossmanuals.net': {
@@ -117,6 +120,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/en.flossmanuals.net-openoffice.css',
         'lang': 'en',
         'dir': 'LTR',
+        'display': True,
         'interface': 'TWiki',
         },
     'fr.flossmanuals.net': {
@@ -127,6 +131,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/fr.flossmanuals.net-openoffice.css',
         'lang': 'fr',
         'dir': 'LTR',
+        'display': True,
         'interface': 'TWiki',
         },
     'translate.flossmanuals.net': {
@@ -137,6 +142,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/translate.flossmanuals.net-openoffice.css',
         'lang': 'translate',
         'dir': 'LTR',
+        'display': True,
         'interface': 'TWiki',
         },
     'nl.flossmanuals.net': {
@@ -147,6 +153,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/nl.flossmanuals.net-openoffice.css',
         'lang': 'nl',
         'dir': 'LTR',
+        'display': True,
         'interface': 'TWiki',
         },
     'bn.flossmanuals.net': {
@@ -157,6 +164,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/bn.flossmanuals.net-openoffice.css',
         'lang': 'bn',
         'dir': 'LTR',
+        'display': True,
         'interface': 'TWiki',
         },
     'fa.flossmanuals.net': {
@@ -167,6 +175,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/fa.flossmanuals.net-openoffice.css',
         'lang': 'fa',
         'dir': 'RTL',
+        'display': True,
         'interface': 'TWiki',
         },
 }
