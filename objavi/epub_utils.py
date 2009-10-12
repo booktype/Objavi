@@ -1,4 +1,4 @@
-"""Module for dealing with epub -> booki conversions."""
+"""Module for dealing with booki -> epub conversions."""
 
 import os, sys
 from pprint import pprint
@@ -22,11 +22,6 @@ def add_ncxtext(parent, tag, text):
     el2 = etree.SubElement(el, 'text')
     el2.text = text
 
-## toc looks like [
-##  [
-##    [ "Section Heading", null],
-##    [ "Introduction", "Introduction"],
-##  ],
 
 def make_ncx(toc, metadata, filemap):
     tree = etree.parse(StringIO(BARE_NCX))
