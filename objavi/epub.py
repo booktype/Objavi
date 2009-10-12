@@ -237,8 +237,8 @@ class Epub(object):
         # some have no real chapters, but stupid structure
         points = self.ncxdata['navmap']['points']
         pwd = os.path.dirname(self.ncxfile)
-        chapter_depth, serial_points, splits = get_chapter_breaks(points, pwd)
-        return chapter_depth, serial_points, splits
+        serial_points, splits = get_chapter_breaks(points, pwd)
+        return serial_points, splits
 
     def concat_document(self):
         """Join all the xhtml files together, putting in markers
@@ -247,7 +247,7 @@ class Epub(object):
         lang = self.find_language()
         points = self.ncxdata['navmap']['points']
         pwd = os.path.dirname(self.ncxfile)
-        chapter_depth, serial_points, chapter_markers = get_chapter_breaks(points, pwd)
+        serial_points, chapter_markers = get_chapter_breaks(points, pwd)
         doc = new_doc(lang=lang)
         #log(chapter_markers)
         for ID in self.spine:
@@ -493,47 +493,23 @@ def add_marker(el, ID, **kwargs):
 
 
 def get_chapter_breaks(points, pwd):
-    #
-    # first go is quite naive: go to deepest level that is in
-    # every branch, not counting top level divisions (which may be
-    # cover, prologue, etc).
+    # First go was overly complex, trying to guess which sections were
+    # really chapters.  Now, every ncx navpoint is a chapter break.
     serial_points = []
-    #pprint(points)
-    #lcb == lowest common depth (> 1)
     def serialise(p, depth):
         serial_points.append((depth, p))
         #if p['class']:
         #    log("found class=='%s' at depth %s" % (p['class'], depth))
         if not p.get('points'):
             return depth
-        lcd = 1e999
         for child in p['points']:
             bottom = serialise(child, depth + 1)
-            lcd = min(bottom, lcd)
-        return lcd
 
-    lcd = 999
-    depths = []
     for p in points:
-        depth = serialise(p, 1)
-        depths.append(depth)
-        if 1 < depth < lcd:
-            lcd = depth
-    if lcd == 999:
-        lcd = 1
-
-    # The book should now be split on all the points at chapter depth
-    # (lcd), and all higher points butnot if the higher point is at
-    # the same location as the chapter.  If the chapter start url has
-    # a fragment id (e.g. "something.html#chapter-6"), then the split
-    # is internal to the chapter.  What the book serialiser needs is a
-    # mapping from file names to the split-ids in that chapter, so
-    # construct that.
+        serialise(p, 1)
 
     splits = {}
     for depth, p in serial_points:
-        if depth > lcd:
-            continue #ignore the sub-sections
         url, ID = p['content_src'], None
         url = os.path.join(pwd, url)
         if '#' in url:
@@ -542,7 +518,7 @@ def get_chapter_breaks(points, pwd):
         s = splits.setdefault(url, [])
         s.append((depth, ID, p))
 
-    return lcd, serial_points, splits
+    return serial_points, splits
 
 
 def parse_metadata(metadata):
@@ -724,6 +700,7 @@ def parse_ncx(ncx):
     if navlist is not None:
         ret['navlist'] = parse_navlist(navlist)
 
+    #pprint(ret)
     return ret
 
 

@@ -213,8 +213,8 @@ def test_find_chapters():
         e.parse_meta()
         e.parse_opf()
         e.parse_ncx()
-        depth, points, mapping = e.find_probable_chapters()
-        pprint("found %s points, chapter depth %s, amping of %s files" % (len(points), depth, len(mapping)))
+        points, mapping = e.find_probable_chapters()
+        pprint("found %s points, mapping of %s files" % (len(points), len(mapping)))
         #pprint(mapping)
 
 def test_raw_json():
