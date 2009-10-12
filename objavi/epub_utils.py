@@ -64,7 +64,13 @@ def write_navtree(parent, subtoc, counter, depth, maxdepth, filemap):
                 return counter, maxdepth
     if filemap:
         url = filemap.get(url, url)
-    log(url, filemap)
+    #log(url, filemap)
+
+    #FIXME if the url is still none, there may yet still be a nested
+    #or following chapter that contains the url.  But that is hard to
+    #find with forward recurion.
+    if url is None:
+        return counter, maxdepth
 
     navpoint = make_navpoint(parent, counter, title, url)
     for point in subsections:
