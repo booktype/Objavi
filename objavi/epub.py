@@ -160,7 +160,6 @@ class Epub(object):
         metadata = root.find(OPFNS + 'metadata')
         manifest = root.find(OPFNS + 'manifest')
         spine = root.find(OPFNS + 'spine')
-        #there is also an optional guide section, which we ignore
 
         self.metadata = parse_metadata(metadata)
         self.manifest = parse_manifest(manifest, self.opfdir)
@@ -183,6 +182,14 @@ class Epub(object):
         ncxid, self.spine = parse_spine(spine)
         self.ncxfile = self.manifest[ncxid][0]
 
+        #there is also an optional guide section, which we ignore
+        guide = root.find(OPFNS + 'guide')
+        if guide is not None:
+            self.guide = parse_guide(guide)
+        else:
+            self.guide = None
+
+
     def parse_ncx(self):
         ncx = self.gettree(self.ncxfile)
         self.ncxdata = parse_ncx(ncx)
@@ -195,6 +202,8 @@ class Epub(object):
             'spine': self.spine,
             'ncx': self.ncxdata
             }
+        if self.guide is not None:
+            data['guide'] = self.guide
         return dumps(data, indent=2)
 
     def find_language(self):
@@ -337,7 +346,8 @@ class Epub(object):
             'metadata': metadata,
             'copyright': {'The Contributors': [(x, 'primary') for x in spine]},
             }
-
+        if self.guide is not None:
+            bz.info['guide'] = self.guide
         bz.finish()
 
 
@@ -631,6 +641,15 @@ def parse_spine(spine):
     toc = spine.get('toc')
 
     return toc, items
+
+def parse_guide(guide):
+    """Parse the guide from the opf file."""
+    items = []
+    ns = '{%s}' % guide.nsmap[None]
+    for r in guide.iterchildren(ns + 'reference'):
+        items.append((r.get('href'), r.get('type'), r.get('title'),))
+
+    return items
 
 
 def get_ncxtext(e):
