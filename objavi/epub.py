@@ -236,7 +236,8 @@ class Epub(object):
         # some have (((c1, c2, c3))) -- deeply nested chapters
         # some have no real chapters, but stupid structure
         points = self.ncxdata['navmap']['points']
-        chapter_depth, serial_points, splits = get_chapter_breaks(points)
+        pwd = os.path.dirname(self.ncxfile)
+        chapter_depth, serial_points, splits = get_chapter_breaks(points, pwd)
         return chapter_depth, serial_points, splits
 
     def concat_document(self):
