@@ -340,11 +340,17 @@ class Epub(object):
         metadata['fm:book'] = ''.join(x for x in str(metadata["identifier"]) if x.isalnum())
         metadata['fm:server'] = 'booki.flossmanuals.net'
         log(metadata)
+
+        copyright = {}
+        for c, extra in self.metadata[DC].get('creator', ()):
+            copyright[c] = [(x, 'primary') for x in spine]
+        for c, extra in self.metadata[DC].get('contributor', ()):
+            copyright[c] = [(x, 'secondary') for x in spine]
         bz.info = {
             'spine': spine,
             'TOC': toc,
             'metadata': metadata,
-            'copyright': {'The Contributors': [(x, 'primary') for x in spine]},
+            'copyright': copyright,
             }
         if self.guide is not None:
             bz.info['guide'] = self.guide
