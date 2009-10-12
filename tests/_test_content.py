@@ -156,6 +156,7 @@ def test_concat():
 def test_bookizip():
     for book in TEST_FILES:
     #for book in ['tests/epub-examples/Doctorow - I, Robot.epub']:
+    #for book in ['tests/epub-examples/pg829.epub']:
     #for book in ['tests/epub-examples/ia-huckfin.epub']:
         #print book
         e = _load_epub(book, verbose=True)
@@ -166,7 +167,26 @@ def test_bookizip():
         #if 'Gimp' in book:
         #    sys.exit()
 
+def test_objavi_epub():
+    src = 'tests/booki_books'
+    dest = 'tests/generated-epubs'
+
+    from objavi.fmbook import log, ZipBook, make_book_name
+    from objavi import config
+    config.BOOKI_BOOK_DIR = src
+
+    for zfn in os.listdir(src):
+        log('starting %s' % zfn)
+        book = ZipBook(config.LOCALHOST, zfn[:-4])
+        book.make_epub()
+        log( zfn, (book.epubfile, '%s/%s' % (dest, os.path.basename(book.epubfile))))
+        #break
+        os.rename(book.epubfile, '%s/%s' % (dest, os.path.basename(book.epubfile)))
+
+
 if __name__ == '__main__':
     #test_tags()
     #concat_books()
     test_bookizip()
+    #test_objavi_epub()
+
