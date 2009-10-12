@@ -14,6 +14,7 @@ except ImportError:
 import lxml, lxml.html, lxml.cssselect
 from lxml import etree
 
+from objavi.config import DC, XHTML, XHTMLNS
 from booki.xhtml_utils import BookiZip
 
 #XML namespaces.  The *NS varients are in {curly brackets} for clark's syntax
@@ -21,10 +22,6 @@ XMLNS = '{http://www.w3.org/XML/1998/namespace}'
 DAISYNS = '{http://www.daisy.org/z3986/2005/ncx/}'
 OPFNS = '{http://www.idpf.org/2007/opf}'
 CONTAINERNS = '{urn:oasis:names:tc:opendocument:xmlns:container}'
-XHTMLNS = '{http://www.w3.org/1999/xhtml}'
-
-XHTML = 'http://www.w3.org/1999/xhtml'
-DC = "http://purl.org/dc/elements/1.1/"
 
 MARKUP_TYPES = ('application/xhtml+xml', 'text/html', "application/x-dtbncx+xml")
 HTML_TYPES = ('application/xhtml+xml', 'text/html')

@@ -9,11 +9,7 @@ import lxml, lxml.html, lxml.cssselect
 from lxml import etree
 
 from objavi.cgi_utils import log
-
-XHTMLNS = '{http://www.w3.org/1999/xhtml}'
-XHTML = 'http://www.w3.org/1999/xhtml'
-
-DC = "http://purl.org/dc/elements/1.1/"
+from objavi.config import DC, XHTML, XHTMLNS
 
 ##Construct NCX
 BARE_NCX = ('<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" '
