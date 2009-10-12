@@ -336,7 +336,7 @@ class Epub(object):
         for p in points:
             write_toc(p, toc)
 
-        metadata = dict((k, v[0][0]) for k, v in self.metadata["http://purl.org/dc/elements/1.1/"].items())
+        metadata = dict((k, v[0][0]) for k, v in self.metadata[DC].items())
         metadata['fm:book'] = ''.join(x for x in str(metadata["identifier"]) if x.isalnum())
         metadata['fm:server'] = 'booki.flossmanuals.net'
         log(metadata)
