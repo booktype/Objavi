@@ -352,18 +352,18 @@ def mode_epub(args):
 
     book = ZipBook(server, bookid, project=project, watcher=progress_bar)
     book.make_epub(use_cache=config.USE_CACHED_IMAGES)
-    fn = shift_file(book.epubfile, config.EPUB_DIR)
-
+    book.publish_epub()
     if destination == 'html':
         book.notify_watcher('finished')
     elif destination == 'download':
-        f = open(fn)
+        f = open(book.epubfile)
         data = f.read()
         f.close()
         output_blob_and_exit(data, 'application/epub+zip', bookname)
     elif destination == 'archive.org':
-        pass
-
+        details_url = book.publish_s3()
+        #print 'HTTP/1.1 302 Found'
+        print 'Location: %s\n' % details_url
 
 
 def main():

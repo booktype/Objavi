@@ -36,7 +36,7 @@ except ImportError:
 import lxml, lxml.html, lxml.etree
 
 from objavi import config, twiki_wrapper, epub_utils
-from objavi.cgi_utils import log, run
+from objavi.cgi_utils import log, run, shift_file
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline
 
 from iarchive import epub as ia_epub
@@ -823,3 +823,44 @@ class ZipBook(Book):
                                     ebook.cover_id)
         ebook.add(ebook.content_dir + 'content.opf', tree_str)
         ebook.z.close()
+
+
+    def publish_s3(self):
+        """Push the book's epub to archive.org, using S3."""
+        #XXX why only epub?
+        secrets = {}
+        for x in ('S3_SECRET', 'S3_ACCESSKEY'):
+            fn = getattr(config, x)
+            f = open(fn)
+            secrets[x] = f.read().strip()
+            f.close()
+
+        log(secrets)
+        now = time.strftime('%F')
+        s3url = 'http://s3.us.archive.org/booki-%s-%s/%s-%s.epub' % (self.project, self.book, self.book, now)
+        detailsurl = 'http://archive.org/details/booki-%s-%s' % (self.project, self.book)
+        headers = [
+            'x-amz-auto-make-bucket:1',
+            "authorization: LOW %(S3_ACCESSKEY)s:%(S3_SECRET)s" % secrets,
+            'x-archive-meta-mediatype:texts',
+            'x-archive-meta-collection:opensource',
+            'x-archive-meta-title:%s' %(self.book,),
+            'x-archive-meta-date:%s' % (now,),
+            'x-archive-meta-creator:FLOSS Manuals Contributors',
+            ]
+
+        if self.license in config.LICENSES:
+            headers.append('x-archive-meta-licenseurl:%s' % config.licenses[self.license])
+
+        argv = ['curl', '--location',]
+        for h in headers:
+            argv.extend(('--header', h))
+        argv.extend(('--upload-file', self.epubfile, s3url,))
+
+        log(argv)
+        check_call(argv)
+        return detailsurl
+
+    def publish_epub(self):
+        self.epubfile = shift_file(self.epubfile, config.EPUB_DIR)
+        return self.epubfile

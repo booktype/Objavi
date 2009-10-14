@@ -393,7 +393,8 @@ XHTMLNS = '{http://www.w3.org/1999/xhtml}'
 XHTML = 'http://www.w3.org/1999/xhtml'
 
 
-
+S3_SECRET = '/home/douglas/s3.archive.org-secret'
+S3_ACCESSKEY = '/home/douglas/s3.archive.org-accesskey'
 
 
 
