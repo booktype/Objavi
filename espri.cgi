@@ -21,7 +21,7 @@
 import os, sys
 import re
 from urllib2 import urlopen, HTTPError
-
+import traceback
 
 from objavi import epub
 from objavi.cgi_utils import shift_file, parse_args, optionise, print_template
@@ -67,7 +67,8 @@ if __name__ == '__main__':
             url = ia_espri(args['book'])
             book_link = '<p>Download <a href="%s">%s booki-zip</a>.</p>' % (url, args['book'])
         except Exception, e:
-            log(e, dir(e), args)
+            traceback.print_exc()
+            log(e, args)
             book_link = '<p>Error: <b>%s</b> when trying to get %s</p>' % (e, args['book'])
     else:
         book_link = ''
