@@ -57,6 +57,7 @@ def is_isbn(s):
 # functions to validate their values. (None means no validation).
 ARG_VALIDATORS = {
     "book": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah
+    "project": re.compile(r'^[\w-]+$').match,
     "css": None, # an url, empty (for default), or css content
     "title": lambda x: len(x) < 999,
     #"header": None, # header text, UNUSED
@@ -341,6 +342,7 @@ def mode_epub(args):
     server = args.get('server', config.DEFAULT_SERVER)
     destination = args.get('destination', config.DEFAULT_EPUB_DESTINATION)
     bookname = '%s.epub' % (bookid,)
+    project = args.get('project')
 
     if destination == 'html':
         print 'content-type: text/html\n'
@@ -348,7 +350,7 @@ def mode_epub(args):
     else:
         progress_bar = None
 
-    book = ZipBook(server, bookid, watcher=progress_bar)
+    book = ZipBook(server, bookid, project=project, watcher=progress_bar)
     book.make_epub(use_cache=config.USE_CACHED_IMAGES)
     fn = shift_file(book.epubfile, config.EPUB_DIR)
 

@@ -708,12 +708,12 @@ class Book(object):
 
 
 
-def fetch_zip(server, book):
+def fetch_zip(server, book, project):
     from urllib2 import urlopen
     settings = config.SERVER_DEFAULTS[server]
     interface = settings['interface']
     if interface == 'Booki':
-        url = config.BOOKI_ZIP_URL  % (server, book)
+        url = config.BOOKI_ZIP_URL  % {'server': server, 'project': project, 'book':book}
         f = urlopen(url)
     elif interface == 'TWiki':
         url = config.TWIKI_GATEWAY_URL % (HTTP_HOST, server, book)
@@ -732,8 +732,8 @@ class ZipBook(Book):
     """A Book based on a booki-zip file.  Depending how out-of-date
     this docstring is, some of the parent's methods will not work.
     """
-    def __init__(self, server, book, **kwargs):
-        blob = fetch_zip(server, book)
+    def __init__(self, server, book, project=None, **kwargs):
+        blob = fetch_zip(server, book, project)
         f = StringIO(blob)
         self.store = zipfile.ZipFile(f, 'r')
         self.info = json.loads(self.store.read('info.json'))
@@ -747,7 +747,7 @@ class ZipBook(Book):
 
         Book.__init__(self, book, server, bookname, **kwargs)
         self.set_title(metadata['title'])
-
+        self.project = project
         self.epubfile = self.filepath('%s.epub' % self.book)
 
     def make_epub(self, use_cache=False):
