@@ -282,8 +282,22 @@ FONT_LIST_URL = '/font-list.cgi.pdf'
 FONT_EXAMPLE_SCRIPT_DIR = 'templates/font-list'
 
 # for the license field, with a view to making it a drop down.
-LICENSES = ('GPL', 'GPLv2', 'GPLv2+', 'GPLv3', 'GPLv3+', 'LGPL', 'LGPLv2.1',
-            'BSD', 'public domain', 'MIT', 'Artistic', 'CC-BY', 'CC-BY-SA')
+LICENSES = {
+    'GPL': 'http://www.gnu.org/licenses/gpl.txt',
+    'GPLv2': 'http://www.gnu.org/licenses/gpl-2.0.txt',
+    'GPLv2+': 'http://www.gnu.org/licenses/gpl-2.0.txt',
+    'GPLv3': 'http://www.gnu.org/licenses/gpl-3.0.txt',
+    'GPLv3+': 'http://www.gnu.org/licenses/gpl-3.0.txt',
+    'LGPL': 'http://www.gnu.org/licenses/lgpl.txt',
+    'LGPLv2.1': 'http://www.gnu.org/licenses/lgpl-2.1.txt',
+    'LGPLv3': 'http://www.gnu.org/licenses/lgpl-3.0.txt',
+    'BSD': 'http://www.debian.org/misc/bsd.license',
+    'public domain': None,
+    'MIT': 'http://www.opensource.org/licenses/mit-license.html',
+    'Artistic': 'http://dev.perl.org/licenses/artistic.html',
+    'CC-BY': 'http://creativecommons.org/licenses/by/3.0/',
+    'CC-BY-SA': 'http://creativecommons.org/licenses/by-sa/3.0/',
+}
 
 DEFAULT_LICENSE = 'GPLv2+'
 
