@@ -61,7 +61,7 @@ CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
 PUBLISH_URL = "/books/"
 
 TWIKI_GATEWAY_URL = 'http://%s/booki-twiki-gateway.cgi?server=%s&book=%s&mode=zip'
-BOOKI_ZIP_URL = 'http://%s/export/%s'
+BOOKI_ZIP_URL = 'http://%(server)s/%(project)s/%(book)s/export'
 
 #leave out vowels so as to avoid accidental words, and punctuation for bidi consistency
 CHAPTER_COOKIE_CHARS = 'BCDFGHJKLMNPQRSTVWXYZ'
