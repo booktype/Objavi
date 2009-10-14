@@ -741,7 +741,7 @@ class ZipBook(Book):
 
         if server == config.LOCALHOST:
             server = metadata.get('fm:server', server)
-            book = metadata.get('fm:book', server)
+            book = metadata.get('fm:book', book)
 
         bookname = make_book_name(book, server)
 
