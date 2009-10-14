@@ -361,8 +361,13 @@ def mode_epub(args):
         output_blob_and_exit(data, 'application/epub+zip', bookname)
     elif destination == 'archive.org':
         details_url = book.publish_s3()
-        #print 'HTTP/1.1 302 Found'
-        print 'Location: %s\n' % details_url
+        #print 'Location: %s\n' % details_url
+        f = open(book.epubfile)
+        data = f.read()
+        f.close()
+        output_blob_and_exit(data, 'application/epub+zip', bookname)
+
+
 
 
 def main():
