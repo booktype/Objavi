@@ -108,6 +108,7 @@ class Epub(object):
         self.names = self.zip.namelist()
         self.info = self.zip.infolist()
         self.origin = src
+        log(self.names)
 
     def gettree(self, name=None, id=None, parse=etree.parse):
         """get an XML tree from the given zip filename or manifest ID"""
@@ -154,7 +155,7 @@ class Epub(object):
         Metadata, manifest and spine are parsed in separate helper
         functions.
         """
-        self.opfdir = os.path.dirname(self.opf_file) #needed for mainfest parsing
+        self.opfdir = os.path.dirname(self.opf_file) #needed for manifest parsing
         tree = self.gettree(self.opf_file)
         root = tree.getroot()
         metadata = root.find(OPFNS + 'metadata')
