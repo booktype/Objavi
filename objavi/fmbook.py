@@ -849,7 +849,7 @@ class ZipBook(Book):
             ]
 
         if self.license in config.LICENSES:
-            headers.append('x-archive-meta-licenseurl:%s' % config.licenses[self.license])
+            headers.append('x-archive-meta-licenseurl:%s' % config.LICENSES[self.license])
 
         argv = ['curl', '--location',]
         for h in headers:
