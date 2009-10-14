@@ -29,7 +29,6 @@ from objavi.fmbook import log, Book, ZipBook, make_book_name
 from objavi import config
 from objavi.cgi_utils import parse_args, optionise, listify, shift_file
 from objavi.cgi_utils import output_blob_and_exit
-
 from objavi.twiki_wrapper import get_book_list
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')

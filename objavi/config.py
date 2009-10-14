@@ -76,8 +76,9 @@ RTL_SCRIPTS = ['persian', 'arabic', 'hebrew', 'urdu']
 
 USE_CACHED_IMAGES = False
 
-USE_TAGS_FOR_CONTENTS = False
-
+#Normally, Book objects try to shutdown subprocesses and clean up temp
+#files when they __exit__.  This flag makes them try when they __del__
+#too (i.e. when they are garbage collected). 
 TRY_BOOK_CLEANUP_ON_DEL = False
 
 LOCALHOST = 'localhost'
@@ -392,9 +393,9 @@ DC = "http://purl.org/dc/elements/1.1/"
 XHTMLNS = '{http://www.w3.org/1999/xhtml}'
 XHTML = 'http://www.w3.org/1999/xhtml'
 
-
 S3_SECRET = '/home/douglas/s3.archive.org-secret'
 S3_ACCESSKEY = '/home/douglas/s3.archive.org-accesskey'
+
 
 
 
