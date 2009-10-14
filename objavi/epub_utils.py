@@ -9,7 +9,7 @@ import lxml, lxml.html, lxml.cssselect
 from lxml import etree
 
 from objavi.cgi_utils import log
-from objavi.config import DC, XHTML, XHTMLNS
+from objavi.config import DC, XHTML, XHTMLNS, NAVPOINT_ID_TEMPLATE
 
 ##Construct NCX
 BARE_NCX = ('<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" '
@@ -81,7 +81,7 @@ def write_navtree(parent, subtoc, counter, depth, maxdepth, filemap):
 def make_navpoint(parent, n, title, url):
     """Make the actual navpoint node"""
     navpoint = etree.SubElement(parent, 'navPoint',
-                                id=('navpoint%s' % (n - 1)),
+                                id=(NAVPOINT_ID_TEMPLATE % (n - 1)),
                                 playOrder=str(n))
     add_ncxtext(navpoint, 'navLabel', title)
     etree.SubElement(navpoint, 'content', src=url)
