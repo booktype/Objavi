@@ -708,7 +708,7 @@ class Book(object):
 
 
 
-def fetch_zip(server, book, project):
+def fetch_zip(server, book, project, save=False):
     from urllib2 import urlopen
     settings = config.SERVER_DEFAULTS[server]
     interface = settings['interface']
@@ -725,6 +725,10 @@ def fetch_zip(server, book, project):
         raise NotImplementedError("Can't handle '%s' interface" % interface)
     blob = f.read()
     f.close()
+    if save and interface != 'local':
+        f = open('%s/%s.zip' % (config.BOOKI_BOOK_DIR, book), 'w')
+        f.write(blob)
+        f.close()
     return blob
 
 class ZipBook(Book):
@@ -732,7 +736,8 @@ class ZipBook(Book):
     this docstring is, some of the parent's methods will not work.
     """
     def __init__(self, server, book, project=None, **kwargs):
-        blob = fetch_zip(server, book, project)
+        log("starting zipbook with", server, book, project, kwargs)
+        blob = fetch_zip(server, book, project, save=True)
         f = StringIO(blob)
         self.store = zipfile.ZipFile(f, 'r')
         self.info = json.loads(self.store.read('info.json'))
