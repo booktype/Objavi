@@ -55,7 +55,7 @@ def is_isbn(s):
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
 # functions to validate their values. (None means no validation).
 ARG_VALIDATORS = {
-    "book": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah
+    "book": re.compile(r'^([\w-]+/?)*[\w-]+$').match, # can be: BlahBlah/Blah_Blah
     "project": re.compile(r'^[\w-]+$').match,
     "css": None, # an url, empty (for default), or css content
     "title": lambda x: len(x) < 999,
