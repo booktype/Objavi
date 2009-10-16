@@ -23,7 +23,7 @@ import os, sys
 import re, time, traceback
 from pprint import pformat
 
-from objavi.fmbook import log, Book
+from objavi.fmbook import log, Book, make_book_name
 from objavi.cgi_utils import parse_args, optionise, shift_file, output_blob_and_exit
 from objavi import config, twiki_wrapper
 
@@ -41,10 +41,15 @@ def make_booki_package(server, bookid, clean=False, use_cache=False):
     XHTML 1.1.  If cache is true, images that have been fetched on
     previous runs will be reused.
     """
-    book = Book(bookid, server, bookid)
+    if clean:
+        bookname = make_book_name(bookid, server, '-clean.zip')
+    else:
+        bookname = make_book_name(bookid, server, '.zip')
+
+    book = Book(bookid, server, bookname)
     book.load_toc()
 
-    zfn = book.filepath('%s%s.zip' % (bookid, clean and '-clean' or ''))
+    zfn = book.filepath(bookname)
     bz = BookiZip(zfn)
     bz.info = book.get_twiki_metadata()
 

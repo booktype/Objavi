@@ -349,7 +349,7 @@ def mode_epub(args):
     else:
         progress_bar = None
 
-    book = ZipBook(server, bookid, project=project, watcher=progress_bar)
+    book = ZipBook(server, bookid, bookname=bookname, project=project, watcher=progress_bar)
     book.make_epub(use_cache=config.USE_CACHED_IMAGES)
     book.publish_epub()
     if destination == 'html':

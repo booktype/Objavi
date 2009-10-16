@@ -732,13 +732,13 @@ def fetch_zip(server, book, project, save=False):
         log('fetching zip from %s'% url)
         f = urlopen(url)
     elif interface == 'local':
-        f = open('%s/%s.zip' % (config.BOOKI_BOOK_DIR, book))
+        f = open('%s/%s' % (config.BOOKI_BOOK_DIR, make_book_name(book, server, '.zip')))
     else:
         raise NotImplementedError("Can't handle '%s' interface" % interface)
     blob = f.read()
     f.close()
     if save and interface != 'local':
-        f = open('%s/%s.zip' % (config.BOOKI_BOOK_DIR, book), 'w')
+        f = open('%s/%s' % (config.BOOKI_BOOK_DIR, make_book_name(book, server, '.zip')), 'w')
         f.write(blob)
         f.close()
     return blob
@@ -747,7 +747,7 @@ class ZipBook(Book):
     """A Book based on a booki-zip file.  Depending how out-of-date
     this docstring is, some of the parent's methods will not work.
     """
-    def __init__(self, server, book, project=None, **kwargs):
+    def __init__(self, server, book, bookname, project=None, **kwargs):
         log("starting zipbook with", server, book, project, kwargs)
         blob = fetch_zip(server, book, project, save=True)
         f = StringIO(blob)
@@ -759,13 +759,11 @@ class ZipBook(Book):
             server = metadata.get('fm:server', server)
             book = metadata.get('fm:book', book)
 
-        bookname = make_book_name(book, server)
-
         Book.__init__(self, book, server, bookname, **kwargs)
         if 'title' in metadata:
             self.set_title(metadata['title'])
         self.project = project
-        self.epubfile = self.filepath('%s.epub' % self.book)
+        self.epubfile = self.filepath(bookname)
 
     def make_epub(self, use_cache=False):
         """Make an epub version of the book, using Mike McCabe's
@@ -865,7 +863,7 @@ class ZipBook(Book):
 
         log(secrets)
         now = time.strftime('%F')
-        s3url = 'http://s3.us.archive.org/booki-%s-%s/%s-%s.epub' % (self.project, self.book, self.book, now)
+        s3url = 'http://s3.us.archive.org/booki-%s-%s/%s' % (self.project, self.book, self.bookname)
         detailsurl = 'http://archive.org/details/booki-%s-%s' % (self.project, self.book)
         headers = [
             'x-amz-auto-make-bucket:1',
