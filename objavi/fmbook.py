@@ -812,15 +812,20 @@ class ZipBook(Book):
         #metadata -- no use of attributes (yet)
         # and fm: metadata disappears for now
         dcns = config.DCNS
-        meta_info_items = [{'item': dcns + 'creator',
-                            'text': 'The Contributors'}
-                           ]
+        meta_info_items = []
+        has_authors = False
         for k, v in metadata.iteritems():
             if k.startswith('fm:'):
                 continue
             meta_info_items.append({'item': dcns + k,
                                     'text': v}
                                    )
+            if k == 'creator':
+                has_authors = True
+
+        if not has_authors:
+            meta_info_items.append({'item': dcns + 'creator',
+                                    'text': 'The Contributors'})
 
         #copyright
         authors = sorted(self.info['copyright'])
@@ -828,9 +833,10 @@ class ZipBook(Book):
             meta_info_items.append({'item': dcns + 'contributor',
                                     'text': a}
                                    )
-        meta_info_items.append({'item': dcns + 'rights',
-                                'text': 'This book is free. Copyright %s' % (', '.join(authors))}
-                               )
+        if not has_authors:
+            meta_info_items.append({'item': dcns + 'rights',
+                                    'text': 'This book is free. Copyright %s' % (', '.join(authors))}
+                                   )
 
         tree_str = ia_epub.make_opf(meta_info_items,
                                     ebook.manifest_items,
