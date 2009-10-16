@@ -78,7 +78,7 @@ USE_CACHED_IMAGES = False
 
 #Normally, Book objects try to shutdown subprocesses and clean up temp
 #files when they __exit__.  This flag makes them try when they __del__
-#too (i.e. when they are garbage collected). 
+#too (i.e. when they are garbage collected).
 TRY_BOOK_CLEANUP_ON_DEL = False
 
 LOCALHOST = 'localhost'
@@ -399,7 +399,7 @@ S3_ACCESSKEY = '/home/douglas/s3.archive.org-accesskey'
 #When it is necessary to creat a navpoint ID, use this string.
 NAVPOINT_ID_TEMPLATE = 'chapter%s'
 
-
+CLAIM_UNAUTHORED = False
 
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))

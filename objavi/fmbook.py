@@ -333,6 +333,7 @@ class Book(object):
             'language': self.lang,
             'identifier': 'http://%s/epub/%s/%s' %(self.server, self.book, time.strftime('%Y.%m.%d-%H.%M.%S')),
             'publisher': 'FLOSS Manuals http://flossmanuals.net',
+            'creator': 'The Contributors',
             'date': time.strftime('%Y-%m-%d'),
             'fm:server': self.server,
             'fm:book': self.book,
@@ -828,7 +829,7 @@ class ZipBook(Book):
             if k == 'creator':
                 has_authors = True
 
-        if not has_authors:
+        if not has_authors and config.CLAIM_UNAUTHORED:
             meta_info_items.append({'item': dcns + 'creator',
                                     'text': 'The Contributors'})
 
