@@ -336,11 +336,11 @@ def mode_openoffice(args):
 #Not using output_and_exit, because the content type might not be text/html
 def mode_epub(args):
     log('making epub with\n%s' % pformat(args))
+    #XXX need to catch and process lack of necessary arguments.
     bookid = args.get('book')
-    #server = args.get('server', config.BOOKI_SERVER)
     server = args.get('server', config.DEFAULT_SERVER)
     destination = args.get('destination', config.DEFAULT_EPUB_DESTINATION)
-    bookname = '%s.epub' % (bookid,)
+    bookname = make_book_name(bookid, server, '.epub')
     project = args.get('project')
 
     if destination == 'html':
