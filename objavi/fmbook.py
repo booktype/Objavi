@@ -724,21 +724,19 @@ def fetch_zip(server, book, project, save=False):
     from urllib2 import urlopen
     settings = config.SERVER_DEFAULTS[server]
     interface = settings['interface']
-    if interface in ('Booki', 'TWiki'):
-        if interface == 'Booki':
-            url = config.BOOKI_ZIP_URL  % {'server': server, 'project': project, 'book':book}
-        else:
-            url = config.TWIKI_GATEWAY_URL % (HTTP_HOST, server, book)
-        log('fetching zip from %s'% url)
-        f = urlopen(url)
-    elif interface == 'local':
-        f = open('%s/%s' % (config.BOOKI_BOOK_DIR, make_book_name(book, server, '.zip')))
-    else:
+    if interface not in ('Booki', 'TWiki'):
         raise NotImplementedError("Can't handle '%s' interface" % interface)
+    if interface == 'Booki':
+        url = config.BOOKI_ZIP_URL  % {'server': server, 'project': project, 'book':book}
+    else:
+        url = config.TWIKI_GATEWAY_URL % (HTTP_HOST, server, book)
+    log('fetching zip from %s'% url)
+    f = urlopen(url)
     blob = f.read()
     f.close()
-    if save and interface != 'local':
-        f = open('%s/%s' % (config.BOOKI_BOOK_DIR, make_book_name(book, server, '.zip')), 'w')
+    if save:
+        zipname = make_book_name(book, server, '.zip')
+        f = open('%s/%s' % (config.BOOKI_BOOK_DIR, zipname), 'w')
         f.write(blob)
         f.close()
     return blob
