@@ -70,6 +70,8 @@ if __name__ == '__main__':
             traceback.print_exc()
             log(e, args)
             book_link = '<p>Error: <b>%s</b> when trying to get %s</p>' % (e, args['book'])
+            if mode == 'zip':
+                raise
     else:
         book_link = ''
 
