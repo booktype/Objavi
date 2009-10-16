@@ -761,7 +761,8 @@ class ZipBook(Book):
         bookname = make_book_name(book, server)
 
         Book.__init__(self, book, server, bookname, **kwargs)
-        self.set_title(metadata['title'])
+        if 'title' in metadata:
+            self.set_title(metadata['title'])
         self.project = project
         self.epubfile = self.filepath('%s.epub' % self.book)
 
