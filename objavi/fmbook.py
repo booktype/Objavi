@@ -779,6 +779,11 @@ class ZipBook(Book):
         filemap = {} #reformulated manifest for NCX
         for ID in manifest:
             fn, mediatype = manifest[ID]
+            #work around bug http://booki-dev.flossmanuals.net/ticket/46
+            if ID.endswith('.html'):
+                ID = ID[:-5]
+                log('took ".html" off "%s"' % ID)
+
             oldfn = fn
             log(ID, fn, mediatype)
             content = self.store.read(fn)
