@@ -675,23 +675,30 @@ class Book(object):
         data = p.communicate()[0].strip()
         if data:
             lines = data.split('\n')
+            pids = []
             for line in lines:
                 log('dealing with ps output "%s"' % line)
                 try:
                     pid, days, hours, minutes, seconds \
-                         = re.match(r'^(\d+)\s+(\d+-)?(\d{2})?:?(\d{2}):(\d+)\s*$', line).groups()
+                         = re.match(r'^\s*(\d+)\s+(\d+-)?(\d{2})?:?(\d{2}):(\d+)\s*$', line).groups()
                 except AttributeError:
                     log("Couldn't parse that line!")
                 # 50 minutes should be enough xvfb time for anyone
                 if days or hours or int(minutes) > 50:
+                    pid = int(pid)
                     log("going to kill pid %s" % pid)
-                    os.kill(int(pid), 15)
-                    time.sleep(0.5)
-                    try:
-                        os.kill(int(pid), 9)
-                        log('killing %s with -9')
-                    except OSError, e:
-                        pass
+                    os.kill(pid, 15)
+                    pids.append(pid)
+
+            time.sleep(1.0)
+            for pid in pids:
+                #try again in case any are lingerers
+                try:
+                    os.kill(int(pid), 9)
+                except OSError, e:
+                    log('PID %s seems dead (re-kill gives %s)' % (pid, e))
+                    continue
+                log('killing %s with -9' % pid)
         self.notify_watcher()
 
     def cleanup(self):
