@@ -430,7 +430,11 @@ class Book(object):
                 except StopIteration:
                     log("heading not found for %s (previous h1 missing?). Stopping" % t)
                     break
-                h1_text, level, page_num = outline_contents.next()
+                try:
+                    h1_text, level, page_num = outline_contents.next()
+                except StopIteration:
+                    log("contents data not found for %s. Stopping" % t)
+                    break
                 log("%r %r" % (h1.title, h1_text))
                 contents.append(row_tmpl % (chapter, h1.title, page_num))
                 chapter += 1
