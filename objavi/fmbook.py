@@ -344,7 +344,7 @@ class Book(object):
         for t in self.toc:
             if t.is_chapter():
                 spine.append(t.chapter)
-                section.append((t.title, t.chapter))
+                section.append((t.title, t.chapter + '.html')) #XXX
                 title_map[t.title] = t.chapter
             elif t.is_section():
                 section = []
