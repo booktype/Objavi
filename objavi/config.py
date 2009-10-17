@@ -84,16 +84,6 @@ TRY_BOOK_CLEANUP_ON_DEL = False
 LOCALHOST = 'localhost'
 
 SERVER_DEFAULTS = {
-    'booki-dev.flossmanuals.net:8080': {
-        'css-book': 'static/en.flossmanuals.net.css',
-        'css-web': 'static/en.flossmanuals.net-web.css',
-        'css-newspaper': 'static/en.flossmanuals.net-newspaper.css',
-        'css-openoffice': 'static/en.flossmanuals.net-openoffice.css',
-        'lang': 'en',
-        'dir': 'LTR',
-        'display': False,
-        'interface': 'Booki',
-        },
     'booki.flossmanuals.net': {
         'css-book': 'static/en.flossmanuals.net.css',
         'css-web': 'static/en.flossmanuals.net-web.css',
