@@ -401,5 +401,7 @@ NAVPOINT_ID_TEMPLATE = 'chapter%s'
 
 CLAIM_UNAUTHORED = False
 
+USE_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
+
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))

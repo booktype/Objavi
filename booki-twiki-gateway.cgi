@@ -90,7 +90,10 @@ if __name__ == '__main__':
 
     args = parse_args(ARG_VALIDATORS)
     clean = bool(args.get('clean', False))
-    use_cache = bool(args.get('use-cache', False))
+    use_cache = args.get('use-cache')
+    if use_cache is None:
+        use_cache = (os.environ.get('HTTP_HOST') in config.USE_CACHE_ALWAYS_HOSTS)
+
     make_all = args.get('all')
     if 'server' in args and 'book' in args:
         zfn = make_booki_package(args['server'], args['book'], clean, use_cache)
@@ -111,7 +114,7 @@ if __name__ == '__main__':
                 log("skipping %s" % book)
                 continue
             try:
-                zfn = make_booki_package(args['server'], book, use_cache=True)
+                zfn = make_booki_package(args['server'], book, use_cache=use_cache)
                 fn = shift_file(zfn, DEST_DIR)
                 links.append('<a href="%s">%s</a> ' % (fn, book))
             except Exception:
