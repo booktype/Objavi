@@ -885,7 +885,7 @@ class ZipBook(Book):
 
         log(' '.join(repr(x) for x in argv))
         check_call(argv, stdout=sys.stderr)
-        return detailsurl
+        return detailsurl, s3url
 
     def publish_epub(self):
         self.epubfile = shift_file(self.epubfile, config.EPUB_DIR)
