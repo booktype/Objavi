@@ -749,6 +749,7 @@ class ZipBook(Book):
         log("starting zipbook with", server, book, project, kwargs)
         blob = fetch_zip(server, book, project, save=True)
         f = StringIO(blob)
+        self.bookname = bookname
         self.store = zipfile.ZipFile(f, 'r')
         self.info = json.loads(self.store.read('info.json'))
         metadata = self.info['metadata']
