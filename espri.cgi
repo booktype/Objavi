@@ -62,6 +62,7 @@ ARG_VALIDATORS = {
 
 if __name__ == '__main__':
     args = parse_args(ARG_VALIDATORS)
+    mode = args.get('mode', 'html')
     if 'book' in args:
         try:
             url = ia_espri(args['book'])
@@ -75,7 +76,6 @@ if __name__ == '__main__':
     else:
         book_link = ''
 
-    mode = args.get('mode', 'html')
     if mode == 'zip':
         f = open(url)
         data = f.read()
