@@ -38,7 +38,7 @@ def get_book_list(server):
     url = config.CHAPTER_URL % (server, 'TWiki', 'WebLeftBarWebsList')
     #url = 'http://%s/bin/view/TWiki/WebLeftBarWebsList?skin=text' % server
     #XXX should use lxml
-    log(url)
+    log('getting booklist: %s' % url)
     f = urlopen(url)
     s = f.read()
     f.close()
@@ -55,12 +55,15 @@ def toc_iterator(server, book):
     """TOC.txt has 3 lines per chapter.  Fetch them and yield them in
     triples.
     """
-    f = urlopen(config.TOC_URL % (server, book))
+    url = config.TOC_URL % (server, book)
+    log('getting TOC: %s' % url)
+    f = urlopen(url)
+    encoding = config.SERVER_DEFAULTS[server]['toc-encoding']
     while True:
         try:
-            yield (f.next().strip(),
-                   f.next().strip(),
-                   f.next().strip())
+            yield (f.next().decode(encoding).strip(),
+                   f.next().decode(encoding).strip(),
+                   f.next().decode(encoding).strip())
         except StopIteration:
             break
     f.close()
@@ -69,7 +72,9 @@ def toc_iterator(server, book):
 def get_book_html(server, book, dir):
     """Fetch and parse the raw html of the book.  If tidy is true
     (default) links in the document will be made absolute."""
-    f = urlopen(config.BOOK_URL % (server, book))
+    url = config.BOOK_URL % (server, book)
+    log('getting book html: %s' % url)
+    f = urlopen(url)
     rawhtml = f.read()
     f.close()
     html = ('<html dir="%s"><head>\n<title>%s</title>\n'
@@ -83,7 +88,9 @@ def get_book_html(server, book, dir):
 
 
 def get_chapter_html(server, book, chapter, wrapped=False):
-    f = urlopen(config.CHAPTER_URL % (server, book, chapter))
+    url = config.CHAPTER_URL % (server, book, chapter)
+    log('getting chapter: %s' % url)
+    f = urlopen(url)
     html = f.read()
     f.close()
     if wrapped:
