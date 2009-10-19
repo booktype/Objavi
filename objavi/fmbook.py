@@ -862,6 +862,7 @@ class ZipBook(Book):
 
         log(secrets)
         now = time.strftime('%F')
+        s3output = self.filepath('s3-output.txt')
         s3url = 'http://s3.us.archive.org/booki-%s-%s/%s' % (self.project, self.book, self.bookname)
         detailsurl = 'http://archive.org/details/booki-%s-%s' % (self.project, self.book)
         headers = [
@@ -877,13 +878,13 @@ class ZipBook(Book):
         if self.license in config.LICENSES:
             headers.append('x-archive-meta-licenseurl:%s' % config.LICENSES[self.license])
 
-        argv = ['curl', '--location',]
+        argv = ['curl', '--location', '-s', '-o', s3output]
         for h in headers:
             argv.extend(('--header', h))
         argv.extend(('--upload-file', self.epubfile, s3url,))
 
-        log(argv)
-        check_call(argv)
+        log(' '.join(repr(x) for x in argv))
+        check_call(argv, stdout=sys.stderr)
         return detailsurl
 
     def publish_epub(self):

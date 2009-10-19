@@ -25,7 +25,7 @@ import os, sys
 import re, time
 from pprint import pformat
 
-from objavi.fmbook import log, Book, ZipBook, make_book_name
+from objavi.fmbook import log, Book, ZipBook, make_book_name, HTTP_HOST
 from objavi import config
 from objavi.cgi_utils import parse_args, optionise, listify, shift_file
 from objavi.cgi_utils import output_blob_and_exit
@@ -361,11 +361,15 @@ def mode_epub(args):
         output_blob_and_exit(data, 'application/epub+zip', bookname)
     elif destination == 'archive.org':
         details_url = book.publish_s3()
+        if HTTP_HOST:
+            output_blob_and_exit("http://%s/books/%s" % (HTTP_HOST, bookname), 'text/plain')
+        else:
+            output_blob_and_exit("books/%s" % (bookname,), 'text/plain')
         #print 'Location: %s\n' % details_url
-        f = open(book.epubfile)
-        data = f.read()
-        f.close()
-        output_blob_and_exit(data, 'application/epub+zip', bookname)
+        #f = open(book.epubfile)
+        #data = f.read()
+        #f.close()
+        #output_blob_and_exit(data, 'application/epub+zip', bookname)
 
 
 
