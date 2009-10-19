@@ -323,9 +323,9 @@ class Epub(object):
             ID = point['id']
             title = find_good_label(point['labels'], lang)
             if ID in spine:
-                item = (ID, ID + '.html')
+                item = (title, self.manifest.get(ID, ID + '.html'))
             else:
-                item = (ID, None)
+                item = (title, None)
 
             if point['points']:
                 item = [item, []]
