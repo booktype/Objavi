@@ -1,7 +1,7 @@
 """Module for dealing with epub -> booki conversions."""
 
 import os, sys
-from pprint import pprint
+from pprint import pprint, pformat
 import zipfile
 from cStringIO import StringIO
 import copy
@@ -271,7 +271,7 @@ class Epub(object):
                     start = first_el
                 labels = point['labels']
                 add_marker(start, 'espri-chapter-%(id)s' % point,
-                           title=labels.get(lang, '\n'.join(labels.values())),
+                           title=find_good_label(labels, lang),
                            subsections=str(bool(point['points'])))
 
             add_marker(first_el, 'espri-new-file-%s' % ID, title=fn)
@@ -318,9 +318,10 @@ class Epub(object):
                 bz.add_to_package(id, self.media_map[fn], blob, mimetype)
 
         #now to construct a table of contents
-
+        lang = self.find_language()
         def write_toc(point, section):
             ID = point['id']
+            title = find_good_label(point['labels'], lang)
             if ID in spine:
                 item = (ID, ID + '.html')
             else:
@@ -358,6 +359,21 @@ class Epub(object):
             bz.info['guide'] = self.guide
         bz.finish()
 
+
+def find_good_label(labels, lang=None):
+    """Try to find a suitable label from a dictionary mapping
+    languages to labels, resorting to a random label if need be."""
+    #XXX not taking into account language sub-tags ("en_GB")
+    for x in [lang, None]:
+        if x in labels:
+            return labels[x]
+    if labels:
+        #return random.choice(labels.values())
+        return ' | '.join(labels.values())
+    return None
+
+
+#labels.get(lang, '\n'.join(labels.values())),
 
 def drop_empty_chapters(chapters):
     """If the chapter has no content, ignore it.  Content is defined
