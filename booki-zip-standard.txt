@@ -1,0 +1,226 @@
+booki-zip format
+================
+
+This describes the booki-zip format that Booki, Espri, and Objavi use
+to communicate with each other.  Tools that import into Booki should
+import into this format.
+
+Zip container format.
+=====================
+
+A booki-zip file is a zip file[1], with certain restrictions.  The
+ultimate test of whether a zip is correctly encoded is whether its
+contents can be extracted by the zipfile modules in Python 2.5 and
+2.6.  This means the contents must be either uncompressed or
+deflate-compressed.  ZIP64 extensions are OK (though unnecessary in
+practical terms), but encryption and comments are not.
+
+The first file in the zip should be uncompressed and named "mimetype".
+It should contain only the 23 characters "application/x-booki+zip".
+This string will end up in the first few bytes of the zip file,
+allowing it to be identified without unzipping.
+
+Directory structure.
+====================
+
+As well as the just mentioned "mimetype", the booki-zip must have a
+file called "info.json" in its root directory, the contents of which
+will be described shortly.  Any other files in the root directory
+should be html files intended for editing with Booki.  Any associated
+files that are not directly editable by Booki should be in a
+subdirectory named 'static'.   Here is an example structure:
+
+/
+  mimetype
+  Introduction.html
+  UseCases.html
+  AdamsTips.html
+  Credits.html
+  info.json
+static/
+    BookSprints-ott-adam-en.jpg
+    Blog-writers-en.png
+    Floss-100-en.gif
+    example.css
+
+All references from the html to the files in 'static' should use
+relative addresses.  For example, an image should be linked thus:
+
+<img src="static/BookSprints-ott-adam-en.jpg" />
+
+It is recommended but not required that the file names have
+conventional extensions (".html", ".jpg", etc).  File names should not
+contain spaces, and must meet the restrictions imposed by the zip
+format.
+
+There should be nothing in the root directory other than "mimetype",
+"info.json", and the html files, and there should be no other
+subdirectories other than "static".  Apart from starting with
+"mimetype", there is no required order to the arrangement of entries
+within the zip file itself.  Other than "mimetype", files should be
+deflated-compressed.
+
+character encoding
+==================
+
+All html files, and info.json, should be encoded as utf-8.
+
+info.json
+=========
+
+The "info.json" file describes the structure of the document and
+carries metadata.  It is a JSON file [3], containing a single JSON
+object with 5 members, as shown here:
+
+{
+  "spine": [ ... ],
+  "TOC": [ ... ],
+  "manifest": { ... },
+  "metadata": { ... },
+  "copyright": { ... }
+}
+
+Being JSON object members, the ordering of these elements is not
+significant.  The following order is for narrative purposes only.
+
+
+
+info.json manifest
+==================
+
+The manifest is a mapping of identifiers to file names and mime-types.
+Each entry looks like:
+
+    identifier: [filename, mimetype]
+    
+The constraints on *identifier* match the XML name specification[4]
+(in short, avoid spaces and most punctuation).  In practise, the
+*identifier* is often related to the *filename*.
+
+*filename* locates the file within the zip, and must match a path in
+the zip index.
+
+*mimetype* is the IANA media type [5] of the file.  Booki-editable
+ html files must be of type 'text/html', and other files should be
+ correctly identified.
+
+The manifest shouldn't list the 'mimetype' or 'info.json' files, just
+the editable html and associated static files.
+
+An example manifest, containing two html files and an image, is shown
+here:
+
+  "manifest": {
+    "Introduction": [
+      "Introduction.html", 
+      "text/html"
+    ], 
+    "arbitrary-identifier_0005": [
+      "UseCases.html", 
+      "text/html"
+    ], 
+    "BookSprints-ott-adam-en.jpg": [
+      "static/BookSprints-ott-adam-en.jpg", 
+      "image/jpeg"
+    ]
+  }
+
+
+info.json spine
+===============
+
+The spine lists the identifiers of all the html files in the order
+they appear in the book.  It looks like:
+
+ "spine": [ identifier, identifier,... ]
+
+where each *identifier* is the manifest identifier for an editable
+html page.  
+
+Here is a possible spine for the manifest used in the previous
+example:
+
+  "spine": ["Introduction", "arbitrary-identifier_0005"]
+
+info.json TOC
+=============
+
+
+info.json copyright
+===================
+
+
+info.json metadata
+==================
+
+The names in the metadata object are keywords, and the values they
+refer to are objects that further divide the keyword topic by
+"scheme".  Each scheme points to a list of values.  If the topic is
+indivisible, there should be a single scheme identified by an empty
+string ("").  Further, if a scheme is the primary default for that
+keyword, it may be identified by an empty string as well as by its
+scheme name.
+
+  Here's the diagram:
+
+ "metadata": {
+     keyword:  {
+        scheme: [value, value,...],
+        scheme: [value]
+     },...
+  }
+
+Booki uses Dublin Core metadata keywords wherever possible.  When a
+keyword is not from the Dublin Core, it must be prefixed either with
+the string "fm:" (for FLOSS Manuals specific metadata), or an XML
+namespace identifier in curly brackets, for arbitrary other metadata.
+
+An example metadata section is shown below:
+
+  "metadata": {
+    "publisher": {
+      "": ["FLOSS Manuals http://flossmanuals.net"] 
+    },
+    "language": {
+      "": ["en"]
+    },
+    "creator": {
+      "": ["The Contributors"]
+    }, 
+    "contributor": {
+      "": ["Jennifer Redman", "Bart Massey", "Alexander Pico", 
+           "selena deckelmann", "Anne Gentle", "adam hyde", "Olly Betts", 
+           "Jonathan Leto", "Google Inc And The Contributors", 
+           "Leslie Hawthorn"]   
+    }, 
+    "title": {
+      "": ["GSoC Mentoring"]
+    },
+    "fm:server": { 
+      "": ["en.flossmanuals.net"]
+    }, 
+    "date": {
+      "start": ["2009-10-23"],
+      "last-modified": ["2009-10-30"]
+    },
+    "identifier": {
+      "flossmanuals.net": "http://en.flossmanuals.net/epub/GSoCMentoring/2009.10.23-19.49.01", 
+      "archive.org": "gsocmentoring00fm",
+    },
+    "fm:book": {
+       "": "GSoCMentoring"
+    }
+  }
+
+
+
+references
+==========
+
+
+[1] Zip specification: http://www.pkware.com/documents/casestudies/APPNOTE.TXT
+[2] zipfile module: http://docs.python.org/library/zipfile.html
+[3] JSON specification: http://json.org/
+[4] XML name specification http://www.w3.org/TR/REC-xml/#NT-Name
+[5] Media types http://www.iana.org/assignments/media-types/
+[6] Dublin Core metadata elements http://dublincore.org/documents/2004/12/20/dces/
