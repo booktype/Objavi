@@ -401,5 +401,7 @@ CLAIM_UNAUTHORED = False
 
 USE_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
 
+IGNORABLE_TWIKI_BOOKS = ('Main', 'TWiki', 'PR', 'Trash', 'Sandbox')
+
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))

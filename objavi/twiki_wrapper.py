@@ -42,7 +42,8 @@ def get_book_list(server):
     f = urlopen(url)
     s = f.read()
     f.close()
-    items = sorted(re.findall(r'/bin/view/([\w/]+)/WebHome', s))
+    items = sorted(x for x in re.findall(r'/bin/view/([\w/]+)/WebHome', s)
+                   if x not in config.IGNORABLE_TWIKI_BOOKS)
     if config.BOOK_LIST_CACHE:
         f = open(cache_name, 'w')
         f.write('\n'.join(items))
