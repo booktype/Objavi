@@ -113,7 +113,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/en.flossmanuals.net-openoffice.css',
         'lang': 'en',
         'dir': 'LTR',
-        'toc-encoding': 'iso-8859-1',
+        'toc-encoding': 'None',
         'display': True,
         'interface': 'TWiki',
         },

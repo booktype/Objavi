@@ -59,15 +59,17 @@ def toc_iterator(server, book):
     url = config.TOC_URL % (server, book)
     log('getting TOC: %s' % url)
     f = urlopen(url)
-    #encoding = config.SERVER_DEFAULTS[server]['toc-encoding']
+    encoding = config.SERVER_DEFAULTS[server]['toc-encoding']
     while True:
         try:
-            yield (f.next().strip(),
-                   f.next().strip(),
-                   f.next().strip())
-            #yield (f.next().decode(encoding).strip(),
-            #       f.next().decode(encoding).strip(),
-            #       f.next().decode(encoding).strip())
+            if encoding is not None:
+                yield (f.next().decode(encoding).strip().encode('utf-8'),
+                       f.next().decode(encoding).strip().encode('utf-8'),
+                       f.next().decode(encoding).strip().encode('utf-8'))
+            else:
+                yield (f.next().strip(),
+                       f.next().strip(),
+                       f.next().strip())
         except StopIteration:
             break
     f.close()
