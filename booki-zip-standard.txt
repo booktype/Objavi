@@ -77,7 +77,6 @@ object with 5 members, as shown here:
   "TOC": [ ... ],
   "manifest": { ... },
   "metadata": { ... },
-  "copyright": { ... }
 }
 
 Being JSON object members, the ordering of these elements is not
@@ -144,10 +143,6 @@ example:
 
 info.json TOC
 =============
-
-
-info.json copyright
-===================
 
 
 info.json metadata
