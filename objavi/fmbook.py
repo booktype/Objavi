@@ -36,7 +36,7 @@ except ImportError:
 import lxml, lxml.html, lxml.etree
 
 from objavi import config, twiki_wrapper, epub_utils
-from objavi.cgi_utils import log, run, shift_file
+from objavi.cgi_utils import log, run, shift_file, make_book_name
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline
 
 from iarchive import epub as ia_epub
@@ -47,12 +47,6 @@ DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
 HTTP_HOST = os.environ.get('HTTP_HOST', '')
 PUBLISH_PATH = "%s/books/" % DOC_ROOT
 
-def make_book_name(book, server, suffix='.pdf'):
-    lang = config.SERVER_DEFAULTS.get(server, config.SERVER_DEFAULTS[config.DEFAULT_SERVER])['lang']
-    book = ''.join(x for x in book if x.isalnum())
-    return '%s-%s-%s%s' % (book, lang,
-                           time.strftime('%Y.%m.%d-%H.%M.%S'),
-                           suffix)
 
 def _add_initial_number(e, n):
     """Put a styled chapter number n at the beginning of element e."""
@@ -64,32 +58,6 @@ def _add_initial_number(e, n):
     e.text = ''
     initial.text = "%s." % n
 
-
-class TocItem(object):
-    """This makes sense of the tuples from TOC.txt files"""
-    def __init__(self, status, chapter, title):
-        # status is
-        #  0 - section heading with no chapter
-        #  1 - chapter heading
-        #  2 - book title
-        #
-        # chapter is twiki name of the chapter
-        # title is a human readable name of the chapter.
-        self.status = status
-        self.chapter = chapter
-        self.title = title
-
-    def is_chapter(self):
-        return self.status == '1'
-
-    def is_section(self):
-        return self.status == '0'
-
-    def is_title(self):
-        return self.status == '2'
-
-    def __str__(self):
-        return '<toc: %s>' %  ', '.join('%s: %s' % x for x in self.__dict__.iteritems())
 
 
 class Book(object):
@@ -795,7 +763,7 @@ class ZipBook(Book):
                 content = c.as_xhtml()
                 fn = fn[:-5] + '.xhtml'
                 mediatype = 'application/xhtml+xml'
-            if mediatype == 'application/xhtml+xml':
+            #if mediatype == 'application/xhtml+xml':
                 filemap[oldfn] = fn
                 #log(fn, mediatype)
 
@@ -890,3 +858,5 @@ class ZipBook(Book):
     def publish_epub(self):
         self.epubfile = shift_file(self.epubfile, config.EPUB_DIR)
         return self.epubfile
+
+

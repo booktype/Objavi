@@ -1,6 +1,7 @@
 """Fetch stuff from remote twiki instances"""
 
 import os, sys, time, re
+import tempfile
 
 from objavi import config
 from objavi.cgi_utils import log
@@ -51,7 +52,6 @@ def get_book_list(server):
     return items
 
 
-
 def toc_iterator(server, book):
     """TOC.txt has 3 lines per chapter.  Fetch them and yield them in
     triples.
@@ -63,17 +63,16 @@ def toc_iterator(server, book):
     while True:
         try:
             if encoding is not None:
-                yield (f.next().decode(encoding).strip().encode('utf-8'),
-                       f.next().decode(encoding).strip().encode('utf-8'),
-                       f.next().decode(encoding).strip().encode('utf-8'))
+                yield TocItem(f.next().decode(encoding).strip().encode('utf-8'),
+                              f.next().decode(encoding).strip().encode('utf-8'),
+                              f.next().decode(encoding).strip().encode('utf-8'))
             else:
-                yield (f.next().strip(),
-                       f.next().strip(),
-                       f.next().strip())
+                yield TocItem(f.next().strip(),
+                              f.next().strip(),
+                              f.next().strip())
         except StopIteration:
             break
     f.close()
-
 
 def get_book_html(server, book, dir):
     """Fetch and parse the raw html of the book.  If tidy is true
@@ -152,3 +151,88 @@ def get_book_copyright(server, book, title_map):
                     #log(author, dates)
 
     return author_copy, chapter_copy
+
+
+class TocItem(object):
+    """This makes sense of the tuples from TOC.txt files"""
+    def __init__(self, status, chapter, title):
+        # status is
+        #  0 - section heading with no chapter
+        #  1 - chapter heading
+        #  2 - book title
+        #
+        # chapter is twiki name of the chapter
+        # title is a human readable name of the chapter.
+        self.status = status
+        self.chapter = chapter
+        self.title = title
+
+    def is_chapter(self):
+        return self.status == '1'
+
+    def is_section(self):
+        return self.status == '0'
+
+    def is_title(self):
+        return self.status == '2'
+
+    def __str__(self):
+        return '<toc: %s>' %  ', '.join('%s: %s' % x for x in self.__dict__.iteritems())
+
+class TWikiBook(object):
+    def __init__(self, book, server, bookname):
+        log("*** Extracting TWiki book %s ***" % bookname)
+        self.book = book
+        self.server = server
+        self.workdir = tempfile.mkdtemp(prefix=bookname, dir=config.TMPDIR)
+        os.chmod(self.workdir, 0755)
+        defaults = config.SERVER_DEFAULTS[server]
+        self.lang = defaults['lang']
+        self.dir  = defaults['dir']
+
+        self.publish_name = bookname
+        #self.publish_file = os.path.join(PUBLISH_PATH, self.publish_name)
+        #self.publish_url = os.path.join(config.PUBLISH_URL, self.publish_name)
+
+    def filepath(self, fn):
+        return os.path.join(self.workdir, fn)
+
+
+    def get_twiki_metadata(self):
+        """Get information about a twiki book (as much as is easy and useful)."""
+        title_map = {}
+        authors = {}
+        meta = {
+            'language': self.lang,
+            'identifier': 'http://%s/epub/%s/%s' %(self.server, self.book, time.strftime('%Y.%m.%d-%H.%M.%S')),
+            'publisher': 'FLOSS Manuals http://flossmanuals.net',
+            'creator': 'The Contributors',
+            'date': time.strftime('%Y-%m-%d'),
+            'fm:server': self.server,
+            'fm:book': self.book,
+            'title': self.book,
+            }
+        spine = []
+        toc = []
+        section = toc
+
+        for t in toc_iterator(self.server, self.book):
+            if t.is_chapter():
+                spine.append(t.chapter)
+                section.append((t.title, t.chapter + '.html')) #XXX
+                title_map[t.title] = t.chapter
+            elif t.is_section():
+                section = []
+                toc.append([[t.title, None], section])
+            elif t.is_title():
+                meta['title'] = t.title
+
+        author_copyright, chapter_copyright = get_book_copyright(self.server, self.book, title_map)
+
+        return {
+            'metadata': meta,
+            'TOC': toc,
+            'spine': spine,
+            'copyright': author_copyright,
+            #'chapter_copyright': chapter_copyright,
+        }

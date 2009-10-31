@@ -18,11 +18,21 @@
 
 import os, sys
 import cgi
+import time
 from getopt import gnu_getopt
 from subprocess import Popen, PIPE
 
 #from objavi.fmbook import log
 from objavi import config
+
+#general, non-cgi functions
+
+def make_book_name(book, server, suffix='.pdf'):
+    lang = config.SERVER_DEFAULTS.get(server, config.SERVER_DEFAULTS[config.DEFAULT_SERVER])['lang']
+    book = ''.join(x for x in book if x.isalnum())
+    return '%s-%s-%s%s' % (book, lang,
+                           time.strftime('%Y.%m.%d-%H.%M.%S'),
+                           suffix)
 
 def run(cmd):
     try:

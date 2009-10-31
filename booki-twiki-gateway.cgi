@@ -23,13 +23,11 @@ import os, sys
 import re, time, traceback
 from pprint import pformat
 
-from objavi.fmbook import log, Book, make_book_name
-from objavi.cgi_utils import parse_args, optionise, shift_file, output_blob_and_exit
-from objavi import config, twiki_wrapper
+from objavi.twiki_wrapper import TWikiBook, get_chapter_html, get_book_list
+from objavi.cgi_utils import parse_args, optionise, shift_file, output_blob_and_exit, log, make_book_name
+from objavi import config
 
 from booki.xhtml_utils import MEDIATYPES, EpubChapter, BookiZip
-
-DEST_DIR = 'booki-books'
 
 
 def make_booki_package(server, bookid, clean=False, use_cache=False):
@@ -46,8 +44,8 @@ def make_booki_package(server, bookid, clean=False, use_cache=False):
     else:
         bookname = make_book_name(bookid, server, '.zip')
 
-    book = Book(bookid, server, bookname)
-    book.load_toc()
+    book = TWikiBook(bookid, server, bookname)
+    #book.load_toc()
 
     zfn = book.filepath(bookname)
     bz = BookiZip(zfn)
@@ -55,7 +53,7 @@ def make_booki_package(server, bookid, clean=False, use_cache=False):
 
     all_images = set()
     for chapter in bz.info['spine']:
-        contents = twiki_wrapper.get_chapter_html(server, bookid, chapter, wrapped=True)
+        contents = get_chapter_html(server, bookid, chapter, wrapped=True)
         c = EpubChapter(server, bookid, chapter, contents,
                         use_cache=use_cache)
         images = c.localise_links()
@@ -97,7 +95,7 @@ if __name__ == '__main__':
     make_all = args.get('all')
     if 'server' in args and 'book' in args:
         zfn = make_booki_package(args['server'], args['book'], clean, use_cache)
-        fn = shift_file(zfn, DEST_DIR)
+        fn = shift_file(zfn, config.BOOKI_BOOK_DIR)
         ziplink = '<p><a href="%s">%s zip file.</a></p>' % (fn, args['book'])
 
         mode = args.get('mode', 'html')
@@ -109,13 +107,13 @@ if __name__ == '__main__':
 
     elif 'server' in args and make_all is not None:
         links = []
-        for book in twiki_wrapper.get_book_list(args['server']):
-            if make_all == 'skip-existing' and book + '.zip' in os.listdir(DEST_DIR):
+        for book in get_book_list(args['server']):
+            if make_all == 'skip-existing' and book + '.zip' in os.listdir(config.BOOKI_BOOK_DIR):
                 log("skipping %s" % book)
                 continue
             try:
                 zfn = make_booki_package(args['server'], book, use_cache=use_cache)
-                fn = shift_file(zfn, DEST_DIR)
+                fn = shift_file(zfn, config.BOOKI_BOOK_DIR)
                 links.append('<a href="%s">%s</a> ' % (fn, book))
             except Exception:
                 log('FAILED to make book "%s"' % book)
