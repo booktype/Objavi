@@ -366,13 +366,6 @@ def mode_epub(args):
                                  'text/plain')
         else:
             output_blob_and_exit("books/%s\n%s" % (bookname, details_url), 'text/plain')
-        #print 'Location: %s\n' % details_url
-        #f = open(book.epubfile)
-        #data = f.read()
-        #f.close()
-        #output_blob_and_exit(data, 'application/epub+zip', bookname)
-
-
 
 
 def main():
