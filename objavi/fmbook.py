@@ -82,17 +82,42 @@ class Book(object):
     def __init__(self, book, server, bookname,
                  page_settings=None, watcher=None, isbn=None,
                  license=config.DEFAULT_LICENSE):
-        log("*** Starting new book %s ***" % bookname)
+        log("*** Starting new book %s ***" % bookname,
+            "starting zipbook with", server, book, project, kwargs)
+        self.bookname = bookname
         self.book = book
         self.server = server
         self.watcher = watcher
+        self.project = project
+
+        blob = fetch_zip(server, book, project, save=True)
+        f = StringIO(blob)
+        self.store = zipfile.ZipFile(f, 'r')
+        self.info = json.loads(self.store.read('info.json'))
+        metadata = self.info['metadata']
+        if server == config.LOCALHOST:
+            server = metadata.get('fm:server', server)
+            book = metadata.get('fm:book', book)
+
+        defaults = config.SERVER_DEFAULTS[server]
+        #PAtch in the extra metadata.
+        #these should be read form zip -- so should go into zip?
+        for var, dest in (
+            (isbn, ('id', 'ISBN')),
+            (license, ('rights', 'License')),
+            (lang, ('language', '')),
+            (dir, ('fm:dir', '')),
+            ):
+            a = metadata.setdefault(dest[0], {})
+            b = a.setdefault(dest[1], [])
+            b.append(var)
         self.isbn = isbn
         self.license = license
-        self.workdir = tempfile.mkdtemp(prefix=bookname, dir=TMPDIR)
-        os.chmod(self.workdir, 0755)
-        defaults = config.SERVER_DEFAULTS[server]
         self.lang = defaults['lang']
         self.dir  = defaults['dir']
+
+        self.workdir = tempfile.mkdtemp(prefix=bookname, dir=TMPDIR)
+        os.chmod(self.workdir, 0755)
 
         self.body_html_file = self.filepath('body.html')
         self.body_pdf_file = self.filepath('body.pdf')
@@ -104,6 +129,7 @@ class Book(object):
         self.pdf_file = self.filepath('final.pdf')
         self.body_odt_file = self.filepath('body.odt')
 
+        self.epubfile = self.filepath(bookname)
         self.publish_name = bookname
         self.publish_file = os.path.join(PUBLISH_PATH, self.publish_name)
         self.publish_url = os.path.join(config.PUBLISH_URL, self.publish_name)
@@ -111,7 +137,11 @@ class Book(object):
         if page_settings is not None:
             self.maker = PageSettings(**page_settings)
 
+        if 'title' in metadata:
+            self.set_title(metadata['title'])
+
         self.notify_watcher()
+
 
     if config.TRY_BOOK_CLEANUP_ON_DEL:
         #Dont even define __del__ if it is not used.
@@ -537,6 +567,135 @@ class Book(object):
                            'license': self.license,
                            }
 
+    def make_epub(self, use_cache=False):
+        """Make an epub version of the book, using Mike McCabe's
+        epub module for the Internet Archive."""
+        ebook = ia_epub.Book(self.epubfile, content_dir='')
+        manifest = self.info['manifest']
+        metadata = self.info['metadata']
+        toc = self.info['TOC']
+        spine = self.info['spine']
+
+        #manifest
+        filemap = {} #reformulated manifest for NCX
+        for ID in manifest:
+            fn, mediatype = manifest[ID]
+            #work around bug http://booki-dev.flossmanuals.net/ticket/46
+            if ID.endswith('.html'):
+                ID = ID[:-5]
+                log('took ".html" off "%s"' % ID)
+
+            oldfn = fn
+            log(ID, fn, mediatype)
+            content = self.store.read(fn)
+            if mediatype == 'text/html':
+                log('CONVERTING')
+                #convert to application/xhtml+xml
+                c = EpubChapter(self.server, self.book, ID, content,
+                                use_cache=use_cache)
+                c.remove_bad_tags()
+                c.prepare_for_epub()
+                content = c.as_xhtml()
+                fn = fn[:-5] + '.xhtml'
+                mediatype = 'application/xhtml+xml'
+            #if mediatype == 'application/xhtml+xml':
+                filemap[oldfn] = fn
+                #log(fn, mediatype)
+
+            info = {'id': ID.encode('utf-8'),
+                    'href': fn.encode('utf-8'),
+                    'media-type': mediatype.encode('utf-8')}
+            ebook.add_content(info, content)
+
+        #toc
+        ncx = epub_utils.make_ncx(toc, metadata, filemap)
+        ebook.add(ebook.content_dir + 'toc.ncx', ncx)
+
+        #spine
+        for ID in spine:
+            ebook.add_spine_item({'idref': ID})
+
+        #metadata -- no use of attributes (yet)
+        # and fm: metadata disappears for now
+        dcns = config.DCNS
+        meta_info_items = []
+        has_authors = False
+        for k, v in metadata.iteritems():
+            if k.startswith('fm:'):
+                continue
+            meta_info_items.append({'item': dcns + k,
+                                    'text': v}
+                                   )
+            if k == 'creator':
+                has_authors = True
+
+        if not has_authors and config.CLAIM_UNAUTHORED:
+            meta_info_items.append({'item': dcns + 'creator',
+                                    'text': 'The Contributors'})
+
+        #copyright
+        authors = sorted(self.info['copyright'])
+        for a in authors:
+            meta_info_items.append({'item': dcns + 'contributor',
+                                    'text': a}
+                                   )
+        if not has_authors:
+            meta_info_items.append({'item': dcns + 'rights',
+                                    'text': 'This book is free. Copyright %s' % (', '.join(authors))}
+                                   )
+
+        tree_str = ia_epub.make_opf(meta_info_items,
+                                    ebook.manifest_items,
+                                    ebook.spine_items,
+                                    ebook.guide_items,
+                                    ebook.cover_id)
+        ebook.add(ebook.content_dir + 'content.opf', tree_str)
+        ebook.z.close()
+
+
+    def publish_s3(self):
+        """Push the book's epub to archive.org, using S3."""
+        #XXX why only epub?
+        secrets = {}
+        for x in ('S3_SECRET', 'S3_ACCESSKEY'):
+            fn = getattr(config, x)
+            f = open(fn)
+            secrets[x] = f.read().strip()
+            f.close()
+
+        log(secrets)
+        now = time.strftime('%F')
+        s3output = self.filepath('s3-output.txt')
+        s3url = 'http://s3.us.archive.org/booki-%s-%s/%s' % (self.project, self.book, self.bookname)
+        detailsurl = 'http://archive.org/details/booki-%s-%s' % (self.project, self.book)
+        headers = [
+            'x-amz-auto-make-bucket:1',
+            "authorization: LOW %(S3_ACCESSKEY)s:%(S3_SECRET)s" % secrets,
+            'x-archive-meta-mediatype:texts',
+            'x-archive-meta-collection:opensource',
+            'x-archive-meta-title:%s' %(self.book,),
+            'x-archive-meta-date:%s' % (now,),
+            'x-archive-meta-creator:FLOSS Manuals Contributors',
+            ]
+
+        if self.license in config.LICENSES:
+            headers.append('x-archive-meta-licenseurl:%s' % config.LICENSES[self.license])
+
+        argv = ['curl', '--location', '-s', '-o', s3output]
+        for h in headers:
+            argv.extend(('--header', h))
+        argv.extend(('--upload-file', self.epubfile, s3url,))
+
+        log(' '.join(repr(x) for x in argv))
+        check_call(argv, stdout=sys.stderr)
+        return detailsurl, s3url
+
+    def publish_epub(self):
+        self.epubfile = shift_file(self.epubfile, config.EPUB_DIR)
+        return self.epubfile
+
+
+
 
     def compose_end_matter(self):
         """create the markup for the end_matter inside cover.  If
@@ -708,155 +867,4 @@ def fetch_zip(server, book, project, save=False):
         f.write(blob)
         f.close()
     return blob
-
-class ZipBook(Book):
-    """A Book based on a booki-zip file.  Depending how out-of-date
-    this docstring is, some of the parent's methods will not work.
-    """
-    def __init__(self, server, book, bookname, project=None, **kwargs):
-        log("starting zipbook with", server, book, project, kwargs)
-        blob = fetch_zip(server, book, project, save=True)
-        f = StringIO(blob)
-        self.bookname = bookname
-        self.store = zipfile.ZipFile(f, 'r')
-        self.info = json.loads(self.store.read('info.json'))
-        metadata = self.info['metadata']
-
-        if server == config.LOCALHOST:
-            server = metadata.get('fm:server', server)
-            book = metadata.get('fm:book', book)
-
-        Book.__init__(self, book, server, bookname, **kwargs)
-        if 'title' in metadata:
-            self.set_title(metadata['title'])
-        self.project = project
-        self.epubfile = self.filepath(bookname)
-
-    def make_epub(self, use_cache=False):
-        """Make an epub version of the book, using Mike McCabe's
-        epub module for the Internet Archive."""
-        ebook = ia_epub.Book(self.epubfile, content_dir='')
-        manifest = self.info['manifest']
-        metadata = self.info['metadata']
-        toc = self.info['TOC']
-        spine = self.info['spine']
-
-        #manifest
-        filemap = {} #reformulated manifest for NCX
-        for ID in manifest:
-            fn, mediatype = manifest[ID]
-            #work around bug http://booki-dev.flossmanuals.net/ticket/46
-            if ID.endswith('.html'):
-                ID = ID[:-5]
-                log('took ".html" off "%s"' % ID)
-
-            oldfn = fn
-            log(ID, fn, mediatype)
-            content = self.store.read(fn)
-            if mediatype == 'text/html':
-                log('CONVERTING')
-                #convert to application/xhtml+xml
-                c = EpubChapter(self.server, self.book, ID, content,
-                                use_cache=use_cache)
-                c.remove_bad_tags()
-                c.prepare_for_epub()
-                content = c.as_xhtml()
-                fn = fn[:-5] + '.xhtml'
-                mediatype = 'application/xhtml+xml'
-            #if mediatype == 'application/xhtml+xml':
-                filemap[oldfn] = fn
-                #log(fn, mediatype)
-
-            info = {'id': ID.encode('utf-8'),
-                    'href': fn.encode('utf-8'),
-                    'media-type': mediatype.encode('utf-8')}
-            ebook.add_content(info, content)
-
-        #toc
-        ncx = epub_utils.make_ncx(toc, metadata, filemap)
-        ebook.add(ebook.content_dir + 'toc.ncx', ncx)
-
-        #spine
-        for ID in spine:
-            ebook.add_spine_item({'idref': ID})
-
-        #metadata -- no use of attributes (yet)
-        # and fm: metadata disappears for now
-        dcns = config.DCNS
-        meta_info_items = []
-        has_authors = False
-        for k, v in metadata.iteritems():
-            if k.startswith('fm:'):
-                continue
-            meta_info_items.append({'item': dcns + k,
-                                    'text': v}
-                                   )
-            if k == 'creator':
-                has_authors = True
-
-        if not has_authors and config.CLAIM_UNAUTHORED:
-            meta_info_items.append({'item': dcns + 'creator',
-                                    'text': 'The Contributors'})
-
-        #copyright
-        authors = sorted(self.info['copyright'])
-        for a in authors:
-            meta_info_items.append({'item': dcns + 'contributor',
-                                    'text': a}
-                                   )
-        if not has_authors:
-            meta_info_items.append({'item': dcns + 'rights',
-                                    'text': 'This book is free. Copyright %s' % (', '.join(authors))}
-                                   )
-
-        tree_str = ia_epub.make_opf(meta_info_items,
-                                    ebook.manifest_items,
-                                    ebook.spine_items,
-                                    ebook.guide_items,
-                                    ebook.cover_id)
-        ebook.add(ebook.content_dir + 'content.opf', tree_str)
-        ebook.z.close()
-
-
-    def publish_s3(self):
-        """Push the book's epub to archive.org, using S3."""
-        #XXX why only epub?
-        secrets = {}
-        for x in ('S3_SECRET', 'S3_ACCESSKEY'):
-            fn = getattr(config, x)
-            f = open(fn)
-            secrets[x] = f.read().strip()
-            f.close()
-
-        log(secrets)
-        now = time.strftime('%F')
-        s3output = self.filepath('s3-output.txt')
-        s3url = 'http://s3.us.archive.org/booki-%s-%s/%s' % (self.project, self.book, self.bookname)
-        detailsurl = 'http://archive.org/details/booki-%s-%s' % (self.project, self.book)
-        headers = [
-            'x-amz-auto-make-bucket:1',
-            "authorization: LOW %(S3_ACCESSKEY)s:%(S3_SECRET)s" % secrets,
-            'x-archive-meta-mediatype:texts',
-            'x-archive-meta-collection:opensource',
-            'x-archive-meta-title:%s' %(self.book,),
-            'x-archive-meta-date:%s' % (now,),
-            'x-archive-meta-creator:FLOSS Manuals Contributors',
-            ]
-
-        if self.license in config.LICENSES:
-            headers.append('x-archive-meta-licenseurl:%s' % config.LICENSES[self.license])
-
-        argv = ['curl', '--location', '-s', '-o', s3output]
-        for h in headers:
-            argv.extend(('--header', h))
-        argv.extend(('--upload-file', self.epubfile, s3url,))
-
-        log(' '.join(repr(x) for x in argv))
-        check_call(argv, stdout=sys.stderr)
-        return detailsurl, s3url
-
-    def publish_epub(self):
-        self.epubfile = shift_file(self.epubfile, config.EPUB_DIR)
-        return self.epubfile
-
 
