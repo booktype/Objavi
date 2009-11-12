@@ -35,7 +35,7 @@ except ImportError:
 
 import lxml, lxml.html, lxml.etree
 
-from objavi import config, twiki_wrapper, epub_utils
+from objavi import config, epub_utils
 from objavi.cgi_utils import log, run, shift_file, make_book_name
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline
 
@@ -320,69 +320,8 @@ class Book(object):
         os.rename(self.pdf_file, self.publish_file)
         self.notify_watcher()
 
-    def get_twiki_metadata(self):
-        """Get information about a twiki book (as much as is easy and useful)."""
-        if not hasattr(self, 'toc'):
-            self.load_toc()
 
-        title_map = {}
-        authors = {}
-        meta = {
-            'language': self.lang,
-            'identifier': 'http://%s/epub/%s/%s' %(self.server, self.book, time.strftime('%Y.%m.%d-%H.%M.%S')),
-            'publisher': 'FLOSS Manuals http://flossmanuals.net',
-            'creator': 'The Contributors',
-            'date': time.strftime('%Y-%m-%d'),
-            'fm:server': self.server,
-            'fm:book': self.book,
-            'title': self.book,
-            }
-        spine = []
-        toc = []
-        section = toc
-        for t in self.toc:
-            if t.is_chapter():
-                spine.append(t.chapter)
-                section.append((t.title, t.chapter + '.html')) #XXX
-                title_map[t.title] = t.chapter
-            elif t.is_section():
-                section = []
-                toc.append([[t.title, None], section])
-            elif t.is_title():
-                meta['title'] = t.title
 
-        author_copyright, chapter_copyright = twiki_wrapper.get_book_copyright(self.server, self.book, title_map)
-
-        return {
-            'metadata': meta,
-            'TOC': toc,
-            'spine': spine,
-            'copyright': author_copyright,
-            #'chapter_copyright': chapter_copyright,
-        }
-
-    def load_toc(self):
-        """From the TOC.txt file create a list of TocItems with
-        the attributes <status>, <chapter>, and <title>.
-
-        <status> is a number, with the following meaning:
-
-              0 - section heading with no chapter
-              1 - chapter heading
-              2 - book title
-
-        The TocItem object has convenience functions <is_chapter> and
-        <is_section>.
-
-        <chapter> is twiki name of the chapter.
-
-        <title> is a human readable title for the chapter.  It is likely to
-        differ from the title given in the chapter's <h1> heading.
-        """
-        self.toc = []
-        for status, chapter, title in twiki_wrapper.toc_iterator(self.server, self.book):
-            self.toc.append(TocItem(status, chapter, title))
-        self.notify_watcher()
 
     def load_book(self):
         """Fetch and parse the raw html of the book.  Links in the
