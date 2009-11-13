@@ -148,10 +148,10 @@ info.json TOC
 info.json metadata
 ==================
 
-The names in the metadata object are keywords, and the values they
-refer to are objects that further divide the keyword topic by
-"scheme".  Each scheme points to a list of values.  If the topic is
-indivisible, there should be a single scheme identified by an empty
+The names in the metadata object are "namespaces" in which "keywords"
+are defined.  The objects referred to by keywords are further divided
+by "scheme".  Each scheme points to a list of values.  If the keyword
+is indivisible, there should be a single scheme identified by an empty
 string ("").  Further, if a scheme is the primary default for that
 keyword, it may be identified by an empty string as well as by its
 scheme name.
@@ -159,52 +159,55 @@ scheme name.
   Here's the diagram:
 
  "metadata": {
-     keyword:  {
-        scheme: [value, value,...],
-        scheme: [value]
+     namespace: {
+        keyword: {
+           scheme: [value, value,...],
+           scheme: [value]
+        },...
      },...
   }
 
-Booki uses Dublin Core metadata keywords wherever possible.  When a
-keyword is not from the Dublin Core, it must be prefixed either with
-the string "fm:" (for FLOSS Manuals specific metadata), or an XML
-namespace identifier in curly brackets, for arbitrary other metadata.
+Booki uses Dublin Core metadata keywords wherever possible, which are
+stored under the namespace "http://purl.org/dc/elements/1.1/".
 
 An example metadata section is shown below:
 
   "metadata": {
-    "publisher": {
-      "": ["FLOSS Manuals http://flossmanuals.net"] 
-    },
-    "language": {
-      "": ["en"]
-    },
-    "creator": {
-      "": ["The Contributors"]
-    }, 
-    "contributor": {
-      "": ["Jennifer Redman", "Bart Massey", "Alexander Pico", 
-           "selena deckelmann", "Anne Gentle", "adam hyde", "Olly Betts", 
-           "Jonathan Leto", "Google Inc And The Contributors", 
-           "Leslie Hawthorn"]   
-    }, 
-    "title": {
-      "": ["GSoC Mentoring"]
-    },
-    "fm:server": { 
-      "": ["en.flossmanuals.net"]
-    }, 
-    "date": {
-      "start": ["2009-10-23"],
-      "last-modified": ["2009-10-30"]
-    },
-    "identifier": {
-      "flossmanuals.net": "http://en.flossmanuals.net/epub/GSoCMentoring/2009.10.23-19.49.01", 
-      "archive.org": "gsocmentoring00fm",
-    },
-    "fm:book": {
-       "": "GSoCMentoring"
-    }
+    "http://purl.org/dc/elements/1.1/": {
+      "publisher": {
+        "": ["FLOSS Manuals http://flossmanuals.net"] 
+      },
+      "language": {
+        "": ["en"]
+      },
+      "creator": {
+        "": ["The Contributors"]
+      }, 
+      "contributor": {
+        "": ["Jennifer Redman", "Bart Massey", "Alexander Pico", 
+             "selena deckelmann", "Anne Gentle", "adam hyde", "Olly Betts", 
+             "Jonathan Leto", "Google Inc And The Contributors", 
+             "Leslie Hawthorn"]   
+      }, 
+      "title": {
+        "": ["GSoC Mentoring"]
+      },
+      "date": {
+        "start": ["2009-10-23"],
+        "last-modified": ["2009-10-30"]
+      },
+      "identifier": {
+        "flossmanuals.net": ["http://en.flossmanuals.net/epub/GSoCMentoring/2009.10.23-19.49.01"], 
+        "archive.org": ["gsocmentoring00fm"]
+      }
+   },
+   "http://booki.cc/": {
+      "fm:server": { 
+        "": ["en.flossmanuals.net"]
+      }, 
+      "fm:book": {
+         "": ["GSoCMentoring"]
+      }
   }
 
 
