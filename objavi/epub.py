@@ -15,7 +15,7 @@ import lxml, lxml.html, lxml.cssselect
 from lxml import etree
 
 from objavi.config import DC, XHTML, XHTMLNS
-from booki.xhtml_utils import BookiZip
+from booki.bookizip import BookiZip
 
 #XML namespaces.  The *NS varients are in {curly brackets} for clark's syntax
 XMLNS = '{http://www.w3.org/XML/1998/namespace}'

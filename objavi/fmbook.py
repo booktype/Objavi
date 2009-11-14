@@ -42,6 +42,7 @@ from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, p
 
 from iarchive import epub as ia_epub
 from booki.xhtml_utils import EpubChapter
+from booki.bookizip import get_metadata, add_metadata, clear_metadata
 
 TMPDIR = os.path.abspath(config.TMPDIR)
 DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')

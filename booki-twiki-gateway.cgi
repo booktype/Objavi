@@ -27,7 +27,8 @@ from objavi.twiki_wrapper import TWikiBook, get_chapter_html, get_book_list
 from objavi.cgi_utils import parse_args, optionise, shift_file, output_blob_and_exit, log, make_book_name
 from objavi import config
 
-from booki.xhtml_utils import MEDIATYPES, EpubChapter, BookiZip
+from booki.xhtml_utils import EpubChapter
+from booki.bookizip import BookiZip
 
 
 def make_booki_package(server, bookid, clean=False, use_cache=False):
