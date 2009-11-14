@@ -33,7 +33,8 @@ try:
 except ImportError:
     import json
 
-import lxml, lxml.html, lxml.etree
+import lxml, lxml.html
+from lxml import etree
 
 from objavi import config, epub_utils
 from objavi.cgi_utils import log, run, shift_file, make_book_name
@@ -184,7 +185,7 @@ class Book(object):
     def make_oo_doc(self):
         """Make an openoffice document, using the html2odt script."""
         self.wait_for_xvfb()
-        html_text = lxml.etree.tostring(self.tree, method="html")
+        html_text = etree.tostring(self.tree, method="html")
         self.save_data(self.body_html_file, html_text)
         run([config.HTML2ODT, self.workdir, self.body_html_file, self.body_odt_file])
         log("Publishing %r as %r" % (self.body_odt_file, self.publish_file))
@@ -201,7 +202,7 @@ class Book(object):
     def make_body_pdf(self):
         """Make a pdf of the HTML, using webkit"""
         #1. Save the html
-        html_text = lxml.etree.tostring(self.tree, method="html")
+        html_text = etree.tostring(self.tree, method="html")
         self.save_data(self.body_html_file, html_text)
 
         #2. Make a pdf of it
@@ -295,7 +296,7 @@ class Book(object):
             self.maker.gutter = 0
 
         #1. Save the html
-        html_text = lxml.etree.tostring(self.tree, method="html")
+        html_text = etree.tostring(self.tree, method="html")
         self.save_data(self.body_html_file, html_text)
 
         #2. Make a pdf of it (direct to to final pdf)
@@ -471,7 +472,7 @@ class Book(object):
             head = htmltree.makeelement('head')
             htmltree.insert(0, head)
 
-        link = lxml.etree.SubElement(head, 'link', rel='stylesheet', type='text/css', href=url)
+        link = etree.SubElement(head, 'link', rel='stylesheet', type='text/css', href=url)
         self.css_url = url
         self.notify_watcher()
         return url
