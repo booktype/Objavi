@@ -81,7 +81,7 @@ class Book(object):
 
     def __init__(self, book, server, bookname,
                  page_settings=None, watcher=None, isbn=None,
-                 license=config.DEFAULT_LICENSE):
+                 license=config.DEFAULT_LICENSE, title=None):
         log("*** Starting new book %s ***" % bookname,
             "starting zipbook with", server, book, project, kwargs)
         self.bookname = bookname
@@ -137,8 +137,12 @@ class Book(object):
         if page_settings is not None:
             self.maker = PageSettings(**page_settings)
 
-        if 'title' in metadata:
-            self.set_title(metadata['title'])
+        titles = get_metadata(self.metadata, 'title')
+        if titles:
+            self.title = titles[0]
+        else:
+            self.title = 'A Manual About ' + self.book
+
 
         self.notify_watcher()
 
@@ -464,19 +468,6 @@ class Book(object):
         self.notify_watcher()
         return url
 
-    def set_title(self, title=None):
-        """If a string is supplied, it becomes the book's title.
-        Otherwise a guess is made."""
-        if title:
-            self.title = title
-        else:
-            titles = [x.text_content() for x in self.tree.cssselect('title')]
-            if titles and titles[0]:
-                self.title = titles[0]
-            else:
-                #oh well
-                self.title = 'A Manual About ' + self.book
-        return self.title
 
     def _read_localised_template(self, template, fallbacks=['en']):
         """Try to get the template in the approriate language, otherwise in english."""

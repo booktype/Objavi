@@ -288,11 +288,10 @@ def mode_book(args):
 
     with Book(bookid, server, bookname, page_settings=page_settings,
               watcher=progress_bar, isbn=args.get('isbn'),
-              license=args.get('license')) as book:
+              license=args.get('license'), title=args.get('title')) as book:
         if CGI_CONTEXT:
             book.spawn_x()
         book.load()
-        book.set_title(args.get('title'))
         book.add_css(args.get('css'), mode)
         book.add_section_titles()
 
@@ -323,11 +322,10 @@ def mode_openoffice(args):
 
     with Book(bookid, server, bookname,
               watcher=progress_bar, isbn=args.get('isbn'),
-              license=args.get('license')) as book:
+              license=args.get('license'), title=args.get('title')) as book:
         if CGI_CONTEXT:
             book.spawn_x()
         book.load()
-        book.set_title(args.get('title'))
         book.add_css(args.get('css'), 'openoffice')
         book.add_section_titles()
         book.make_oo_doc()
@@ -349,7 +347,8 @@ def mode_epub(args):
     else:
         progress_bar = None
 
-    book = ZipBook(server, bookid, bookname=bookname, project=project, watcher=progress_bar)
+    book = Book(server, bookid, bookname=bookname, project=project,
+                watcher=progress_bar, title=args.get('title'))
     book.make_epub(use_cache=config.USE_CACHED_IMAGES)
     book.publish_epub()
     if destination == 'html':
