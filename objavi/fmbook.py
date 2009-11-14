@@ -94,27 +94,35 @@ class Book(object):
         f = StringIO(blob)
         self.store = zipfile.ZipFile(f, 'r')
         self.info = json.loads(self.store.read('info.json'))
-        metadata = self.info['metadata']
-        if server == config.LOCALHOST:
-            server = metadata.get('fm:server', server)
-            book = metadata.get('fm:book', book)
+        for k in ('manifest', 'metadata', 'spine', 'TOC'):
+            if k not in self.info:
+                raise ObjaviError('info.json of %s lacks vital element "%s"' %
+                                  (bookname, k))
+            #check types also?
 
+        self.metadata = self.info['metadata']
+
+        if server == config.LOCALHOST: # [DEPRECATED]
+            server = get_metadata(self.metadata, 'server', ns=config.FM, default=[server])[0]
+            book = get_metadata(self.metadata, 'book', ns=config.FM, default=[book])[0]
         defaults = config.SERVER_DEFAULTS[server]
-        #PAtch in the extra metadata.
-        #these should be read form zip -- so should go into zip?
-        for var, dest in (
-            (isbn, ('id', 'ISBN')),
-            (license, ('rights', 'License')),
-            (lang, ('language', '')),
-            (dir, ('fm:dir', '')),
+        self.lang = get_metadata(self.metadata, 'language', default=[defaults['lang']])[0]
+        self.dir  = get_metadata(self.metadata, 'dir', ns=config.FM, default=[defaults['dir']])[0]
+
+        #Patch in the extra metadata.
+        #these should be read from zip -- so should go into zip?
+        for var, key, scheme, ns in (
+            (isbn, 'id', 'ISBN', config.DC),
+            (license, 'rights', 'License', config.DC),
+            (lang, 'language', '', config.DC),
+            (title, 'title', '', config.DC),
+            (dir, 'dir', '', config.FM),
             ):
-            a = metadata.setdefault(dest[0], {})
-            b = a.setdefault(dest[1], [])
-            b.append(var)
-        self.isbn = isbn
-        self.license = license
-        self.lang = defaults['lang']
-        self.dir  = defaults['dir']
+            if var is not None:
+                add_metadata(self.metadata, key, var, scheme=scheme, ns=ns)
+
+        self.isbn = get_metadata(self.metadata, 'id', scheme='ISBN', default=[None])[0]
+        self.license = get_metadata(self.metadata, 'rights', scheme='License', default=[None])[0]
 
         self.workdir = tempfile.mkdtemp(prefix=bookname, dir=TMPDIR)
         os.chmod(self.workdir, 0755)
