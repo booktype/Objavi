@@ -505,6 +505,26 @@ class Book(object):
                            'license': self.license,
                            }
 
+
+    def compose_end_matter(self):
+        """create the markup for the end_matter inside cover.  If
+        self.isbn is not set, the html will result in a pdf that
+        spills onto two pages.
+        """
+        template = self._read_localised_template(config.END_MATTER_TEMPLATE)
+
+        d = {'css_url': self.css_url,
+             'title': self.title
+             }
+
+        if self.isbn:
+            d['inside_cover_style'] = ''
+        else:
+            d['inside_cover_style'] = 'page-break-after: always'
+
+        return template % d
+
+
     def make_epub(self, use_cache=False):
         """Make an epub version of the book, using Mike McCabe's
         epub module for the Internet Archive."""
@@ -632,26 +652,6 @@ class Book(object):
         self.epubfile = shift_file(self.epubfile, config.EPUB_DIR)
         return self.epubfile
 
-
-
-
-    def compose_end_matter(self):
-        """create the markup for the end_matter inside cover.  If
-        self.isbn is not set, the html will result in a pdf that
-        spills onto two pages.
-        """
-        template = self._read_localised_template(config.END_MATTER_TEMPLATE)
-
-        d = {'css_url': self.css_url,
-             'title': self.title
-             }
-
-        if self.isbn:
-            d['inside_cover_style'] = ''
-        else:
-            d['inside_cover_style'] = 'page-break-after: always'
-
-        return template % d
 
 
 
