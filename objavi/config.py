@@ -136,7 +136,7 @@ SERVER_DEFAULTS = {
         'css': 'static/translate.flossmanuals.net.css',
         'css-openoffice': 'static/translate.flossmanuals.net-openoffice.css',
         'lang': 'translate',
-        'dir': 'LTR',
+        'dir': 'auto',
         'toc-encoding': 'iso-8859-1',
         'display': True,
         'interface': 'TWiki',
@@ -177,6 +177,18 @@ SERVER_DEFAULTS = {
         'display': True,
         'interface': 'TWiki',
         },
+}
+
+
+LANGUAGE_DIR = {
+     ar: 'RTL',  # arabic (many variants)
+     dv: 'RTL',  # dhivehi, maldives islands
+     fa: 'RTL',  # farsi
+     #ha: 'RTL',  # hausa, west africa, particularly niger and nigeria
+     he: 'RTL',  # hebrew
+     ps: 'RTL',  # pashto
+     ur: 'RTL',  # urdu, pakistan
+     yi: 'RTL',  # yiddish, israel
 }
 
 # uncomment a debug mode to get messages about that topic.
