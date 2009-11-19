@@ -74,22 +74,6 @@ def toc_iterator(server, book):
             break
     f.close()
 
-def get_book_html(server, book, dir):
-    """Fetch and parse the raw html of the book."""
-    url = config.BOOK_URL % (server, book)
-    log('getting book html: %s' % url)
-    f = urlopen(url)
-    rawhtml = f.read()
-    f.close()
-    html = ('<html dir="%s"><head>\n<title>%s</title>\n'
-            '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
-            '</head>\n<body>\n'
-            '%s\n'
-            '<div style="page-break-before: always; color:#fff;" class="unseen">'
-            'A FLOSS Manuals book</div>\n</body></html>'
-    ) % (dir, book, rawhtml)
-    return html
-
 
 def get_chapter_html(server, book, chapter, wrapped=False):
     url = config.CHAPTER_URL % (server, book, chapter)
