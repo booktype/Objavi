@@ -28,6 +28,7 @@ from subprocess import Popen, check_call, PIPE
 from cStringIO import StringIO
 import zipfile
 import traceback
+from string import ascii_letters
 try:
     import simplejson as json
 except ImportError:
@@ -77,6 +78,24 @@ def _add_initial_number(e, n):
     initial.text = "%s." % n
 
 
+def _serialise(rtoc, stoc, depth):
+    for item in rtoc:
+        stoc.append({"depth": depth,
+                     "title": item['title'],
+                     "url": item['url'].lstrip('/'),
+                     "type": item['type']
+                     })
+        if 'children' in item:
+            _serialise(item['children'], stoc, depth + 1)
+
+def serialise_toc(rtoc):
+    """Take the recursive TOC structure and turn it into a list of
+    serial points."""
+    stoc = []
+    _serialise(rtoc, stoc, 1)
+    for i, x in enumerate(stoc):
+        x['position'] = i
+    return stoc
 
 class Book(object):
     page_numbers = 'latin'
@@ -143,6 +162,8 @@ class Book(object):
 
         self.isbn = get_metadata(self.metadata, 'id', scheme='ISBN', default=[None])[0]
         self.license = get_metadata(self.metadata, 'rights', scheme='License', default=[None])[0]
+
+        self.toc = serialise_toc(self.info['TOC'])
 
         self.workdir = tempfile.mkdtemp(prefix=bookname, dir=TMPDIR)
         os.chmod(self.workdir, 0755)
