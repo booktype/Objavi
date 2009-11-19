@@ -221,6 +221,7 @@ class TWikiBook(object):
 
         lang = guess_lang(self.server, self.book)
         dir = guess_text_dir(self.server, self.book)
+        log(self.server, self.book, lang, dir)
         if lang is not None:
             meta[config.DC]['language'][""] = [lang]
         if dir is not None:
@@ -231,6 +232,7 @@ class TWikiBook(object):
         section = toc
 
         for t in toc_iterator(self.server, self.book):
+            log(t)
             if t.is_chapter():
                 spine.append(t.chapter)
                 section.append(t.as_zipitem())

@@ -46,10 +46,10 @@ def make_booki_package(server, bookid, clean=False, use_cache=False):
         bookname = make_book_name(bookid, server, '.zip')
 
     book = TWikiBook(bookid, server, bookname)
-    #book.load_toc()
-
     zfn = book.filepath(bookname)
-    bz = BookiZip(zfn, book.get_twiki_metadata())
+    md = book.get_twiki_metadata()
+    log(pformat(md))
+    bz = BookiZip(zfn, md)
 
     all_images = set()
     for chapter in bz.info['spine']:

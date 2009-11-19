@@ -29,6 +29,8 @@ from cStringIO import StringIO
 import zipfile
 import traceback
 from string import ascii_letters
+from pprint import pformat
+
 try:
     import simplejson as json
 except ImportError:
@@ -128,6 +130,7 @@ class Book(object):
             server = get_metadata(self.metadata, 'server', ns=config.FM, default=[server])[0]
             book = get_metadata(self.metadata, 'book', ns=config.FM, default=[book])[0]
 
+        log(pformat(self.metadata))
         self.lang = get_metadata(self.metadata, 'language')[0]
         self.dir = get_metadata(self.metadata, 'dir', ns=config.FM)[0]
 
@@ -472,7 +475,7 @@ class Book(object):
         headings = iter(self.headings)
         chapter = 1
         section = None
-
+        log(self.toc)
         for t in self.toc:
             if t.is_chapter() and section is not None:
                 try:

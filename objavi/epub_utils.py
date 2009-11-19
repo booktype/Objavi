@@ -24,6 +24,7 @@ def add_ncxtext(parent, tag, text):
 
 
 def make_ncx(toc, metadata, filemap):
+    log(filemap)
     tree = etree.parse(StringIO(BARE_NCX))
     root = tree.getroot()
     head = etree.SubElement(root, 'head')
@@ -79,6 +80,7 @@ def write_navtree(parent, subtoc, counter, depth, maxdepth, filemap):
     return counter, maxdepth
 
 def make_navpoint(parent, n, title, url):
+    log((parent, n, title, url))
     """Make the actual navpoint node"""
     navpoint = etree.SubElement(parent, 'navPoint',
                                 id=(NAVPOINT_ID_TEMPLATE % (n - 1)),
