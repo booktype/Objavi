@@ -353,27 +353,55 @@ class Book(object):
         self.notify_watcher()
 
 
-
+    def concat_html(self):
+        """Join all the chapters together into one tree.  Keep the TOC
+        up-to-date along the way."""
+        #XXX do TOC
+        doc = lxml.html.document_fromstring('<html><body></body></html>')
+        tocitems = iter(self.toc)
+        toc_current = tocitems.next()
+        toc2 = []
+        for ID in self.spine:
+            fn, mimetype = self.manifest[ID]
+            tree = self.get_tree_by_id(ID)
+            root = tree.getroot()
+            while toc_current and toc_current['url'].startswith(fn):
+                url = toc_current['url']
+                #if the url has a #identifier, use it. Otherwise, make
+                #one up, using a hidden element at the beginning of
+                #the inserted document.
+                #XXX this will break if different files use the same ids
+                #XXX should either replace all, or replace selectively.
+                if '#' in url:
+                    toc_current['url'] = url[url.index('#'):]
+                else:
+                    body = _find_tag(root, 'body')
+                    urlid = '%s_%s' % (self.cookie, toc_current['position'])
+                    #should perhaps reuse first tag if it is there.
+                    marker = lxml.html.SubElement(root, 'div', style="display:none",
+                                                  id=url_id, name=urlid)
+                    body.insert(0, marker)
+                    toc_current['url'] = urlid
+                try:
+                    toc_current = tocitems.next()
+                except StopIteration:
+                    toc_current = None
+            add_guts(root, doc)
+        return doc
 
     def load_book(self):
-        """Fetch and parse the raw html of the book.  Links in the
-        document will be made absolute."""
-        html = twiki_wrapper.get_book_html(self.server, self.book, self.dir)
-        self.save_tempfile('raw.html', html)
+        """"""
+        #XXX concatenate the HTML to match how TWiki version worked.
+        # This is perhaps foolishly early -- throwing away useful boundaries.
+        self.tree = self.concat_html()
+        self.save_tempfile('raw.html', etree.tostring(self.tree, method='html'))
 
-        self.tree = lxml.html.document_fromstring(html)
-        self.tree.make_links_absolute(config.BOOK_URL % (self.server, self.book))
         self.headings = [x for x in self.tree.cssselect('h1')]
         if self.headings:
             self.headings[0].set('class', "first-heading")
         for h1 in self.headings:
             h1.title = h1.text_content().strip()
         self.notify_watcher()
-
-    def load(self):
-        """Wrapper around all necessary load methods."""
-        self.load_book()
-        self.load_toc()
 
     def make_contents(self):
         """Generate HTML containing the table of contents.  This can

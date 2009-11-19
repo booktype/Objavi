@@ -291,7 +291,7 @@ def mode_book(args):
               license=args.get('license'), title=args.get('title')) as book:
         if CGI_CONTEXT:
             book.spawn_x()
-        book.load()
+        book.load_book()
         book.add_css(args.get('css'), mode)
         book.add_section_titles()
 
@@ -325,7 +325,7 @@ def mode_openoffice(args):
               license=args.get('license'), title=args.get('title')) as book:
         if CGI_CONTEXT:
             book.spawn_x()
-        book.load()
+        book.load_book()
         book.add_css(args.get('css'), 'openoffice')
         book.add_section_titles()
         book.make_oo_doc()
