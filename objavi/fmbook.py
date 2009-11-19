@@ -204,6 +204,20 @@ class Book(object):
                 self._try_cleanup_on_del = False #or else you can get in bad cycles
                 self.cleanup()
 
+    def get_tree_by_id(self, id):
+        """get an HTML tree from the given manifest ID"""
+        name, mimetype = self.manifest[id]
+        s = self.store.read(name)
+        f = StringIO(s)
+        if mimetype == 'text/html':
+            tree = lxml.html.parse(f)
+        elif 'xml' in mimetype: #XXX or is this just asking for trouble?
+            tree = etree.parse(f)
+        else:
+            tree = f.read()
+        f.close()
+        return tree
+
     def filepath(self, fn):
         return os.path.join(self.workdir, fn)
 
