@@ -179,6 +179,19 @@ class TocItem(object):
     def __str__(self):
         return '<toc: %s>' %  ', '.join('%s: %s' % x for x in self.__dict__.iteritems())
 
+    def as_zipitem(self):
+        item =  {
+            "title": self.title,
+            "url": self.chapter + '.html',
+            'type': 'chapter'
+            }
+        if self.is_section:
+            item["url"] = None
+            item['type'] = 'booki-section'
+            item['children'] = []
+        return item
+
+
 class TWikiBook(object):
     def __init__(self, book, server, bookname):
         log("*** Extracting TWiki book %s ***" % bookname)
@@ -203,14 +216,31 @@ class TWikiBook(object):
         title_map = {}
         authors = {}
         meta = {
-            'language': self.lang,
-            'identifier': 'http://%s/epub/%s/%s' %(self.server, self.book, time.strftime('%Y.%m.%d-%H.%M.%S')),
-            'publisher': 'FLOSS Manuals http://flossmanuals.net',
-            'creator': 'The Contributors',
-            'date': time.strftime('%Y-%m-%d'),
-            'fm:server': self.server,
-            'fm:book': self.book,
-            'title': self.book,
+            config.DC: {
+                "publisher": {
+                    "": ["FLOSS Manuals http://flossmanuals.net"]
+                    },
+                'language': {
+                    "": [self.lang]
+                    },
+                'identifier': {
+                    "": ['http://%s/epub/%s/%s' %
+                         (self.server, self.book, time.strftime('%Y.%m.%d-%H.%M.%S'))]
+                    },
+                'creator': {
+                    "": ['The Contributors']
+                    },
+                'date': {
+                    "": [time.strftime('%Y-%m-%d')]
+                    },
+                'title': {
+                    "": [self.book]
+                    },
+                },
+            config.FM: {
+                'server': {"": [self.server]},
+                'book': {"": [self.book]},
+                }
             }
         spine = []
         toc = []
@@ -219,13 +249,16 @@ class TWikiBook(object):
         for t in toc_iterator(self.server, self.book):
             if t.is_chapter():
                 spine.append(t.chapter)
-                section.append((t.title, t.chapter + '.html')) #XXX
+                section.append(t.as_zipitem())
                 title_map[t.title] = t.chapter
+                if toc and toc[-1]['url'] is None:
+                    toc[-1]['url'] = section[-1]['url']
             elif t.is_section():
-                section = []
-                toc.append([[t.title, None], section])
+                item = t.as_zipitem()
+                section = item['children']
+                toc.append(item)
             elif t.is_title():
-                meta['title'] = t.title
+                meta[config.DC]['title'][''] = [t.title]
 
         author_copyright, chapter_copyright = get_book_copyright(self.server, self.book, title_map)
 
