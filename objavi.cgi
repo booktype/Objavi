@@ -25,7 +25,7 @@ import os, sys
 import re, time
 from pprint import pformat
 
-from objavi.fmbook import log, Book, ZipBook, make_book_name, HTTP_HOST
+from objavi.fmbook import log, Book, make_book_name, HTTP_HOST
 from objavi import config
 from objavi.cgi_utils import parse_args, optionise, listify, shift_file
 from objavi.cgi_utils import output_blob_and_exit
