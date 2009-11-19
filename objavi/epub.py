@@ -1,7 +1,6 @@
 """Module for dealing with epub -> booki conversions."""
 
 import os, sys
-from pprint import pprint, pformat
 import zipfile
 from cStringIO import StringIO
 import copy
@@ -717,7 +716,6 @@ def parse_ncx(ncx):
     if navlist is not None:
         ret['navlist'] = parse_navlist(navlist)
 
-    #pprint(ret)
     return ret
 
 
