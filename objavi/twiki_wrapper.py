@@ -4,12 +4,12 @@ import os, sys, time, re
 import tempfile
 
 from objavi import config
-from objavi.cgi_utils import log
+from objavi.cgi_utils import log, guess_lang, guess_text_dir
 from urllib2 import urlopen
 
 import lxml.html
 
-CHAPTER_TEMPLATE = '''<html>
+CHAPTER_TEMPLATE = '''<html dir="%(dir)s">
 <head>
 <title>%(title)s</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -84,7 +84,8 @@ def get_chapter_html(server, book, chapter, wrapped=False):
     if wrapped:
         html = CHAPTER_TEMPLATE % {
             'title': '%s: %s' % (book, chapter),
-            'text': html
+            'text': html,
+            'dir': guess_text_dir(server, book)
         }
     return html
 
@@ -174,12 +175,6 @@ class TocItem(object):
             item['children'] = []
         return item
 
-def guess_lang(server, book):
-    lang = config.SERVER_DEFAULTS[server].get('lang')
-    if lang is None and '_' in book:
-            lang = book[book.rindex('_') + 1:]
-    return lang
-
 
 class TWikiBook(object):
     def __init__(self, book, server, bookname):
@@ -223,9 +218,13 @@ class TWikiBook(object):
                 'book': {"": [self.book]},
                 }
             }
-        lang = guess_lang(server, book)
+
+        lang = guess_lang(self.server, self.book)
+        dir = guess_text_dir(self.server, self.book)
         if lang is not None:
-            meta[config.DC][language][""] = [lang]
+            meta[config.DC]['language'][""] = [lang]
+        if dir is not None:
+            meta[config.FM]['dir'][""] = [dir]
 
         spine = []
         toc = []

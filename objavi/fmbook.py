@@ -50,22 +50,6 @@ DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
 HTTP_HOST = os.environ.get('HTTP_HOST', '')
 PUBLISH_PATH = "%s/books/" % DOC_ROOT
 
-def guess_text_dir(server, book):
-    try:
-        dir = config.SERVER_DEFAULTS[server]['dir']
-    except KeyError:
-        dir = 'auto'
-    if dir == 'auto':
-        if '_' in book:
-            lang = book[book.rindex('_') + 1:]
-            dir = config.LANGUAGE_DIR.get(lang, 'LTR')
-        elif '.' in server:
-            lang = server[:server.index('.')]
-            dir = config.LANGUAGE_DIR.get(lang, 'LTR')
-        else:
-            dir = 'LTR'
-    return dir
-
 
 def _add_initial_number(e, n):
     """Put a styled chapter number n at the beginning of element e."""
@@ -143,19 +127,18 @@ class Book(object):
         if server == config.LOCALHOST: # [DEPRECATED]
             server = get_metadata(self.metadata, 'server', ns=config.FM, default=[server])[0]
             book = get_metadata(self.metadata, 'book', ns=config.FM, default=[book])[0]
-        defaults = config.SERVER_DEFAULTS[server]
-        self.lang = get_metadata(self.metadata, 'language', default=[defaults['lang']])[0]
-        textdir = guess_text_dir(server, book)
-        self.dir  = get_metadata(self.metadata, 'dir', ns=config.FM, default=[textdir])[0]
 
-        #Patch in the extra metadata.
+        self.lang = get_metadata(self.metadata, 'language')[0]
+        self.dir = get_metadata(self.metadata, 'dir', ns=config.FM)[0]
+
+        #Patch in the extra metadata. (lang and dir may be set from config)
         #these should be read from zip -- so should go into zip?
         for var, key, scheme, ns in (
             (isbn, 'id', 'ISBN', config.DC),
             (license, 'rights', 'License', config.DC),
-            (lang, 'language', '', config.DC),
             (title, 'title', '', config.DC),
-            (dir, 'dir', '', config.FM),
+            (self.lang, 'language', '', config.DC),
+            (self.dir, 'dir', '', config.FM),
             ):
             if var is not None:
                 add_metadata(self.metadata, key, var, scheme=scheme, ns=ns)
