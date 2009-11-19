@@ -135,7 +135,7 @@ SERVER_DEFAULTS = {
         'css-newspaper': 'static/translate.flossmanuals.net-newspaper.css',
         'css': 'static/translate.flossmanuals.net.css',
         'css-openoffice': 'static/translate.flossmanuals.net-openoffice.css',
-        'lang': 'translate',
+        'lang': None,
         'dir': 'auto',
         'toc-encoding': 'iso-8859-1',
         'display': True,
@@ -181,14 +181,14 @@ SERVER_DEFAULTS = {
 
 
 LANGUAGE_DIR = {
-     ar: 'RTL',  # arabic (many variants)
-     dv: 'RTL',  # dhivehi, maldives islands
-     fa: 'RTL',  # farsi
-     #ha: 'RTL',  # hausa, west africa, particularly niger and nigeria
-     he: 'RTL',  # hebrew
-     ps: 'RTL',  # pashto
-     ur: 'RTL',  # urdu, pakistan
-     yi: 'RTL',  # yiddish, israel
+    "ar": 'RTL',  # arabic (many variants)
+    "dv": 'RTL',  # dhivehi, maldives islands
+    "fa": 'RTL',  # farsi
+    #"ha": 'RTL',  # hausa, west africa, particularly niger and nigeria
+    "he": 'RTL',  # hebrew
+    "ps": 'RTL',  # pashto
+    "ur": 'RTL',  # urdu, pakistan
+    "yi": 'RTL',  # yiddish, israel
 }
 
 # uncomment a debug mode to get messages about that topic.

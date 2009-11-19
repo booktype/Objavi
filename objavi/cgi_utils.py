@@ -34,6 +34,30 @@ def make_book_name(book, server, suffix='.pdf'):
                            time.strftime('%Y.%m.%d-%H.%M.%S'),
                            suffix)
 
+def guess_lang(server, book):
+    lang = config.SERVER_DEFAULTS[server].get('lang')
+    if lang is None and '_' in book:
+            lang = book[book.rindex('_') + 1:]
+    return lang
+
+def guess_text_dir(server, book):
+    try:
+        dir = config.SERVER_DEFAULTS[server]['dir']
+    except KeyError:
+        dir = None
+    if dir not in ('LTR', 'RTL'):
+        log("server %s, book %s: no specified dir (%s)" %(server, book, dir))
+        if '_' in book:
+            lang = book[book.rindex('_') + 1:]
+            dir = config.LANGUAGE_DIR.get(lang, 'LTR')
+        elif '.' in server:
+            lang = server[:server.index('.')]
+            dir = config.LANGUAGE_DIR.get(lang, 'LTR')
+        else:
+            dir = 'LTR'
+    log("server %s, book %s: found dir %s" %(server, book, dir))
+    return dir
+
 def run(cmd):
     try:
         p = Popen(cmd, stdout=PIPE, stderr=PIPE)
