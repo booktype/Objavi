@@ -174,6 +174,12 @@ class TocItem(object):
             item['children'] = []
         return item
 
+def guess_lang(server, book):
+    lang = config.SERVER_DEFAULTS[server].get('lang')
+    if lang is None and '_' in book:
+            lang = book[book.rindex('_') + 1:]
+    return lang
+
 
 class TWikiBook(object):
     def __init__(self, book, server, bookname):
@@ -182,15 +188,9 @@ class TWikiBook(object):
         self.server = server
         self.workdir = tempfile.mkdtemp(prefix=bookname, dir=config.TMPDIR)
         os.chmod(self.workdir, 0755)
-        defaults = config.SERVER_DEFAULTS[server]
-        self.lang = defaults['lang']
-        self.dir  = defaults['dir']
-
-        self.publish_name = bookname
 
     def filepath(self, fn):
         return os.path.join(self.workdir, fn)
-
 
     def get_twiki_metadata(self):
         """Get information about a twiki book (as much as is easy and useful)."""
@@ -223,6 +223,10 @@ class TWikiBook(object):
                 'book': {"": [self.book]},
                 }
             }
+        lang = guess_lang(server, book)
+        if lang is not None:
+            meta[config.DC][language][""] = [lang]
+
         spine = []
         toc = []
         section = toc
