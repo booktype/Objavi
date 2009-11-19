@@ -6,6 +6,7 @@ import tempfile
 from objavi import config
 from objavi.cgi_utils import log, guess_lang, guess_text_dir
 from urllib2 import urlopen
+from booki.bookizip import add_metadata
 
 import lxml.html
 
@@ -223,9 +224,9 @@ class TWikiBook(object):
         dir = guess_text_dir(self.server, self.book)
         log(self.server, self.book, lang, dir)
         if lang is not None:
-            meta[config.DC]['language'][""] = [lang]
+            add_metadata(meta, 'language', lang)
         if dir is not None:
-            meta[config.FM]['dir'][""] = [dir]
+            add_metadata(meta, 'dir', dir, ns=config.FM)
 
         spine = []
         toc = []
