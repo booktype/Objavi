@@ -400,6 +400,7 @@ PROGRESS_POINTS = (
 #XML namespace stuff
 DCNS = "{http://purl.org/dc/elements/1.1/}"
 DC = "http://purl.org/dc/elements/1.1/"
+FM = "http://booki.cc/"
 XHTMLNS = '{http://www.w3.org/1999/xhtml}'
 XHTML = 'http://www.w3.org/1999/xhtml'
 
