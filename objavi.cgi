@@ -287,7 +287,7 @@ def mode_book(args):
     progress_bar = make_progress_page(bookid, bookname, mode)
 
     with Book(bookid, server, bookname, page_settings=page_settings,
-              watcher=progress_bar, isbn=args.get('isbn'),
+              watcher=progress_bar, isbn=args.get('isbn'), project=args.get('project'),
               license=args.get('license'), title=args.get('title')) as book:
         if CGI_CONTEXT:
             book.spawn_x()
@@ -320,7 +320,7 @@ def mode_openoffice(args):
     bookname = make_book_name(bookid, server, '.odt')
     progress_bar = make_progress_page(bookid, bookname, 'openoffice')
 
-    with Book(bookid, server, bookname,
+    with Book(bookid, server, bookname,  project=args.get('project'),
               watcher=progress_bar, isbn=args.get('isbn'),
               license=args.get('license'), title=args.get('title')) as book:
         if CGI_CONTEXT:

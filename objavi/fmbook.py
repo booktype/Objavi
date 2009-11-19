@@ -97,11 +97,12 @@ class Book(object):
         self.cleanup()
         #could deal with exceptions here and return true
 
-    def __init__(self, book, server, bookname,
+
+    def __init__(self, book, server, bookname, project=None,
                  page_settings=None, watcher=None, isbn=None,
                  license=config.DEFAULT_LICENSE, title=None):
         log("*** Starting new book %s ***" % bookname,
-            "starting zipbook with", server, book, project, kwargs)
+            "starting zipbook with", server, book, project)
         self.bookname = bookname
         self.book = book
         self.server = server
