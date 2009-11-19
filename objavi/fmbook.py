@@ -42,6 +42,7 @@ from lxml import etree
 from objavi import config, epub_utils
 from objavi.cgi_utils import log, run, shift_file, make_book_name
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline
+from objavi.epub import add_guts, _find_tag
 
 from iarchive import epub as ia_epub
 from booki.xhtml_utils import EpubChapter
@@ -113,6 +114,7 @@ class Book(object):
         self.server = server
         self.watcher = watcher
         self.project = project
+        self.cookie = ''.join(random.sample(ascii_letters, 10))
 
         blob = fetch_zip(server, book, project, save=True)
         f = StringIO(blob)
@@ -133,7 +135,7 @@ class Book(object):
             book = get_metadata(self.metadata, 'book', ns=config.FM, default=[book])[0]
 
         log(pformat(self.metadata))
-        self.lang = get_metadata(self.metadata, 'language')[0]
+        self.lang = get_metadata(self.metadata, 'language', default=[None])[0]
         self.dir = get_metadata(self.metadata, 'dir', ns=config.FM)[0]
 
         #Patch in the extra metadata. (lang and dir may be set from config)
@@ -855,8 +857,7 @@ class Book(object):
 
 def fetch_zip(server, book, project, save=False):
     from urllib2 import urlopen
-    settings = config.SERVER_DEFAULTS[server]
-    interface = settings['interface']
+    interface = config.SERVER_DEFAULTS[server]['interface']
     if interface not in ('Booki', 'TWiki'):
         raise NotImplementedError("Can't handle '%s' interface" % interface)
     if interface == 'Booki':
