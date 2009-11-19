@@ -125,6 +125,8 @@ class Book(object):
             #check types also?
 
         self.metadata = self.info['metadata']
+        self.spine = self.info['spine']
+        self.manifest = self.info['manifest']
 
         if server == config.LOCALHOST: # [DEPRECATED]
             server = get_metadata(self.metadata, 'server', ns=config.FM, default=[server])[0]
@@ -598,15 +600,12 @@ class Book(object):
         """Make an epub version of the book, using Mike McCabe's
         epub module for the Internet Archive."""
         ebook = ia_epub.Book(self.epubfile, content_dir='')
-        manifest = self.info['manifest']
-        metadata = self.info['metadata']
         toc = self.info['TOC']
-        spine = self.info['spine']
 
         #manifest
         filemap = {} #reformulated manifest for NCX
-        for ID in manifest:
-            fn, mediatype = manifest[ID]
+        for ID in self.manifest:
+            fn, mediatype = self.manifest[ID]
             #work around bug http://booki-dev.flossmanuals.net/ticket/46
             if ID.endswith('.html'):
                 ID = ID[:-5]
@@ -635,11 +634,11 @@ class Book(object):
             ebook.add_content(info, content)
 
         #toc
-        ncx = epub_utils.make_ncx(toc, metadata, filemap)
+        ncx = epub_utils.make_ncx(toc, self.metadata, filemap)
         ebook.add(ebook.content_dir + 'toc.ncx', ncx)
 
         #spine
-        for ID in spine:
+        for ID in self.spine:
             ebook.add_spine_item({'idref': ID})
 
         #metadata -- no use of attributes (yet)
@@ -647,7 +646,7 @@ class Book(object):
         dcns = config.DCNS
         meta_info_items = []
         has_authors = False
-        for k, v in metadata.iteritems():
+        for k, v in self.metadata.iteritems():
             if k.startswith('fm:'):
                 continue
             meta_info_items.append({'item': dcns + k,
