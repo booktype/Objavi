@@ -170,7 +170,7 @@ class TocItem(object):
             "url": self.chapter + '.html',
             'type': 'chapter'
             }
-        if self.is_section:
+        if self.is_section():
             item["url"] = None
             item['type'] = 'booki-section'
             item['children'] = []
@@ -196,9 +196,6 @@ class TWikiBook(object):
             config.DC: {
                 "publisher": {
                     "": ["FLOSS Manuals http://flossmanuals.net"]
-                    },
-                'language': {
-                    "": [self.lang]
                     },
                 'identifier': {
                     "": ['http://%s/epub/%s/%s' %
