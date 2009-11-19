@@ -75,8 +75,7 @@ def toc_iterator(server, book):
     f.close()
 
 def get_book_html(server, book, dir):
-    """Fetch and parse the raw html of the book.  If tidy is true
-    (default) links in the document will be made absolute."""
+    """Fetch and parse the raw html of the book."""
     url = config.BOOK_URL % (server, book)
     log('getting book html: %s' % url)
     f = urlopen(url)
@@ -204,8 +203,6 @@ class TWikiBook(object):
         self.dir  = defaults['dir']
 
         self.publish_name = bookname
-        #self.publish_file = os.path.join(PUBLISH_PATH, self.publish_name)
-        #self.publish_url = os.path.join(config.PUBLISH_URL, self.publish_name)
 
     def filepath(self, fn):
         return os.path.join(self.workdir, fn)
