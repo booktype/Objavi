@@ -132,25 +132,25 @@ here:
 
   "manifest": {
     "Introduction": [
-      "Introduction.html",
-      "text/html",
-      ["Adam Hyde", "Aleksander Erkalovic"]
-      ["Adam Hyde"],
-      ["CC-BY-SA"]
+      "url":           "Introduction.html",
+      "mimetype":      "text/html",
+      "contributors":  ["Adam Hyde", "Aleksander Erkalovic"]
+      "rightsholders": ["Adam Hyde"],
+      "license":       ["CC-BY-SA"]
     ],
     "arbitrary-identifier_0005": [
-      "UseCases.html",
-      "text/html",
-      [],
-      ["Wikimedia Foundation"],
-      ["FDL","CC-BY-SA"],
+      "url":          "UseCases.html",
+      "mimetype":      "text/html",
+      "contributors":  [],
+      "rightsholders": ["Wikimedia Foundation"],
+      "license":       ["FDL","CC-BY-SA"],
     ],
     "BookSprints-ott-adam-en.jpg": [
-      "static/BookSprints-ott-adam-en.jpg",
-      "image/jpeg",
-      ["Ansell Adams"],
-      ["Ansell Adams"],
-      []
+      "url":           "static/BookSprints-ott-adam-en.jpg",
+      "mimetype":      "image/jpeg",
+      "contributors":  ["Ansell Adams"],
+      "rightsholders": ["Ansell Adams"],
+      "license":       []
     ]
   }
 
