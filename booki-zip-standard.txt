@@ -1,4 +1,4 @@
-booki-zip format
+Booki-zip format
 ================
 
 This describes the booki-zip format that Booki, Espri, and Objavi use
@@ -176,7 +176,7 @@ info.json TOC
 
 The TOC (Table of Contents) specifies navigation points with the book.
 It uses a nested structure, with less significant divisions being
-contained within the "children" attribute of greater division.  
+contained within the "children" attribute of the greater division.
 
 The "TOC" element itself is a list of objects with the following
 structure:
@@ -253,7 +253,7 @@ scheme name.
   }
 
 Booki uses Dublin Core[7] metadata keywords wherever possible, which are
-stored under the namespace "http://purl.org/dc/elements/1.1/".  For a 
+stored under the namespace "http://purl.org/dc/elements/1.1/".
 
 An example metadata section is shown below:
 
