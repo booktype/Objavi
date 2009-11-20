@@ -135,16 +135,22 @@ here:
       "Introduction.html",
       "text/html",
       ["Adam Hyde", "Aleksander Erkalovic"]
+      ["Adam Hyde"],
+      ["CC-BY-SA"]
     ],
     "arbitrary-identifier_0005": [
       "UseCases.html",
       "text/html",
-      []
+      [],
+      ["Wikimedia Foundation"],
+      ["FDL","CC-BY-SA"],
     ],
     "BookSprints-ott-adam-en.jpg": [
       "static/BookSprints-ott-adam-en.jpg",
       "image/jpeg",
-      ["Ansell Adams"]
+      ["Ansell Adams"],
+      ["Ansell Adams"],
+      []
     ]
   }
 
