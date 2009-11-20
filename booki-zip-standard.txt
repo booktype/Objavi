@@ -90,7 +90,13 @@ info.json manifest
 The manifest is a mapping of identifiers to file names and mime-types.
 Each entry looks like:
 
-    identifier: [filename, mimetype, authors]
+ identifier: {
+    "filename": filename,
+    "mimetype": mimetype,
+    "contributors": contributors,
+    "rightsholders": rightsHolders,
+    "license": license
+}
 
 The constraints on *identifier* match the XML name specification[4]
 (in short, avoid spaces and most punctuation).  In practise, the
@@ -103,8 +109,14 @@ the zip index.
  html files must be of type 'text/html', and other files should be
  correctly identified.
 
-*authors* is a list of names of people who have contributed to this
+*contributors* is a list of names of people who have contributed to this
  file.  It can be empty.
+
+*rightsHolders* is a list of the people or organisation that manages
+ the rights for the chapter
+
+*license* - a list of license applicable to the chapter. It can
+ contain more than one entry. XXX define entries.
 
 The manifest shouldn't list the 'mimetype' or 'info.json' files, just
 the editable html and associated static files.
