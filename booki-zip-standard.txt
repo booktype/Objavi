@@ -284,6 +284,9 @@ An example metadata section is shown below:
       "identifier": {
         "flossmanuals.net": ["http://en.flossmanuals.net/epub/GSoCMentoring/2009.10.23-19.49.01"],
         "archive.org": ["gsocmentoring00fm"]
+      },
+      "rights":{
+        "": ["Copyright The Contributors.  Licensed under the GPLv2.  See Appendix.html in this zip file or http://whatever for details"]
       }
    },
    "http://booki.cc/": {
@@ -298,6 +301,30 @@ An example metadata section is shown below:
       }
   }
 
+There must be "language", "creator", "identifier", and "title" Dublin
+Core elements present.  The "contributor" Dublin Core element should
+list all contributors to individual files, as listed in the manifest,
+unless those contributors are already identified in the "creator"
+field.
+
+The Dublin Core rights element should contain a human readable summary
+of the book's copyright and license.
+
+The "http://booki.cc" namespace can contain the following elements:
+
+*server* the Booki or FLOSS Manuals server on which the book is
+ edited.
+
+*book* the book's identifier on that server.
+
+*dir* the primary text direction ('LTR' or 'RTL').  If unspecified,
+ 'LTR' is assumed.
+
+*license* licenses used in the book in abbreviated form (XXX define)
+
+Other namespaces are permitted but will not be used by Booki.  They
+will, as far as possible, be preserved through Booki edits and be
+exported to other formats.
 
 
 references
