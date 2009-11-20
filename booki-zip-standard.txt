@@ -46,7 +46,7 @@ static/
 All references from the html to the files in 'static' should use
 relative addresses.  For example, an image should be linked thus:
 
-<img src="static/BookSprints-ott-adam-en.jpg" />
+<img src="static/BookSprints-ott-adam-en.jpg" alt="" />
 
 It is recommended but not required that the file names have
 conventional extensions (".html", ".jpg", etc).  File names should not
@@ -90,8 +90,8 @@ info.json manifest
 The manifest is a mapping of identifiers to file names and mime-types.
 Each entry looks like:
 
-    identifier: [filename, mimetype]
-    
+    identifier: [filename, mimetype, authors]
+
 The constraints on *identifier* match the XML name specification[4]
 (in short, avoid spaces and most punctuation).  In practise, the
 *identifier* is often related to the *filename*.
@@ -103,6 +103,9 @@ the zip index.
  html files must be of type 'text/html', and other files should be
  correctly identified.
 
+*authors* is a list of names of people who have contributed to this
+ file.  It can be empty.
+
 The manifest shouldn't list the 'mimetype' or 'info.json' files, just
 the editable html and associated static files.
 
@@ -111,16 +114,19 @@ here:
 
   "manifest": {
     "Introduction": [
-      "Introduction.html", 
-      "text/html"
-    ], 
+      "Introduction.html",
+      "text/html",
+      ["Adam Hyde", "Aleksander Erkalovic"]
+    ],
     "arbitrary-identifier_0005": [
-      "UseCases.html", 
-      "text/html"
-    ], 
+      "UseCases.html",
+      "text/html",
+      []
+    ],
     "BookSprints-ott-adam-en.jpg": [
-      "static/BookSprints-ott-adam-en.jpg", 
-      "image/jpeg"
+      "static/BookSprints-ott-adam-en.jpg",
+      "image/jpeg",
+      ["Ansell Adams"]
     ]
   }
 
@@ -134,7 +140,7 @@ they appear in the book.  It looks like:
  "spine": [ identifier, identifier,... ]
 
 where each *identifier* is the manifest identifier for an editable
-html page.  
+html page.
 
 Here is a possible spine for the manifest used in the previous
 example:
@@ -143,6 +149,61 @@ example:
 
 info.json TOC
 =============
+
+The TOC (Table of Contents) specifies navigation points with the book.
+It uses a nested structure, with less significant divisions being
+contained within the "children" attribute of greater division.  
+
+The "TOC" element itself is a list of objects with the following
+structure:
+
+ {
+   "title":    division title (optional),
+   "url":      filename and possible fragment ID,
+   "type":     string indicating division type (optional),
+   "role":     epub guide type (optional),
+   "children": list of TOC structures (optional)
+ }
+
+*title* is a free string giving the divisions title. It may be omitted.
+
+*url* points to the start of the division.  It should consist of a
+ filename as found in the manifest, optionally followed by a '#' and a
+ fragment identifier.
+
+*type* is a string indicating what kind of navigation point it is.
+ This might be used to determine text styles.
+
+*role*, if present, indicates the navigation point has a particular
+ structural role.  It must be a keyword for "reference type" as
+ defined in the guide section of the epub OPF specification[6].
+
+*children*, if present, contains a list of objects following this same
+ specification.  These are subsections of this section.
+
+An example:
+
+"TOC": [
+   {
+    "title": "INTRODUCTION",
+    "url": "Introduction.html",
+    "type": "booki-section",
+    "children": [
+        {
+         "title": "WHAT IS GSoC?",
+         "url": "Introduction.html",
+         "type": "chapter",
+         "role": "text"
+         },
+        {
+         "title": "WHY GSOC MATTERS",
+         "url": "Testimonials.html",
+         "type": "chapter",
+         "children" [ ... ]
+         }
+      ]
+   }
+]
 
 
 info.json metadata
@@ -162,33 +223,33 @@ scheme name.
      namespace: {
         keyword: {
            scheme: [value, value,...],
-           scheme: [value]
+           scheme: [value],...
         },...
      },...
   }
 
-Booki uses Dublin Core metadata keywords wherever possible, which are
-stored under the namespace "http://purl.org/dc/elements/1.1/".
+Booki uses Dublin Core[7] metadata keywords wherever possible, which are
+stored under the namespace "http://purl.org/dc/elements/1.1/".  For a 
 
 An example metadata section is shown below:
 
   "metadata": {
     "http://purl.org/dc/elements/1.1/": {
       "publisher": {
-        "": ["FLOSS Manuals http://flossmanuals.net"] 
+        "": ["FLOSS Manuals http://flossmanuals.net"]
       },
       "language": {
         "": ["en"]
       },
       "creator": {
         "": ["The Contributors"]
-      }, 
+      },
       "contributor": {
-        "": ["Jennifer Redman", "Bart Massey", "Alexander Pico", 
-             "selena deckelmann", "Anne Gentle", "adam hyde", "Olly Betts", 
-             "Jonathan Leto", "Google Inc And The Contributors", 
-             "Leslie Hawthorn"]   
-      }, 
+        "": ["Jennifer Redman", "Bart Massey", "Alexander Pico",
+             "selena deckelmann", "Anne Gentle", "adam hyde", "Olly Betts",
+             "Jonathan Leto", "Google Inc And The Contributors",
+             "Leslie Hawthorn"]
+      },
       "title": {
         "": ["GSoC Mentoring"]
       },
@@ -197,16 +258,19 @@ An example metadata section is shown below:
         "last-modified": ["2009-10-30"]
       },
       "identifier": {
-        "flossmanuals.net": ["http://en.flossmanuals.net/epub/GSoCMentoring/2009.10.23-19.49.01"], 
+        "flossmanuals.net": ["http://en.flossmanuals.net/epub/GSoCMentoring/2009.10.23-19.49.01"],
         "archive.org": ["gsocmentoring00fm"]
       }
    },
    "http://booki.cc/": {
-      "fm:server": { 
+      "server": {
         "": ["en.flossmanuals.net"]
-      }, 
-      "fm:book": {
+      },
+      "book": {
          "": ["GSoCMentoring"]
+      }
+      "dir": {
+         "": ["LTR"]
       }
   }
 
@@ -221,4 +285,7 @@ references
 [3] JSON specification: http://json.org/
 [4] XML name specification http://www.w3.org/TR/REC-xml/#NT-Name
 [5] Media types http://www.iana.org/assignments/media-types/
-[6] Dublin Core metadata elements http://dublincore.org/documents/2004/12/20/dces/
+[6] Guides in epub http://www.idpf.org/2007/opf/OPF_2.0_final_spec.html#Section2.6
+[7] Dublin Core metadata elements http://dublincore.org/documents/2004/12/20/dces/
+
+
