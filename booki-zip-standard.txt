@@ -73,6 +73,7 @@ carries metadata.  It is a JSON file [3], containing a single JSON
 object with 5 members, as shown here:
 
 {
+  "version": 1,
   "spine": [ ... ],
   "TOC": [ ... ],
   "manifest": { ... },
@@ -82,7 +83,12 @@ object with 5 members, as shown here:
 Being JSON object members, the ordering of these elements is not
 significant.  The following order is for narrative purposes only.
 
+info.json version
+=================
 
+This indicates which version of the booki-zip standard is being used.
+This document describes version 1.  If the version is not 1, nothing
+else here necessarily applies.
 
 info.json manifest
 ==================
