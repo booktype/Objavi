@@ -2,8 +2,7 @@ Booki-zip format
 ================
 
 This describes the booki-zip format that Booki, Espri, and Objavi use
-to communicate with each other.  Tools that import into Booki should
-import into this format.
+to communicate with each other.
 
 Zip container format.
 =====================
@@ -77,7 +76,7 @@ object with 5 members, as shown here:
   "spine": [ ... ],
   "TOC": [ ... ],
   "manifest": { ... },
-  "metadata": { ... },
+  "metadata": { ... }
 }
 
 Being JSON object members, the ordering of these elements is not
@@ -121,8 +120,14 @@ the zip index.
 *rightsHolders* is a list of the people or organisation that manages
  the rights for the chapter
 
-*license* - a list of license applicable to the chapter. It can
- contain more than one entry. XXX define entries.
+*license* - a list of licenses applicable to the chapter.  If more
+ than one license is listed, the disjunction of these licenses
+ applies.  For the common licenses which have abbreviations listed in
+ the license section below, the abbreviation should be used.  Other
+ licenses should be listed as an url, which could be a relative url to
+ a file in the booki-zip.  Copyrighted files with no sharing license
+ should have an empty list ("[]"), and files out of copyright should
+ have "public domain" as their single member.
 
 The manifest shouldn't list the 'mimetype' or 'info.json' files, just
 the editable html and associated static files.
@@ -229,7 +234,6 @@ An example:
    }
 ]
 
-
 info.json metadata
 ==================
 
@@ -286,7 +290,7 @@ An example metadata section is shown below:
         "archive.org": ["gsocmentoring00fm"]
       },
       "rights":{
-        "": ["Copyright The Contributors.  Licensed under the GPLv2.  See Appendix.html in this zip file or http://whatever for details"]
+        "": ["Copyright The Contributors.  Licensed under the GPLv2.  See Appendix.html in this zip file or http://www.gnu.org/licenses/gpl-2.0.txt for details"]
       }
    },
    "http://booki.cc/": {
@@ -295,9 +299,12 @@ An example metadata section is shown below:
       },
       "book": {
          "": ["GSoCMentoring"]
-      }
+      },
       "dir": {
          "": ["LTR"]
+      },
+      "license": {
+         "": ["GPL"]
       }
   }
 
@@ -307,10 +314,10 @@ list all contributors to individual files, as listed in the manifest,
 unless those contributors are already identified in the "creator"
 field.
 
-The Dublin Core rights element should contain a human readable summary
-of the book's copyright and license.
+The Dublin Core "rights" element should contain a human readable
+summary of the book's copyright and license.
 
-The "http://booki.cc" namespace can contain the following elements:
+The "http://booki.cc/" namespace can contain the following elements:
 
 *server* the Booki or FLOSS Manuals server on which the book is
  edited.
@@ -318,18 +325,49 @@ The "http://booki.cc" namespace can contain the following elements:
 *book* the book's identifier on that server.
 
 *dir* the primary text direction ('LTR' or 'RTL').  If unspecified,
- 'LTR' is assumed.
+ 'LTR' is assumed, though software may determine the text direction
+ by inspecting the contents.
 
-*license* licenses used in the book in abbreviated form (XXX define)
+*license* licenses used in the book, using if possible the
+ abbreviations in the next section.  Multiple licenses listed here do
+ not necessarily indicate a disjunction of these licenses applies to
+ each file; rather it might mean each license applies to a different
+ subset of the files.  All licenses used should be included in the
+ text of the book.
 
 Other namespaces are permitted but will not be used by Booki.  They
 will, as far as possible, be preserved through Booki edits and be
 exported to other formats.
 
+license abbreviations
+=====================
+
+The following abbreviated license identifiers should be used for the
+licenses defined at the corresponding URLs.
+
+  GPL        http://www.gnu.org/licenses/gpl.txt
+  GPLv2      http://www.gnu.org/licenses/gpl-2.0.txt
+  GPLv2+     http://www.gnu.org/licenses/gpl-2.0.txt [or greater version]
+  GPLv3      http://www.gnu.org/licenses/gpl-3.0.txt
+  GPLv3+     http://www.gnu.org/licenses/gpl-3.0.txt [or greater version]
+  LGPL       http://www.gnu.org/licenses/lgpl.txt
+  LGPLv2.1   http://www.gnu.org/licenses/lgpl-2.1.txt
+  LGPLv2.1+  http://www.gnu.org/licenses/lgpl-2.1.txt [or greater version]
+  LGPLv3     http://www.gnu.org/licenses/lgpl-3.0.txt
+  BSD        http://www.debian.org/misc/bsd.license
+  MIT        http://www.opensource.org/licenses/mit-license.html
+  Artistic   http://dev.perl.org/licenses/artistic.html
+  CC-BY      http://creativecommons.org/licenses/by/3.0/
+  CC-BY-SA   http://creativecommons.org/licenses/by-sa/3.0/
+  public domain  [no copyright]
+
+Licenses not shown here should be listed as a URL that points to their
+text.  It is possible for the URL to point to a local file within the
+booki-zip, but it is preferable to use a stable external link if one
+exists.
 
 references
 ==========
-
 
 [1] Zip specification: http://www.pkware.com/documents/casestudies/APPNOTE.TXT
 [2] zipfile module: http://docs.python.org/library/zipfile.html
