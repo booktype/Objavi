@@ -12,7 +12,7 @@ body {
 }
 
 
-.chapter{
+.objavi-chapter{
   color: #000;
 }
 
@@ -21,7 +21,7 @@ h1 .initial{
   font-size: 2em;
 }
 
-.subsection{
+.objavi-subsection{
   display: block;
   page-break-before: always;
 /*  page-break-after: always;*/
@@ -29,17 +29,17 @@ h1 .initial{
   font-size: 20pt;
 }
 
-body .subsection:first-child{
+body .objavi-subsection:first-child{
   page-break-before: avoid;
 }
 
 
-.subsection .initial {
+.objavi-subsection .initial {
   font-size: 1em;
   color: #000;
 }
 
-.subsection-heading{
+.objavi-subsection-heading{
   font-size: 36pt;
   font-weight: bold;
 }
