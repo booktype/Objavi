@@ -64,6 +64,21 @@ def _add_initial_number(e, n):
     e.text = ''
     initial.text = "%s." % n
 
+def expand_toc(toc, depth=1, index=0):
+    """Reformat toc slightly for convenience"""
+    for item in toc:
+        url = item['url'].lstrip('/')
+        bits = url.split('#', 1)
+        filename = bits[0]
+        fragment = (bits[1] if len(bits) == 2 else None)
+        item['depth'] = depth
+        item["filename"] = filename
+        item["fragment"] = fragment
+        item["index"] = index
+        index += 1
+        if 'children' in item:
+            index = expand_toc(item['children'], depth + 1, index)
+    return index
 
 def _serialise(rtoc, stoc, depth):
     for item in rtoc:
@@ -153,7 +168,8 @@ class Book(object):
         self.isbn = get_metadata(self.metadata, 'id', scheme='ISBN', default=[None])[0]
         self.license = get_metadata(self.metadata, 'rights', scheme='License', default=[None])[0]
 
-        self.toc = serialise_toc(self.info['TOC'])
+        self.toc = self.info['TOC']
+        expand_toc(self.toc)
 
         self.workdir = tempfile.mkdtemp(prefix=bookname, dir=TMPDIR)
         os.chmod(self.workdir, 0755)
