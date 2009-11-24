@@ -82,17 +82,24 @@ def expand_toc(toc, depth=1, index=0):
 
 def _serialise(rtoc, stoc, depth):
     for item in rtoc:
+        url = item['url'].lstrip('/')
+        bits = url.split('#', 1)
+        filename = bits[0]
+        fragment = (bits[1] if len(bits) == 2 else None)
         stoc.append({"depth": depth,
                      "title": item['title'],
-                     "url": item['url'].lstrip('/'),
+                     "url": url,
+                     "filename": filename,
+                     "fragment": fragment,
                      "type": item['type']
                      })
         if 'children' in item:
             _serialise(item['children'], stoc, depth + 1)
 
+
 def serialise_toc(rtoc):
     """Take the recursive TOC structure and turn it into a list of
-    serial points."""
+    serial points.  Reformat some things for convenience."""
     stoc = []
     _serialise(rtoc, stoc, 1)
     for i, x in enumerate(stoc):
