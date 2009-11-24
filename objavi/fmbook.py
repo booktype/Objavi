@@ -54,6 +54,14 @@ HTTP_HOST = os.environ.get('HTTP_HOST', '')
 PUBLISH_PATH = "%s/books/" % DOC_ROOT
 
 
+def _get_best_title(tocpoint):
+    if 'html_title' in tocpoint:
+        return tocpoint['html_title']
+    if 'title' in tocpoint:
+        return tocpoint['title']
+    return 'Untitled'
+
+
 def _add_initial_number(e, n):
     """Put a styled chapter number n at the beginning of element e."""
     initial = e.makeelement("strong", Class="initial")
