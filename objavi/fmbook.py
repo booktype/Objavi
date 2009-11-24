@@ -608,10 +608,6 @@ class Book(object):
         filemap = {} #reformulated manifest for NCX
         for ID in self.manifest:
             fn, mediatype = self.manifest[ID]
-            #work around bug http://booki-dev.flossmanuals.net/ticket/46
-            if ID.endswith('.html'):
-                ID = ID[:-5]
-                log('took ".html" off "%s"' % ID)
 
             oldfn = fn
             log(ID, fn, mediatype)
