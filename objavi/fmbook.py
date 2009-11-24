@@ -854,6 +854,8 @@ class Book(object):
         self.notify_watcher()
 
 
+def use_cache():
+    return (os.environ.get('HTTP_HOST') in config.USE_ZIP_CACHE_ALWAYS_HOSTS)
 
 def fetch_zip(server, book, project, save=False):
     from urllib2 import urlopen
@@ -864,6 +866,23 @@ def fetch_zip(server, book, project, save=False):
         url = config.BOOKI_ZIP_URL  % {'server': server, 'project': project, 'book':book}
     else:
         url = config.TWIKI_GATEWAY_URL % (HTTP_HOST, server, book)
+
+    if use_cache():
+        log('WARNING: trying to use cached booki-zip',
+            'If you are debugging booki-zip creation, you will go CRAZY'
+            ' unless you switch this off')
+        try:
+            #find a zip from today if possible
+            zipname = '%s/%s*.zip' % (config.BOOKI_BOOK_DIR, make_book_name(book, server, '').rsplit('-', 1)[0])
+            from glob import glob
+            zipname = sorted(glob(zipname))[-1]
+            f = open(zipname)
+            blob = f.read()
+            f.close()
+            return blob
+        except (IOError, IndexError):
+            log("couldn't read %s" % (zipname,))
+
     log('fetching zip from %s'% url)
     f = urlopen(url)
     blob = f.read()

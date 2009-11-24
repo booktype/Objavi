@@ -90,7 +90,7 @@ if __name__ == '__main__':
     clean = bool(args.get('clean', False))
     use_cache = args.get('use-cache')
     if use_cache is None:
-        use_cache = (os.environ.get('HTTP_HOST') in config.USE_CACHE_ALWAYS_HOSTS)
+        use_cache = (os.environ.get('HTTP_HOST') in config.USE_IMG_CACHE_ALWAYS_HOSTS)
 
     make_all = args.get('all')
     if 'server' in args and 'book' in args:

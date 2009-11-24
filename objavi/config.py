@@ -412,7 +412,8 @@ NAVPOINT_ID_TEMPLATE = 'chapter%s'
 
 CLAIM_UNAUTHORED = False
 
-USE_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
+USE_IMG_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
+USE_ZIP_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
 
 IGNORABLE_TWIKI_BOOKS = ('Main', 'TWiki', 'PR', 'Trash', 'Sandbox')
 
