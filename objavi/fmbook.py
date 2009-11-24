@@ -464,10 +464,12 @@ class Book(object):
 
     def make_contents(self):
         """Generate HTML containing the table of contents.  This can
-        only be done after the main PDF has been made."""
+        only be done after the main PDF has been made, because the
+        page numbers are contained in the PDF outline."""
         header = '<h1>Table of Contents</h1><table class="toc">\n'
         row_tmpl = ('<tr><td class="chapter">%s</td><td class="title">%s</td>'
                     '<td class="pagenumber">%s</td></tr>\n')
+        empty_section_tmpl = ('<tr><td class="empty-section" colspan="3">%s</td></tr>\n')
         section_tmpl = ('<tr><td class="section" colspan="3">%s</td></tr>\n')
         footer = '\n</table>'
 
@@ -480,25 +482,20 @@ class Book(object):
         outline_contents = iter(self.outline_contents)
         headings = iter(self.headings)
 
-        for t in self.toc:
-            if t.is_chapter():
-                try:
-                    h1 = headings.next()
-                except StopIteration:
-                    log("heading not found for %s (previous h1 missing?). Stopping" % t)
-                    break
+        for section in self.toc:
+            if not section.get('children'):
+                contents.append(empty_section_tmpl % section['title'])
+                continue
+            contents.append(section_tmpl % section['title'])
+
+            for point in section['children']:
                 try:
                     h1_text, level, page_num = outline_contents.next()
                 except StopIteration:
                     log("contents data not found for %s. Stopping" % t)
                     break
-                log("%r %r" % (h1.title, h1_text))
-                contents.append(row_tmpl % (chapter, h1.title, page_num))
+                contents.append(row_tmpl % (chapter, _get_best_title(point), page_num))
                 chapter += 1
-            elif t.is_section():
-                contents.append(section_tmpl % t.title)
-            else:
-                log("mystery TOC item: %s" % t)
 
         doc = header + '\n'.join(contents) + footer
         self.notify_watcher()
@@ -515,38 +512,27 @@ class Book(object):
         section = None
         log(self.toc)
         for t in self.toc:
-            if t.is_chapter() and section is not None:
-                try:
-                    h1 = headings.next()
-                except StopIteration:
-                    log("heading not found for %s (previous h1 missing?)" % t)
-                    break
-                item = h1.makeelement('div', Class='chapter')
-                log(h1.title, debug='HTMLGEN')
-                item.text = h1.title
-                _add_initial_number(item, chapter)
+            #only top level sections get a subsection page,
+            #and only if they have children.
+            if t.get('children'):
+                section = self.tree.makeelement('div', Class="objavi-subsection")
+                heading = etree.SubElement(section, 'div', Class="objavi-subsection-heading")
+                heading.text = t['title']
+                for child in t['children']:
+                    item = etree.SubElement(section, 'div', Class="objavi-chapter")
+                    if 'html_title' in child:
+                        item.text = child['html_title']
+                        heading = self.tree.cssselect('#'+ child['html_id'])
+                        if heading:
+                            _add_initial_number(heading[0], chapter)
+                    else:
+                        item.text = child['title']
+                    _add_initial_number(item, chapter)
+                    log(item.text, debug='HTMLGEN')
+                    chapter += 1
+                location = self.tree.cssselect('#'+ t['html_id'])[0]
+                location.addprevious(section)
 
-                section.append(item)
-
-                if not section_placed:
-                    log("placing section", debug='HTMLGEN')
-                    h1.addprevious(section)
-                    section_placed = True
-                else:
-                    log("NOT placing section", debug='HTMLGEN')
-
-                #put a bold number at the beginning of the h1.
-                _add_initial_number(h1, chapter)
-                chapter += 1
-
-            elif t.is_section():
-                section = self.tree.makeelement('div', Class="subsection")
-                # section Element complains when you try to ask it whether it
-                # has been placed (though it does know)
-                section_placed = False
-                heading = lxml.html.fragment_fromstring(t.title, create_parent='div')
-                heading.set("Class", "subsection-heading")
-                section.append(heading)
 
         self.notify_watcher()
 
