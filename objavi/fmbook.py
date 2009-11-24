@@ -99,6 +99,19 @@ def serialise_toc(rtoc):
         x['position'] = i
     return stoc
 
+def filename_toc_map(rtoc):
+    tocmap = {}
+    log(rtoc)
+    def traverse(toc):
+        for point in toc:
+            log(point.keys())
+            tocmap.setdefault(point['filename'], []).append(point)
+            if 'children' in point:
+                traverse(point['children'])
+    traverse(rtoc)
+    return tocmap
+
+
 class Book(object):
     page_numbers = 'latin'
     preamble_page_numbers = 'roman'
@@ -399,34 +412,39 @@ class Book(object):
         up-to-date along the way."""
         #XXX do TOC
         doc = lxml.html.document_fromstring('<html><body></body></html>')
-        tocitems = iter(self.toc)
-        toc_current = tocitems.next()
-        toc2 = []
+        tocmap = filename_toc_map(self.toc)
         for ID in self.spine:
             fn, mimetype = self.manifest[ID]
-            tree = self.get_tree_by_id(ID)
-            root = tree.getroot()
-            while toc_current and toc_current['url'].startswith(fn):
-                url = toc_current['url']
+            root = self.get_tree_by_id(ID).getroot()
+            for point in tocmap[fn]:
                 #if the url has a #identifier, use it. Otherwise, make
                 #one up, using a hidden element at the beginning of
                 #the inserted document.
                 #XXX this will break if different files use the same ids
                 #XXX should either replace all, or replace selectively.
-                if '#' in url:
-                    toc_current['url'] = url[url.index('#'):]
+                if point['fragment']:
+                    fragment = point['fragment']
                 else:
                     body = _find_tag(root, 'body')
-                    urlid = '%s_%s' % (self.cookie, toc_current['position'])
-                    #should perhaps reuse first tag if it is there.
-                    marker = lxml.html.SubElement(root, 'div', style="display:none",
-                                                  id=url_id, name=urlid)
-                    body.insert(0, marker)
-                    toc_current['url'] = urlid
-                try:
-                    toc_current = tocitems.next()
-                except StopIteration:
-                    toc_current = None
+                    fragment = '%s_%s' % (self.cookie, point['index'])
+                    #reuse first tag if it is suitable.
+                    if (len(body) and
+                        body[0].tag in ('h1', 'h2', 'h3', 'h4', 'p', 'div')):
+                        if body[0].get('id') is None:
+                            body[0].set('id', fragment)
+                        else:
+                            fragment = body[0].get('id')
+                        #the chapter starts with a heading. that heading should be the chapter name.
+                        if body[0].tag in ('h1', 'h2', 'h3'):
+                            log('chapter has title "%s", found html title "%s"' %
+                                (point['title'], body[0].text_content()))
+                            point['html_title'] = body[0].text_content()
+                    else:
+                        marker = body.makeelement('div', style="display:none",
+                                                  id=fragment)
+                        body.insert(0, marker)
+                point['html_id'] = fragment
+
             add_guts(root, doc)
         return doc
 
