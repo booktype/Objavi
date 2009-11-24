@@ -228,21 +228,30 @@ class TWikiBook(object):
         spine = []
         toc = []
         section = toc
+        waiting_for_url = []
 
         for t in toc_iterator(self.server, self.book):
             log(t)
+            if t.is_title():
+                meta[config.DC]['title'][''] = [t.title]
+                continue
+
+            item = t.as_zipitem()
+            if item['url'] is None:
+                waiting_for_url.append(item)
+            elif waiting_for_url:
+                for wt in waiting_for_url:
+                    wt['url'] = item['url']
+                waiting_for_url = []
+
             if t.is_chapter():
                 spine.append(t.chapter)
-                section.append(t.as_zipitem())
+                section.append(item)
                 title_map[t.title] = t.chapter
-                if toc and toc[-1]['url'] is None:
-                    toc[-1]['url'] = section[-1]['url']
+
             elif t.is_section():
-                item = t.as_zipitem()
                 section = item['children']
                 toc.append(item)
-            elif t.is_title():
-                meta[config.DC]['title'][''] = [t.title]
 
         author_copyright, chapter_copyright = get_book_copyright(self.server, self.book, title_map)
 
