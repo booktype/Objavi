@@ -379,7 +379,6 @@ FORM_ELEMENT_TYPES = {
 PROGRESS_POINTS = (
     ("__init__", "Initialise the book", ('book', 'newspaper', 'web', 'openoffice', 'epub')),
     ("load_book", "Fetch the book", ('book', 'newspaper', 'web', 'openoffice')),
-    ("load_toc", "Fetch TOC metadata", ('book', 'newspaper', 'web', 'openoffice')),
     ("add_css", "Add css", ('book', 'newspaper', 'web', 'openoffice')),
     ("add_section_titles", "Add section titles", ('book', 'newspaper', 'web', 'openoffice')),
     ("make_epub", "Make the epub file", ('epub',)),

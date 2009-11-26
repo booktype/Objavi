@@ -46,6 +46,7 @@ for server, settings in config.SERVER_DEFAULTS.items():
     for book in books:
         try:
             make_epub(server, book)
+            log('SUCCEEDED: %s %s' % (server, book))
         except Exception, e:
             log('FAILED: %s %s' % (server, book))
             traceback.print_exc()

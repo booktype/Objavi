@@ -105,17 +105,24 @@ def get_book_copyright(server, book, title_map):
 
     credits_html = get_chapter_html(server, book, 'Credits', wrapped=True)
     tree = lxml.html.document_fromstring(credits_html)
-    chapter_copy = {}
-    author_copy = {}
+    credits = {}
+    authors = set()
 
     name_re = re.compile(r'^\s*(.+?) ((?:\d{4},? ?)+)$')
     for e in tree.iter('i'):
         log(e.text)
         if e.tail or e.getnext().tag != 'br':
             continue
-
-        chapter = title_map.get(e.text)
-        authors = chapter_copy.setdefault(chapter, [])
+        try:
+            chapter = title_map.get(e.text, []).pop(0)
+        except IndexError:
+            log("no remaining chapters matching %s" % e.text)
+            continue
+        log(chapter)
+        details = credits.setdefault(chapter, {
+            "contributors": [],
+            "rightsholders": [],
+            })
         while True:
             e = e.getnext()
             if not e.tail or e.tag != 'br':
@@ -124,18 +131,16 @@ def get_book_copyright(server, book, title_map):
             if e.tail.startswith(u'\u00a9'): # \u00a9 == copyright symbol
                 m = name_re.match(e.tail[1:])
                 author, dates = m.groups()
-                author_copy.setdefault(author, []).append((chapter, 'primary'))
-                authors.append(('primary', author, dates))
-                #log(author, dates)
+                details['rightsholders'].append(author)
+                details['contributors'].append(author)
             else:
                 m = name_re.match(e.tail)
                 if m is not None:
                     author, dates = m.groups()
-                    author_copy.setdefault(author, []).append((chapter, 'secondary'))
-                    authors.append(('secondary', author, dates))
-                    #log(author, dates)
+                    details['contributors'].append(author)
 
-    return author_copy, chapter_copy
+        authors.update(details['contributors'])
+    return credits, authors
 
 
 class TocItem(object):
@@ -190,8 +195,6 @@ class TWikiBook(object):
 
     def get_twiki_metadata(self):
         """Get information about a twiki book (as much as is easy and useful)."""
-        title_map = {}
-        authors = {}
         meta = {
             config.DC: {
                 "publisher": {
@@ -229,6 +232,7 @@ class TWikiBook(object):
         toc = []
         section = toc
         waiting_for_url = []
+        title_map = {}
 
         for t in toc_iterator(self.server, self.book):
             log(t)
@@ -247,18 +251,23 @@ class TWikiBook(object):
             if t.is_chapter():
                 spine.append(t.chapter)
                 section.append(item)
-                title_map[t.title] = t.chapter
+                title_map.setdefault(t.title, []).append(t.chapter)
 
             elif t.is_section():
                 section = item['children']
                 toc.append(item)
 
-        author_copyright, chapter_copyright = get_book_copyright(self.server, self.book, title_map)
+        credits, contributors = get_book_copyright(self.server, self.book, title_map)
+        for c in contributors:
+            add_metadata(meta, 'contributor', c)
+
 
         return {
+            'version': 1,
             'metadata': meta,
             'TOC': toc,
             'spine': spine,
-            'copyright': author_copyright,
-            #'chapter_copyright': chapter_copyright,
-        }
+            'manifest': {},
+        }, credits
+
+

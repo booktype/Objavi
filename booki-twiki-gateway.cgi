@@ -47,22 +47,19 @@ def make_booki_package(server, bookid, clean=False, use_cache=False):
 
     book = TWikiBook(bookid, server, bookname)
     zfn = book.filepath(bookname)
-    md = book.get_twiki_metadata()
+    md, credits = book.get_twiki_metadata()
     log(pformat(md))
     bz = BookiZip(zfn, md)
 
     all_images = set()
-    for chapter in bz.info['spine']:
+    for chapter in md['spine']:
         contents = get_chapter_html(server, bookid, chapter, wrapped=True)
         c = EpubChapter(server, bookid, chapter, contents,
                         use_cache=use_cache)
         images = c.localise_links()
         all_images.update(images)
-        if clean:
-            c.remove_bad_tags()
-            bz.add_to_package(chapter, chapter + '.xhtml', c.as_xhtml())
-        else:
-            bz.add_to_package(chapter, chapter + '.html', c.as_html())
+        bz.add_to_package(chapter, chapter + '.html',
+                          c.as_html(), credits=credits['chapter'])
 
     # Add images afterwards, to sift out duplicates
     for image in all_images:
