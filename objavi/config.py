@@ -416,5 +416,7 @@ USE_ZIP_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
 
 IGNORABLE_TWIKI_BOOKS = ('Main', 'TWiki', 'PR', 'Trash', 'Sandbox')
 
+WHITESPACE_AND_NULL = ''.join(chr(_x) for _x in range(33))
+
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))

@@ -282,8 +282,43 @@ class Book(object):
 
     def extract_pdf_outline(self):
         self.outline_contents, self.outline_text, number_of_pages = parse_outline(self.body_pdf_file, 1)
-        for x in self.outline_contents:
-            log(x)
+        if not self.outline_contents:
+            #probably problems with international text. need a horrible hack
+            log('no outline: trying again with ascii headings')
+            import copy
+            tree = copy.deepcopy(self.tree)
+            titlemap = {}
+            for tag in ('h1', 'h2', 'h3', 'h4'):
+                for i, e in enumerate(tree.getiterator(tag)):
+                    key = "%s_%s" % (tag, i)
+                    titlemap[key] = e.text_content().strip(config.WHITESPACE_AND_NULL)
+                    del e[:]
+                    if tag == 'h1':
+                        e = lxml.etree.SubElement(e, "strong", Class="initial")
+                    e.text = key
+
+            ascii_html_file = self.filepath('body-ascii-headings.html')
+            ascii_pdf_file = self.filepath('body-ascii-headings.pdf')
+            html_text = lxml.etree.tostring(tree, method="html")
+            self.save_data(ascii_html_file, html_text)
+            self.maker.make_raw_pdf(ascii_html_file, ascii_pdf_file, outline=True)
+            debugf = self.filepath('ascii_outline.txt')
+            ascii_contents, ascii_text, number_of_ascii_pages = \
+                parse_outline(ascii_pdf_file, 1, debugf)
+            self.outline_contents = []
+            log ("number of pages: %s, post ascii: %s" %
+                 (number_of_pages, number_of_ascii_pages))
+            for ascii_title, depth, pageno in ascii_contents:
+                if ascii_title[-4:] == '&#0;': #stupid [something] puts this in
+                    ascii_title = ascii_title[:-4]
+
+                title = titlemap[ascii_title]
+                log((ascii_title, title, depth, pageno))
+                self.outline_contents.append((title, depth, pageno))
+        else:
+            for x in self.outline_contents:
+                log(x)
+
         self.notify_watcher()
         return number_of_pages
 

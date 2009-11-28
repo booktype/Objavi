@@ -285,7 +285,10 @@ def parse_outline(pdf, level_threshold):
     lines = (x.strip() for x in outline.split('\n') if x.strip())
     contents = []
 
-    def extract(expected, conv=str.strip):
+    def _strip(s):
+        return s.strip(config.WHITESPACE_AND_NULL)
+
+    def extract(expected, conv=_strip):
         line = lines.next()
         try:
             k, v = line.split(':', 1)
