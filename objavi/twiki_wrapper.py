@@ -76,19 +76,6 @@ def toc_iterator(server, book):
     f.close()
 
 
-def get_chapter_html(server, book, chapter, wrapped=False):
-    url = config.CHAPTER_URL % (server, book, chapter)
-    log('getting chapter: %s' % url)
-    f = urlopen(url)
-    html = f.read()
-    f.close()
-    if wrapped:
-        html = CHAPTER_TEMPLATE % {
-            'title': '%s: %s' % (book, chapter),
-            'text': html,
-            'dir': guess_text_dir(server, book)
-        }
-    return html
 
 def get_book_copyright(server, book, title_map):
     # open the Credits chapter that has a list of authors for each chapter.
@@ -103,7 +90,7 @@ def get_book_copyright(server, book, title_map):
     #
     # the chapter title is not guaranteed unique (but usually is).
 
-    credits_html = get_chapter_html(server, book, 'Credits', wrapped=True)
+    credits_html = self.get_chapter_html('Credits', wrapped=True)
     tree = lxml.html.document_fromstring(credits_html)
     credits = {}
     authors = set()
@@ -190,6 +177,9 @@ class TWikiBook(object):
         self.workdir = tempfile.mkdtemp(prefix=bookname, dir=config.TMPDIR)
         os.chmod(self.workdir, 0755)
 
+        #probable text direction
+        self.dir = guess_text_dir(self.server, self.book)
+
     def filepath(self, fn):
         return os.path.join(self.workdir, fn)
 
@@ -261,7 +251,6 @@ class TWikiBook(object):
         for c in contributors:
             add_metadata(meta, 'contributor', c)
 
-
         return {
             'version': 1,
             'metadata': meta,
@@ -271,3 +260,48 @@ class TWikiBook(object):
         }, credits
 
 
+
+    def make_bookizip(self, filename=None, use_cache=False):
+        """Extract all chapters, images, and metadata, and zip it all
+        up for conversion to epub.
+
+        If cache is true, images that have been fetched on previous
+        runs will be reused.
+        """
+        if filename is None:
+            filename = self.filepath('booki.zip')
+        metadata, credits = self.get_twiki_metadata()
+        #log(pformat(metadata))
+        bz = BookiZip(filename, metadata)
+
+        all_images = set()
+        for chapter in metadata['spine']:
+            contents = get_chapter_html(self, chapter, wrapped=True)
+            c = EpubChapter(self.server, self.book, chapter, contents,
+                            use_cache=use_cache)
+            images = c.localise_links()
+            all_images.update(images)
+            bz.add_to_package(chapter, chapter + '.html',
+                              c.as_html(), credits=credits['chapter'])
+
+        # Add images afterwards, to sift out duplicates
+        for image in all_images:
+            imgdata = c.image_cache.read_local_url(image)
+            bz.add_to_package(image, image, imgdata)
+
+        bz.finish()
+        return bz.filename
+
+    def get_chapter_html(self, chapter, wrapped=False):
+        url = config.CHAPTER_URL % (self.server, self.book, chapter)
+        log('getting chapter: %s' % url)
+        f = urlopen(url)
+        html = f.read()
+        f.close()
+        if wrapped:
+            html = CHAPTER_TEMPLATE % {
+                'title': '%s: %s' % (self.book, chapter),
+                'text': html,
+                'dir': self.dir
+            }
+        return html
