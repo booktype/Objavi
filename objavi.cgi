@@ -28,7 +28,7 @@ from pprint import pformat
 from objavi.fmbook import log, Book, make_book_name, HTTP_HOST
 from objavi import config
 from objavi.cgi_utils import parse_args, optionise, listify, shift_file
-from objavi.cgi_utils import output_blob_and_exit
+from objavi.cgi_utils import output_blob_and_exit, is_utf8
 from objavi.twiki_wrapper import get_book_list
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
@@ -57,8 +57,8 @@ def is_isbn(s):
 ARG_VALIDATORS = {
     "book": re.compile(r'^([\w-]+/?)*[\w-]+$').match, # can be: BlahBlah/Blah_Blah
     "project": re.compile(r'^[\w-]+$').match,
-    "css": None, # an url, empty (for default), or css content
-    "title": lambda x: len(x) < 999,
+    "css": is_utf8, # an url, empty (for default), or css content
+    "title": lambda x: len(x) < 999 and is_utf8(x),
     #"header": None, # header text, UNUSED
     "isbn": is_isbn,
     "license": config.LICENSES.__contains__,
@@ -79,6 +79,7 @@ ARG_VALIDATORS = {
     "rotate": u"yes".__eq__,
     "grey_scale": u"yes".__eq__,
     "destination": config.EPUB_DESTINATIONS.__contains__,
+    "toc_header": is_utf8,
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
