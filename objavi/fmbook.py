@@ -40,7 +40,7 @@ import lxml, lxml.html
 from lxml import etree
 
 from objavi import config, epub_utils
-from objavi.cgi_utils import log, run, shift_file, make_book_name
+from objavi.cgi_utils import log, run, shift_file, make_book_name, guess_lang, guess_text_dir
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline
 from objavi.epub import add_guts, _find_tag
 
@@ -179,7 +179,18 @@ class Book(object):
 
         log(pformat(self.metadata))
         self.lang = get_metadata(self.metadata, 'language', default=[None])[0]
+        if not self.lang:
+            self.lang = guess_lang(server, book)
+            log('guessed lang as %s' % self.lang)
+
+        self.toc_header = get_metadata(self.metadata, 'toc_header', ns=config.FM, default=[None])[0]
+        if not self.toc_header:
+            self.toc_header = config.SERVER_DEFAULTS[server]['toc_header']
+
         self.dir = get_metadata(self.metadata, 'dir', ns=config.FM)[0]
+        if not self.dir:
+            self.dir = guess_text_dir(server, book)
+
 
         #Patch in the extra metadata. (lang and dir may be set from config)
         #these should be read from zip -- so should go into zip?
@@ -281,7 +292,11 @@ class Book(object):
         self.notify_watcher()
 
     def extract_pdf_outline(self):
-        self.outline_contents, self.outline_text, number_of_pages = parse_outline(self.body_pdf_file, 1)
+        #self.outline_contents, self.outline_text, number_of_pages = parse_outline(self.body_pdf_file, 1)
+        debugf = self.filepath('outline.txt')
+        self.outline_contents, self.outline_text, number_of_pages = \
+                parse_outline(self.body_pdf_file, 1, debugf)
+
         if not self.outline_contents:
             #probably problems with international text. need a horrible hack
             log('no outline: trying again with ascii headings')
@@ -296,6 +311,7 @@ class Book(object):
                     if tag == 'h1':
                         e = lxml.etree.SubElement(e, "strong", Class="initial")
                     e.text = key
+                    log("key: %r, text: %r, value: %r" %(key, e.text, titlemap[key]))
 
             ascii_html_file = self.filepath('body-ascii-headings.html')
             ascii_pdf_file = self.filepath('body-ascii-headings.pdf')
@@ -311,9 +327,11 @@ class Book(object):
             for ascii_title, depth, pageno in ascii_contents:
                 if ascii_title[-4:] == '&#0;': #stupid [something] puts this in
                     ascii_title = ascii_title[:-4]
-
-                title = titlemap[ascii_title]
+                if ' ' in ascii_title:
+                    ascii_title = ascii_title.rsplit(' ', 1)[1]
+                title = titlemap.get(ascii_title, '')
                 log((ascii_title, title, depth, pageno))
+
                 self.outline_contents.append((title, depth, pageno))
         else:
             for x in self.outline_contents:
@@ -346,6 +364,9 @@ class Book(object):
         self.notify_watcher()
 
     def make_preamble_pdf(self):
+        log(self.dir, self.css_url, self.title, inside_cover_html,
+            self.toc_header, contents, self.title)
+        
         contents = self.make_contents()
         inside_cover_html = self.compose_inside_cover()
         html = ('<html dir="%s"><head>\n'
@@ -354,11 +375,11 @@ class Book(object):
                 '</head>\n<body>\n'
                 '<h1 class="frontpage">%s</h1>'
                 '%s\n'
-                '<div class="contents">%s</div>\n'
+                '<div class="contents"><h1>%s</h1>\n%s</div>\n'
                 '<div style="page-break-after: always; color:#fff" class="unseen">.'
                 '<!--%s--></div></body></html>'
-                ) % (self.dir, self.css_url, self.title, inside_cover_html,
-                     contents, self.title)
+                ) % (self.dir, self.css_url, self.title, inside_cover_html.decode('utf-8'),
+                     self.toc_header, contents, self.title)
         self.save_data(self.preamble_html_file, html)
 
         self.maker.make_raw_pdf(self.preamble_html_file, self.preamble_pdf_file)
@@ -379,7 +400,9 @@ class Book(object):
             self.maker.make_barcode_pdf(self.isbn, self.isbn_pdf_file)
             self.notify_watcher('make_barcode_pdf')
 
-        self.save_data(self.tail_html_file, self.compose_end_matter())
+        end_matter = self.compose_end_matter()
+        log(end_matter)
+        self.save_data(self.tail_html_file, end_matter.decode('utf-8'))
         self.maker.make_raw_pdf(self.tail_html_file, self.tail_pdf_file)
 
         self.maker.reshape_pdf(self.tail_pdf_file, self.dir, centre_start=True,
