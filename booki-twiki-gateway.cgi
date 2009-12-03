@@ -23,7 +23,7 @@ import os, sys
 import re, time, traceback
 from pprint import pformat
 
-from objavi.twiki_wrapper import TWikiBook, get_chapter_html, get_book_list
+from objavi.twiki_wrapper import TWikiBook, get_book_list
 from objavi.cgi_utils import parse_args, optionise, shift_file, output_blob_and_exit, log, make_book_name
 from objavi import config
 
@@ -41,28 +41,7 @@ def make_booki_package(server, bookid,  use_cache=False):
     """
     bookname = make_book_name(bookid, server, '.zip')
     book = TWikiBook(bookid, server, bookname)
-    zfn = book.filepath(bookname)
-    md, credits = book.get_twiki_metadata()
-    log(pformat(md))
-    bz = BookiZip(zfn, md)
-
-    all_images = set()
-    for chapter in md['spine']:
-        contents = get_chapter_html(server, bookid, chapter, wrapped=True)
-        c = EpubChapter(server, bookid, chapter, contents,
-                        use_cache=use_cache)
-        images = c.localise_links()
-        all_images.update(images)
-        bz.add_to_package(chapter, chapter + '.html',
-                          c.as_html(), credits=credits['chapter'])
-
-    # Add images afterwards, to sift out duplicates
-    for image in all_images:
-        imgdata = c.image_cache.read_local_url(image)
-        bz.add_to_package(image, image, imgdata)
-
-    bz.finish()
-    return bz.filename
+    return book.make_bookizip(bookname)
 
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
