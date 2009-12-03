@@ -94,6 +94,7 @@ SERVER_DEFAULTS = {
         'toc-encoding': 'iso-8859-1',
         'display': False,
         'interface': 'Booki',
+        'toc_header': 'Table of Contents',
         },
     LOCALHOST: {
         'css-book': 'static/en.flossmanuals.net.css',
@@ -105,6 +106,7 @@ SERVER_DEFAULTS = {
         'toc-encoding': 'iso-8859-1',
         'display': False,
         'interface': 'local',
+        'toc_header': 'Table of Contents',
         },
     'en.flossmanuals.net': {
         'css-book': 'static/en.flossmanuals.net.css',
@@ -116,6 +118,7 @@ SERVER_DEFAULTS = {
         'toc-encoding': None,
         'display': True,
         'interface': 'TWiki',
+        'toc_header': 'Table of Contents',
         },
     'fr.flossmanuals.net': {
         'css-book': 'static/fr.flossmanuals.net.css',
@@ -128,6 +131,7 @@ SERVER_DEFAULTS = {
         'toc-encoding': 'iso-8859-1',
         'display': True,
         'interface': 'TWiki',
+        'toc_header': 'Table of Contents',
         },
     'translate.flossmanuals.net': {
         'css-book': 'static/translate.flossmanuals.net.css',
@@ -140,6 +144,7 @@ SERVER_DEFAULTS = {
         'toc-encoding': 'iso-8859-1',
         'display': True,
         'interface': 'TWiki',
+        'toc_header': 'Table of Contents',
         },
     'nl.flossmanuals.net': {
         'css-book': 'static/nl.flossmanuals.net.css',
@@ -152,6 +157,7 @@ SERVER_DEFAULTS = {
         'toc-encoding': 'iso-8859-1',
         'display': True,
         'interface': 'TWiki',
+        'toc_header': 'Table of Contents',
         },
     'bn.flossmanuals.net': {
         'css-book': 'static/bn.flossmanuals.net.css',
@@ -164,6 +170,7 @@ SERVER_DEFAULTS = {
         'toc-encoding': 'iso-8859-1',
         'display': True,
         'interface': 'TWiki',
+        'toc_header': 'Table of Contents',
         },
     'fa.flossmanuals.net': {
         'css-book': 'static/fa.flossmanuals.net.css',
@@ -176,6 +183,7 @@ SERVER_DEFAULTS = {
         'toc-encoding': 'iso-8859-1',
         'display': True,
         'interface': 'TWiki',
+        'toc_header': 'Table of Contents',
         },
 }
 
@@ -341,6 +349,7 @@ FORM_INPUTS = (
 
     ("mode", "Document type", "select", "pdf_types", "advanced openoffice", ""),
     ("isbn", "ISBN", "input[type=text]", None, "advanced", "(13 digits)"),
+    ("toc_header", "Table of Contents header", "input[type=text]", None, "advanced", ""),
 
     ("booksize", "Page size", "select", "size_options", "advanced", '(Size compatibility: <span class="lulu">Lulu</span>, <span class="newspaper">newspapers</span>, <span class="iso">ISO standards</span>)'),
     ("page_width", "Page width", "input[type=text]", None, "advanced booksize numeric-field", ""),

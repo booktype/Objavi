@@ -292,7 +292,15 @@ def mode_book(args):
               license=args.get('license'), title=args.get('title')) as book:
         if CGI_CONTEXT:
             book.spawn_x()
+
+        if 'toc_header' in args:
+            book.toc_header = args['toc_header'].decode('utf-8')
         book.load_book()
+        #title = args.get('title')
+        #if title is not None:
+        #    title = title.decode('utf-8')
+        #book.set_title(title)
+
         book.add_css(args.get('css'), mode)
         book.add_section_titles()
 
