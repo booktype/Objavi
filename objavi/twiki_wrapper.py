@@ -80,57 +80,6 @@ def toc_iterator(server, book):
 
 
 
-def get_book_copyright(server, book, title_map):
-    # open the Credits chapter that has a list of authors for each chapter.
-    # each chapter is listed thus (linebreaks added):
-    #   <i>CHAPTER TITLE</i><br/>&copy; First Author 2007<br/>
-    #   Modifications:<br/>Second Author 2007, 2008<br/>
-    #   Third Author 2008<br/>Fourth Author 2008<br/><hr/>
-    #
-    # where "CHAPTER TITLE" is as appears in TOC.txt, and "X
-    # Author" are the names TWiki has for authors.  So the thing
-    # to do is look for the <i> tags and match them to the toc.
-    #
-    # the chapter title is not guaranteed unique (but usually is).
-
-    credits_html = self.get_chapter_html('Credits', wrapped=True)
-    tree = lxml.html.document_fromstring(credits_html)
-    credits = {}
-    authors = set()
-
-    name_re = re.compile(r'^\s*(.+?) ((?:\d{4},? ?)+)$')
-    for e in tree.iter('i'):
-        log(e.text)
-        if e.tail or e.getnext().tag != 'br':
-            continue
-        try:
-            chapter = title_map.get(e.text, []).pop(0)
-        except IndexError:
-            log("no remaining chapters matching %s" % e.text)
-            continue
-        log(chapter)
-        details = credits.setdefault(chapter, {
-            "contributors": [],
-            "rightsholders": [],
-            })
-        while True:
-            e = e.getnext()
-            if not e.tail or e.tag != 'br':
-                break
-            log(e.tail)
-            if e.tail.startswith(u'\u00a9'): # \u00a9 == copyright symbol
-                m = name_re.match(e.tail[1:])
-                author, dates = m.groups()
-                details['rightsholders'].append(author)
-                details['contributors'].append(author)
-            else:
-                m = name_re.match(e.tail)
-                if m is not None:
-                    author, dates = m.groups()
-                    details['contributors'].append(author)
-
-        authors.update(details['contributors'])
-    return credits, authors
 
 
 class TocItem(object):
@@ -308,3 +257,55 @@ class TWikiBook(object):
                 'dir': self.dir
             }
         return html
+
+    def get_book_copyright(self, title_map):
+        # open the Credits chapter that has a list of authors for each chapter.
+        # each chapter is listed thus (linebreaks added):
+        #   <i>CHAPTER TITLE</i><br/>&copy; First Author 2007<br/>
+        #   Modifications:<br/>Second Author 2007, 2008<br/>
+        #   Third Author 2008<br/>Fourth Author 2008<br/><hr/>
+        #
+        # where "CHAPTER TITLE" is as appears in TOC.txt, and "X
+        # Author" are the names TWiki has for authors.  So the thing
+        # to do is look for the <i> tags and match them to the toc.
+        #
+        # the chapter title is not guaranteed unique (but usually is).
+
+        credits_html = self.get_chapter_html('Credits', wrapped=True)
+        tree = lxml.html.document_fromstring(credits_html)
+        credits = {}
+        authors = set()
+
+        name_re = re.compile(r'^\s*(.+?) ((?:\d{4},? ?)+)$')
+        for e in tree.iter('i'):
+            log(e.text)
+            if e.tail or e.getnext().tag != 'br':
+                continue
+            try:
+                chapter = title_map.get(e.text, []).pop(0)
+            except IndexError:
+                log("no remaining chapters matching %s" % e.text)
+                continue
+            log(chapter)
+            details = credits.setdefault(chapter, {
+                "contributors": [],
+                "rightsholders": [],
+                })
+            while True:
+                e = e.getnext()
+                if not e.tail or e.tag != 'br':
+                    break
+                log(e.tail)
+                if e.tail.startswith(u'\u00a9'): # \u00a9 == copyright symbol
+                    m = name_re.match(e.tail[1:])
+                    author, dates = m.groups()
+                    details['rightsholders'].append(author)
+                    details['contributors'].append(author)
+                else:
+                    m = name_re.match(e.tail)
+                    if m is not None:
+                        author, dates = m.groups()
+                        details['contributors'].append(author)
+
+            authors.update(details['contributors'])
+        return credits, authors
