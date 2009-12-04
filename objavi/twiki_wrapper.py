@@ -128,6 +128,7 @@ class TWikiBook(object):
         if bookname is None:
             bookname = make_book_name(book, server, '.zip')
         log("*** Extracting TWiki book %s ***" % bookname)
+        self.bookname = bookname
         self.book = book
         self.server = server
         self.workdir = tempfile.mkdtemp(prefix=bookname, dir=config.TMPDIR)
@@ -229,7 +230,7 @@ class TWikiBook(object):
         """
         self._fetch_metadata()
         if filename is None:
-            filename = self.filepath('booki.zip')
+            filename = self.filepath(self.bookname)
         bz = BookiZip(filename, self.metadata)
 
         all_images = set()
