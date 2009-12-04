@@ -122,7 +122,9 @@ class TocItem(object):
 
 
 class TWikiBook(object):
-    def __init__(self, book, server, bookname):
+    def __init__(self, book, server, bookname=None):
+        if bookname is None:
+            bookname = make_book_name(book, server, '.zip')
         log("*** Extracting TWiki book %s ***" % bookname)
         self.book = book
         self.server = server
@@ -199,7 +201,7 @@ class TWikiBook(object):
                 section = item['children']
                 toc.append(item)
 
-        credits, contributors = get_book_copyright(self.server, self.book, title_map)
+        credits, contributors = self.get_book_copyright(title_map)
         for c in contributors:
             add_metadata(meta, 'contributor', c)
 
@@ -228,7 +230,7 @@ class TWikiBook(object):
 
         all_images = set()
         for chapter in metadata['spine']:
-            contents = get_chapter_html(self, chapter, wrapped=True)
+            contents = self.get_chapter_html(chapter, wrapped=True)
             c = EpubChapter(self.server, self.book, chapter, contents,
                             use_cache=use_cache)
             images = c.localise_links()
