@@ -37,9 +37,8 @@ BOOKI_BOOK_DIR = 'booki-books'
 FIREFOX = 'firefox'
 WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
-#WKHTMLTOPDF_EXTRA_COMMANDS = ['--outline',  '-t']
-HTML2ODT = './html2odt'
 
+HTML2ODT = './html2odt'
 
 #CGITB_DOMAINS = ('203.97.236.46', '202.78.240.7')
 CGITB_DOMAINS = False
@@ -56,21 +55,15 @@ BOOK_LIST_CACHE = 3600 * 2
 BOOK_LIST_CACHE_DIR = 'cache'
 
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
-BOOK_URL = "http://%s/bin/view/%s/_all?skin=text"
 CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
 PUBLISH_URL = "/books/"
 
 TWIKI_GATEWAY_URL = 'http://%s/booki-twiki-gateway.cgi?server=%s&book=%s&mode=zip'
 BOOKI_ZIP_URL = 'http://%(server)s/%(project)s/%(book)s/export'
 
-#leave out vowels so as to avoid accidental words, and punctuation for bidi consistency
-CHAPTER_COOKIE_CHARS = 'BCDFGHJKLMNPQRSTVWXYZ'
-
 DEFAULT_SERVER = 'en.flossmanuals.net'
-BOOKI_SERVER = 'booki.flossmanuals.net'
 DEFAULT_SIZE = 'COMICBOOK'
 DEFAULT_ENGINE = 'webkit'
-#DEFAULT_MODE = None
 
 RTL_SCRIPTS = ['persian', 'arabic', 'hebrew', 'urdu']
 
@@ -283,9 +276,6 @@ PAGE_SIZE_DATA = {
     "custom":         {'class': "custom"},
 }
 
-PAGE_MIN_SIZE = (1.0, 1.0)
-PAGE_MAX_SIZE = (3000.0, 3000.0)
-
 MIN_COLUMN_WIDTH = (110 * MM_2_POINT)
 
 ENGINES = {
@@ -330,7 +320,6 @@ CGI_MODES = { # arguments are: (publication, )
     'form': (False,),
     'epub':(True,),
 }
-DEFAULT_MODE = 'book'
 
 EPUB_DESTINATIONS = {
     'archive.org': None,
