@@ -27,9 +27,6 @@ from objavi.twiki_wrapper import TWikiBook, get_book_list
 from objavi.cgi_utils import parse_args, optionise, shift_file, output_blob_and_exit, log, make_book_name
 from objavi import config
 
-from booki.xhtml_utils import EpubChapter
-from booki.bookizip import BookiZip
-
 
 def make_booki_package(server, bookid,  use_cache=False):
     """Extract all chapters from the specified book, as well as
@@ -39,9 +36,8 @@ def make_booki_package(server, bookid,  use_cache=False):
     If cache is true, images that have been fetched on previous runs
     will be reused.
     """
-    bookname = make_book_name(bookid, server, '.zip')
-    book = TWikiBook(bookid, server, bookname)
-    return book.make_bookizip(bookname)
+    book = TWikiBook(bookid, server)
+    return book.make_bookizip()
 
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and

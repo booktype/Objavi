@@ -4,9 +4,12 @@ import os, sys, time, re
 import tempfile
 
 from objavi import config
-from objavi.cgi_utils import log, guess_lang, guess_text_dir
+from objavi.cgi_utils import log, guess_lang, guess_text_dir, make_book_name
 from urllib2 import urlopen
-from booki.bookizip import add_metadata
+from booki.bookizip import add_metadata, BookiZip
+from booki.xhtml_utils import EpubChapter
+
+from pprint import pformat
 
 import lxml.html
 
