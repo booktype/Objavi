@@ -122,6 +122,8 @@ class TocItem(object):
 
 
 class TWikiBook(object):
+    credits = None
+    metadata = None
     def __init__(self, book, server, bookname=None):
         if bookname is None:
             bookname = make_book_name(book, server, '.zip')
@@ -130,15 +132,20 @@ class TWikiBook(object):
         self.server = server
         self.workdir = tempfile.mkdtemp(prefix=bookname, dir=config.TMPDIR)
         os.chmod(self.workdir, 0755)
-
         #probable text direction
         self.dir = guess_text_dir(self.server, self.book)
 
     def filepath(self, fn):
         return os.path.join(self.workdir, fn)
 
-    def get_twiki_metadata(self):
-        """Get information about a twiki book (as much as is easy and useful)."""
+    def _fetch_metadata(self, force=False):
+        """Get information about a twiki book (as much as is easy and
+        useful).  If force is False (default) then it will not be
+        reloaded if it has already been set.
+        """
+        if (None not in self.metadata, self.credits):
+            log("not reloading metadata")
+            return
         meta = {
             config.DC: {
                 "publisher": {
@@ -165,12 +172,12 @@ class TWikiBook(object):
             }
 
         lang = guess_lang(self.server, self.book)
-        dir = guess_text_dir(self.server, self.book)
-        log(self.server, self.book, lang, dir)
+        self.dir = guess_text_dir(self.server, self.book)
+        log(self.server, self.book, lang, self.dir)
         if lang is not None:
             add_metadata(meta, 'language', lang)
-        if dir is not None:
-            add_metadata(meta, 'dir', dir, ns=config.FM)
+        if self.dir is not None:
+            add_metadata(meta, 'dir', self.dir, ns=config.FM)
 
         spine = []
         toc = []
@@ -201,18 +208,17 @@ class TWikiBook(object):
                 section = item['children']
                 toc.append(item)
 
-        credits, contributors = self.get_book_copyright(title_map)
+        self.credits, contributors = self.get_book_copyright(title_map)
         for c in contributors:
             add_metadata(meta, 'contributor', c)
 
-        return {
+        self.metadata = {
             'version': 1,
             'metadata': meta,
             'TOC': toc,
             'spine': spine,
             'manifest': {},
-        }, credits
-
+        }
 
 
     def make_bookizip(self, filename=None, use_cache=False):
@@ -222,21 +228,21 @@ class TWikiBook(object):
         If cache is true, images that have been fetched on previous
         runs will be reused.
         """
+        self.fetch_metadata()
         if filename is None:
             filename = self.filepath('booki.zip')
-        metadata, credits = self.get_twiki_metadata()
-        #log(pformat(metadata))
-        bz = BookiZip(filename, metadata)
+        bz = BookiZip(filename, self.metadata)
 
         all_images = set()
-        for chapter in metadata['spine']:
+        for chapter in self.metadata['spine']:
             contents = self.get_chapter_html(chapter, wrapped=True)
             c = EpubChapter(self.server, self.book, chapter, contents,
                             use_cache=use_cache)
             images = c.localise_links()
             all_images.update(images)
+            log(chapter, credits)
             bz.add_to_package(chapter, chapter + '.html',
-                              c.as_html(), **credits[chapter])
+                              c.as_html(), **credits.get(chapter, {}))
 
         # Add images afterwards, to sift out duplicates
         for image in all_images:
