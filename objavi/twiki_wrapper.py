@@ -236,12 +236,12 @@ class TWikiBook(object):
             images = c.localise_links()
             all_images.update(images)
             bz.add_to_package(chapter, chapter + '.html',
-                              c.as_html(), credits=credits['chapter'])
+                              c.as_html(), **credits[chapter])
 
         # Add images afterwards, to sift out duplicates
         for image in all_images:
             imgdata = c.image_cache.read_local_url(image)
-            bz.add_to_package(image, image, imgdata)
+            bz.add_to_package(image, image, imgdata) #XXX img ownership: where is it?
 
         bz.finish()
         return bz.filename
