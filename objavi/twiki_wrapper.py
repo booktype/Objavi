@@ -143,7 +143,7 @@ class TWikiBook(object):
         useful).  If force is False (default) then it will not be
         reloaded if it has already been set.
         """
-        if (None not in self.metadata, self.credits):
+        if self.metadata is not None and not force:
             log("not reloading metadata")
             return
         meta = {
@@ -183,7 +183,6 @@ class TWikiBook(object):
         toc = []
         section = toc
         waiting_for_url = []
-        title_map = {}
 
         for t in toc_iterator(self.server, self.book):
             log(t)
@@ -202,15 +201,10 @@ class TWikiBook(object):
             if t.is_chapter():
                 spine.append(t.chapter)
                 section.append(item)
-                title_map.setdefault(t.title, []).append(t.chapter)
 
             elif t.is_section():
                 section = item['children']
                 toc.append(item)
-
-        self.credits, contributors = self.get_book_copyright(title_map)
-        for c in contributors:
-            add_metadata(meta, 'contributor', c)
 
         self.metadata = {
             'version': 1,
@@ -220,6 +214,11 @@ class TWikiBook(object):
             'manifest': {},
         }
 
+        self._parse_credits()
+        for c in self.contributors:
+            add_metadata(meta, 'contributor', c)
+
+
 
     def make_bookizip(self, filename=None, use_cache=False):
         """Extract all chapters, images, and metadata, and zip it all
@@ -228,7 +227,7 @@ class TWikiBook(object):
         If cache is true, images that have been fetched on previous
         runs will be reused.
         """
-        self.fetch_metadata()
+        self._fetch_metadata()
         if filename is None:
             filename = self.filepath('booki.zip')
         bz = BookiZip(filename, self.metadata)
@@ -240,9 +239,9 @@ class TWikiBook(object):
                             use_cache=use_cache)
             images = c.localise_links()
             all_images.update(images)
-            log(chapter, credits)
+            log(chapter, self.credits)
             bz.add_to_package(chapter, chapter + '.html',
-                              c.as_html(), **credits.get(chapter, {}))
+                              c.as_html(), **self.credits.get(chapter, {}))
 
         # Add images afterwards, to sift out duplicates
         for image in all_images:
@@ -266,7 +265,7 @@ class TWikiBook(object):
             }
         return html
 
-    def get_book_copyright(self, title_map):
+    def _parse_credits(self, force=False):
         # open the Credits chapter that has a list of authors for each chapter.
         # each chapter is listed thus (linebreaks added):
         #   <i>CHAPTER TITLE</i><br/>&copy; First Author 2007<br/>
@@ -278,42 +277,50 @@ class TWikiBook(object):
         # to do is look for the <i> tags and match them to the toc.
         #
         # the chapter title is not guaranteed unique (but usually is).
+        if self.credits is not None and not force:
+            log("not reloading metadata")
+            return
+
+        self.credits = {}
+        self.contributors = set()
+        self.titles = []
 
         credits_html = self.get_chapter_html('Credits', wrapped=True)
         tree = lxml.html.document_fromstring(credits_html)
-        credits = {}
-        authors = set()
-
         name_re = re.compile(r'^\s*(.+?) ((?:\d{4},? ?)+)$')
-        for e in tree.iter('i'):
-            log(e.text)
-            if e.tail or e.getnext().tag != 'br':
-                continue
-            try:
-                chapter = title_map.get(e.text, []).pop(0)
-            except IndexError:
-                log("no remaining chapters matching %s" % e.text)
-                continue
-            log(chapter)
-            details = credits.setdefault(chapter, {
-                "contributors": [],
-                "rightsholders": [],
-                })
-            while True:
-                e = e.getnext()
-                if not e.tail or e.tag != 'br':
-                    break
-                log(e.tail)
-                if e.tail.startswith(u'\u00a9'): # \u00a9 == copyright symbol
-                    m = name_re.match(e.tail[1:])
-                    author, dates = m.groups()
-                    details['rightsholders'].append(author)
-                    details['contributors'].append(author)
-                else:
-                    m = name_re.match(e.tail)
-                    if m is not None:
-                        author, dates = m.groups()
-                        details['contributors'].append(author)
+        spine_iter = iter(self.metadata['spine'])
 
-            authors.update(details['contributors'])
-        return credits, authors
+        try:
+            for e in tree.iter('i'):
+                if e.tail or e.getnext().tag != 'br':
+                    continue
+                title = e.text
+                chapter = spine_iter.next()
+                log("chapter %r title %r" % (chapter, title))
+                contributors = []
+                rightsholders = []
+                while True:
+                    e = e.getnext()
+                    if not e.tail or e.tag != 'br':
+                        break
+                    log(e.tail)
+                    if e.tail.startswith(u'\u00a9'): # \u00a9 == copyright symbol
+                        m = name_re.match(e.tail[1:])
+                        author, dates = m.groups()
+                        rightsholders.append(author)
+                        contributors.append(author)
+                    else:
+                        m = name_re.match(e.tail)
+                        if m is not None:
+                            author, dates = m.groups()
+                            contributors.append(author)
+
+                self.credits[chapter] = {
+                    "contributors":contributors,
+                    "rightsholders": rightsholders,
+                    }
+                self.titles.append(title)
+                self.contributors.update(contributors)
+
+        except StopIteration:
+            log('Apparently run out of chapters on title %s!' % title)
