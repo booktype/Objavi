@@ -251,7 +251,8 @@ class Book(object):
 
     def get_tree_by_id(self, id):
         """get an HTML tree from the given manifest ID"""
-        name, mimetype = self.manifest[id]
+        name = self.manifest[id]['url']
+        mimetype = self.manifest[id]['mimetype']
         s = self.store.read(name)
         f = StringIO(s)
         if mimetype == 'text/html':
@@ -364,11 +365,11 @@ class Book(object):
         self.notify_watcher()
 
     def make_preamble_pdf(self):
-        log(self.dir, self.css_url, self.title, inside_cover_html,
-            self.toc_header, contents, self.title)
-        
         contents = self.make_contents()
         inside_cover_html = self.compose_inside_cover()
+        log(self.dir, self.css_url, self.title, inside_cover_html,
+            self.toc_header, contents, self.title)
+
         html = ('<html dir="%s"><head>\n'
                 '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
                 '<link rel="stylesheet" href="%s" />\n'
@@ -483,13 +484,21 @@ class Book(object):
     def concat_html(self):
         """Join all the chapters together into one tree.  Keep the TOC
         up-to-date along the way."""
-        #XXX do TOC
+
+        #each manifest item looks like:
+        #{'contributors': []
+        #'license': [],
+        #'mimetype': '',
+        #'rightsholders': []
+        #'url': ''}
         doc = lxml.html.document_fromstring('<html><body></body></html>')
         tocmap = filename_toc_map(self.toc)
         for ID in self.spine:
-            fn, mimetype = self.manifest[ID]
+            details = self.manifest[ID]
+            log(ID, pformat(details))
             root = self.get_tree_by_id(ID).getroot()
-            for point in tocmap[fn]:
+            #handle any TOC points in this file
+            for point in tocmap[details['url']]:
                 #if the url has a #identifier, use it. Otherwise, make
                 #one up, using a hidden element at the beginning of
                 #the inserted document.
