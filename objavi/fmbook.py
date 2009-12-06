@@ -26,6 +26,7 @@ import re, time
 import random
 from subprocess import Popen, check_call, PIPE
 from cStringIO import StringIO
+from urllib2 import urlopen
 import zipfile
 import traceback
 from string import ascii_letters
@@ -971,7 +972,6 @@ def use_cache():
     return (os.environ.get('HTTP_HOST') in config.USE_ZIP_CACHE_ALWAYS_HOSTS)
 
 def fetch_zip(server, book, project, save=False):
-    from urllib2 import urlopen
     interface = config.SERVER_DEFAULTS[server]['interface']
     if interface not in ('Booki', 'TWiki'):
         raise NotImplementedError("Can't handle '%s' interface" % interface)

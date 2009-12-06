@@ -356,7 +356,7 @@ def mode_epub(args):
     else:
         progress_bar = None
 
-    book = Book(server, bookid, bookname=bookname, project=project,
+    book = Book(bookid, server, bookname=bookname, project=project,
                 watcher=progress_bar, title=args.get('title'))
     book.make_epub(use_cache=config.USE_CACHED_IMAGES)
     book.publish_epub()
