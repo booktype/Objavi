@@ -530,10 +530,25 @@ class Book(object):
             add_guts(root, doc)
         return doc
 
+    def unpack_static(self):
+        """Extract static files from the zip for the html to refer to."""
+        static_files = [x['url'] for x in self.manifest.values()
+                        if x['url'].startswith('static')]
+        if static_files:
+            os.mkdir(self.filepath('static'))
+
+        for name in static_files:
+            s = self.store.read(name)
+            f = open(self.filepath(name), 'w')
+            f.write(s)
+            f.close()
+        self.notify_watcher()
+
     def load_book(self):
         """"""
         #XXX concatenate the HTML to match how TWiki version worked.
         # This is perhaps foolishly early -- throwing away useful boundaries.
+        self.unpack_static()
         self.tree = self.concat_html()
         self.save_tempfile('raw.html', etree.tostring(self.tree, method='html'))
 
