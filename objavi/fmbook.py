@@ -188,7 +188,7 @@ class Book(object):
         if not self.toc_header:
             self.toc_header = config.SERVER_DEFAULTS[server]['toc_header']
 
-        self.dir = get_metadata(self.metadata, 'dir', ns=config.FM)[0]
+        self.dir = get_metadata(self.metadata, 'dir', ns=config.FM, default=[None])[0]
         if not self.dir:
             self.dir = guess_text_dir(server, book)
 
