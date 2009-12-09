@@ -285,6 +285,8 @@ class Epub(object):
 
         chapters = split_document(doc)
         real_chapters = drop_empty_chapters(chapters)
+        rightsholders = [c for c, extra in self.metadata[DC].get('creator', ())]
+        contributors = rightsholders + [c for c, extra in self.metadata[DC].get('contributor', ())]
 
         spine = []
         for id, title, tree in real_chapters:
@@ -305,16 +307,20 @@ class Epub(object):
                 root.insert(0, head)
             #blob = etree.tostring(tree)
             blob = lxml.html.tostring(tree)
-            bz.add_to_package(id, '%s.html' % id,
-                              blob, mediatype='text/html')
+            bz.add_to_package(id, '%s.html' % id, blob, mediatype='text/html',
+                              contributors=contributors,
+                              rightsholders=rightsholders)
             spine.append(id)
 
-        #add the images ad other non-html data unchanged.
+        #add the images and other non-html data unchanged.
         for id, data in self.manifest.iteritems():
             fn, mimetype = data
             if mimetype not in MARKUP_TYPES:
                 blob = self.zip.read(fn)
-                bz.add_to_package(id, self.media_map[fn], blob, mimetype)
+                bz.add_to_package(id, self.media_map[fn], blob, mimetype,
+                                  contributors=contributors,
+                                  rightsholders=rightsholders
+                                  )
 
         #now to construct a table of contents
         lang = self.find_language()
@@ -343,16 +349,10 @@ class Epub(object):
         metadata['fm:server'] = 'booki.flossmanuals.net'
         log(metadata)
 
-        copyright = {}
-        for c, extra in self.metadata[DC].get('creator', ()):
-            copyright[c] = [(x, 'primary') for x in spine]
-        for c, extra in self.metadata[DC].get('contributor', ()):
-            copyright[c] = [(x, 'secondary') for x in spine]
         bz.info = {
             'spine': spine,
             'TOC': toc,
             'metadata': metadata,
-            'copyright': copyright,
             }
         if self.guide is not None:
             bz.info['guide'] = self.guide
