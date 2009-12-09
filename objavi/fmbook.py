@@ -257,7 +257,12 @@ class Book(object):
         s = self.store.read(name)
         f = StringIO(s)
         if mimetype == 'text/html':
-            tree = lxml.html.parse(f)
+            try:
+                tree = lxml.html.parse(f)
+            except etree.XMLSyntaxError, e:
+                log('Could not parse html ID %r, filename %r, string %r... exception %s' %
+                    (id, name, s[:20], e))
+                tree = lxml.html.document_fromstring('<html><body></body></html>').getroottree()
         elif 'xml' in mimetype: #XXX or is this just asking for trouble?
             tree = etree.parse(f)
         else:
