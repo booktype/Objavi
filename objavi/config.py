@@ -321,12 +321,14 @@ CGI_MODES = { # arguments are: (publication, )
     'epub':(True,),
 }
 
-EPUB_DESTINATIONS = {
+
+#PUBLISH_DESTINATIONS
+PUBLISH_DESTINATIONS = {
     'archive.org': None,
     'download': None,
     'html': None,
 }
-DEFAULT_EPUB_DESTINATION = 'html'
+DEFAULT_PUBLISH_DESTINATION = 'html'
 
 
 FORM_INPUTS = (

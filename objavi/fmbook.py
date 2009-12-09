@@ -224,10 +224,8 @@ class Book(object):
         self.pdf_file = self.filepath('final.pdf')
         self.body_odt_file = self.filepath('body.odt')
 
-        self.epubfile = self.filepath(bookname)
-        self.publish_name = bookname
-        self.publish_file = os.path.join(PUBLISH_PATH, self.publish_name)
-        self.publish_url = os.path.join(config.PUBLISH_URL, self.publish_name)
+        self.publish_file = os.path.join(PUBLISH_PATH, bookname)
+        self.publish_url = os.path.join(config.PUBLISH_URL, bookname)
 
         if page_settings is not None:
             self.maker = PageSettings(**page_settings)
@@ -237,7 +235,6 @@ class Book(object):
             self.title = titles[0]
         else:
             self.title = 'A Manual About ' + self.book
-
 
         self.notify_watcher()
 
@@ -724,7 +721,7 @@ class Book(object):
     def make_epub(self, use_cache=False):
         """Make an epub version of the book, using Mike McCabe's
         epub module for the Internet Archive."""
-        ebook = ia_epub.Book(self.epubfile, content_dir='')
+        ebook = ia_epub.Book(self.publish_file, content_dir='')
         toc = self.info['TOC']
 
         #manifest
@@ -832,18 +829,11 @@ class Book(object):
         argv = ['curl', '--location', '-s', '-o', s3output]
         for h in headers:
             argv.extend(('--header', h))
-        argv.extend(('--upload-file', self.epubfile, s3url,))
+        argv.extend(('--upload-file', self.publish_file, s3url,))
 
         log(' '.join(repr(x) for x in argv))
         check_call(argv, stdout=sys.stderr)
         return detailsurl, s3url
-
-    def publish_epub(self):
-        self.epubfile = shift_file(self.epubfile, config.EPUB_DIR)
-        return self.epubfile
-
-
-
 
 
     def spawn_x(self):
