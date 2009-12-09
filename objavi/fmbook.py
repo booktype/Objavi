@@ -47,7 +47,7 @@ from objavi.epub import add_guts, _find_tag
 
 from iarchive import epub as ia_epub
 from booki.xhtml_utils import EpubChapter
-from booki.bookizip import get_metadata, add_metadata, clear_metadata
+from booki.bookizip import get_metadata, add_metadata, clear_metadata, get_metadata_schemes
 
 TMPDIR = os.path.abspath(config.TMPDIR)
 DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
@@ -728,12 +728,12 @@ class Book(object):
         toc = self.info['TOC']
 
         #manifest
-        filemap = {} #reformulated manifest for NCX
+        filemap = {} #map html to corresponding xhtml
         for ID in self.manifest:
-            fn, mediatype = self.manifest[ID]
-
+            details = self.manifest[ID]
+            log(ID, pformat(details))
+            fn, mediatype = details['url'], details['mimetype']
             oldfn = fn
-            log(ID, fn, mediatype)
             content = self.store.read(fn)
             if mediatype == 'text/html':
                 log('CONVERTING')
@@ -743,11 +743,11 @@ class Book(object):
                 c.remove_bad_tags()
                 c.prepare_for_epub()
                 content = c.as_xhtml()
-                fn = fn[:-5] + '.xhtml'
+                if fn[-5:] == '.html':
+                    fn = fn[:-5]
+                fn += '.xhtml'
                 mediatype = 'application/xhtml+xml'
-            #if mediatype == 'application/xhtml+xml':
                 filemap[oldfn] = fn
-                #log(fn, mediatype)
 
             info = {'id': ID.encode('utf-8'),
                     'href': fn.encode('utf-8'),
@@ -764,30 +764,31 @@ class Book(object):
 
         #metadata -- no use of attributes (yet)
         # and fm: metadata disappears for now
-        dcns = config.DCNS
+        DCNS = config.DCNS
+        DC = config.DC
         meta_info_items = []
-        has_authors = False
-        for k, v in self.metadata.iteritems():
-            if k.startswith('fm:'):
-                continue
-            meta_info_items.append({'item': dcns + k,
-                                    'text': v}
-                                   )
-            if k == 'creator':
-                has_authors = True
+        for ns, namespace in self.metadata.items():
+            for keyword, schemes in namespace.items():
+                if ns:
+                    keyword = '{%s}%s' % (ns, keyword)
+                for scheme, values in schemes.items():
+                    for value in values:
+                        item = {
+                            'item': keyword,
+                            'text': value,
+                            }
+                        if scheme:
+                            if keyword in (DCNS + 'creator', DCNS + 'contributor'):
+                                item['atts'] = {'role': scheme}
+                            else:
+                                item['atts'] = {'scheme': scheme}
 
+        has_authors = 'creator' in self.metadata[DC]
         if not has_authors and config.CLAIM_UNAUTHORED:
-            meta_info_items.append({'item': dcns + 'creator',
+            meta_info_items.append({'item': DCNS + 'creator',
                                     'text': 'The Contributors'})
 
-        #copyright
-        authors = sorted(self.info['copyright'])
-        for a in authors:
-            meta_info_items.append({'item': dcns + 'contributor',
-                                    'text': a}
-                                   )
-        if not has_authors:
-            meta_info_items.append({'item': dcns + 'rights',
+            meta_info_items.append({'item': DCNS + 'rights',
                                     'text': 'This book is free. Copyright %s' % (', '.join(authors))}
                                    )
 
