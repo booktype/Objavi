@@ -1,6 +1,7 @@
 """Module for dealing with booki -> epub conversions."""
 
 import os, sys
+import time
 from pprint import pprint
 #import zipfile
 from cStringIO import StringIO
