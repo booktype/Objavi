@@ -279,7 +279,6 @@ def mode_form(args):
     print template % {'form': ''.join(form)}
 
 
-
 def output_multi(book, mimetype, destination):
     if destination == 'download':
         f = open(book.publish_file)
@@ -294,6 +293,12 @@ def output_multi(book, mimetype, destination):
                                  'text/plain')
         else:
             output_blob_and_exit("books/%s\n%s" % (book.bookname, details_url), 'text/plain')
+    elif destination == 'nowhere':
+        if HTTP_HOST:
+            output_blob_and_exit("http://%s/books/%s\n" % (HTTP_HOST, book.bookname),
+                                 'text/plain')
+        else:
+            output_blob_and_exit("books/%s\n" % (book.bookname,), 'text/plain')
 
 
 def mode_book(args):

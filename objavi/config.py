@@ -327,6 +327,7 @@ PUBLISH_DESTINATIONS = {
     'archive.org': None,
     'download': None,
     'html': None,
+    'nowhere': None,
 }
 DEFAULT_PUBLISH_DESTINATION = 'html'
 
