@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os, sys
-import re, time, traceback
+import re, traceback
 from pprint import pformat
 
 from objavi.twiki_wrapper import TWikiBook, get_book_list

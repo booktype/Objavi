@@ -36,7 +36,7 @@ def make_ncx(toc, metadata, filemap):
     for subtoc in toc:
         counter, maxdepth = write_navtree(navmap, subtoc, counter, 1, maxdepth, filemap)
 
-    for name, content in (('dtb:uid', get_metadata(metadata, 'identifier')[0]),
+    for name, content in (('dtb:uid', get_metadata(metadata, 'identifier', default=[''])[0]),
                           ('dtb:depth', str(maxdepth)),
                           ('dtb:totalPageCount', '0'),
                           ('dtb:maxPageNumber', '0')
