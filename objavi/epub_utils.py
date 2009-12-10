@@ -35,8 +35,11 @@ def make_ncx(toc, metadata, filemap):
     counter, maxdepth = 0, 0
     for subtoc in toc:
         counter, maxdepth = write_navtree(navmap, subtoc, counter, 1, maxdepth, filemap)
+    ids = get_metadata(metadata, 'identifier')
+    if not ids: #workaround for one-time broken booki
+        ids = [time.strftime('http://book.cc/UNKNOWN/%Y.%m.%d-%H.%M.%S')]
 
-    for name, content in (('dtb:uid', get_metadata(metadata, 'identifier', default=[''])[0]),
+    for name, content in (('dtb:uid', ids[0]),
                           ('dtb:depth', str(maxdepth)),
                           ('dtb:totalPageCount', '0'),
                           ('dtb:maxPageNumber', '0')
