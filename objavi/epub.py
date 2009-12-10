@@ -259,7 +259,10 @@ class Epub(object):
             else:
                 tree = self.gettree(fn, parse=_html_parse)
                 root = tree.getroot()
-                first_el = _find_tag(root, 'body')[0]
+                body = _find_tag(root, 'body')
+                if not len(body):
+                    add_marker(body, 'espri-empty-file-%s' % ID, title=fn, child=True)
+                first_el = body[0]
             #point the links to the new names. XXX probably fragile
             root.rewrite_links(lambda x: self.media_map.get(os.path.join(self.opfdir, x), x))
 
@@ -525,15 +528,19 @@ def _find_tag(doc, tag):
 
 MARKER_CLASS="espri-marker"
 
-def add_marker(el, ID, **kwargs):
-    """Add a marker before the elememt"""
+def add_marker(el, ID, child=False, **kwargs):
+    """Add a marker before the element, or inside it if child is true"""
     marker = el.makeelement('hr')
     marker.set('id', ID)
     marker.set('class', MARKER_CLASS)
     for k, v in kwargs.items():
         marker.set(k, v)
-    parent = el.getparent()
-    index = parent.index(el)
+    if child:
+        parent = el
+        index = 0
+    else:
+        parent = el.getparent()
+        index = parent.index(el)
     parent.insert(index, marker)
 
 
