@@ -592,7 +592,7 @@ class Book(object):
                 try:
                     h1_text, level, page_num = outline_contents.next()
                 except StopIteration:
-                    log("contents data not found for %s. Stopping" % t)
+                    log("contents data not found for %s. Stopping" % (point,))
                     break
                 contents.append(row_tmpl % (chapter, _get_best_title(point), page_num))
                 chapter += 1
