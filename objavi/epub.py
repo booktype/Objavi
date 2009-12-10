@@ -13,7 +13,7 @@ except ImportError:
 import lxml, lxml.html, lxml.cssselect
 from lxml import etree
 
-from objavi.config import DC, XHTML, XHTMLNS
+from objavi.config import DC, XHTML, XHTMLNS, FM
 from booki.bookizip import BookiZip
 
 #XML namespaces.  The *NS varients are in {curly brackets} for clark's syntax
@@ -285,6 +285,8 @@ class Epub(object):
 
         chapters = split_document(doc)
         real_chapters = drop_empty_chapters(chapters)
+        rightsholders = [c for c, extra in self.metadata[DC].get('creator', ())]
+        contributors = rightsholders + [c for c, extra in self.metadata[DC].get('contributor', ())]
 
         spine = []
         for id, title, tree in real_chapters:
@@ -305,57 +307,85 @@ class Epub(object):
                 root.insert(0, head)
             #blob = etree.tostring(tree)
             blob = lxml.html.tostring(tree)
-            bz.add_to_package(id, '%s.html' % id,
-                              blob, mediatype='text/html')
+            bz.add_to_package(id, '%s.html' % id, blob, mediatype='text/html',
+                              contributors=contributors,
+                              rightsholders=rightsholders)
             spine.append(id)
 
-        #add the images ad other non-html data unchanged.
+        #add the images and other non-html data unchanged.
         for id, data in self.manifest.iteritems():
             fn, mimetype = data
             if mimetype not in MARKUP_TYPES:
                 blob = self.zip.read(fn)
-                bz.add_to_package(id, self.media_map[fn], blob, mimetype)
+                bz.add_to_package(id, self.media_map[fn], blob, mimetype,
+                                  contributors=contributors,
+                                  rightsholders=rightsholders
+                                  )
 
         #now to construct a table of contents
         lang = self.find_language()
+
+        deferred_urls = []
         def write_toc(point, section):
+            tocpoint = {}
+            title = find_good_label(point['labels'], lang),
+            if title and title[0]:
+                tocpoint['title'] = title[0]
             ID = point['id']
-            title = find_good_label(point['labels'], lang)
             if ID in spine:
-                item = (title, self.manifest.get(ID, ID + '.html'))
+                tocpoint['url'] = self.manifest.get(ID, ID + '.html')
+                while deferred_urls:
+                    tp = deferred_urls.pop()
+                    tp['url'] = tocpoint['url']
+                    log('%r has deferred url: %r' % (tp['title'], tp['url']))
             else:
-                item = (title, None)
-
+                deferred_urls.append(tocpoint)
             if point['points']:
-                item = [item, []]
+                tocpoint['children'] = []
                 for child in point['points']:
-                    write_toc(child, item[1])
+                    write_toc(child, tocpoint['children'])
 
-            section.append(item)
+            section.append(tocpoint)
 
         toc = []
         points = self.ncxdata['navmap']['points']
         for p in points:
             write_toc(p, toc)
 
-        metadata = dict((k, v[0][0]) for k, v in self.metadata[DC].items())
-        metadata['fm:book'] = ''.join(x for x in str(metadata["identifier"]) if x.isalnum())
-        metadata['fm:server'] = 'booki.flossmanuals.net'
+        metadata = {FM: {'book':{},
+                         'server': {},
+                         },
+                    DC: {}}
+
+        for namespace, keys in self.metadata.items():
+            if 'namespace' not in metadata:
+                metadata[namespace] = {}
+            log(keys)
+            for key, values in keys.items():
+                dest = metadata[namespace].setdefault(key, {})
+                for value, extra in values:
+                    scheme = ''
+                    if extra:
+                        for x in ('scheme', 'role'):
+                            if x in extra:
+                                scheme = extra[x]
+                                break
+                    dest.setdefault(scheme, []).append(value)
+
+        if not metadata[FM]['book']:
+            metadata[FM]['book'][''] = [''.join(x for x in str(metadata[DC]['identifier'][''][0]) if x.isalnum())]
+        if not metadata[FM]['server']:
+            metadata[FM]['server'][''] = ['booki.flossmanuals.net']
+
         log(metadata)
 
-        copyright = {}
-        for c, extra in self.metadata[DC].get('creator', ()):
-            copyright[c] = [(x, 'primary') for x in spine]
-        for c, extra in self.metadata[DC].get('contributor', ()):
-            copyright[c] = [(x, 'secondary') for x in spine]
         bz.info = {
             'spine': spine,
             'TOC': toc,
             'metadata': metadata,
-            'copyright': copyright,
+            'version': '1',
             }
-        if self.guide is not None:
-            bz.info['guide'] = self.guide
+
         bz.finish()
 
 
@@ -567,7 +597,7 @@ def parse_metadata(metadata):
             #meta tags <meta name="" content="" />
             name = t.get('name')
             content = t.get('content')
-            others = tuple((k, v) for k, v in t.items() if k not in ('name', 'content'))
+            others = dict((k, v) for k, v in t.items() if k not in ('name', 'content'))
             if ':' in name:
                 # the meta tag is using xml namespaces in attribute values.
                 prefix, name = name.split(':', 1)

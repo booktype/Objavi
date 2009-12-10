@@ -20,33 +20,24 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os, sys
-import re, time, traceback
+import re, traceback
 from pprint import pformat
 
 from objavi.twiki_wrapper import TWikiBook, get_book_list
 from objavi.cgi_utils import parse_args, optionise, shift_file, output_blob_and_exit, log, make_book_name
 from objavi import config
 
-from booki.xhtml_utils import EpubChapter
-from booki.bookizip import BookiZip
 
-
-def make_booki_package(server, bookid, clean=False, use_cache=False):
+def make_booki_package(server, bookid,  use_cache=False):
     """Extract all chapters from the specified book, as well as
     associated images and metadata, and zip it all up for conversion
     to epub.
 
-    If clean is True, the chapters will be cleaned up and converted to
-    XHTML 1.1.  If cache is true, images that have been fetched on
-    previous runs will be reused.
+    If cache is true, images that have been fetched on previous runs
+    will be reused.
     """
-    if clean:
-        bookname = make_book_name(bookid, server, '-clean.zip')
-    else:
-        bookname = make_book_name(bookid, server, '.zip')
-
-    book = TWikiBook(bookid, server, bookname)
-    return book.make_bookizip(bookname)
+    book = TWikiBook(bookid, server)
+    return book.make_bookizip()
 
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
@@ -55,7 +46,6 @@ ARG_VALIDATORS = {
     "book": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah
     "server": config.SERVER_DEFAULTS.__contains__,
     "use-cache": None,
-    "clean": None,
     'mode': ('zip', 'html').__contains__,
     "all": ['all', 'skip-existing'].__contains__,
 }
@@ -63,14 +53,13 @@ ARG_VALIDATORS = {
 if __name__ == '__main__':
 
     args = parse_args(ARG_VALIDATORS)
-    clean = bool(args.get('clean', False))
     use_cache = args.get('use-cache')
     if use_cache is None:
         use_cache = (os.environ.get('HTTP_HOST') in config.USE_IMG_CACHE_ALWAYS_HOSTS)
 
     make_all = args.get('all')
     if 'server' in args and 'book' in args:
-        zfn = make_booki_package(args['server'], args['book'], clean, use_cache)
+        zfn = make_booki_package(args['server'], args['book'],  use_cache)
         fn = shift_file(zfn, config.BOOKI_BOOK_DIR)
         ziplink = '<p><a href="%s">%s zip file.</a></p>' % (fn, args['book'])
 

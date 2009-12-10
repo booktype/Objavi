@@ -34,8 +34,6 @@ def make_epub(server, bookid):
     bookname = make_book_name(bookid, server, '.epub')
     book = ZipBook(server, bookid, bookname=bookname, project='FM')
     book.make_epub(use_cache=True)
-    book.publish_epub()
-
 
 
 for server, settings in config.SERVER_DEFAULTS.items():

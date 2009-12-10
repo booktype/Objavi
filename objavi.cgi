@@ -28,7 +28,7 @@ from pprint import pformat
 from objavi.fmbook import log, Book, make_book_name, HTTP_HOST
 from objavi import config
 from objavi.cgi_utils import parse_args, optionise, listify, shift_file
-from objavi.cgi_utils import output_blob_and_exit
+from objavi.cgi_utils import output_blob_and_exit, is_utf8
 from objavi.twiki_wrapper import get_book_list
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
@@ -57,8 +57,8 @@ def is_isbn(s):
 ARG_VALIDATORS = {
     "book": re.compile(r'^([\w-]+/?)*[\w-]+$').match, # can be: BlahBlah/Blah_Blah
     "project": re.compile(r'^[\w-]+$').match,
-    "css": None, # an url, empty (for default), or css content
-    "title": lambda x: len(x) < 999,
+    "css": is_utf8, # an url, empty (for default), or css content
+    "title": lambda x: len(x) < 999 and is_utf8(x),
     #"header": None, # header text, UNUSED
     "isbn": is_isbn,
     "license": config.LICENSES.__contains__,
@@ -78,7 +78,8 @@ ARG_VALIDATORS = {
     "pdftype": lambda x: config.CGI_MODES.get(x, [False])[0],
     "rotate": u"yes".__eq__,
     "grey_scale": u"yes".__eq__,
-    "destination": config.EPUB_DESTINATIONS.__contains__,
+    "destination": config.PUBLISH_DESTINATIONS.__contains__,
+    "toc_header": is_utf8,
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
@@ -124,14 +125,15 @@ def font_links():
     return links
 
 
-def make_progress_page(book, bookname, mode):
+def make_progress_page(book, bookname, mode, destination='html'):
     """Return a function that will notify the user of progress.  In
     CGI context this means making an html page to display the
     messages, which are then sent as javascript snippets on the same
     connection."""
-    if not CGI_CONTEXT:
+    if not CGI_CONTEXT or destination != 'html':
         return lambda message: '******* got message "%s"' %message
 
+    print "Content-type: text/html; charset=utf-8\n"
     f = open(PROGRESS_TEMPLATE)
     template = f.read()
     f.close()
@@ -220,6 +222,7 @@ def output_and_exit(f):
         sys.exit()
     return output
 
+
 @output_and_exit
 def mode_booklist(args):
     print optionise(get_book_list(args.get('server', config.DEFAULT_SERVER)),
@@ -276,7 +279,28 @@ def mode_form(args):
     print template % {'form': ''.join(form)}
 
 
-@output_and_exit
+def output_multi(book, mimetype, destination):
+    if destination == 'download':
+        f = open(book.publish_file)
+        data = f.read()
+        f.close()
+
+        output_blob_and_exit(data, mimetype, book.bookname)
+    elif destination == 'archive.org':
+        details_url, s3url = book.publish_s3()
+        if HTTP_HOST:
+            output_blob_and_exit("http://%s/books/%s\n%s" % (HTTP_HOST, book.bookname, details_url),
+                                 'text/plain')
+        else:
+            output_blob_and_exit("books/%s\n%s" % (book.bookname, details_url), 'text/plain')
+    elif destination == 'nowhere':
+        if HTTP_HOST:
+            output_blob_and_exit("http://%s/books/%s\n" % (HTTP_HOST, book.bookname),
+                                 'text/plain')
+        else:
+            output_blob_and_exit("books/%s\n" % (book.bookname,), 'text/plain')
+
+
 def mode_book(args):
     # so we're making a pdf.
     mode = args.get('mode', 'book')
@@ -284,14 +308,23 @@ def mode_book(args):
     server = args.get('server', config.DEFAULT_SERVER)
     page_settings = get_page_settings(args)
     bookname = make_book_name(bookid, server)
-    progress_bar = make_progress_page(bookid, bookname, mode)
+    destination = args.get('destination', config.DEFAULT_PUBLISH_DESTINATION)
+    progress_bar = make_progress_page(bookid, bookname, 'book', destination)
 
     with Book(bookid, server, bookname, page_settings=page_settings,
               watcher=progress_bar, isbn=args.get('isbn'), project=args.get('project'),
               license=args.get('license'), title=args.get('title')) as book:
         if CGI_CONTEXT:
             book.spawn_x()
+
+        if 'toc_header' in args:
+            book.toc_header = args['toc_header'].decode('utf-8')
         book.load_book()
+        #title = args.get('title')
+        #if title is not None:
+        #    title = title.decode('utf-8')
+        #book.set_title(title)
+
         book.add_css(args.get('css'), mode)
         book.add_section_titles()
 
@@ -303,6 +336,7 @@ def mode_book(args):
             book.rotate180()
 
         book.publish_pdf()
+        output_multi(book, "application/pdf", destination)
         book.notify_watcher('finished')
 
 #These ones are similar enough to be handled by the one function
@@ -310,7 +344,6 @@ mode_newspaper = mode_book
 mode_web = mode_book
 
 
-@output_and_exit
 def mode_openoffice(args):
     """Make an openoffice document.  A whole lot of the inputs have no
     effect."""
@@ -318,7 +351,8 @@ def mode_openoffice(args):
     server = args.get('server', config.DEFAULT_SERVER)
     #page_settings = get_page_settings(args)
     bookname = make_book_name(bookid, server, '.odt')
-    progress_bar = make_progress_page(bookid, bookname, 'openoffice')
+    destination = args.get('destination', config.DEFAULT_PUBLISH_DESTINATION)
+    progress_bar = make_progress_page(bookid, bookname, 'openoffice', destination)
 
     with Book(bookid, server, bookname,  project=args.get('project'),
               watcher=progress_bar, isbn=args.get('isbn'),
@@ -329,7 +363,10 @@ def mode_openoffice(args):
         book.add_css(args.get('css'), 'openoffice')
         book.add_section_titles()
         book.make_oo_doc()
+        output_multi(book, "application/vnd.oasis.opendocument.text", destination)
         book.notify_watcher('finished')
+    return book
+
 
 #Not using output_and_exit, because the content type might not be text/html
 def mode_epub(args):
@@ -337,34 +374,17 @@ def mode_epub(args):
     #XXX need to catch and process lack of necessary arguments.
     bookid = args.get('book')
     server = args.get('server', config.DEFAULT_SERVER)
-    destination = args.get('destination', config.DEFAULT_EPUB_DESTINATION)
     bookname = make_book_name(bookid, server, '.epub')
     project = args.get('project')
+    destination = args.get('destination', config.DEFAULT_PUBLISH_DESTINATION)
+    progress_bar = make_progress_page(bookid, bookname, 'epub', destination)
 
-    if destination == 'html':
-        print 'content-type: text/html\n'
-        progress_bar = make_progress_page(bookid, bookname, 'epub')
-    else:
-        progress_bar = None
-
-    book = Book(server, bookid, bookname=bookname, project=project,
-                watcher=progress_bar, title=args.get('title'))
-    book.make_epub(use_cache=config.USE_CACHED_IMAGES)
-    book.publish_epub()
-    if destination == 'html':
+    with Book(bookid, server, bookname=bookname, project=project,
+              watcher=progress_bar, title=args.get('title')) as book:
+        book.make_epub(use_cache=config.USE_CACHED_IMAGES)
+        output_multi(book, "application/epub+zip", destination)
         book.notify_watcher('finished')
-    elif destination == 'download':
-        f = open(book.epubfile)
-        data = f.read()
-        f.close()
-        output_blob_and_exit(data, 'application/epub+zip', bookname)
-    elif destination == 'archive.org':
-        details_url, s3url = book.publish_s3()
-        if HTTP_HOST:
-            output_blob_and_exit("http://%s/books/%s\n%s" % (HTTP_HOST, bookname, details_url),
-                                 'text/plain')
-        else:
-            output_blob_and_exit("books/%s\n%s" % (bookname, details_url), 'text/plain')
+    sys.exit()
 
 
 def main():

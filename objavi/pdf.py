@@ -92,7 +92,7 @@ class PageSettings(object):
 
     def _webkit_command(self, html, pdf, outline=False):
         m = [str(x) for x in self.margins]
-        outline_args = ['--outline'] * outline
+        outline_args = ['--outline',  '--outline-depth', '2'] * outline
         greyscale_args = ['-g'] * self.grey_scale
         cmd = ([config.WKHTMLTOPDF, '-q', '-s', self.papersize,
                '-T', m[0], '-R', m[1], '-B', m[2], '-L', m[3],
@@ -271,7 +271,7 @@ def rotate_pdf(pdfin, pdfout):
            ]
     run(cmd)
 
-def parse_outline(pdf, level_threshold):
+def parse_outline(pdf, level_threshold, debug_filename=None):
     """Create a structure reflecting the outline of a PDF.
     A chapter heading looks like this:
 
@@ -282,10 +282,22 @@ def parse_outline(pdf, level_threshold):
     cmd = ('pdftk', pdf, 'dump_data')
     p = Popen(cmd, stdout=PIPE, stderr=PIPE)
     outline, err = p.communicate()
+    log("OUTLINE:", outline)
+    if debug_filename is not None:
+        try:
+            f = open(debug_filename, 'w')
+            f.write(outline)
+            f.close()
+        except IOError:
+            log("could not write to %s!" % debug_filename)
+
     lines = (x.strip() for x in outline.split('\n') if x.strip())
     contents = []
 
-    def extract(expected, conv=str.strip):
+    def _strip(s):
+        return s.strip(config.WHITESPACE_AND_NULL)
+
+    def extract(expected, conv=_strip):
         line = lines.next()
         try:
             k, v = line.split(':', 1)

@@ -16,3 +16,4 @@ tests/booki_books/*
 tests/generated-epubs/*
 tests/downloaded-epubs/*
 tests/extra-epub/
+tests/*.pdf

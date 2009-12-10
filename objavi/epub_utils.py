@@ -11,6 +11,8 @@ from lxml import etree
 from objavi.cgi_utils import log
 from objavi.config import DC, XHTML, XHTMLNS, NAVPOINT_ID_TEMPLATE
 
+from booki.bookizip import get_metadata, get_metadata_schemes
+
 ##Construct NCX
 BARE_NCX = ('<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" '
             '"http://www.daisy.org/z3986/2005/ncx-2005-1.dtd"> '
@@ -28,13 +30,16 @@ def make_ncx(toc, metadata, filemap):
     tree = etree.parse(StringIO(BARE_NCX))
     root = tree.getroot()
     head = etree.SubElement(root, 'head')
-    add_ncxtext(root, 'docTitle', metadata['title'])
+    add_ncxtext(root, 'docTitle', get_metadata(metadata, 'title')[0])
     navmap = etree.SubElement(root, 'navMap')
     counter, maxdepth = 0, 0
     for subtoc in toc:
         counter, maxdepth = write_navtree(navmap, subtoc, counter, 1, maxdepth, filemap)
+    ids = get_metadata(metadata, 'identifier')
+    if not ids: #workaround for one-time broken booki
+        ids = [time.strftime('http://book.cc/UNKNOWN/%Y.%m.%d-%H.%M.%S')]
 
-    for name, content in (('dtb:uid', metadata['identifier']),
+    for name, content in (('dtb:uid', ids[0]),
                           ('dtb:depth', str(maxdepth)),
                           ('dtb:totalPageCount', '0'),
                           ('dtb:maxPageNumber', '0')
@@ -44,37 +49,31 @@ def make_ncx(toc, metadata, filemap):
 
 
 def write_navtree(parent, subtoc, counter, depth, maxdepth, filemap):
+    #subtoc has this structure:
+    #{
+    #  "title":    division title (optional),
+    #  "url":      filename and possible fragment ID,
+    #  "type":     string indicating division type (optional),
+    #  "role":     epub guide type (optional),
+    #  "children": list of TOC structures (optional)
+    #}
     counter += 1
     if depth > maxdepth:
         maxdepth = depth
-    title, url = subtoc
-    log(title, url)
-    if isinstance(title, basestring): #leaf node
-        subsections = []
-    else:
-        subsections = url
-        title, url = title
-        if url is None:
-            # if the section has no url, it begins with its first child
-            #XXX though this mucks with playorder, unless a # is used
-            try:
-                url = subsections[0][1]
-            except IndexError:
-                log ("section %s has no contents!" % title)
-                #what to do? just not add the section?
-                return counter, maxdepth
+
+    title = subtoc.get('title', '')
+    url = subtoc['url']
+    children = subtoc.get('children', [])
+
+    if url is None and children:
+        # if the section has no url, it begins with its first child
+        url = children[0]['url']
+
     if filemap:
         url = filemap.get(url, url)
-    #log(url, filemap)
-
-    #FIXME if the url is still none, there may yet still be a nested
-    #or following chapter that contains the url.  But that is hard to
-    #find with forward recurion.
-    if url is None:
-        return counter, maxdepth
 
     navpoint = make_navpoint(parent, counter, title, url)
-    for point in subsections:
+    for point in children:
         counter, maxdepth = write_navtree(navpoint, point, counter, depth + 1, maxdepth, filemap)
 
     return counter, maxdepth

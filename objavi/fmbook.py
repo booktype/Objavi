@@ -26,6 +26,7 @@ import re, time
 import random
 from subprocess import Popen, check_call, PIPE
 from cStringIO import StringIO
+from urllib2 import urlopen
 import zipfile
 import traceback
 from string import ascii_letters
@@ -40,13 +41,13 @@ import lxml, lxml.html
 from lxml import etree
 
 from objavi import config, epub_utils
-from objavi.cgi_utils import log, run, shift_file, make_book_name
+from objavi.cgi_utils import log, run, shift_file, make_book_name, guess_lang, guess_text_dir
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline
 from objavi.epub import add_guts, _find_tag
 
 from iarchive import epub as ia_epub
 from booki.xhtml_utils import EpubChapter
-from booki.bookizip import get_metadata, add_metadata, clear_metadata
+from booki.bookizip import get_metadata, add_metadata, clear_metadata, get_metadata_schemes
 
 TMPDIR = os.path.abspath(config.TMPDIR)
 DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
@@ -179,7 +180,18 @@ class Book(object):
 
         log(pformat(self.metadata))
         self.lang = get_metadata(self.metadata, 'language', default=[None])[0]
-        self.dir = get_metadata(self.metadata, 'dir', ns=config.FM)[0]
+        if not self.lang:
+            self.lang = guess_lang(server, book)
+            log('guessed lang as %s' % self.lang)
+
+        self.toc_header = get_metadata(self.metadata, 'toc_header', ns=config.FM, default=[None])[0]
+        if not self.toc_header:
+            self.toc_header = config.SERVER_DEFAULTS[server]['toc_header']
+
+        self.dir = get_metadata(self.metadata, 'dir', ns=config.FM, default=[None])[0]
+        if not self.dir:
+            self.dir = guess_text_dir(server, book)
+
 
         #Patch in the extra metadata. (lang and dir may be set from config)
         #these should be read from zip -- so should go into zip?
@@ -212,10 +224,8 @@ class Book(object):
         self.pdf_file = self.filepath('final.pdf')
         self.body_odt_file = self.filepath('body.odt')
 
-        self.epubfile = self.filepath(bookname)
-        self.publish_name = bookname
-        self.publish_file = os.path.join(PUBLISH_PATH, self.publish_name)
-        self.publish_url = os.path.join(config.PUBLISH_URL, self.publish_name)
+        self.publish_file = os.path.join(PUBLISH_PATH, bookname)
+        self.publish_url = os.path.join(config.PUBLISH_URL, bookname)
 
         if page_settings is not None:
             self.maker = PageSettings(**page_settings)
@@ -225,7 +235,6 @@ class Book(object):
             self.title = titles[0]
         else:
             self.title = 'A Manual About ' + self.book
-
 
         self.notify_watcher()
 
@@ -240,11 +249,17 @@ class Book(object):
 
     def get_tree_by_id(self, id):
         """get an HTML tree from the given manifest ID"""
-        name, mimetype = self.manifest[id]
+        name = self.manifest[id]['url']
+        mimetype = self.manifest[id]['mimetype']
         s = self.store.read(name)
         f = StringIO(s)
         if mimetype == 'text/html':
-            tree = lxml.html.parse(f)
+            try:
+                tree = lxml.html.parse(f)
+            except etree.XMLSyntaxError, e:
+                log('Could not parse html ID %r, filename %r, string %r... exception %s' %
+                    (id, name, s[:20], e))
+                tree = lxml.html.document_fromstring('<html><body></body></html>').getroottree()
         elif 'xml' in mimetype: #XXX or is this just asking for trouble?
             tree = etree.parse(f)
         else:
@@ -281,9 +296,51 @@ class Book(object):
         self.notify_watcher()
 
     def extract_pdf_outline(self):
-        self.outline_contents, self.outline_text, number_of_pages = parse_outline(self.body_pdf_file, 1)
-        for x in self.outline_contents:
-            log(x)
+        #self.outline_contents, self.outline_text, number_of_pages = parse_outline(self.body_pdf_file, 1)
+        debugf = self.filepath('outline.txt')
+        self.outline_contents, self.outline_text, number_of_pages = \
+                parse_outline(self.body_pdf_file, 1, debugf)
+
+        if not self.outline_contents:
+            #probably problems with international text. need a horrible hack
+            log('no outline: trying again with ascii headings')
+            import copy
+            tree = copy.deepcopy(self.tree)
+            titlemap = {}
+            for tag in ('h1', 'h2', 'h3', 'h4'):
+                for i, e in enumerate(tree.getiterator(tag)):
+                    key = "%s_%s" % (tag, i)
+                    titlemap[key] = e.text_content().strip(config.WHITESPACE_AND_NULL)
+                    del e[:]
+                    if tag == 'h1':
+                        e = lxml.etree.SubElement(e, "strong", Class="initial")
+                    e.text = key
+                    log("key: %r, text: %r, value: %r" %(key, e.text, titlemap[key]))
+
+            ascii_html_file = self.filepath('body-ascii-headings.html')
+            ascii_pdf_file = self.filepath('body-ascii-headings.pdf')
+            html_text = lxml.etree.tostring(tree, method="html")
+            self.save_data(ascii_html_file, html_text)
+            self.maker.make_raw_pdf(ascii_html_file, ascii_pdf_file, outline=True)
+            debugf = self.filepath('ascii_outline.txt')
+            ascii_contents, ascii_text, number_of_ascii_pages = \
+                parse_outline(ascii_pdf_file, 1, debugf)
+            self.outline_contents = []
+            log ("number of pages: %s, post ascii: %s" %
+                 (number_of_pages, number_of_ascii_pages))
+            for ascii_title, depth, pageno in ascii_contents:
+                if ascii_title[-4:] == '&#0;': #stupid [something] puts this in
+                    ascii_title = ascii_title[:-4]
+                if ' ' in ascii_title:
+                    ascii_title = ascii_title.rsplit(' ', 1)[1]
+                title = titlemap.get(ascii_title, '')
+                log((ascii_title, title, depth, pageno))
+
+                self.outline_contents.append((title, depth, pageno))
+        else:
+            for x in self.outline_contents:
+                log(x)
+
         self.notify_watcher()
         return number_of_pages
 
@@ -313,17 +370,20 @@ class Book(object):
     def make_preamble_pdf(self):
         contents = self.make_contents()
         inside_cover_html = self.compose_inside_cover()
+        log(self.dir, self.css_url, self.title, inside_cover_html,
+            self.toc_header, contents, self.title)
+
         html = ('<html dir="%s"><head>\n'
                 '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'
                 '<link rel="stylesheet" href="%s" />\n'
                 '</head>\n<body>\n'
                 '<h1 class="frontpage">%s</h1>'
                 '%s\n'
-                '<div class="contents">%s</div>\n'
+                '<div class="contents"><h1>%s</h1>\n%s</div>\n'
                 '<div style="page-break-after: always; color:#fff" class="unseen">.'
                 '<!--%s--></div></body></html>'
-                ) % (self.dir, self.css_url, self.title, inside_cover_html,
-                     contents, self.title)
+                ) % (self.dir, self.css_url, self.title, inside_cover_html.decode('utf-8'),
+                     self.toc_header, contents, self.title)
         self.save_data(self.preamble_html_file, html)
 
         self.maker.make_raw_pdf(self.preamble_html_file, self.preamble_pdf_file)
@@ -344,7 +404,9 @@ class Book(object):
             self.maker.make_barcode_pdf(self.isbn, self.isbn_pdf_file)
             self.notify_watcher('make_barcode_pdf')
 
-        self.save_data(self.tail_html_file, self.compose_end_matter())
+        end_matter = self.compose_end_matter()
+        log(end_matter)
+        self.save_data(self.tail_html_file, end_matter.decode('utf-8'))
         self.maker.make_raw_pdf(self.tail_html_file, self.tail_pdf_file)
 
         self.maker.reshape_pdf(self.tail_pdf_file, self.dir, centre_start=True,
@@ -425,13 +487,21 @@ class Book(object):
     def concat_html(self):
         """Join all the chapters together into one tree.  Keep the TOC
         up-to-date along the way."""
-        #XXX do TOC
+
+        #each manifest item looks like:
+        #{'contributors': []
+        #'license': [],
+        #'mimetype': '',
+        #'rightsholders': []
+        #'url': ''}
         doc = lxml.html.document_fromstring('<html><body></body></html>')
         tocmap = filename_toc_map(self.toc)
         for ID in self.spine:
-            fn, mimetype = self.manifest[ID]
+            details = self.manifest[ID]
+            log(ID, pformat(details))
             root = self.get_tree_by_id(ID).getroot()
-            for point in tocmap[fn]:
+            #handle any TOC points in this file
+            for point in tocmap[details['url']]:
                 #if the url has a #identifier, use it. Otherwise, make
                 #one up, using a hidden element at the beginning of
                 #the inserted document.
@@ -463,10 +533,25 @@ class Book(object):
             add_guts(root, doc)
         return doc
 
+    def unpack_static(self):
+        """Extract static files from the zip for the html to refer to."""
+        static_files = [x['url'] for x in self.manifest.values()
+                        if x['url'].startswith('static')]
+        if static_files:
+            os.mkdir(self.filepath('static'))
+
+        for name in static_files:
+            s = self.store.read(name)
+            f = open(self.filepath(name), 'w')
+            f.write(s)
+            f.close()
+        self.notify_watcher()
+
     def load_book(self):
         """"""
         #XXX concatenate the HTML to match how TWiki version worked.
         # This is perhaps foolishly early -- throwing away useful boundaries.
+        self.unpack_static()
         self.tree = self.concat_html()
         self.save_tempfile('raw.html', etree.tostring(self.tree, method='html'))
 
@@ -636,16 +721,16 @@ class Book(object):
     def make_epub(self, use_cache=False):
         """Make an epub version of the book, using Mike McCabe's
         epub module for the Internet Archive."""
-        ebook = ia_epub.Book(self.epubfile, content_dir='')
+        ebook = ia_epub.Book(self.publish_file, content_dir='')
         toc = self.info['TOC']
 
         #manifest
-        filemap = {} #reformulated manifest for NCX
+        filemap = {} #map html to corresponding xhtml
         for ID in self.manifest:
-            fn, mediatype = self.manifest[ID]
-
+            details = self.manifest[ID]
+            log(ID, pformat(details))
+            fn, mediatype = details['url'], details['mimetype']
             oldfn = fn
-            log(ID, fn, mediatype)
             content = self.store.read(fn)
             if mediatype == 'text/html':
                 log('CONVERTING')
@@ -655,11 +740,11 @@ class Book(object):
                 c.remove_bad_tags()
                 c.prepare_for_epub()
                 content = c.as_xhtml()
-                fn = fn[:-5] + '.xhtml'
+                if fn[-5:] == '.html':
+                    fn = fn[:-5]
+                fn += '.xhtml'
                 mediatype = 'application/xhtml+xml'
-            #if mediatype == 'application/xhtml+xml':
                 filemap[oldfn] = fn
-                #log(fn, mediatype)
 
             info = {'id': ID.encode('utf-8'),
                     'href': fn.encode('utf-8'),
@@ -676,30 +761,31 @@ class Book(object):
 
         #metadata -- no use of attributes (yet)
         # and fm: metadata disappears for now
-        dcns = config.DCNS
+        DCNS = config.DCNS
+        DC = config.DC
         meta_info_items = []
-        has_authors = False
-        for k, v in self.metadata.iteritems():
-            if k.startswith('fm:'):
-                continue
-            meta_info_items.append({'item': dcns + k,
-                                    'text': v}
-                                   )
-            if k == 'creator':
-                has_authors = True
+        for ns, namespace in self.metadata.items():
+            for keyword, schemes in namespace.items():
+                if ns:
+                    keyword = '{%s}%s' % (ns, keyword)
+                for scheme, values in schemes.items():
+                    for value in values:
+                        item = {
+                            'item': keyword,
+                            'text': value,
+                            }
+                        if scheme:
+                            if keyword in (DCNS + 'creator', DCNS + 'contributor'):
+                                item['atts'] = {'role': scheme}
+                            else:
+                                item['atts'] = {'scheme': scheme}
 
+        has_authors = 'creator' in self.metadata[DC]
         if not has_authors and config.CLAIM_UNAUTHORED:
-            meta_info_items.append({'item': dcns + 'creator',
+            meta_info_items.append({'item': DCNS + 'creator',
                                     'text': 'The Contributors'})
 
-        #copyright
-        authors = sorted(self.info['copyright'])
-        for a in authors:
-            meta_info_items.append({'item': dcns + 'contributor',
-                                    'text': a}
-                                   )
-        if not has_authors:
-            meta_info_items.append({'item': dcns + 'rights',
+            meta_info_items.append({'item': DCNS + 'rights',
                                     'text': 'This book is free. Copyright %s' % (', '.join(authors))}
                                    )
 
@@ -743,18 +829,11 @@ class Book(object):
         argv = ['curl', '--location', '-s', '-o', s3output]
         for h in headers:
             argv.extend(('--header', h))
-        argv.extend(('--upload-file', self.epubfile, s3url,))
+        argv.extend(('--upload-file', self.publish_file, s3url,))
 
         log(' '.join(repr(x) for x in argv))
         check_call(argv, stdout=sys.stderr)
         return detailsurl, s3url
-
-    def publish_epub(self):
-        self.epubfile = shift_file(self.epubfile, config.EPUB_DIR)
-        return self.epubfile
-
-
-
 
 
     def spawn_x(self):
@@ -889,7 +968,6 @@ def use_cache():
     return (os.environ.get('HTTP_HOST') in config.USE_ZIP_CACHE_ALWAYS_HOSTS)
 
 def fetch_zip(server, book, project, save=False):
-    from urllib2 import urlopen
     interface = config.SERVER_DEFAULTS[server]['interface']
     if interface not in ('Booki', 'TWiki'):
         raise NotImplementedError("Can't handle '%s' interface" % interface)

@@ -37,9 +37,8 @@ BOOKI_BOOK_DIR = 'booki-books'
 FIREFOX = 'firefox'
 WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
-#WKHTMLTOPDF_EXTRA_COMMANDS = ['--outline',  '-t']
-HTML2ODT = './html2odt'
 
+HTML2ODT = './html2odt'
 
 #CGITB_DOMAINS = ('203.97.236.46', '202.78.240.7')
 CGITB_DOMAINS = False
@@ -56,21 +55,15 @@ BOOK_LIST_CACHE = 3600 * 2
 BOOK_LIST_CACHE_DIR = 'cache'
 
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
-BOOK_URL = "http://%s/bin/view/%s/_all?skin=text"
 CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
 PUBLISH_URL = "/books/"
 
 TWIKI_GATEWAY_URL = 'http://%s/booki-twiki-gateway.cgi?server=%s&book=%s&mode=zip'
 BOOKI_ZIP_URL = 'http://%(server)s/%(project)s/%(book)s/export'
 
-#leave out vowels so as to avoid accidental words, and punctuation for bidi consistency
-CHAPTER_COOKIE_CHARS = 'BCDFGHJKLMNPQRSTVWXYZ'
-
 DEFAULT_SERVER = 'en.flossmanuals.net'
-BOOKI_SERVER = 'booki.flossmanuals.net'
 DEFAULT_SIZE = 'COMICBOOK'
 DEFAULT_ENGINE = 'webkit'
-#DEFAULT_MODE = None
 
 RTL_SCRIPTS = ['persian', 'arabic', 'hebrew', 'urdu']
 
@@ -94,6 +87,7 @@ SERVER_DEFAULTS = {
         'toc-encoding': 'iso-8859-1',
         'display': False,
         'interface': 'Booki',
+        'toc_header': 'Table of Contents',
         },
     LOCALHOST: {
         'css-book': 'static/en.flossmanuals.net.css',
@@ -105,6 +99,7 @@ SERVER_DEFAULTS = {
         'toc-encoding': 'iso-8859-1',
         'display': False,
         'interface': 'local',
+        'toc_header': 'Table of Contents',
         },
     'en.flossmanuals.net': {
         'css-book': 'static/en.flossmanuals.net.css',
@@ -116,6 +111,7 @@ SERVER_DEFAULTS = {
         'toc-encoding': None,
         'display': True,
         'interface': 'TWiki',
+        'toc_header': 'Table of Contents',
         },
     'fr.flossmanuals.net': {
         'css-book': 'static/fr.flossmanuals.net.css',
@@ -128,6 +124,7 @@ SERVER_DEFAULTS = {
         'toc-encoding': 'iso-8859-1',
         'display': True,
         'interface': 'TWiki',
+        'toc_header': 'Table of Contents',
         },
     'translate.flossmanuals.net': {
         'css-book': 'static/translate.flossmanuals.net.css',
@@ -137,9 +134,10 @@ SERVER_DEFAULTS = {
         'css-openoffice': 'static/translate.flossmanuals.net-openoffice.css',
         'lang': None,
         'dir': 'auto',
-        'toc-encoding': 'iso-8859-1',
+        'toc-encoding': None,
         'display': True,
         'interface': 'TWiki',
+        'toc_header': 'Table of Contents',
         },
     'nl.flossmanuals.net': {
         'css-book': 'static/nl.flossmanuals.net.css',
@@ -152,6 +150,7 @@ SERVER_DEFAULTS = {
         'toc-encoding': 'iso-8859-1',
         'display': True,
         'interface': 'TWiki',
+        'toc_header': 'Table of Contents',
         },
     'bn.flossmanuals.net': {
         'css-book': 'static/bn.flossmanuals.net.css',
@@ -164,6 +163,7 @@ SERVER_DEFAULTS = {
         'toc-encoding': 'iso-8859-1',
         'display': True,
         'interface': 'TWiki',
+        'toc_header': 'Table of Contents',
         },
     'fa.flossmanuals.net': {
         'css-book': 'static/fa.flossmanuals.net.css',
@@ -176,6 +176,7 @@ SERVER_DEFAULTS = {
         'toc-encoding': 'iso-8859-1',
         'display': True,
         'interface': 'TWiki',
+        'toc_header': 'Table of Contents',
         },
 }
 
@@ -275,9 +276,6 @@ PAGE_SIZE_DATA = {
     "custom":         {'class': "custom"},
 }
 
-PAGE_MIN_SIZE = (1.0, 1.0)
-PAGE_MAX_SIZE = (3000.0, 3000.0)
-
 MIN_COLUMN_WIDTH = (110 * MM_2_POINT)
 
 ENGINES = {
@@ -322,14 +320,16 @@ CGI_MODES = { # arguments are: (publication, )
     'form': (False,),
     'epub':(True,),
 }
-DEFAULT_MODE = 'book'
 
-EPUB_DESTINATIONS = {
+
+#PUBLISH_DESTINATIONS
+PUBLISH_DESTINATIONS = {
     'archive.org': None,
     'download': None,
     'html': None,
+    'nowhere': None,
 }
-DEFAULT_EPUB_DESTINATION = 'html'
+DEFAULT_PUBLISH_DESTINATION = 'html'
 
 
 FORM_INPUTS = (
@@ -341,6 +341,7 @@ FORM_INPUTS = (
 
     ("mode", "Document type", "select", "pdf_types", "advanced openoffice", ""),
     ("isbn", "ISBN", "input[type=text]", None, "advanced", "(13 digits)"),
+    ("toc_header", "Table of Contents header", "input[type=text]", None, "advanced", ""),
 
     ("booksize", "Page size", "select", "size_options", "advanced", '(Size compatibility: <span class="lulu">Lulu</span>, <span class="newspaper">newspapers</span>, <span class="iso">ISO standards</span>)'),
     ("page_width", "Page width", "input[type=text]", None, "advanced booksize numeric-field", ""),
@@ -415,6 +416,8 @@ USE_IMG_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
 USE_ZIP_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
 
 IGNORABLE_TWIKI_BOOKS = ('Main', 'TWiki', 'PR', 'Trash', 'Sandbox')
+
+WHITESPACE_AND_NULL = ''.join(chr(_x) for _x in range(33))
 
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))

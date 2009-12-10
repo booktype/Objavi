@@ -142,6 +142,13 @@ def is_name(s):
     if re.match(r'^[\w-]+$', s):
         return s
 
+def is_utf8(s):
+    try:
+        s.decode('utf-8')
+        return True
+    except UnicodeDecodeError:
+        return False
+
 def pass_thru(func, default=None):
     def test(s):
         try:

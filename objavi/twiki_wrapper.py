@@ -4,9 +4,12 @@ import os, sys, time, re
 import tempfile
 
 from objavi import config
-from objavi.cgi_utils import log, guess_lang, guess_text_dir
+from objavi.cgi_utils import log, guess_lang, guess_text_dir, make_book_name
 from urllib2 import urlopen
-from booki.bookizip import add_metadata
+from booki.bookizip import add_metadata, BookiZip
+from booki.xhtml_utils import EpubChapter
+
+from pprint import pformat
 
 import lxml.html
 
@@ -77,57 +80,6 @@ def toc_iterator(server, book):
 
 
 
-def get_book_copyright(server, book, title_map):
-    # open the Credits chapter that has a list of authors for each chapter.
-    # each chapter is listed thus (linebreaks added):
-    #   <i>CHAPTER TITLE</i><br/>&copy; First Author 2007<br/>
-    #   Modifications:<br/>Second Author 2007, 2008<br/>
-    #   Third Author 2008<br/>Fourth Author 2008<br/><hr/>
-    #
-    # where "CHAPTER TITLE" is as appears in TOC.txt, and "X
-    # Author" are the names TWiki has for authors.  So the thing
-    # to do is look for the <i> tags and match them to the toc.
-    #
-    # the chapter title is not guaranteed unique (but usually is).
-
-    credits_html = self.get_chapter_html('Credits', wrapped=True)
-    tree = lxml.html.document_fromstring(credits_html)
-    credits = {}
-    authors = set()
-
-    name_re = re.compile(r'^\s*(.+?) ((?:\d{4},? ?)+)$')
-    for e in tree.iter('i'):
-        log(e.text)
-        if e.tail or e.getnext().tag != 'br':
-            continue
-        try:
-            chapter = title_map.get(e.text, []).pop(0)
-        except IndexError:
-            log("no remaining chapters matching %s" % e.text)
-            continue
-        log(chapter)
-        details = credits.setdefault(chapter, {
-            "contributors": [],
-            "rightsholders": [],
-            })
-        while True:
-            e = e.getnext()
-            if not e.tail or e.tag != 'br':
-                break
-            log(e.tail)
-            if e.tail.startswith(u'\u00a9'): # \u00a9 == copyright symbol
-                m = name_re.match(e.tail[1:])
-                author, dates = m.groups()
-                details['rightsholders'].append(author)
-                details['contributors'].append(author)
-            else:
-                m = name_re.match(e.tail)
-                if m is not None:
-                    author, dates = m.groups()
-                    details['contributors'].append(author)
-
-        authors.update(details['contributors'])
-    return credits, authors
 
 
 class TocItem(object):
@@ -170,21 +122,31 @@ class TocItem(object):
 
 
 class TWikiBook(object):
-    def __init__(self, book, server, bookname):
+    credits = None
+    metadata = None
+    def __init__(self, book, server, bookname=None):
+        if bookname is None:
+            bookname = make_book_name(book, server, '.zip')
         log("*** Extracting TWiki book %s ***" % bookname)
+        self.bookname = bookname
         self.book = book
         self.server = server
         self.workdir = tempfile.mkdtemp(prefix=bookname, dir=config.TMPDIR)
         os.chmod(self.workdir, 0755)
-
         #probable text direction
         self.dir = guess_text_dir(self.server, self.book)
 
     def filepath(self, fn):
         return os.path.join(self.workdir, fn)
 
-    def get_twiki_metadata(self):
-        """Get information about a twiki book (as much as is easy and useful)."""
+    def _fetch_metadata(self, force=False):
+        """Get information about a twiki book (as much as is easy and
+        useful).  If force is False (default) then it will not be
+        reloaded if it has already been set.
+        """
+        if self.metadata is not None and not force:
+            log("not reloading metadata")
+            return
         meta = {
             config.DC: {
                 "publisher": {
@@ -211,18 +173,17 @@ class TWikiBook(object):
             }
 
         lang = guess_lang(self.server, self.book)
-        dir = guess_text_dir(self.server, self.book)
-        log(self.server, self.book, lang, dir)
+        self.dir = guess_text_dir(self.server, self.book)
+        log(self.server, self.book, lang, self.dir)
         if lang is not None:
             add_metadata(meta, 'language', lang)
-        if dir is not None:
-            add_metadata(meta, 'dir', dir, ns=config.FM)
+        if self.dir is not None:
+            add_metadata(meta, 'dir', self.dir, ns=config.FM)
 
         spine = []
         toc = []
         section = toc
         waiting_for_url = []
-        title_map = {}
 
         for t in toc_iterator(self.server, self.book):
             log(t)
@@ -241,23 +202,22 @@ class TWikiBook(object):
             if t.is_chapter():
                 spine.append(t.chapter)
                 section.append(item)
-                title_map.setdefault(t.title, []).append(t.chapter)
 
             elif t.is_section():
                 section = item['children']
                 toc.append(item)
 
-        credits, contributors = get_book_copyright(self.server, self.book, title_map)
-        for c in contributors:
-            add_metadata(meta, 'contributor', c)
-
-        return {
+        self.metadata = {
             'version': 1,
             'metadata': meta,
             'TOC': toc,
             'spine': spine,
             'manifest': {},
-        }, credits
+        }
+
+        self._parse_credits()
+        for c in self.contributors:
+            add_metadata(meta, 'contributor', c)
 
 
 
@@ -268,26 +228,26 @@ class TWikiBook(object):
         If cache is true, images that have been fetched on previous
         runs will be reused.
         """
+        self._fetch_metadata()
         if filename is None:
-            filename = self.filepath('booki.zip')
-        metadata, credits = self.get_twiki_metadata()
-        #log(pformat(metadata))
-        bz = BookiZip(filename, metadata)
+            filename = self.filepath(self.bookname)
+        bz = BookiZip(filename, self.metadata)
 
         all_images = set()
-        for chapter in metadata['spine']:
-            contents = get_chapter_html(self, chapter, wrapped=True)
+        for chapter in self.metadata['spine']:
+            contents = self.get_chapter_html(chapter, wrapped=True)
             c = EpubChapter(self.server, self.book, chapter, contents,
                             use_cache=use_cache)
             images = c.localise_links()
             all_images.update(images)
+            log(chapter, self.credits)
             bz.add_to_package(chapter, chapter + '.html',
-                              c.as_html(), credits=credits['chapter'])
+                              c.as_html(), **self.credits.get(chapter, {}))
 
         # Add images afterwards, to sift out duplicates
         for image in all_images:
             imgdata = c.image_cache.read_local_url(image)
-            bz.add_to_package(image, image, imgdata)
+            bz.add_to_package(image, image, imgdata) #XXX img ownership: where is it?
 
         bz.finish()
         return bz.filename
@@ -305,3 +265,63 @@ class TWikiBook(object):
                 'dir': self.dir
             }
         return html
+
+    def _parse_credits(self, force=False):
+        # open the Credits chapter that has a list of authors for each chapter.
+        # each chapter is listed thus (linebreaks added):
+        #   <i>CHAPTER TITLE</i><br/>&copy; First Author 2007<br/>
+        #   Modifications:<br/>Second Author 2007, 2008<br/>
+        #   Third Author 2008<br/>Fourth Author 2008<br/><hr/>
+        #
+        # where "CHAPTER TITLE" is as appears in TOC.txt, and "X
+        # Author" are the names TWiki has for authors.  So the thing
+        # to do is look for the <i> tags and match them to the toc.
+        #
+        # the chapter title is not guaranteed unique (but usually is).
+        if self.credits is not None and not force:
+            log("not reloading metadata")
+            return
+
+        self.credits = {}
+        self.contributors = set()
+        self.titles = []
+
+        credits_html = self.get_chapter_html('Credits', wrapped=True)
+        tree = lxml.html.document_fromstring(credits_html)
+        name_re = re.compile(r'^\s*(.+?) ((?:\d{4},? ?)+)$')
+        spine_iter = iter(self.metadata['spine'])
+
+        try:
+            for e in tree.iter('i'):
+                if e.tail or e.getnext().tag != 'br':
+                    continue
+                title = e.text
+                chapter = spine_iter.next()
+                log("chapter %r title %r" % (chapter, title))
+                contributors = []
+                rightsholders = []
+                while True:
+                    e = e.getnext()
+                    if not e.tail or e.tag != 'br':
+                        break
+                    log(e.tail)
+                    if e.tail.startswith(u'\u00a9'): # \u00a9 == copyright symbol
+                        m = name_re.match(e.tail[1:])
+                        author, dates = m.groups()
+                        rightsholders.append(author)
+                        contributors.append(author)
+                    else:
+                        m = name_re.match(e.tail)
+                        if m is not None:
+                            author, dates = m.groups()
+                            contributors.append(author)
+
+                self.credits[chapter] = {
+                    "contributors":contributors,
+                    "rightsholders": rightsholders,
+                    }
+                self.titles.append(title)
+                self.contributors.update(contributors)
+
+        except StopIteration:
+            log('Apparently run out of chapters on title %s!' % title)
