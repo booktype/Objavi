@@ -319,7 +319,7 @@ def mode_book(args):
     with Book(bookid, server, bookname, page_settings=page_settings,
               watcher=progress_bar, isbn=args.get('isbn'), project=args.get('project'),
               license=args.get('license'), title=args.get('title'),
-              max_age=args.get('max-age', 0)) as book:
+              max_age=float(args.get('max-age', -1))) as book:
         if CGI_CONTEXT:
             book.spawn_x()
 
@@ -362,7 +362,8 @@ def mode_openoffice(args):
 
     with Book(bookid, server, bookname,  project=args.get('project'),
               watcher=progress_bar, isbn=args.get('isbn'),
-              license=args.get('license'), title=args.get('title')) as book:
+              license=args.get('license'), title=args.get('title'),
+              max_age=float(args.get('max-age', -1))) as book:
         if CGI_CONTEXT:
             book.spawn_x()
         book.load_book()
@@ -386,11 +387,11 @@ def mode_epub(args):
     progress_bar = make_progress_page(bookid, bookname, 'epub', destination)
 
     with Book(bookid, server, bookname=bookname, project=project,
-              watcher=progress_bar, title=args.get('title')) as book:
+              watcher=progress_bar, title=args.get('title'),
+              max_age=float(args.get('max-age', -1))) as book:
+
         book.make_epub(use_cache=config.USE_CACHED_IMAGES)
         output_multi(book, "application/epub+zip", destination)
-        book.notify_watcher('finished')
-    sys.exit()
 
 
 def main():

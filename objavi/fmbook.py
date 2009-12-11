@@ -150,13 +150,15 @@ class Book(object):
 
     def __init__(self, book, server, bookname, project=None,
                  page_settings=None, watcher=None, isbn=None,
-                 license=config.DEFAULT_LICENSE, title=None):
+                 license=config.DEFAULT_LICENSE, title=None,
+                 max_age=0):
         log("*** Starting new book %s ***" % bookname,
             "starting zipbook with", server, book, project)
+        self.watcher = watcher
+        self.notify_watcher('start')
         self.bookname = bookname
         self.book = book
         self.server = server
-        self.watcher = watcher
         self.project = project
         self.cookie = ''.join(random.sample(ascii_letters, 10))
         try:
@@ -168,6 +170,7 @@ class Book(object):
             #not much to do?
             sys.exit()
         f = StringIO(blob)
+        self.notify_watcher('fetch_zip')
         self.store = zipfile.ZipFile(f, 'r')
         self.info = json.loads(self.store.read('info.json'))
         for k in ('manifest', 'metadata', 'spine', 'TOC'):
@@ -973,7 +976,33 @@ class Book(object):
 def use_cache():
     return (os.environ.get('HTTP_HOST') in config.USE_ZIP_CACHE_ALWAYS_HOSTS)
 
-def fetch_zip(server, book, project, save=False):
+def _read_cached_zip(server, book, max_age):
+    #find a recent zip if possible
+    prefix = '%s/%s' % (config.BOOKI_BOOK_DIR, make_book_name(book, server, '').split('-20', 1)[0])
+    from glob import glob
+    zips = sorted(glob(prefix + '*.zip'))
+    if not zips:
+        log("no cached booki-zips matching %s*.zip" % (prefix,))
+        return None
+    zipname = zips[-1]
+    cutoff = time.time() - max_age * 60
+    log(repr(zipname))
+    try:
+        date = time.mktime(time.strptime(zipname, prefix + '-%Y.%m.%d-%H.%M.%S.zip'))
+        if date > cutoff:
+            f = open(zipname)
+            blob = f.read()
+            f.close()
+            return blob
+        log("%s is too old, must reload" % zipname)
+        return None
+    except (IOError, IndexError, ValueError), e:
+        log('could not make sense of %s: got exception %s' % (zipname, e))
+        return None
+
+
+
+def fetch_zip(server, book, project, save=False, max_age=-1):
     interface = config.SERVER_DEFAULTS[server]['interface']
     if interface not in ('Booki', 'TWiki'):
         raise NotImplementedError("Can't handle '%s' interface" % interface)
@@ -982,21 +1011,17 @@ def fetch_zip(server, book, project, save=False):
     else:
         url = config.TWIKI_GATEWAY_URL % (HTTP_HOST, server, book)
 
-    if use_cache():
+    if use_cache() and max_age < 0:
+        #default to 12 hours cache on objavi.halo.gen.nz
+        max_age = 12 * 60
+
+    if max_age:
         log('WARNING: trying to use cached booki-zip',
             'If you are debugging booki-zip creation, you will go CRAZY'
             ' unless you switch this off')
-        try:
-            #find a zip from today if possible
-            zipname = '%s/%s*.zip' % (config.BOOKI_BOOK_DIR, make_book_name(book, server, '').rsplit('-', 1)[0])
-            from glob import glob
-            zipname = sorted(glob(zipname))[-1]
-            f = open(zipname)
-            blob = f.read()
-            f.close()
+        blob = _read_cached_zip(server, book, max_age)
+        if blob is not None:
             return blob
-        except (IOError, IndexError):
-            log("couldn't read %s" % (zipname,))
 
     log('fetching zip from %s'% url)
     f = urlopen(url)

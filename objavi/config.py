@@ -366,6 +366,7 @@ FORM_INPUTS = (
     ("rotate", "Rotate pages for binding", "input[type=checkbox]", 'yes', "advanced", "(for RTL books on LTR printing presses, and vice versa)."),
     #("engine", "Layout engine", "select", "engines", "advanced", ""),
     #("header", "Header Text", "input[type=text]", None, "advanced", ""),
+    ("max-age", "Use cached data", "input[type=text]", None, "advanced numeric-field", "(younger than this many minutes)."),
 )
 
 FORM_ELEMENT_TYPES = {
