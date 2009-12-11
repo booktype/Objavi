@@ -301,9 +301,9 @@ def output_multi(book, mimetype, destination):
 
         if destination == 'archive.org':
             details_url, s3url = book.publish_s3()
-            output_blob_and_exit("%s\n%s" % (book_url, details_url), 'text/plain')
+            output_blob_and_exit("%s\n%s" % (bookurl, details_url), 'text/plain')
         elif destination == 'nowhere':
-            output_blob_and_exit(book_url, 'text/plain')
+            output_blob_and_exit(bookurl, 'text/plain')
 
 
 def mode_book(args):
