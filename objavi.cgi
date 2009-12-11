@@ -314,7 +314,7 @@ def mode_book(args):
     page_settings = get_page_settings(args)
     bookname = make_book_name(bookid, server)
     destination = args.get('destination', config.DEFAULT_PUBLISH_DESTINATION)
-    progress_bar = make_progress_page(bookid, bookname, 'book', destination)
+    progress_bar = make_progress_page(bookid, bookname, mode, destination)
 
     with Book(bookid, server, bookname, page_settings=page_settings,
               watcher=progress_bar, isbn=args.get('isbn'), project=args.get('project'),
