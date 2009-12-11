@@ -26,7 +26,7 @@ import re, time
 import random
 from subprocess import Popen, check_call, PIPE
 from cStringIO import StringIO
-from urllib2 import urlopen
+from urllib2 import urlopen, HTTPError
 import zipfile
 import traceback
 from string import ascii_letters
