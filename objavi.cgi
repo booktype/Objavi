@@ -326,11 +326,6 @@ def mode_book(args):
         if 'toc_header' in args:
             book.toc_header = args['toc_header'].decode('utf-8')
         book.load_book()
-        #title = args.get('title')
-        #if title is not None:
-        #    title = title.decode('utf-8')
-        #book.set_title(title)
-
         book.add_css(args.get('css'), mode)
         book.add_section_titles()
 
@@ -354,7 +349,6 @@ def mode_openoffice(args):
     effect."""
     bookid = args.get('book')
     server = args.get('server', config.DEFAULT_SERVER)
-    #page_settings = get_page_settings(args)
     bookname = make_book_name(bookid, server, '.odt')
     destination = args.get('destination', config.DEFAULT_PUBLISH_DESTINATION)
     progress_bar = make_progress_page(bookid, bookname, 'openoffice', destination)
