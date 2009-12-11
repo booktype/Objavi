@@ -380,6 +380,8 @@ FORM_ELEMENT_TYPES = {
 }
 
 PROGRESS_POINTS = (
+    ("start", "wake up", ('book', 'newspaper', 'web', 'openoffice', 'epub')),
+    ("fetch_zip", "Load data", ('book', 'newspaper', 'web', 'openoffice', 'epub')),
     ("__init__", "Initialise the book", ('book', 'newspaper', 'web', 'openoffice', 'epub')),
     ("load_book", "Fetch the book", ('book', 'newspaper', 'web', 'openoffice')),
     ("add_css", "Add css", ('book', 'newspaper', 'web', 'openoffice')),
