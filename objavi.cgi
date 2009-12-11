@@ -284,21 +284,18 @@ def output_multi(book, mimetype, destination):
         f = open(book.publish_file)
         data = f.read()
         f.close()
-
         output_blob_and_exit(data, mimetype, book.bookname)
-    elif destination == 'archive.org':
-        details_url, s3url = book.publish_s3()
+    else:
         if HTTP_HOST:
-            output_blob_and_exit("http://%s/books/%s\n%s" % (HTTP_HOST, book.bookname, details_url),
-                                 'text/plain')
+            bookurl = "http://%s/books/%s" % (HTTP_HOST, book.bookname,)
         else:
-            output_blob_and_exit("books/%s\n%s" % (book.bookname, details_url), 'text/plain')
-    elif destination == 'nowhere':
-        if HTTP_HOST:
-            output_blob_and_exit("http://%s/books/%s\n" % (HTTP_HOST, book.bookname),
-                                 'text/plain')
-        else:
-            output_blob_and_exit("books/%s\n" % (book.bookname,), 'text/plain')
+            bookurl = "books/%s" % (book.bookname,)
+
+        if destination == 'archive.org':
+            details_url, s3url = book.publish_s3()
+            output_blob_and_exit("%s\n%s" % (book_url, details_url), 'text/plain')
+        elif destination == 'nowhere':
+            output_blob_and_exit(book_url, 'text/plain')
 
 
 def mode_book(args):
