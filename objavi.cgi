@@ -80,6 +80,7 @@ ARG_VALIDATORS = {
     "grey_scale": u"yes".__eq__,
     "destination": config.PUBLISH_DESTINATIONS.__contains__,
     "toc_header": is_utf8,
+    "max-age": isfloat,
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
@@ -148,12 +149,19 @@ def make_progress_page(book, bookname, mode, destination='html'):
     print template % d
     def progress_notifier(message):
         try:
-            print ('<script type="text/javascript">\n'
-                   'objavi_show_progress("%s");\n'
-                   '</script>' % message
-                   )
-            if message == 'finished':
-                print '</body></html>'
+            if message.startswith('ERROR:'):
+                log('got an error! %r' % message)
+                print ('<b class="error-message">'
+                       '%s\n'
+                       '</b></body></html>' % message
+                       )
+            else:
+                print ('<script type="text/javascript">\n'
+                       'objavi_show_progress("%s");\n'
+                       '</script>' % message
+                       )
+                if message == 'finished':
+                    print '</body></html>'
             sys.stdout.flush()
         except ValueError, e:
             log("failed to send message %r, got exception %r" % (message, e))
@@ -310,7 +318,8 @@ def mode_book(args):
 
     with Book(bookid, server, bookname, page_settings=page_settings,
               watcher=progress_bar, isbn=args.get('isbn'), project=args.get('project'),
-              license=args.get('license'), title=args.get('title')) as book:
+              license=args.get('license'), title=args.get('title'),
+              max_age=args.get('max-age', 0)) as book:
         if CGI_CONTEXT:
             book.spawn_x()
 

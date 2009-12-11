@@ -159,8 +159,14 @@ class Book(object):
         self.watcher = watcher
         self.project = project
         self.cookie = ''.join(random.sample(ascii_letters, 10))
-
-        blob = fetch_zip(server, book, project, save=True)
+        try:
+            blob = fetch_zip(server, book, project, save=True, max_age=max_age)
+        except HTTPError, e:
+            #log(e.url)
+            traceback.print_exc()
+            self.notify_watcher("ERROR:\n Couldn't get %r\n %s %s" % (e.url, e.code, e.msg))
+            #not much to do?
+            sys.exit()
         f = StringIO(blob)
         self.store = zipfile.ZipFile(f, 'r')
         self.info = json.loads(self.store.read('info.json'))
