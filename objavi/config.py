@@ -367,6 +367,7 @@ FORM_INPUTS = (
     #("engine", "Layout engine", "select", "engines", "advanced", ""),
     #("header", "Header Text", "input[type=text]", None, "advanced", ""),
     ("max-age", "Use cached data", "input[type=text]", None, "advanced numeric-field", "(younger than this many minutes)."),
+    #("destination", "Use cached data", "input[type=text]", None, "advanced", "(younger than this many minutes)."),
 )
 
 FORM_ELEMENT_TYPES = {
