@@ -343,7 +343,6 @@ def mode_book(args):
 
         book.publish_pdf()
         output_multi(book, "application/pdf", destination)
-        book.notify_watcher('finished')
 
 #These ones are similar enough to be handled by the one function
 mode_newspaper = mode_book
@@ -371,8 +370,6 @@ def mode_openoffice(args):
         book.add_section_titles()
         book.make_oo_doc()
         output_multi(book, "application/vnd.oasis.opendocument.text", destination)
-        book.notify_watcher('finished')
-    return book
 
 
 #Not using output_and_exit, because the content type might not be text/html
