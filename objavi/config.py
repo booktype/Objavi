@@ -428,5 +428,8 @@ WHITESPACE_AND_NULL = ''.join(chr(_x) for _x in range(33))
 EPUB_COMPRESSED_SIZE_MAX = 70000
 EPUB_FILE_SIZE_MAX = 200000
 
+#used to identify marker tags in html
+MARKER_CLASS = "espri-marker-name-clash-with-no-one"
+
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))

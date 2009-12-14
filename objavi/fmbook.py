@@ -1078,7 +1078,7 @@ def split_html(html, compressed_size=None, xhtmlise=False):
     for i in range(splits):
         e = html.find('<', target * (i + 1))
         fragments.append(html[s:e])
-        fragments.append('<hr class="%s" id="split_%s" />' % (MARKER_CLASS, i))
+        fragments.append('<hr class="%s" id="split_%s" />' % (config.MARKER_CLASS, i))
         s = e
     fragments.append(html[s:])
     root = lxml.html.fromstring(''.join(fragments))
@@ -1088,8 +1088,8 @@ def split_html(html, compressed_size=None, xhtmlise=False):
     # wholesale.
 
     stacks = []
-    for hr in doc.iter(tag='hr'):
-        if hr.get('class') == MARKER_CLASS:
+    for hr in root.iter(tag='hr'):
+        if hr.get('class') == config.MARKER_CLASS:
             stack = [hr]
             stack.extend(x for x in hr.iterancestors())
             stack.reverse()

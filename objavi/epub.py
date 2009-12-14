@@ -13,7 +13,7 @@ except ImportError:
 import lxml, lxml.html, lxml.cssselect
 from lxml import etree
 
-from objavi.config import DC, XHTML, XHTMLNS, FM
+from objavi.config import DC, XHTML, XHTMLNS, FM, MARKER_CLASS
 from booki.bookizip import BookiZip
 
 #XML namespaces.  The *NS varients are in {curly brackets} for clark's syntax
@@ -534,7 +534,6 @@ def _find_tag(doc, tag):
             log('doc had nsmap %s, but did not seem to be xhtml (looking for %s)' % (doc.nsmap, tag))
     return doc.iter(tag).next()
 
-MARKER_CLASS="espri-marker"
 
 def add_marker(el, ID, child=False, **kwargs):
     """Add a marker before the element, or inside it if child is true"""
