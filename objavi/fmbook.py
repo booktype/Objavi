@@ -742,11 +742,11 @@ class Book(object):
 
         #manifest
         filemap = {} #map html to corresponding xhtml
+        spinemap = {} #map IDs to multi-file chapters
         for ID in self.manifest:
             details = self.manifest[ID]
             log(ID, pformat(details))
             fn, mediatype = details['url'], details['mimetype']
-            oldfn = fn
             content = self.store.read(fn)
             if mediatype == 'text/html':
                 #convert to application/xhtml+xml, and perhaps split
@@ -757,22 +757,28 @@ class Book(object):
                     fnbase = fn[:-5]
                 else:
                     fnbase = fn
-                fn = fnbase + '.xhtml'
+                fnx = fnbase + '.xhtml'
                 mediatype = 'application/xhtml+xml'
 
                 fragments = split_html(c.as_xhtml(),
                                        compressed_size=self.store.getinfo(fn).compress_size)
 
                 #add the first one as if it is the whole thing (as it often is)
-                add_file(ID, fn, mediatype, fragments[0])
-                filemap[oldfn] = fn
+                add_file(ID, fnx, mediatype, fragments[0])
+                filemap[fn] = fnx
+                if len(fragments) > 1:
+                    spine_ids = [ID]
+                    spinemap[ID] = spine_ids
+                    #add any extras
+                    for i in range(1, len(fragments)):
+                        # XXX it is possible for duplicates if another
+                        # file happens to have this name. Ignore for now
+                        _id = '%s_SONY_WORKAROUND_%s' % (ID, i)
+                        spine_ids.append(_id)
+                        add_file(_id,
+                                 '%s_SONY_WORKAROUND_%s.xhtml' % (fnbase, i),
+                                 mediatype, fragments[i])
 
-                #add any extras
-                for i in range(1, len(fragments)):
-                    # XXX it is possible for duplicates if another
-                    # file happens to have this name. Ignore for now
-                    add_file(ID, '%s_SONY_WORKAROUND_%s.xhtml' % (fnbase, i),
-                             mediatype, fragments[i])
             else:
                 add_file(ID, fn, mediatype, content)
 
@@ -782,7 +788,11 @@ class Book(object):
 
         #spine
         for ID in self.spine:
-            ebook.add_spine_item({'idref': ID})
+            if ID in spinemap:
+                for x in spinemap[ID]:
+                    ebook.add_spine_item({'idref': x})
+            else:
+                ebook.add_spine_item({'idref': ID})
 
         #metadata -- no use of attributes (yet)
         # and fm: metadata disappears for now
