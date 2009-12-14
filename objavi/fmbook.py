@@ -732,6 +732,12 @@ class Book(object):
         """Make an epub version of the book, using Mike McCabe's
         epub module for the Internet Archive."""
         ebook = ia_epub.Book(self.publish_file, content_dir='')
+        def add_file(ID, filename, mediatype, content):
+            ebook.add_content({'media-type': mediatype.encode('utf-8'),
+                               'id': ID.encode('utf-8'),
+                               'href': filename.encode('utf-8'),
+                               }, content)
+
         toc = self.info['TOC']
 
         #manifest
@@ -743,23 +749,32 @@ class Book(object):
             oldfn = fn
             content = self.store.read(fn)
             if mediatype == 'text/html':
-                log('CONVERTING')
-                #convert to application/xhtml+xml
+                #convert to application/xhtml+xml, and perhaps split
                 c = EpubChapter(self.server, self.book, ID, content,
                                 use_cache=use_cache)
                 c.remove_bad_tags()
-                c.prepare_for_epub()
-                content = c.as_xhtml()
                 if fn[-5:] == '.html':
-                    fn = fn[:-5]
-                fn += '.xhtml'
+                    fnbase = fn[:-5]
+                else:
+                    fnbase = fn
+                fn = fnbase + '.xhtml'
                 mediatype = 'application/xhtml+xml'
+
+                fragments = split_html(c.as_xhtml(),
+                                       compressed_size=self.store.getinfo(fn).compress_size)
+
+                #add the first one as if it is the whole thing (as it often is)
+                add_file(ID, fn, mediatype, fragments[0])
                 filemap[oldfn] = fn
 
-            info = {'id': ID.encode('utf-8'),
-                    'href': fn.encode('utf-8'),
-                    'media-type': mediatype.encode('utf-8')}
-            ebook.add_content(info, content)
+                #add any extras
+                for i in range(1, len(fragments)):
+                    # XXX it is possible for duplicates if another
+                    # file happens to have this name. Ignore for now
+                    add_file(ID, '%s_SONY_WORKAROUND_%s.xhtml' % (fnbase, i),
+                             mediatype, fragments[i])
+            else:
+                add_file(ID, fn, mediatype, content)
 
         #toc
         ncx = epub_utils.make_ncx(toc, self.metadata, filemap)
@@ -1034,4 +1049,88 @@ def fetch_zip(server, book, project, save=False, max_age=-1):
         f.write(blob)
         f.close()
     return blob
+
+
+
+def split_html(html, compressed_size=None, xhtmlise=False):
+    if compressed_size is None:
+        import zlib
+        compressed_size = len(zlib.compress(html))
+
+    splits = max(compressed_size // config.EPUB_COMPRESSED_SIZE_MAX,
+                 len(html) // config.EPUB_FILE_SIZE_MAX)
+    log("uncompressed: %s, compressed: %s, splits: %s" % (len(html), compressed_size, splits))
+
+    if not splits:
+        return [html]
+
+    if xhtmlise:
+        #xhtmlisation removes '<' in attributes etc, which makes the
+        #marker insertion more reliable
+        html = etree.tostring(lxml.html.fromstring(html),
+                              encoding='UTF-8',
+                              #method='html'
+                              )
+
+    target = len(html) // (splits + 1)
+    s = 0
+    fragments = []
+    for i in range(splits):
+        e = html.find('<', target * (i + 1))
+        fragments.append(html[s:e])
+        fragments.append('<hr class="%s" id="split_%s" />' % (MARKER_CLASS, i))
+        s = e
+    fragments.append(html[s:])
+    root = lxml.html.fromstring(''.join(fragments))
+
+    # find the node lineages along which to split the document.
+    # anything outside these lines (i.e., branches) can be copied
+    # wholesale.
+
+    stacks = []
+    for hr in doc.iter(tag='hr'):
+        if hr.get('class') == MARKER_CLASS:
+            stack = [hr]
+            stack.extend(x for x in hr.iterancestors())
+            stack.reverse()
+            stacks.append(stack)
+
+    iterstacks = iter(stacks)
+
+    src = root
+    dest = lxml.html.Element(root.tag, **root.attrib)
+    doc = dest
+    stack = iterstacks.next()
+    marker = stack[-1]
+
+    chapters = []
+    try:
+        while True:
+            for e in src:
+                if e not in stack:
+                    #cut and paste branch
+                    dest.append(e)
+                elif e is marker:
+                    #got one
+                    src.remove(e)
+                    chapters.append(doc)
+                    src = root
+                    dest = lxml.html.Element(root.tag, **root.attrib)
+                    doc = dest
+                    stack = iterstacks.next()
+                    marker = stack[-1]
+                    break
+                else:
+                    #next level
+                    dest = etree.SubElement(dest, e.tag, **e.attrib)
+                    dest.text = e.text
+                    e.text = None
+                    src = e
+                    break
+    except StopIteration:
+        #stacks have run out -- the rest of the tree is the last section
+        chapters.append(src)
+
+    #return chapters
+    return [etree.tostring(c, encoding='UTF-8', method='html') for c in chapters]
 

@@ -423,5 +423,10 @@ IGNORABLE_TWIKI_BOOKS = ('Main', 'TWiki', 'PR', 'Trash', 'Sandbox')
 
 WHITESPACE_AND_NULL = ''.join(chr(_x) for _x in range(33))
 
+#how big to let epub chapters get before splitting?
+#sony reader has 100k compressed/300k uncompressed limit, but lets leave room to move.
+EPUB_COMPRESSED_SIZE_MAX = 70000
+EPUB_FILE_SIZE_MAX = 200000
+
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))
