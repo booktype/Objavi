@@ -1098,7 +1098,8 @@ def split_html(html, compressed_size=None, xhtmlise=False):
     iterstacks = iter(stacks)
 
     src = root
-    dest = lxml.html.Element(root.tag, **root.attrib)
+    log('root is', root, root.attrib, type(root.attrib))
+    dest = lxml.html.Element(root.tag, **dict(root.items()))
     doc = dest
     stack = iterstacks.next()
     marker = stack[-1]
@@ -1115,14 +1116,14 @@ def split_html(html, compressed_size=None, xhtmlise=False):
                     src.remove(e)
                     chapters.append(doc)
                     src = root
-                    dest = lxml.html.Element(root.tag, **root.attrib)
+                    dest = lxml.html.Element(root.tag, **dict(root.items()))
                     doc = dest
                     stack = iterstacks.next()
                     marker = stack[-1]
                     break
                 else:
                     #next level
-                    dest = etree.SubElement(dest, e.tag, **e.attrib)
+                    dest = etree.SubElement(dest, e.tag, **dict(e.items()))
                     dest.text = e.text
                     e.text = None
                     src = e
