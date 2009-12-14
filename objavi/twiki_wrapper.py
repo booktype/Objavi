@@ -7,7 +7,7 @@ from objavi import config
 from objavi.cgi_utils import log, guess_lang, guess_text_dir, make_book_name
 from urllib2 import urlopen
 from booki.bookizip import add_metadata, BookiZip
-from booki.xhtml_utils import EpubChapter
+from booki.xhtml_utils import TWikiChapter
 
 from pprint import pformat
 
@@ -236,8 +236,8 @@ class TWikiBook(object):
         all_images = set()
         for chapter in self.metadata['spine']:
             contents = self.get_chapter_html(chapter, wrapped=True)
-            c = EpubChapter(self.server, self.book, chapter, contents,
-                            use_cache=use_cache)
+            c = TWikiChapter(self.server, self.book, chapter, contents,
+                             use_cache=use_cache)
             images = c.localise_links()
             all_images.update(images)
             log(chapter, self.credits)
