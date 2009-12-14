@@ -441,6 +441,7 @@ def copy_element(src, create):
 
 def split_document(doc):
     """Split the document along chapter boundaries."""
+    #XXX tests/html_split.py shows a method that is twice as fast.
     try:
         root = doc.getroot()
     except AttributeError:
@@ -461,8 +462,9 @@ def _climb_and_split(src, dest, chapters):
             if ID.startswith('espri-chapter-'):
                 title = child.get('title') or ID
                 new = copy_element(src, lxml.html.Element)
-                root = new
 
+                #build a new tree to this point
+                root = new
                 for a in src.iterancestors():
                     a2 = copy_element(a, root.makeelement)
                     a2.append(root)
@@ -470,10 +472,12 @@ def _climb_and_split(src, dest, chapters):
 
                 chapters.append((ID[14:], title, root))
 
+                #trim the tail of the finished one.
                 dest.tail = None
                 for a in dest.iterancestors():
                     a.tail = None
 
+                #now the new tree is the destination
                 dest = new
             else:
                 log("skipping %s" % etree.tostring(child))
@@ -482,7 +486,11 @@ def _climb_and_split(src, dest, chapters):
             new = copy_element(child, dest.makeelement)
             new.text = child.text
             dest.append(new)
-            _climb_and_split(child, new, chapters)
+
+            new2 = _climb_and_split(child, new, chapters)
+            if new2 != new:
+                dest = new2.getparent()
+        return dest
 
 
 def save_chapters(chapters):
