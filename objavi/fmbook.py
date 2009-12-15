@@ -831,6 +831,7 @@ class Book(object):
                                     ebook.cover_id)
         ebook.add(ebook.content_dir + 'content.opf', tree_str)
         ebook.z.close()
+        self.notify_watcher()
 
 
     def publish_s3(self):
@@ -868,6 +869,7 @@ class Book(object):
 
         log(' '.join(repr(x) for x in argv))
         check_call(argv, stdout=sys.stderr)
+        self.notify_watcher()
         return detailsurl, s3url
 
 
