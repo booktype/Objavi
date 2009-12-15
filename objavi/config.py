@@ -59,7 +59,7 @@ CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
 PUBLISH_URL = "/books/"
 
 TWIKI_GATEWAY_URL = 'http://%s/booki-twiki-gateway.cgi?server=%s&book=%s&mode=zip'
-BOOKI_ZIP_URL = 'http://%(server)s/%(project)s/%(book)s/export'
+BOOKI_ZIP_URL = 'http://%(server)s/export/%(book)s/export'
 
 DEFAULT_SERVER = 'en.flossmanuals.net'
 DEFAULT_SIZE = 'COMICBOOK'

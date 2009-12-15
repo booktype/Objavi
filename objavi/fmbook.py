@@ -847,8 +847,8 @@ class Book(object):
         log(secrets)
         now = time.strftime('%F')
         s3output = self.filepath('s3-output.txt')
-        s3url = 'http://s3.us.archive.org/booki-%s-%s/%s' % (self.project, self.book, self.bookname)
-        detailsurl = 'http://archive.org/details/booki-%s-%s' % (self.project, self.book)
+        s3url = 'http://s3.us.archive.org/booki-%s/%s' % (self.book, self.bookname)
+        detailsurl = 'http://archive.org/details/booki-%s' % (self.book,)
         headers = [
             'x-amz-auto-make-bucket:1',
             "authorization: LOW %(S3_ACCESSKEY)s:%(S3_SECRET)s" % secrets,
