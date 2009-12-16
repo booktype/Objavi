@@ -490,7 +490,7 @@ def _climb_and_split(src, dest, chapters):
             new2 = _climb_and_split(child, new, chapters)
             if new2 != new:
                 dest = new2.getparent()
-        return dest
+    return dest
 
 
 def save_chapters(chapters):
