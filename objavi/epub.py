@@ -107,7 +107,6 @@ class Epub(object):
         self.names = self.zip.namelist()
         self.info = self.zip.infolist()
         self.origin = src
-        log(self.names)
 
     def gettree(self, name=None, id=None, parse=etree.parse):
         """get an XML tree from the given zip filename or manifest ID"""
