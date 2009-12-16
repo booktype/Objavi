@@ -149,21 +149,20 @@ class Book(object):
         #could deal with exceptions here and return true
 
 
-    def __init__(self, book, server, bookname, project=None,
+    def __init__(self, book, server, bookname,
                  page_settings=None, watcher=None, isbn=None,
                  license=config.DEFAULT_LICENSE, title=None,
                  max_age=0):
         log("*** Starting new book %s ***" % bookname,
-            "starting zipbook with", server, book, project)
+            "starting zipbook with", server, book)
         self.watcher = watcher
         self.notify_watcher('start')
         self.bookname = bookname
         self.book = book
         self.server = server
-        self.project = project
         self.cookie = ''.join(random.sample(ascii_letters, 10))
         try:
-            blob = fetch_zip(server, book, project, save=True, max_age=max_age)
+            blob = fetch_zip(server, book, save=True, max_age=max_age)
         except HTTPError, e:
             #log(e.url)
             traceback.print_exc()
@@ -1030,12 +1029,12 @@ def _read_cached_zip(server, book, max_age):
 
 
 
-def fetch_zip(server, book, project, save=False, max_age=-1):
+def fetch_zip(server, book, save=False, max_age=-1):
     interface = config.SERVER_DEFAULTS[server]['interface']
     if interface not in ('Booki', 'TWiki'):
         raise NotImplementedError("Can't handle '%s' interface" % interface)
     if interface == 'Booki':
-        url = config.BOOKI_ZIP_URL  % {'server': server, 'project': project, 'book':book}
+        url = config.BOOKI_ZIP_URL  % {'server': server, 'book':book}
     else:
         url = config.TWIKI_GATEWAY_URL % (HTTP_HOST, server, book)
 

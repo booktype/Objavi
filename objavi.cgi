@@ -56,7 +56,6 @@ def is_isbn(s):
 # functions to validate their values. (None means no validation).
 ARG_VALIDATORS = {
     "book": re.compile(r'^([\w-]+/?)*[\w-]+$').match, # can be: BlahBlah/Blah_Blah
-    "project": re.compile(r'^[\w-]+$').match,
     "css": is_utf8, # an url, empty (for default), or css content
     "title": lambda x: len(x) < 999 and is_utf8(x),
     #"header": None, # header text, UNUSED
@@ -317,7 +316,7 @@ def mode_book(args):
     progress_bar = make_progress_page(bookid, bookname, mode, destination)
 
     with Book(bookid, server, bookname, page_settings=page_settings,
-              watcher=progress_bar, isbn=args.get('isbn'), project=args.get('project'),
+              watcher=progress_bar, isbn=args.get('isbn'),
               license=args.get('license'), title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
         if CGI_CONTEXT:
@@ -353,7 +352,7 @@ def mode_openoffice(args):
     destination = args.get('destination', config.DEFAULT_PUBLISH_DESTINATION)
     progress_bar = make_progress_page(bookid, bookname, 'openoffice', destination)
 
-    with Book(bookid, server, bookname,  project=args.get('project'),
+    with Book(bookid, server, bookname,
               watcher=progress_bar, isbn=args.get('isbn'),
               license=args.get('license'), title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
@@ -366,18 +365,16 @@ def mode_openoffice(args):
         output_multi(book, "application/vnd.oasis.opendocument.text", destination)
 
 
-#Not using output_and_exit, because the content type might not be text/html
 def mode_epub(args):
     log('making epub with\n%s' % pformat(args))
     #XXX need to catch and process lack of necessary arguments.
     bookid = args.get('book')
     server = args.get('server', config.DEFAULT_SERVER)
     bookname = make_book_name(bookid, server, '.epub')
-    project = args.get('project')
     destination = args.get('destination', config.DEFAULT_PUBLISH_DESTINATION)
     progress_bar = make_progress_page(bookid, bookname, 'epub', destination)
 
-    with Book(bookid, server, bookname=bookname, project=project,
+    with Book(bookid, server, bookname=bookname,
               watcher=progress_bar, title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
 
