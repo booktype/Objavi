@@ -184,7 +184,20 @@ class Section(object):
         self.tree = tree
         self.title = title
 
+def split_tree(tree):
+    """If a document has special marker elements (hr tags with class
+    of config.MARKER_CLASS_SPLIT) it will be broken into smaller
+    documents using the markers as boundaries.  Each element in the
+    new documents will be nested and ordered as before, though those
+    on the new edges will obviously lack siblings they once may have
+    had.
 
+    The new documents are returned as a list of Section objects (see
+    above), which bundles the new tree with an ID and title if the
+    marker elements contain those attributes.
+
+    The original tree will be destroyed or reused.
+    """
     try:
         root = tree.getroot()
     except AttributeError:
