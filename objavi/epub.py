@@ -13,6 +13,7 @@ except ImportError:
 import lxml, lxml.html, lxml.cssselect
 from lxml import etree
 
+from objavi.xhtml_utils import split_tree
 from objavi.config import DC, XHTML, XHTMLNS, FM, MARKER_CLASS
 from booki.bookizip import BookiZip
 
@@ -285,34 +286,33 @@ class Epub(object):
         doc = self.concat_document()
         bz = BookiZip(zfn)
 
-        chapters = split_document(doc)
+        chapters = split_tree(doc) #destroys doc.
         real_chapters = drop_empty_chapters(chapters)
         rightsholders = [c for c, extra in self.metadata[DC].get('creator', ())]
         contributors = rightsholders + [c for c, extra in self.metadata[DC].get('contributor', ())]
 
         spine = []
-        for id, title, tree in real_chapters:
+        for c in real_chapters:
             try:
-                root = tree.getroot()
+                root = c.tree.getroot()
             except:
-                root = tree
+                root = c.tree
             try:
                 del root.attrib['xmlns']
                 del root.attrib['version']
                 del root.attrib['xml:lang']
-            except KeyError,e:
+            except KeyError, e:
                 log(e)
-            if title:
+            if c.title:
                 head = root.makeelement('head')
                 _title = etree.SubElement(head, 'title')
-                _title.text = title
+                _title.text = c.title
                 root.insert(0, head)
-            #blob = etree.tostring(tree)
-            blob = lxml.html.tostring(tree)
-            bz.add_to_package(id, '%s.html' % id, blob, mediatype='text/html',
+            blob = lxml.html.tostring(c.tree)
+            bz.add_to_package(c.id, '%s.html' % c.id, blob, mediatype='text/html',
                               contributors=contributors,
                               rightsholders=rightsholders)
-            spine.append(id)
+            spine.append(c.id)
 
         #add the images and other non-html data unchanged.
         for id, data in self.manifest.iteritems():
@@ -412,7 +412,7 @@ def drop_empty_chapters(chapters):
     good_chapters = []
     for c in chapters:
         good = False
-        for e in c[2].iter():
+        for e in c.tree.iter():
             if ((e.text and e.text.strip()) or
                 (e.tail and e.tail.strip()) or
                 e.tag in ('img',)):
