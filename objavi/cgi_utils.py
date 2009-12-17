@@ -27,11 +27,13 @@ from objavi import config
 
 #general, non-cgi functions
 
-def make_book_name(book, server, suffix='.pdf'):
+def make_book_name(book, server, suffix='.pdf', timestamp=None):
     lang = config.SERVER_DEFAULTS.get(server, config.SERVER_DEFAULTS[config.DEFAULT_SERVER])['lang']
     book = ''.join(x for x in book if x.isalnum())
+    if timestamp is None:
+        timestamp = time.strftime('%Y.%m.%d-%H.%M.%S')
     return '%s-%s-%s%s' % (book, lang,
-                           time.strftime('%Y.%m.%d-%H.%M.%S'),
+                           timestamp,
                            suffix)
 
 def guess_lang(server, book):
