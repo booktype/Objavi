@@ -11,6 +11,8 @@ from cStringIO import StringIO
 from urlparse import urlparse, urlsplit, urljoin
 from urllib2 import urlopen, HTTPError
 
+from config import XHTMLNS, XHTML, IMG_CACHE
+
 ADJUST_HEADING_WEIGHT = False
 
 OK_TAGS = set([
@@ -25,15 +27,12 @@ OK_TAGS = set([
     etree.Comment,
     ])
 
-XHTMLNS = '{http://www.w3.org/1999/xhtml}'
-XHTML = 'http://www.w3.org/1999/xhtml'
 
 XHTML11_DOCTYPE = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 '''
 XML_DEC = '<?xml version="1.0" encoding="UTF-8"?>\n'
 
-IMG_CACHE = 'cache/images/'
 IMG_PREFIX = 'static/'
 
 def log(*messages, **kwargs):
