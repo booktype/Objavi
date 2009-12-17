@@ -7,7 +7,8 @@ from objavi import config
 from objavi.cgi_utils import log, guess_lang, guess_text_dir, make_book_name
 from urllib2 import urlopen
 from booki.bookizip import add_metadata, BookiZip
-from booki.xhtml_utils import TWikiChapter
+
+from objavi.xhtml_utils import BaseChapter, ImageCache
 
 from pprint import pformat
 
@@ -325,3 +326,90 @@ class TWikiBook(object):
 
         except StopIteration:
             log('Apparently run out of chapters on title %s!' % title)
+
+
+
+def url_to_filename(url, prefix=''):
+    #XXX slightly inefficient to do urlsplit so many times, but versatile
+    fragments = urlsplit(url)
+    base, ext = fragments.path.rsplit('.', 1)
+    server = fragments.netloc.split('.', 1)[0] #en, fr, translate
+    base = base.split('/pub/', 1)[1] #remove /floss/pub/ or /pub/
+    base = re.sub(r'[^\w]+', '-',  '%s-%s' %(base, server))
+    return '%s%s.%s' % (prefix, base, ext)
+
+
+class TWikiChapter(BaseChapter):
+    image_cache = ImageCache()
+
+    def __init__(self, server, book, chapter_name, html, use_cache=False,
+                 cache_dir=None):
+        self.server = server
+        self.book = book
+        self.name = chapter_name
+        self.use_cache = use_cache
+        if cache_dir:
+            self.image_cache = ImageCache(cache_dir)
+        self._loadtree(html)
+
+    def localise_links(self):
+        """Find image links, convert them to local links, and fetch
+        the images from the net so the local links work"""
+        images = []
+        def localise(oldlink):
+            fragments = urlsplit(oldlink)
+            if '.' not in fragments.path:
+                log('ignoring %s' % oldlink)
+                return oldlink
+            base, ext = fragments.path.rsplit('.', 1)
+            ext = ext.lower()
+            if (not fragments.scheme.startswith('http') or
+                fragments.netloc != self.server or
+                ext not in ('png', 'gif', 'jpg', 'jpeg', 'svg', 'css', 'js') or
+                '/pub/' not in base
+                ):
+                log('ignoring %s' % oldlink)
+                return oldlink
+
+            newlink = self.image_cache.fetch_if_necessary(oldlink, use_cache=self.use_cache)
+            if newlink is not None:
+                images.append(newlink)
+                return newlink
+            log("can't do anything for %s -- why?" % (oldlink,))
+            return oldlink
+
+        self.tree.rewrite_links(localise, base_href=('http://%s/bin/view/%s/%s' %
+                                                     (self.server, self.book, self.name)))
+        return images
+
+
+#XXX almost certainly broken and out of date!
+class Author(object):
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+
+class ImportedChapter(TWikiChapter):
+    """Used for git import"""
+    def __init__(self, lang, book, chapter_name, text, author, email, date, server=None,
+                 use_cache=False, cache_dir=None):
+        self.lang = lang
+        self.book = book
+        self.name = chapter_name
+        self.author = Author(author, email)
+        self.date = date
+        if server is None:
+            server = '%s.flossmanuals.net' % lang
+        self.server = server
+        self.use_cache = use_cache
+        if cache_dir:
+            self.image_cache = ImageCache(cache_dir)
+        #XXX is text html-wrapped?
+        self._loadtree(html)
+
+    def as_twikitext(self):
+        """Get the twiki-style guts of the chapter from the tree"""
+        text = etree.tostring(self.tree.find('body'), method='html')
+        text = re.sub(r'^.*?<body.*?>\s*', '', text)
+        text = re.sub(r'\s*</body>.*$', '\n', text)
+        return text
