@@ -333,6 +333,7 @@ CGI_MODES = { # arguments are: (publication, )
     'css': (False,),
     'form': (False,),
     'epub':(True,),
+    'bookizip':(True,),
 }
 
 

@@ -382,6 +382,22 @@ def mode_epub(args):
         output_multi(book, "application/epub+zip", destination)
 
 
+def mode_bookizip(args):
+    log('making bookizip with\n%s' % pformat(args))
+    bookid = args.get('book')
+    server = args.get('server', config.DEFAULT_SERVER)
+    bookname = make_book_name(bookid, server, '.zip')
+
+    destination = args.get('destination', config.DEFAULT_PUBLISH_DESTINATION)
+    progress_bar = make_progress_page(bookid, bookname, 'bookizip', destination)
+
+    with Book(bookid, server, bookname=bookname,
+              watcher=progress_bar, title=args.get('title'),
+              max_age=float(args.get('max-age', -1))) as book:
+        book.publish_bookizip()
+        output_multi(book, config.BOOKIZIP_MIMETYPE, destination)
+
+
 def main():
     args = parse_args(ARG_VALIDATORS)
     mode = args.get('mode')

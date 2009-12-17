@@ -153,8 +153,7 @@ class Book(object):
                  page_settings=None, watcher=None, isbn=None,
                  license=config.DEFAULT_LICENSE, title=None,
                  max_age=0):
-        log("*** Starting new book %s ***" % bookname,
-            "starting zipbook with", server, book)
+        log("*** Starting new book %s ***" % bookname)
         self.watcher = watcher
         self.notify_watcher('start')
         self.bookname = bookname
@@ -162,9 +161,8 @@ class Book(object):
         self.server = server
         self.cookie = ''.join(random.sample(ascii_letters, 10))
         try:
-            blob = fetch_zip(server, book, save=True, max_age=max_age)
+            blob, self.bookizip_file = fetch_zip(server, book, save=True, max_age=max_age)
         except HTTPError, e:
-            #log(e.url)
             traceback.print_exc()
             self.notify_watcher("ERROR:\n Couldn't get %r\n %s %s" % (e.url, e.code, e.msg))
             #not much to do?
@@ -492,6 +490,16 @@ class Book(object):
         os.rename(self.pdf_file, self.publish_file)
         self.notify_watcher()
 
+    def publish_bookizip(self):
+        """Publish the bookizip.  For this, copy rather than move,
+        because the bookizip might be used by further processing.  If
+        possible, a hard link is created."""
+        log("Publishing %r as %r" % (self.bookizip_file, self.publish_file))
+        try:
+            run(['cp', '-l', self.bookizip_file, self.publish_file])
+        except OSError, e:
+            run(['cp', self.bookizip_file, self.publish_file])
+        self.notify_watcher()
 
     def concat_html(self):
         """Join all the chapters together into one tree.  Keep the TOC
@@ -1020,7 +1028,7 @@ def _read_cached_zip(server, book, max_age):
             f = open(zipname)
             blob = f.read()
             f.close()
-            return blob
+            return blob, zipname
         log("%s is too old, must reload" % zipname)
         return None
     except (IOError, IndexError, ValueError), e:
@@ -1029,7 +1037,7 @@ def _read_cached_zip(server, book, max_age):
 
 
 
-def fetch_zip(server, book, save=False, max_age=-1):
+def fetch_zip(server, book, save=False, max_age=-1, filename=None):
     interface = config.SERVER_DEFAULTS[server]['interface']
     if interface not in ('Booki', 'TWiki'):
         raise NotImplementedError("Can't handle '%s' interface" % interface)
@@ -1046,20 +1054,22 @@ def fetch_zip(server, book, save=False, max_age=-1):
         log('WARNING: trying to use cached booki-zip',
             'If you are debugging booki-zip creation, you will go CRAZY'
             ' unless you switch this off')
-        blob = _read_cached_zip(server, book, max_age)
-        if blob is not None:
-            return blob
+        blob_and_name = _read_cached_zip(server, book, max_age)
+        if blob_and_name is not None:
+            return blob_and_name
 
     log('fetching zip from %s'% url)
     f = urlopen(url)
     blob = f.read()
     f.close()
     if save:
-        zipname = make_book_name(book, server, '.zip')
-        f = open('%s/%s' % (config.BOOKI_BOOK_DIR, zipname), 'w')
+        if filename is None:
+            filename = '%s/%s' % (config.BOOKI_BOOK_DIR,
+                                  make_book_name(book, server, '.zip'))
+        f = open(filename, 'w')
         f.write(blob)
         f.close()
-    return blob
+    return blob, filename
 
 
 
