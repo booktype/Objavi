@@ -12,7 +12,7 @@ from objavi.fmbook import log, Book, make_book_name
 from objavi.cgi_utils import shift_file
 from objavi.config import EPUB_DIR
 from iarchive import epub as ia_epub
-from booki.xhtml_utils import EpubChapter
+from objavi.xhtml_utils import EpubChapter
 
 from objavi import epub_utils
 

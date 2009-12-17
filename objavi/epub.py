@@ -466,7 +466,7 @@ def _find_tag(doc, tag):
     return doc.iter(tag).next()
 
 
-def add_marker(el, ID, child=False, klass=config.MARKER_CLASS_INFO, **kwargs):
+def add_marker(el, ID, child=False, klass=MARKER_CLASS_INFO, **kwargs):
     """Add a marker before the element, or inside it if child is true"""
     marker = el.makeelement('hr')
     marker.set('id', ID)

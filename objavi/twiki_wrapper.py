@@ -328,7 +328,6 @@ class TWikiBook(object):
             log('Apparently run out of chapters on title %s!' % title)
 
 
-
 def url_to_filename(url, prefix=''):
     #XXX slightly inefficient to do urlsplit so many times, but versatile
     fragments = urlsplit(url)

@@ -11,7 +11,8 @@ from cStringIO import StringIO
 from urlparse import urlparse, urlsplit, urljoin
 from urllib2 import urlopen, HTTPError
 
-from config import XHTMLNS, XHTML, IMG_CACHE
+from config import XHTMLNS, XHTML, IMG_CACHE, MARKER_CLASS_SPLIT
+from cgi_utils import log
 
 ADJUST_HEADING_WEIGHT = False
 
@@ -34,23 +35,6 @@ XHTML11_DOCTYPE = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
 XML_DEC = '<?xml version="1.0" encoding="UTF-8"?>\n'
 
 IMG_PREFIX = 'static/'
-
-def log(*messages, **kwargs):
-    for m in messages:
-        try:
-            print >> sys.stderr, m
-        except Exception:
-            print >> sys.stderr, repr(m)
-
-
-def url_to_filename(url, prefix=''):
-    #XXX slightly inefficient to do urlsplit so many times, but versatile
-    fragments = urlsplit(url)
-    base, ext = fragments.path.rsplit('.', 1)
-    server = fragments.netloc.split('.', 1)[0] #en, fr, translate
-    base = base.split('/pub/', 1)[1] #remove /floss/pub/ or /pub/
-    base = re.sub(r'[^\w]+', '-',  '%s-%s' %(base, server))
-    return '%s%s.%s' % (prefix, base, ext)
 
 def convert_tags(root, elmap):
     for el in root.iterdescendants():
@@ -195,9 +179,9 @@ class EpubChapter(BaseChapter):
 
 
 class Section(object):
-    def __init__(self, ID, content, title=None):
+    def __init__(self, tree, ID=None, title=None):
         self.ID = ID
-        self.content = content
+        self.tree = tree
         self.title = title
 
 
@@ -247,7 +231,7 @@ def split_tree(tree):
     # wholesale, which speeds things up considerably.
     stacks = []
     for hr in root.iter(tag='hr'):
-        if hr.get('class') == config.MARKER_CLASS_SPLIT:
+        if hr.get('class') == MARKER_CLASS_SPLIT:
             stack = [hr]
             stack.extend(x for x in hr.iterancestors())
             stack.reverse()
