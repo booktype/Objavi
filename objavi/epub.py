@@ -14,7 +14,7 @@ import lxml, lxml.html, lxml.cssselect
 from lxml import etree
 
 from objavi.xhtml_utils import split_tree
-from objavi.config import DC, XHTML, XHTMLNS, FM, MARKER_CLASS
+from objavi.config import DC, XHTML, XHTMLNS, FM, MARKER_CLASS_INFO, MARKER_CLASS_SPLIT
 from booki.bookizip import BookiZip
 
 #XML namespaces.  The *NS varients are in {curly brackets} for clark's syntax
@@ -273,6 +273,7 @@ class Epub(object):
                     start = first_el
                 labels = point['labels']
                 add_marker(start, 'espri-chapter-%(id)s' % point,
+                           klass=MARKER_CLASS_SPLIT,
                            title=find_good_label(labels, lang),
                            subsections=str(bool(point['points'])))
 
@@ -465,11 +466,11 @@ def _find_tag(doc, tag):
     return doc.iter(tag).next()
 
 
-def add_marker(el, ID, child=False, **kwargs):
+def add_marker(el, ID, child=False, klass=config.MARKER_CLASS_INFO, **kwargs):
     """Add a marker before the element, or inside it if child is true"""
     marker = el.makeelement('hr')
     marker.set('id', ID)
-    marker.set('class', MARKER_CLASS)
+    marker.set('class', klass)
     for k, v in kwargs.items():
         marker.set(k, v)
     if child:

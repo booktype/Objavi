@@ -447,7 +447,8 @@ EPUB_COMPRESSED_SIZE_MAX = 70000
 EPUB_FILE_SIZE_MAX = 200000
 
 #used to identify marker tags in html
-MARKER_CLASS = "espri-marker-name-clash-with-no-one"
+MARKER_CLASS_SPLIT = "espri-marker-name-clash-with-no-one--split"
+MARKER_CLASS_INFO = "espri-marker-name-clash-with-no-one--info"
 
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))
