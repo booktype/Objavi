@@ -53,7 +53,10 @@ def split_file(fn, splitter, name):
         f.write(html2)
         f.close()
 
+        t = time.time()
         chapters = splitter(tree)
+        print "%s took %s" % (splitter, time.time() - t)
+
         log(chapters)
         for i, c in enumerate(chapters):
             f = open('/tmp/%s_%s.html' % (name, i + 1,), 'w')
@@ -177,11 +180,11 @@ def split_document_2(doc):
 
 
 
+log = lambda x: None
+for splitter in (split_document, split_document_2,
+                 split_document, split_document_2,
+    ):
+    split_file(HTML_FILE, splitter, 'stack')
 
-#print sys.argv
-t = time.time()
-#split_file(HTML_FILE, split_document, 'recurse')
-split_file(HTML_FILE, split_document_2, 'stack')
-print time.time() - t
 
 
