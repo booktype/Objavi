@@ -97,7 +97,7 @@ if __name__ == '__main__':
         f = open(url)
         data = f.read()
         f.close()
-        output_blob_and_exit(data, 'application/x-booki+zip', source + '.zip')
+        output_blob_and_exit(data, config.BOOKIZIP_MIMETYPE, source + '.zip')
     else:
         print_form(book_link)
 

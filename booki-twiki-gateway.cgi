@@ -68,7 +68,7 @@ if __name__ == '__main__':
             f = open(fn)
             data = f.read()
             f.close()
-            output_blob_and_exit(data, 'application/x-booki+zip', args['book'] + '.zip')
+            output_blob_and_exit(data, config.BOOKIZIP_MIMETYPE, args['book'] + '.zip')
 
     elif 'server' in args and make_all is not None:
         links = []

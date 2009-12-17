@@ -65,6 +65,8 @@ DEFAULT_SERVER = 'en.flossmanuals.net'
 DEFAULT_SIZE = 'COMICBOOK'
 DEFAULT_ENGINE = 'webkit'
 
+BOOKIZIP_MIMETYPE = "application/x-booki+zip"
+
 RTL_SCRIPTS = ['persian', 'arabic', 'hebrew', 'urdu']
 
 USE_CACHED_IMAGES = False
