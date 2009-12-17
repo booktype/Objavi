@@ -336,6 +336,7 @@ CGI_MODES = { # arguments are: (publication, )
     'bookizip':(True,),
 }
 
+PUBLIC_CGI_MODES = tuple(k for k, v in CGI_MODES.items() if v[0])
 
 #PUBLISH_DESTINATIONS
 PUBLISH_DESTINATIONS = {
@@ -395,9 +396,9 @@ FORM_ELEMENT_TYPES = {
 }
 
 PROGRESS_POINTS = (
-    ("start", "wake up", ('book', 'newspaper', 'web', 'openoffice', 'epub')),
-    ("fetch_zip", "Load data", ('book', 'newspaper', 'web', 'openoffice', 'epub')),
-    ("__init__", "Initialise the book", ('book', 'newspaper', 'web', 'openoffice', 'epub')),
+    ("start", "wake up", PUBLIC_CGI_MODES),
+    ("fetch_zip", "Load data", PUBLIC_CGI_MODES),
+    ("__init__", "Initialise the book", PUBLIC_CGI_MODES),
     ("load_book", "Fetch the book", ('book', 'newspaper', 'web', 'openoffice')),
     ("add_css", "Add css", ('book', 'newspaper', 'web', 'openoffice')),
     ("add_section_titles", "Add section titles", ('book', 'newspaper', 'web', 'openoffice')),
@@ -413,7 +414,7 @@ PROGRESS_POINTS = (
     ('make_end_matter_pdf', "Generate end matter pdf", ('book',)),
     ("concatenated_pdfs", "concatenate the pdfs", ('book',)),
     #("publish_pdf", "Publish the pdf", ('book', 'newspaper', 'web')),
-    ("finished", "Finished!", ('book', 'newspaper', 'web', 'openoffice', 'epub')),
+    ("finished", "Finished!", PUBLIC_CGI_MODES),
 )
 
 #XML namespace stuff
