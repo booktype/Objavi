@@ -44,9 +44,9 @@ from objavi import config, epub_utils
 from objavi.cgi_utils import log, run, shift_file, make_book_name, guess_lang, guess_text_dir
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline
 from objavi.epub import add_guts, _find_tag
+from objavi.xhtml_utils import EpubChapter, split_tree
 
 from iarchive import epub as ia_epub
-from booki.xhtml_utils import EpubChapter
 from booki.bookizip import get_metadata, add_metadata, clear_metadata, get_metadata_schemes
 
 TMPDIR = os.path.abspath(config.TMPDIR)
@@ -1036,7 +1036,6 @@ def _read_cached_zip(server, book, max_age):
         return None
 
 
-
 def fetch_zip(server, book, save=False, max_age=-1, filename=None):
     interface = config.SERVER_DEFAULTS[server]['interface']
     if interface not in ('Booki', 'TWiki'):
@@ -1072,8 +1071,9 @@ def fetch_zip(server, book, save=False, max_age=-1, filename=None):
     return blob, filename
 
 
-
-def split_html(html, compressed_size=None, xhtmlise=False):
+def split_html(html, compressed_size=None, fix_markup=False):
+    """Split long html files into pieces that will work nicely on a
+    Sony Reader."""
     if compressed_size is None:
         import zlib
         compressed_size = len(zlib.compress(html))
@@ -1085,9 +1085,9 @@ def split_html(html, compressed_size=None, xhtmlise=False):
     if not splits:
         return [html]
 
-    if xhtmlise:
-        #xhtmlisation removes '<' in attributes etc, which makes the
-        #marker insertion more reliable
+    if fix_markup:
+        #remove '<' in attributes etc, which makes the marker
+        #insertion more reliable
         html = etree.tostring(lxml.html.fromstring(html),
                               encoding='UTF-8',
                               #method='html'
@@ -1099,60 +1099,11 @@ def split_html(html, compressed_size=None, xhtmlise=False):
     for i in range(splits):
         e = html.find('<', target * (i + 1))
         fragments.append(html[s:e])
-        fragments.append('<hr class="%s" id="split_%s" />' % (config.MARKER_CLASS, i))
+        fragments.append('<hr class="%s" id="split_%s" />' % (config.MARKER_CLASS_SPLIT, i))
         s = e
     fragments.append(html[s:])
-    root = lxml.html.fromstring(''.join(fragments))
 
-    # find the node lineages along which to split the document.
-    # anything outside these lines (i.e., branches) can be copied
-    # wholesale.
-
-    stacks = []
-    for hr in root.iter(tag='hr'):
-        if hr.get('class') == config.MARKER_CLASS:
-            stack = [hr]
-            stack.extend(x for x in hr.iterancestors())
-            stack.reverse()
-            stacks.append(stack)
-
-    iterstacks = iter(stacks)
-
-    src = root
-    log('root is', root, root.attrib, type(root.attrib))
-    dest = lxml.html.Element(root.tag, **dict(root.items()))
-    doc = dest
-    stack = iterstacks.next()
-    marker = stack[-1]
-
-    chapters = []
-    try:
-        while True:
-            for e in src:
-                if e not in stack:
-                    #cut and paste branch
-                    dest.append(e)
-                elif e is marker:
-                    #got one
-                    src.remove(e)
-                    chapters.append(doc)
-                    src = root
-                    dest = lxml.html.Element(root.tag, **dict(root.items()))
-                    doc = dest
-                    stack = iterstacks.next()
-                    marker = stack[-1]
-                    break
-                else:
-                    #next level
-                    dest = etree.SubElement(dest, e.tag, **dict(e.items()))
-                    dest.text = e.text
-                    e.text = None
-                    src = e
-                    break
-    except StopIteration:
-        #stacks have run out -- the rest of the tree is the last section
-        chapters.append(src)
-
-    #return chapters
-    return [etree.tostring(c, encoding='UTF-8', method='html') for c in chapters]
+    #XXX somehow try to avoid split in silly places (e.g, before inline elements)
+    chapters = split_tree(lxml.html.fromstring(''.join(fragments)))
+    return [etree.tostring(c.tree, encoding='UTF-8', method='html') for c in chapters]
 
