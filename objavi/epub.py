@@ -424,14 +424,6 @@ def drop_empty_chapters(chapters):
     return good_chapters
 
 
-def save_chapters(chapters):
-    for id, tree in chapters.items():
-        string = lxml.html.tostring(tree, method='html')
-        f = open('/tmp/x%s.html' % id, 'w')
-        f.write(string)
-        f.close()
-
-
 def add_guts(src, dest):
     """Append the contents of the <body> of one tree onto that of
     another.  The source tree will be emptied."""

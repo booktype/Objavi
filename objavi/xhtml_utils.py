@@ -185,42 +185,6 @@ class Section(object):
         self.title = title
 
 
-def split_html(html, compressed_size=None, xhtmlise=False):
-    if compressed_size is None:
-        import zlib
-        compressed_size = len(zlib.compress(html))
-
-    splits = max(compressed_size // config.EPUB_COMPRESSED_SIZE_MAX,
-                 len(html) // config.EPUB_FILE_SIZE_MAX)
-    log("uncompressed: %s, compressed: %s, splits: %s" % (len(html), compressed_size, splits))
-
-    if not splits:
-        return [html]
-
-    if xhtmlise:
-        #xhtmlisation removes '<' in attributes etc, which makes the
-        #marker insertion more reliable
-        html = etree.tostring(lxml.html.fromstring(html),
-                              encoding='UTF-8',
-                              #method='html'
-                              )
-
-    target = len(html) // (splits + 1)
-    s = 0
-    fragments = []
-    for i in range(splits):
-        e = html.find('<', target * (i + 1))
-        fragments.append(html[s:e])
-        fragments.append('<hr class="%s" id="split_%s" />' % (config.MARKER_CLASS_SPLIT, i))
-        s = e
-    fragments.append(html[s:])
-
-    #XXX somehow try to avoid split in silly places (e.g, before inline elements)
-    chapters = split_tree(lxml.html.fromstring(''.join(fragments)))
-    return [etree.tostring(c.tree, encoding='UTF-8', method='html') for c in chapters]
-
-
-def split_tree(tree):
     try:
         root = tree.getroot()
     except AttributeError:
