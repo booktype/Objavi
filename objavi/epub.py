@@ -310,10 +310,10 @@ class Epub(object):
                 _title.text = c.title
                 root.insert(0, head)
             blob = lxml.html.tostring(c.tree)
-            bz.add_to_package(c.id, '%s.html' % c.id, blob, mediatype='text/html',
+            bz.add_to_package(c.ID, '%s.html' % c.ID, blob, mediatype='text/html',
                               contributors=contributors,
                               rightsholders=rightsholders)
-            spine.append(c.id)
+            spine.append(c.ID)
 
         #add the images and other non-html data unchanged.
         for id, data in self.manifest.iteritems():
