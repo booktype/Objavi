@@ -26,6 +26,8 @@ CONTAINERNS = '{urn:oasis:names:tc:opendocument:xmlns:container}'
 MARKUP_TYPES = ('application/xhtml+xml', 'text/html', "application/x-dtbncx+xml")
 HTML_TYPES = ('application/xhtml+xml', 'text/html')
 
+ADD_INFO_MARKERS = False
+
 def log(*messages, **kwargs):
     for m in messages:
         try:
@@ -260,7 +262,7 @@ class Epub(object):
                 tree = self.gettree(fn, parse=_html_parse)
                 root = tree.getroot()
                 body = _find_tag(root, 'body')
-                if not len(body):
+                if not len(body) and ADD_INFO_MARKERS:
                     add_marker(body, 'espri-empty-file-%s' % ID, title=fn, child=True)
                 first_el = body[0]
             #point the links to the new names. XXX probably fragile
@@ -277,7 +279,8 @@ class Epub(object):
                            title=find_good_label(labels, lang),
                            subsections=str(bool(point['points'])))
 
-            add_marker(first_el, 'espri-new-file-%s' % ID, title=fn)
+            if ADD_INFO_MARKERS:
+                add_marker(first_el, 'espri-new-file-%s' % ID, title=fn)
             add_guts(root, doc)
         return doc
 
