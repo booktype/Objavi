@@ -208,11 +208,14 @@ def split_tree(tree):
     # wholesale, which speeds things up considerably.
     stacks = []
     for hr in root.iter(tag='hr'):
-        if hr.get('class') == MARKER_CLASS_SPLIT:
+        klass = hr.get('class')
+        if klass == MARKER_CLASS_SPLIT:
             stack = [hr]
             stack.extend(x for x in hr.iterancestors())
             stack.reverse()
             stacks.append(stack)
+        elif klass == MARKER_CLASS_INFO:
+            hr.getparent().remove(hr)
 
     iterstacks = iter(stacks)
 
