@@ -1037,13 +1037,12 @@ def _read_cached_zip(server, book, max_age):
 
 
 def fetch_zip(server, book, save=False, max_age=-1, filename=None):
-    interface = config.SERVER_DEFAULTS[server]['interface']
-    if interface not in ('Booki', 'TWiki'):
+    interface = config.SERVER_DEFAULTS[server].get('interface', 'Booki')
+    try:
+        url = config.ZIP_URLS[interface] % {'HTTP_HOST': HTTP_HOST,
+                                            'server': server, 'book':book}
+    except KeyError:
         raise NotImplementedError("Can't handle '%s' interface" % interface)
-    if interface == 'Booki':
-        url = config.BOOKI_ZIP_URL  % {'server': server, 'book':book}
-    else:
-        url = config.TWIKI_GATEWAY_URL % (HTTP_HOST, server, book)
 
     if use_cache() and max_age < 0:
         #default to 12 hours cache on objavi.halo.gen.nz

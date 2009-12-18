@@ -58,8 +58,11 @@ TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
 PUBLISH_URL = "/books/"
 
-TWIKI_GATEWAY_URL = 'http://%s/booki-twiki-gateway.cgi?server=%s&book=%s&mode=zip'
-BOOKI_ZIP_URL = 'http://%(server)s/export/%(book)s/export'
+ZIP_URLS = {
+    'TWiki':   'http://%(HTTP_HOST)s/booki-twiki-gateway.cgi?server=%(server)s&book=%(book)s&mode=zip',
+    'Booki':   'http://%(server)s/export/%(book)s/export',
+    'Archive': 'http://%(HTTP_HOST)s/espri.cgi?mode=zip&book=%(book)s',
+}
 
 DEFAULT_SERVER = 'en.flossmanuals.net'
 DEFAULT_SIZE = 'COMICBOOK'
@@ -101,6 +104,18 @@ SERVER_DEFAULTS = {
         'toc-encoding': None,
         'display': False,
         'interface': 'Booki',
+        'toc_header': 'Table of Contents',
+        },
+    'archive.org': {
+        'css-book': 'static/en.flossmanuals.net.css',
+        'css-web': 'static/en.flossmanuals.net-web.css',
+        'css-newspaper': 'static/en.flossmanuals.net-newspaper.css',
+        'css-openoffice': 'static/en.flossmanuals.net-openoffice.css',
+        'lang': 'en',
+        'dir': 'LTR',
+        'toc-encoding': None,
+        'display': False,
+        'interface': 'Archive',
         'toc_header': 'Table of Contents',
         },
     LOCALHOST: {
