@@ -274,7 +274,7 @@ class Epub(object):
                 else:
                     start = first_el
                 labels = point['labels']
-                add_marker(start, 'espri-chapter-%(id)s' % point,
+                add_marker(start, '%(id)s' % point,
                            klass=MARKER_CLASS_SPLIT,
                            title=find_good_label(labels, lang),
                            subsections=str(bool(point['points'])))
