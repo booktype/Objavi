@@ -38,7 +38,7 @@ def make_ncx(toc, metadata, filemap):
         counter, maxdepth = write_navtree(navmap, subtoc, counter, 1, maxdepth, filemap)
     ids = get_metadata(metadata, 'identifier')
     if not ids: #workaround for one-time broken booki
-        ids = [time.strftime('http://book.cc/UNKNOWN/%Y.%m.%d-%H.%M.%S')]
+        ids = [time.strftime('http://booki.cc/UNKNOWN/%Y.%m.%d-%H.%M.%S.%N')]
 
     for name, content in (('dtb:uid', ids[0]),
                           ('dtb:depth', str(maxdepth)),

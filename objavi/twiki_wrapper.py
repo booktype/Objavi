@@ -155,7 +155,7 @@ class TWikiBook(object):
                     },
                 'identifier': {
                     "": ['http://%s/epub/%s/%s' %
-                         (self.server, self.book, time.strftime('%Y.%m.%d-%H.%M.%S'))]
+                         (self.server, self.book, time.strftime('%Y.%m.%d-%H.%M.%S.%N'))]
                     },
                 'creator': {
                     "": ['The Contributors']
