@@ -184,6 +184,10 @@ class Section(object):
         self.tree = tree
         self.title = title
 
+    def __str__(self):
+        return '<Section id: %r title: %r>' %(self.ID, self.title)
+    __repr__ = __str__
+
 def split_tree(tree):
     """If a document has special marker elements (hr tags with class
     of config.MARKER_CLASS_SPLIT) it will be broken into smaller
@@ -251,7 +255,7 @@ def split_tree(tree):
                 else:
                     #next level.
                     #It is safe to descend without leaving a trail,
-                    #because side branches are no descended.
+                    #because side branches are not descended.
                     dest = etree.SubElement(dest, e.tag, **dict(e.items()))
                     dest.text = e.text
                     e.text = None

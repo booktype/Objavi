@@ -169,6 +169,7 @@ class Book(object):
             traceback.print_exc()
             self.notify_watcher("ERROR:\n Couldn't get %r\n %s %s" % (e.url, e.code, e.msg))
             #not much to do?
+            #raise 502 Bad Gateway ?
             sys.exit()
         f = StringIO(blob)
         self.notify_watcher('fetch_zip')
