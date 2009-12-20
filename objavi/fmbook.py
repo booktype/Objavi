@@ -133,12 +133,13 @@ class Book(object):
     preamble_page_numbers = 'roman'
 
     def notify_watcher(self, message=None):
-        if self.watcher:
+        if self.watchers:
             if  message is None:
                 #message is the name of the caller
                 message = traceback.extract_stack(None, 2)[0][2]
             log("notify_watcher called with '%s'" % message)
-            self.watcher(message)
+            for w in self.watchers:
+                w(message)
 
     def __enter__(self):
         return self
@@ -154,7 +155,9 @@ class Book(object):
                  license=config.DEFAULT_LICENSE, title=None,
                  max_age=0):
         log("*** Starting new book %s ***" % bookname)
-        self.watcher = watcher
+        self.watchers = set()
+        if watcher is not None:
+            self.watchers.add(watcher)
         self.notify_watcher('start')
         self.bookname = bookname
         self.book = book
