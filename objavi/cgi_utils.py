@@ -125,6 +125,23 @@ def clean_args(arg_convertors):
 
 ## Helper functions for parse_args & clean_args
 
+def isfloat(s):
+    #spaces?, digits!, dot?, digits?, spaces?
+    #return re.compile(r'^\s*[+-]?\d+\.?\d*\s*$').match
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+
+def isfloat_or_auto(s):
+    return isfloat(s) or s.lower() in ('', 'auto')
+
+def is_isbn(s):
+    # 10 or 13 digits with any number of hyphens, perhaps with check-digit missing
+    s =s.replace('-', '')
+    return (re.match(r'^\d+[\dXx*]$', s) and len(s) in (9, 10, 12, 13))
+
 def is_url(s):
     """Check whether the string approximates a valid http URL."""
     s = s.strip()
@@ -200,9 +217,6 @@ def shift_file(fn, dir, backup='~'):
         os.rename(dest, dest + backup)
     os.rename(fn, dest)
     return dest
-
-
-
 
 def output_blob_and_exit(blob, content_type="application/octet-stream", filename=None):
     print 'Content-type: %s\nContent-length: %s' % (content_type, len(blob))

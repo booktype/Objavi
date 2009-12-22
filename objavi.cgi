@@ -28,29 +28,11 @@ from pprint import pformat
 from objavi.fmbook import log, Book, make_book_name, HTTP_HOST
 from objavi import config
 from objavi.cgi_utils import parse_args, optionise, listify, shift_file
-from objavi.cgi_utils import output_blob_and_exit, is_utf8
+from objavi.cgi_utils import output_blob_and_exit, is_utf8, isfloat, isfloat_or_auto, is_isbn
 from objavi.twiki_wrapper import get_book_list
 
 FORM_TEMPLATE = os.path.abspath('templates/form.html')
 PROGRESS_TEMPLATE = os.path.abspath('templates/progress.html')
-
-def isfloat(s):
-    #spaces?, digits!, dot?, digits?, spaces?
-    #return re.compile(r'^\s*[+-]?\d+\.?\d*\s*$').match
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
-
-def isfloat_or_auto(s):
-    return isfloat(s) or s.lower() in ('', 'auto')
-
-def is_isbn(s):
-    # 10 or 13 digits with any number of hyphens, perhaps with check-digit missing
-    s =s.replace('-', '')
-    return (re.match(r'^\d+[\dXx*]$', s) and len(s) in (9, 10, 12, 13))
-
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
 # functions to validate their values. (None means no validation).
