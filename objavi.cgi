@@ -141,7 +141,7 @@ def make_progress_page(book, bookname, mode, destination='html'):
                        'objavi_show_progress("%s");\n'
                        '</script>' % message
                        )
-                if message == 'finished':
+                if message == config.FINISHED_MESSAGE:
                     print '</body></html>'
             sys.stdout.flush()
         except ValueError, e:

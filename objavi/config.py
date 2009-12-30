@@ -410,6 +410,8 @@ FORM_ELEMENT_TYPES = {
     'ul': '<ul id="%(id)s">%(val)s</ul>',
 }
 
+FINISHED_MESSAGE = 'FINISHED'
+
 PROGRESS_POINTS = (
     ("start", "wake up", PUBLIC_CGI_MODES),
     ("fetch_zip", "Load data", PUBLIC_CGI_MODES),
@@ -429,7 +431,7 @@ PROGRESS_POINTS = (
     ('make_end_matter_pdf', "Generate end matter pdf", ('book',)),
     ("concatenated_pdfs", "concatenate the pdfs", ('book',)),
     #("publish_pdf", "Publish the pdf", ('book', 'newspaper', 'web')),
-    ("finished", "Finished!", PUBLIC_CGI_MODES),
+    (FINISHED_MESSAGE, "Finished!", PUBLIC_CGI_MODES),
 )
 
 #XML namespace stuff

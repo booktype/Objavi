@@ -145,7 +145,7 @@ class Book(object):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.notify_watcher('finished')
+        self.notify_watcher(config.FINISHED_MESSAGE)
         self.cleanup()
         #could deal with exceptions here and return true
 
