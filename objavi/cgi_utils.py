@@ -122,6 +122,45 @@ def clean_args(arg_convertors):
             data[key] = val
     return data
 
+## common between different versions of objavi
+
+def get_server_list():
+    return sorted(k for k, v in config.SERVER_DEFAULTS.items() if v['display'])
+
+def get_size_list():
+    #order by increasing areal size.
+    def calc_size(name, pointsize, klass):
+        if pointsize:
+            mmx = pointsize[0] * config.POINT_2_MM
+            mmy = pointsize[1] * config.POINT_2_MM
+            return (mmx * mmy, name, klass,
+                    '%s (%dmm x %dmm)' % (name, mmx, mmy))
+
+        return (0, name, klass, name) # presumably 'custom'
+
+    return [x[1:] for x in sorted(calc_size(k, v.get('pointsize'), v.get('class', ''))
+                                  for k, v in config.PAGE_SIZE_DATA.iteritems())
+            ]
+
+def get_default_css(server=config.DEFAULT_SERVER, mode='book'):
+    """Get the default CSS text for the selected server"""
+    log(server)
+    cssfile = config.SERVER_DEFAULTS[server]['css-%s' % mode]
+    log(cssfile)
+    f = open(cssfile)
+    s = f.read()
+    f.close()
+    return s
+
+def font_links():
+    """Links to various example pdfs."""
+    links = []
+    for script in os.listdir(config.FONT_EXAMPLE_SCRIPT_DIR):
+        if not script.isalnum():
+            log("warning: font-sample %s won't work; skipping" % script)
+            continue
+        links.append('<a href="%s?script=%s">%s</a>' % (config.FONT_LIST_URL, script, script))
+    return links
 
 ## Helper functions for parse_args & clean_args
 
