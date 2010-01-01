@@ -1027,7 +1027,7 @@ def _read_cached_zip(server, book, max_age):
     cutoff = time.time() - max_age * 60
     log(repr(zipname))
     try:
-        date = time.mktime(time.strptime(zipname, prefix + '-%Y.%m.%d-%H.%M.%S.%N.zip'))
+        date = time.mktime(time.strptime(zipname, prefix + '-%Y.%m.%d-%H.%M.%S.zip'))
         if date > cutoff:
             f = open(zipname)
             blob = f.read()
