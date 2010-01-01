@@ -151,13 +151,13 @@ class Book(object):
 
 
     def __init__(self, book, server, bookname,
-                 page_settings=None, watcher=None, isbn=None,
+                 page_settings=None, watchers=None, isbn=None,
                  license=config.DEFAULT_LICENSE, title=None,
                  max_age=0):
         log("*** Starting new book %s ***" % bookname)
         self.watchers = set()
-        if watcher is not None:
-            self.watchers.add(watcher)
+        if watchers is not None:
+            self.watchers.update(watchers)
         self.notify_watcher('start')
         self.bookname = bookname
         self.book = book

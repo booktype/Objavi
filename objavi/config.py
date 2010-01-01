@@ -58,6 +58,9 @@ TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
 PUBLISH_URL = "/books/"
 
+POLL_NOTIFY_DIR = 'progress'
+POLL_NOTIFY_URL = 'http://%(HTTP_HOST)s/progress/%(bookname)s.txt'
+
 ZIP_URLS = {
     'TWiki':   'http://%(HTTP_HOST)s/booki-twiki-gateway.cgi?server=%(server)s&book=%(book)s&mode=zip',
     'Booki':   'http://%(server)s/export/%(book)s/export',
@@ -353,14 +356,35 @@ CGI_MODES = { # arguments are: (publication, extension)
 
 PUBLIC_CGI_MODES = tuple(k for k, v in CGI_MODES.items() if v[0])
 
+FORM_TEMPLATE = 'templates/form.html'
+PROGRESS_ASYNC_TEMPLATE = 'templates/progress-async.html'
+PROGRESS_TEMPLATE = 'templates/progress.html'
+ASYNC_TEMPLATE = 'templates/async.txt'
+
+
+
+CGI_METHODS = ('sync', 'async', 'poll')
+
 CGI_DESTINATIONS = {
-#PUBLISH_DESTINATIONS
-    'archive.org': None,
-    'download': None,
-    'html': None,
-    'nowhere': None,
+    'archive.org': {'sync': None,
+                    'async': ASYNC_TEMPLATE,
+                    'poll': None,
+                    'default': 'sync'},
+    'download': {'sync': None,
+                 'async': ASYNC_TEMPLATE,
+                 'poll': None,
+                 'default': 'sync'},
+    'html': {'sync': PROGRESS_TEMPLATE,
+             'async': ASYNC_TEMPLATE,
+             'default': 'sync',
+             'poll': PROGRESS_ASYNC_TEMPLATE},
+    'nowhere': {'sync': None,
+                'async': ASYNC_TEMPLATE,
+                'poll': None,
+                'default': 'sync'},
 }
-DEFAULT_PUBLISH_DESTINATION = 'html'
+
+DEFAULT_CGI_DESTINATION = 'html'
 
 
 FORM_INPUTS = (
