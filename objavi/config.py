@@ -339,16 +339,16 @@ LICENSES = {
 
 DEFAULT_LICENSE = 'GPLv2+'
 
-CGI_MODES = { # arguments are: (publication, )
-    'book': (True,),
-    'newspaper': (True,),
-    'web': (True,),
-    'openoffice': (True,),
-    'booklist': (False,),
-    'css': (False,),
-    'form': (False,),
-    'epub':(True,),
-    'bookizip':(True,),
+CGI_MODES = { # arguments are: (publication, extension)
+    'book': (True, '.pdf'),
+    'newspaper': (True, '.pdf'),
+    'web': (True, '.pdf'),
+    'openoffice': (True, '.odt'),
+    'booklist': (False, None),
+    'css': (False, None),
+    'form': (False, None),
+    'epub':(True, '.epub'),
+    'bookizip':(True, '.zip'),
 }
 
 PUBLIC_CGI_MODES = tuple(k for k, v in CGI_MODES.items() if v[0])
