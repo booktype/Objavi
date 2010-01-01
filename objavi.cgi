@@ -59,7 +59,7 @@ ARG_VALIDATORS = {
     "pdftype": lambda x: config.CGI_MODES.get(x, [False])[0],
     "rotate": u"yes".__eq__,
     "grey_scale": u"yes".__eq__,
-    "destination": config.PUBLISH_DESTINATIONS.__contains__,
+    "destination": config.CGI_DESTINATIONS.__contains__,
     "toc_header": is_utf8,
     "max-age": isfloat,
 }
@@ -294,7 +294,7 @@ def mode_book(args):
     server = args.get('server', config.DEFAULT_SERVER)
     page_settings = get_page_settings(args)
     bookname = make_book_name(bookid, server)
-    destination = args.get('destination', config.DEFAULT_PUBLISH_DESTINATION)
+    destination = args.get('destination', config.DEFAULT_CGI_DESTINATION)
     progress_bar = make_progress_page(bookid, bookname, mode, destination)
 
     with Book(bookid, server, bookname, page_settings=page_settings,
@@ -331,7 +331,7 @@ def mode_openoffice(args):
     bookid = args.get('book')
     server = args.get('server', config.DEFAULT_SERVER)
     bookname = make_book_name(bookid, server, '.odt')
-    destination = args.get('destination', config.DEFAULT_PUBLISH_DESTINATION)
+    destination = args.get('destination', config.DEFAULT_CGI_DESTINATION)
     progress_bar = make_progress_page(bookid, bookname, 'openoffice', destination)
 
     with Book(bookid, server, bookname,
@@ -353,7 +353,7 @@ def mode_epub(args):
     bookid = args.get('book')
     server = args.get('server', config.DEFAULT_SERVER)
     bookname = make_book_name(bookid, server, '.epub')
-    destination = args.get('destination', config.DEFAULT_PUBLISH_DESTINATION)
+    destination = args.get('destination', config.DEFAULT_CGI_DESTINATION)
     progress_bar = make_progress_page(bookid, bookname, 'epub', destination)
 
     with Book(bookid, server, bookname=bookname,
@@ -370,7 +370,7 @@ def mode_bookizip(args):
     server = args.get('server', config.DEFAULT_SERVER)
     bookname = make_book_name(bookid, server, '.zip')
 
-    destination = args.get('destination', config.DEFAULT_PUBLISH_DESTINATION)
+    destination = args.get('destination', config.DEFAULT_CGI_DESTINATION)
     progress_bar = make_progress_page(bookid, bookname, 'bookizip', destination)
 
     with Book(bookid, server, bookname=bookname,

@@ -353,8 +353,8 @@ CGI_MODES = { # arguments are: (publication, )
 
 PUBLIC_CGI_MODES = tuple(k for k, v in CGI_MODES.items() if v[0])
 
+CGI_DESTINATIONS = {
 #PUBLISH_DESTINATIONS
-PUBLISH_DESTINATIONS = {
     'archive.org': None,
     'download': None,
     'html': None,
