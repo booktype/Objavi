@@ -42,6 +42,17 @@ def convert_tags(root, elmap):
             el.tag = elmap[el.tag]
 
 
+def url_to_filename(url, prefix=''):
+    #XXX for TWIKI only
+    #XXX slightly inefficient to do urlsplit so many times, but versatile
+    fragments = urlsplit(url)
+    base, ext = fragments.path.rsplit('.', 1)
+    server = fragments.netloc.split('.', 1)[0] #en, fr, translate
+    base = base.split('/pub/', 1)[1] #remove /floss/pub/ or /pub/
+    base = re.sub(r'[^\w]+', '-',  '%s-%s' %(base, server))
+    return '%s%s.%s' % (prefix, base, ext)
+
+
 class ImageCache(object):
     def __init__(self, cache_dir=IMG_CACHE, prefix=IMG_PREFIX):
         self._fetched = {}

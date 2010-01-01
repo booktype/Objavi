@@ -6,6 +6,7 @@ import tempfile
 from objavi import config
 from objavi.cgi_utils import log, guess_lang, guess_text_dir, make_book_name
 from urllib2 import urlopen
+from urlparse import urlparse, urlsplit, urljoin
 from booki.bookizip import add_metadata, BookiZip
 
 from objavi.xhtml_utils import BaseChapter, ImageCache
@@ -328,14 +329,6 @@ class TWikiBook(object):
             log('Apparently run out of chapters on title %s!' % title)
 
 
-def url_to_filename(url, prefix=''):
-    #XXX slightly inefficient to do urlsplit so many times, but versatile
-    fragments = urlsplit(url)
-    base, ext = fragments.path.rsplit('.', 1)
-    server = fragments.netloc.split('.', 1)[0] #en, fr, translate
-    base = base.split('/pub/', 1)[1] #remove /floss/pub/ or /pub/
-    base = re.sub(r'[^\w]+', '-',  '%s-%s' %(base, server))
-    return '%s%s.%s' % (prefix, base, ext)
 
 
 class TWikiChapter(BaseChapter):
