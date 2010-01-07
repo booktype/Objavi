@@ -20,6 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from objavi import config
+from objavi.cgi_utils import log
 import tempfile, os, re, sys
 import cgi
 import hashlib
@@ -50,7 +51,8 @@ def font_pdf(html, pdfname):
            htmlname, pdfname]
 
     p = Popen(cmd, stdout=PIPE, stderr=PIPE)
-    print >>sys.stderr, p.communicate()
+    r = p.communicate()
+    log(r)
 
 def html_font_list(fonts, name):
     f = open(name, 'w')

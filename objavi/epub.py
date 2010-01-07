@@ -14,6 +14,7 @@ import lxml, lxml.html, lxml.cssselect
 from lxml import etree
 
 from objavi.xhtml_utils import split_tree
+from objavi.cgi_utils import log
 from objavi.config import DC, XHTML, XHTMLNS, FM, MARKER_CLASS_INFO, MARKER_CLASS_SPLIT
 from booki.bookizip import BookiZip
 
@@ -27,13 +28,6 @@ MARKUP_TYPES = ('application/xhtml+xml', 'text/html', "application/x-dtbncx+xml"
 HTML_TYPES = ('application/xhtml+xml', 'text/html')
 
 ADD_INFO_MARKERS = False
-
-def log(*messages, **kwargs):
-    for m in messages:
-        try:
-            print >> sys.stderr, m
-        except Exception:
-            print >> sys.stderr, repr(m)
 
 
 html_parser = lxml.html.HTMLParser(encoding="utf-8")
