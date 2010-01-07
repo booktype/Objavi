@@ -1,5 +1,3 @@
-Content-type: text/html; charset=utf-8
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
         "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -47,15 +45,19 @@ with this program; if not, write to the Free Software Foundation, Inc.,
       </p>
 
     </div>
-
     <script src="/static/jquery.js" type="text/javascript"></script>
     <script src="/static/progress.js" type="text/javascript"></script>
+    <script src="/static/poll.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      var objavi_poller = objavi_poller("/progress/%(bookname)s.txt");
 
-<!--
-    After this comes a series of update script tags, as the server
-    does stuff.
-    The script eventually adds </body></html> for good form.
--->
+      function stupid_firefox_is_stupid(){
+        window.setTimeout(objavi_poller, 300, '');
+      }
+
+      //window.onload = stupid_firefox_is_stupid();
+      $(stupid_firefox_is_stupid);
+    </script>
   </body>
 </html>
 

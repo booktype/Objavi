@@ -1,0 +1,2 @@
+%(bookurl)s
+%(details_url)s
