@@ -27,6 +27,47 @@ from objavi import config
 
 #general, non-cgi functions
 
+
+def init_log():
+    """Try to redirect stderr to the log file.  If it doesn't work,
+    leave stderr as it is."""
+    if config.REDIRECT_LOG:
+        logfile = os.path.join(config.LOGDIR, 'objavi.log')
+        try:
+            size = os.stat(logfile).st_size
+            if size > config.LOG_ROTATE_SIZE:
+                oldlog = os.path.join(config.LOGDIR, time.strftime('objavi-%Y-%m-%d+%H-%M-%S.log'))
+                f = open(logfile, 'a')
+                print >> f, "CLOSING LOG at size %s, renaming to %s" % (size, oldlog)
+                f.close()
+                os.rename(logfile, oldlog)
+        except OSError, e:
+            log(e) # goes to original stderr
+        try:
+            f = open(logfile, 'a')
+            sys.stderr.flush()
+            os.dup2(f.fileno(), sys.stderr.fileno())
+            # reassign the object as well as dup()ing, in case it closes down out of scope.
+            sys.stderr = f
+        except (IOError, OSError), e:
+            log(e)
+            return
+
+
+
+def log(*messages, **kwargs):
+    """Send the messages to the appropriate place (stderr, or syslog).
+    If a <debug> keyword is specified, the message is only printed if
+    its value is in the global DEBUG_MODES."""
+    if 'debug' not in kwargs or config.DEBUG_ALL or kwargs['debug'] in config.DEBUG_MODES:
+        for m in messages:
+            try:
+                print >> sys.stderr, m
+            except Exception:
+                print >> sys.stderr, repr(m)
+        sys.stderr.flush()
+
+
 def make_book_name(book, server, suffix='.pdf', timestamp=None):
     lang = config.SERVER_DEFAULTS.get(server, config.SERVER_DEFAULTS[config.DEFAULT_SERVER])['lang']
     book = ''.join(x for x in book if x.isalnum())
@@ -69,17 +110,6 @@ def run(cmd):
         raise
     log("%s\n%s returned %s and produced\nstdout:%s\nstderr:%s" %
         (' '.join(cmd), cmd[0], p.poll(), out, err))
-
-def log(*messages, **kwargs):
-    """Send the messages to the appropriate place (stderr, or syslog).
-    If a <debug> keyword is specified, the message is only printed if
-    its value ias in the global DEBUG_MODES."""
-    if 'debug' not in kwargs or config.DEBUG_ALL or kwargs['debug'] in config.DEBUG_MODES:
-        for m in messages:
-            try:
-                print >> sys.stderr, m
-            except Exception:
-                print >> sys.stderr, repr(m)
 
 
 def parse_args(arg_validators):

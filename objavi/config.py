@@ -31,6 +31,10 @@ INCH_2_POINT = 72
 KEEP_TEMP_FILES=True
 TMPDIR = 'tmp'
 
+LOGDIR = '/var/local/objavi/log'
+REDIRECT_LOG = True
+LOG_ROTATE_SIZE = 1000000
+
 EPUB_DIR = 'books'
 BOOKI_BOOK_DIR = 'booki-books'
 
