@@ -3,7 +3,7 @@ body
 {
     margin:0;
     padding:0;
-    background-image: url("http://www.flossmanuals.net/pub/TWiki/FlossSkin2/background.gif");
+    background-image: url("/static/background-2.png");
     color: black;
 }
 
