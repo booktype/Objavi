@@ -26,12 +26,12 @@ import re, time
 import traceback
 from pprint import pformat
 
-from objavi.fmbook import log, Book, make_book_name, HTTP_HOST
+from objavi.fmbook import log, Book, make_book_name, HTTP_HOST, find_archive_urls
 from objavi import config
 from objavi.cgi_utils import parse_args, optionise, listify, shift_file, get_server_list
 from objavi.cgi_utils import output_blob_and_exit, is_utf8, isfloat, isfloat_or_auto, is_isbn
+from objavi.cgi_utils import output_blob_and_shut_up
 from objavi.cgi_utils import get_size_list, get_default_css, font_links, is_url, init_log
-from objavi.cgi_utils import get_size_list, get_default_css, font_links, is_url
 
 from objavi.twiki_wrapper import get_book_list
 
@@ -192,13 +192,20 @@ def mode_form(args):
 
 
 class Context(object):
-    """Tell the user/caller what is going on.
+    """Work out what to show the caller.  The method/destination matrix:
 
-    Fork.  In parent, if destination is 'html', print an html page,
-    otherwise print an id and progress url.
+    [dest/method]   sync        async       poll
+    archive.org     url         id          id
+    download        data        .           .
+    html            html 1      .           html 2
+    nowhere         url         id          id
 
-    In child, return a function that will approriately notify the
-    caller, and various bits of information extracted from the args."""
+    'html 1' is dripfed progress reports; 'html 2' polls via
+    javascript.  'id' is the book filename.  'url' is a full url
+    locating the file on archive.org or the objavi server.  '.'  means
+    unimplemented.
+    """
+
     pollfile = None
     def __init__(self, args):
         self.bookid = args.get('book')
@@ -209,41 +216,59 @@ class Context(object):
         self.destination = args.get('destination', config.DEFAULT_CGI_DESTINATION)
         self.callback = args.get('callback', None)
         self.method = args.get('method', config.CGI_DESTINATIONS[self.destination]['default'])
+        self.template, self.mimetype = config.CGI_DESTINATIONS[self.destination][self.method]
+        if HTTP_HOST:
+            self.bookurl = "http://%s/books/%s" % (HTTP_HOST, self.bookname,)
+        else:
+            self.bookurl = "books/%s" % (self.bookname,)
 
+        self.details_url, self.s3url = find_archive_urls(self.bookid, self.bookname)
         self.start()
 
     def start(self):
-        template = config.CGI_DESTINATIONS[self.destination][self.method]
-        log(template, self.destination, self.method)
-        if template is not None:
-            f = open(template)
-            template = f.read()
-            f.close()
+        """Begin (and in many cases, finish) http output.
+
+        In asynchronous modes, fork and close down stdout.
+        """
+        log(self.template, self.mimetype, self.destination, self.method)
+        if self.template is not None:
             progress_list = ''.join('<li id="%s">%s</li>\n' % x[:2] for x in config.PROGRESS_POINTS
                                     if self.mode in x[2])
             d = {
                 'book': self.bookid,
                 'bookname': self.bookname,
                 'progress_list': progress_list,
+                'details_url': self.details_url,
+                's3url': self.s3url,
+                'bookurl': self.bookurl,
                 }
-            print template % d
+            f = open(self.template)
+            content = f.read() % d
+            f.close()
+        else:
+            content = ''
 
-        if self.method != 'sync':
+        if self.method == 'sync':
+            print 'Content-type: %s\n\n%s' %(self.mimetype, content)
+        else:
+            output_blob_and_shut_up(content, self.mimetype)
+            log(sys.stdout, sys.stderr, sys.stdin)
+            if os.fork():
+                os._exit(0)
             sys.stdout.close()
             sys.stdin.close()
-            sys.stdout = sys.stderr
-            pid = os.fork()
-            if pid:
-                log('Parent exiting! Goodbye!')
-                os._exit(0)
-            pid = os.fork()
-            if pid:
-                log('middle generation exiting! Goodbye!')
-                os._exit(0)
+            log(sys.stdout, sys.stderr, sys.stdin)
+
 
     def finish(self, book):
         """Print any final http content."""
         if self.destination == 'archive.org':
+            book.publish_s3()
+        elif self.destination == 'download' and self.method == 'sync':
+            f = open(book.publish_file)
+            data = f.read()
+            f.close()
+            output_blob_and_exit(data, config.CGI_MODES[self.mode][2], self.bookname)
 
 
     def log_notifier(self, message):
@@ -292,13 +317,13 @@ class Context(object):
 
     def pollee_notifier(self, message):
         """Append the message to a file that the remote server can poll"""
-        if self.pollfile is None:
-            self.pollfile = open(os.path.join(config.POLL_NOTIFY_DIR,
-                                              self.bookname), 'w')
+        if self.pollfile is None or self.pollfile.closed:
+            self.pollfile = open(config.POLL_NOTIFY_PATH % self.bookname, 'a')
         self.pollfile.write('%s\n' % message)
         self.pollfile.flush()
-        if message == config.FINISHED_MESSAGE:
-            self.pollfile.close()
+        #self.pollfile.close()
+        #if message == config.FINISHED_MESSAGE:
+        #    self.pollfile.close()
 
     def get_watchers(self):
         """Based on the CGI arguments, return a likely set of notifier

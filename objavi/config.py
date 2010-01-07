@@ -62,7 +62,7 @@ TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
 PUBLISH_URL = "/books/"
 
-POLL_NOTIFY_DIR = 'progress'
+POLL_NOTIFY_PATH = 'progress/%s.txt'
 POLL_NOTIFY_URL = 'http://%(HTTP_HOST)s/progress/%(bookname)s.txt'
 
 ZIP_URLS = {
