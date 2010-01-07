@@ -30,6 +30,7 @@ from objavi.fmbook import log, Book, make_book_name, HTTP_HOST
 from objavi import config
 from objavi.cgi_utils import parse_args, optionise, listify, shift_file, get_server_list
 from objavi.cgi_utils import output_blob_and_exit, is_utf8, isfloat, isfloat_or_auto, is_isbn
+from objavi.cgi_utils import get_size_list, get_default_css, font_links, is_url, init_log
 from objavi.cgi_utils import get_size_list, get_default_css, font_links, is_url
 
 from objavi.twiki_wrapper import get_book_list
@@ -412,5 +413,6 @@ if __name__ == '__main__':
     if config.CGITB_DOMAINS and os.environ.get('REMOTE_ADDR') in config.CGITB_DOMAINS:
         import cgitb
         cgitb.enable()
+    init_log()
     main()
 
