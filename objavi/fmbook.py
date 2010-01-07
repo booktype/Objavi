@@ -54,6 +54,10 @@ DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
 HTTP_HOST = os.environ.get('HTTP_HOST', '')
 PUBLISH_PATH = "%s/books/" % DOC_ROOT
 
+def find_archive_urls(bookid, bookname):
+    s3url = 'http://s3.us.archive.org/booki-%s/%s' % (bookid, bookname)
+    detailsurl = 'http://archive.org/details/booki-%s' % (bookid,)
+    return (s3url, detailsurl)
 
 def _get_best_title(tocpoint):
     if 'html_title' in tocpoint:
@@ -858,8 +862,7 @@ class Book(object):
         log(secrets)
         now = time.strftime('%F')
         s3output = self.filepath('s3-output.txt')
-        s3url = 'http://s3.us.archive.org/booki-%s/%s' % (self.book, self.bookname)
-        detailsurl = 'http://archive.org/details/booki-%s' % (self.book,)
+        s3url, detailsurl = find_archive_urls(self.book, self.bookname)
         headers = [
             'x-amz-auto-make-bucket:1',
             "authorization: LOW %(S3_ACCESSKEY)s:%(S3_SECRET)s" % secrets,
