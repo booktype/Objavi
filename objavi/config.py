@@ -346,16 +346,16 @@ LICENSES = {
 
 DEFAULT_LICENSE = 'GPLv2+'
 
-CGI_MODES = { # arguments are: (publication, extension)
-    'book': (True, '.pdf'),
-    'newspaper': (True, '.pdf'),
-    'web': (True, '.pdf'),
-    'openoffice': (True, '.odt'),
-    'booklist': (False, None),
-    'css': (False, None),
-    'form': (False, None),
-    'epub':(True, '.epub'),
-    'bookizip':(True, '.zip'),
+CGI_MODES = { # arguments are: (publication, extension, mimetype)
+    'book': (True, '.pdf', "application/pdf"),
+    'newspaper': (True, '.pdf', "application/pdf"),
+    'web': (True, '.pdf', "application/pdf"),
+    'openoffice': (True, '.odt', "application/vnd.oasis.opendocument.text"),
+    'booklist': (False, None, None),
+    'css': (False, None, None),
+    'form': (False, None, None),
+    'epub':(True, '.epub', "application/epub+zip"),
+    'bookizip':(True, '.zip', BOOKIZIP_MIMETYPE),
 }
 
 PUBLIC_CGI_MODES = tuple(k for k, v in CGI_MODES.items() if v[0])
@@ -370,22 +370,26 @@ NOWHERE_TEMPLATE = 'templates/nowhere.txt'
 CGI_METHODS = ('sync', 'async', 'poll')
 
 CGI_DESTINATIONS = {
-    'archive.org': {'sync': None,
-                    'async': ASYNC_TEMPLATE,
-                    'poll': None,
-                    'default': 'sync'},
-    'download': {'sync': None,
-                 'async': ASYNC_TEMPLATE,
-                 'poll': None,
-                 'default': 'sync'},
-    'html': {'sync': PROGRESS_TEMPLATE,
-             'async': ASYNC_TEMPLATE,
+    'archive.org': {'sync': (ARCHIVE_TEMPLATE, 'text/plain; charset=utf-8'),
+                    'async': (ARCHIVE_TEMPLATE, 'text/plain; charset=utf-8'),
+                    'poll': (None, None),
+                    'default': 'sync',
+                    },
+    'download': {'sync': (None, None),
+                 'async': (ASYNC_TEMPLATE, 'text/plain; charset=utf-8'),
+                 'poll': (None, None),
+                 'default': 'sync',
+                 },
+    'html': {'sync': (PROGRESS_TEMPLATE, 'text/html; charset=utf-8'),
+             'async': (ASYNC_TEMPLATE, 'text/plain; charset=utf-8'),
+             'poll': (PROGRESS_ASYNC_TEMPLATE, 'text/html; charset=utf-8'),
              'default': 'sync',
-             'poll': PROGRESS_ASYNC_TEMPLATE},
-    'nowhere': {'sync': None,
-                'async': ASYNC_TEMPLATE,
-                'poll': None,
-                'default': 'sync'},
+             },
+    'nowhere': {'sync': (NOWHERE_TEMPLATE, 'text/plain; charset=utf-8'),
+                'async': (NOWHERE_TEMPLATE, 'text/plain; charset=utf-8'),
+                'poll': (ASYNC_TEMPLATE, 'text/plain; charset=utf-8'),
+                'default': 'sync',
+                },
 }
 
 DEFAULT_CGI_DESTINATION = 'html'
