@@ -364,8 +364,8 @@ FORM_TEMPLATE = 'templates/form.html'
 PROGRESS_ASYNC_TEMPLATE = 'templates/progress-async.html'
 PROGRESS_TEMPLATE = 'templates/progress.html'
 ASYNC_TEMPLATE = 'templates/async.txt'
-
-
+ARCHIVE_TEMPLATE = 'templates/archive.txt'
+NOWHERE_TEMPLATE = 'templates/nowhere.txt'
 
 CGI_METHODS = ('sync', 'async', 'poll')
 

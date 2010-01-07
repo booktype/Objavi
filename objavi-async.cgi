@@ -187,23 +187,6 @@ def mode_form(args):
     print template % {'form': ''.join(form)}
 
 
-def output_multi(book, mimetype, destination):
-    if destination == 'download':
-        f = open(book.publish_file)
-        data = f.read()
-        f.close()
-        output_blob_and_exit(data, mimetype, book.bookname)
-    else:
-        if HTTP_HOST:
-            bookurl = "http://%s/books/%s" % (HTTP_HOST, book.bookname,)
-        else:
-            bookurl = "books/%s" % (book.bookname,)
-
-        if destination == 'archive.org':
-            details_url, s3url = book.publish_s3()
-            output_blob_and_exit("%s\n%s" % (bookurl, details_url), 'text/plain')
-        elif destination == 'nowhere':
-            output_blob_and_exit(bookurl, 'text/plain')
 
 
 class Context(object):
@@ -256,6 +239,9 @@ class Context(object):
                 log('middle generation exiting! Goodbye!')
                 os._exit(0)
 
+    def finish(self, book):
+        """Print any final http content."""
+        if self.destination == 'archive.org':
 
 
     def log_notifier(self, message):
@@ -358,7 +344,7 @@ def mode_book(args):
             book.rotate180()
 
         book.publish_pdf()
-        output_multi(book, "application/pdf", context.destination)
+        context.finish(book)
 
 #These ones are similar enough to be handled by the one function
 mode_newspaper = mode_book
@@ -379,8 +365,7 @@ def mode_openoffice(args):
         book.add_css(args.get('css'), 'openoffice')
         book.add_section_titles()
         book.make_oo_doc()
-        output_multi(book, "application/vnd.oasis.opendocument.text", context.destination)
-
+        context.finish(book)
 
 def mode_epub(args):
     log('making epub with\n%s' % pformat(args))
@@ -392,7 +377,7 @@ def mode_epub(args):
               max_age=float(args.get('max-age', -1))) as book:
 
         book.make_epub(use_cache=config.USE_CACHED_IMAGES)
-        output_multi(book, "application/epub+zip", context.destination)
+        context.finish(book)
 
 
 def mode_bookizip(args):
@@ -403,7 +388,7 @@ def mode_bookizip(args):
               watchers=context.get_watchers(), title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
         book.publish_bookizip()
-        output_multi(book, config.BOOKIZIP_MIMETYPE, context.destination)
+        context.finish(book)
 
 
 def main():
