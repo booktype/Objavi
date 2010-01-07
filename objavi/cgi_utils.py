@@ -295,7 +295,17 @@ def output_blob_and_exit(blob, content_type="application/octet-stream", filename
     print blob
     sys.exit()
 
-
+def output_blob_and_shut_up(blob, content_type="application/octet-stream", filename=None):
+    print 'Content-type: %s\nContent-length: %s' % (content_type, len(blob))
+    if filename is not None:
+        print 'Content-Disposition: attachment; filename="%s"' % filename
+    print
+    print blob
+    sys.stdout.flush()
+    devnull = open('/dev/null', 'w')
+    os.dup2(devnull.fileno(), sys.stdout.fileno())
+    log(sys.stdout)
+    #sys.stdout.close()
 
 
 ##Decorator functions for output
