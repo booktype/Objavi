@@ -26,8 +26,8 @@ from urllib import unquote
 import traceback
 
 from objavi import epub
-from objavi.cgi_utils import shift_file, parse_args, optionise, print_template
-from objavi.cgi_utils import output_blob_and_exit, log, is_name, is_url
+from objavi.book_utils import log
+from objavi.cgi_utils import output_blob_and_exit, is_name, is_url, parse_args, print_template
 from objavi import config
 
 IA_EPUB_URL = "http://www.archive.org/download/%s/%s.epub"

@@ -22,94 +22,8 @@ import time
 from getopt import gnu_getopt
 from subprocess import Popen, PIPE
 
-#from objavi.fmbook import log
+from objavi.book_utils import log
 from objavi import config
-
-#general, non-cgi functions
-
-
-def init_log():
-    """Try to redirect stderr to the log file.  If it doesn't work,
-    leave stderr as it is."""
-    if config.REDIRECT_LOG:
-        logfile = os.path.join(config.LOGDIR, 'objavi.log')
-        try:
-            size = os.stat(logfile).st_size
-            if size > config.LOG_ROTATE_SIZE:
-                oldlog = os.path.join(config.LOGDIR, time.strftime('objavi-%Y-%m-%d+%H-%M-%S.log'))
-                f = open(logfile, 'a')
-                print >> f, "CLOSING LOG at size %s, renaming to %s" % (size, oldlog)
-                f.close()
-                os.rename(logfile, oldlog)
-        except OSError, e:
-            log(e) # goes to original stderr
-        try:
-            f = open(logfile, 'a')
-            sys.stderr.flush()
-            os.dup2(f.fileno(), sys.stderr.fileno())
-            # reassign the object as well as dup()ing, in case it closes down out of scope.
-            sys.stderr = f
-        except (IOError, OSError), e:
-            log(e)
-            return
-
-
-
-def log(*messages, **kwargs):
-    """Send the messages to the appropriate place (stderr, or syslog).
-    If a <debug> keyword is specified, the message is only printed if
-    its value is in the global DEBUG_MODES."""
-    if 'debug' not in kwargs or config.DEBUG_ALL or kwargs['debug'] in config.DEBUG_MODES:
-        for m in messages:
-            try:
-                print >> sys.stderr, m
-            except Exception:
-                print >> sys.stderr, repr(m)
-        sys.stderr.flush()
-
-
-def make_book_name(book, server, suffix='.pdf', timestamp=None):
-    lang = config.SERVER_DEFAULTS.get(server, config.SERVER_DEFAULTS[config.DEFAULT_SERVER])['lang']
-    book = ''.join(x for x in book if x.isalnum())
-    if timestamp is None:
-        timestamp = time.strftime('%Y.%m.%d-%H.%M.%S')
-    return '%s-%s-%s%s' % (book, lang,
-                           timestamp,
-                           suffix)
-
-def guess_lang(server, book):
-    lang = config.SERVER_DEFAULTS[server].get('lang')
-    if lang is None and '_' in book:
-            lang = book[book.rindex('_') + 1:]
-    return lang
-
-def guess_text_dir(server, book):
-    try:
-        dir = config.SERVER_DEFAULTS[server]['dir']
-    except KeyError:
-        dir = None
-    if dir not in ('LTR', 'RTL'):
-        log("server %s, book %s: no specified dir (%s)" %(server, book, dir))
-        if '_' in book:
-            lang = book[book.rindex('_') + 1:]
-            dir = config.LANGUAGE_DIR.get(lang, 'LTR')
-        elif '.' in server:
-            lang = server[:server.index('.')]
-            dir = config.LANGUAGE_DIR.get(lang, 'LTR')
-        else:
-            dir = 'LTR'
-    log("server %s, book %s: found dir %s" %(server, book, dir))
-    return dir
-
-def run(cmd):
-    try:
-        p = Popen(cmd, stdout=PIPE, stderr=PIPE)
-        out, err = p.communicate()
-    except Exception:
-        log("Failed on command: %r" % cmd)
-        raise
-    log("%s\n%s returned %s and produced\nstdout:%s\nstderr:%s" %
-        (' '.join(cmd), cmd[0], p.poll(), out, err))
 
 
 def parse_args(arg_validators):
@@ -277,15 +191,7 @@ def listify(items):
     or <ol> element."""
     return '\n'.join('<li>%s</li>' % x for x in items)
 
-
-def shift_file(fn, dir, backup='~'):
-    """Shift a file and save backup (only works on same filesystem)"""
-    base = os.path.basename(fn)
-    dest = os.path.join(dir, base)
-    if backup and os.path.exists(dest):
-        os.rename(dest, dest + backup)
-    os.rename(fn, dest)
-    return dest
+#output functions
 
 def output_blob_and_exit(blob, content_type="application/octet-stream", filename=None):
     print 'Content-type: %s\nContent-length: %s' % (content_type, len(blob))
@@ -307,9 +213,7 @@ def output_blob_and_shut_up(blob, content_type="application/octet-stream", filen
     log(sys.stdout)
     #sys.stdout.close()
 
-
 ##Decorator functions for output
-
 def output_and_exit(f, content_type="text/html; charset=utf-8"):
     """Decorator: prefix function output with http headers and exit
     immediately after."""

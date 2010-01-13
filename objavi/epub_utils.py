@@ -9,7 +9,7 @@ from cStringIO import StringIO
 import lxml, lxml.html, lxml.cssselect
 from lxml import etree
 
-from objavi.cgi_utils import log
+from objavi.book_utils import log
 from objavi.config import DC, XHTML, XHTMLNS, NAVPOINT_ID_TEMPLATE
 
 from booki.bookizip import get_metadata, get_metadata_schemes

@@ -20,7 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 from objavi import config
-from objavi.cgi_utils import log
+from objavi.book_utils import log
 import tempfile, os, re, sys
 import cgi
 import hashlib

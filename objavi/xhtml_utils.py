@@ -12,7 +12,7 @@ from urlparse import urlparse, urlsplit, urljoin
 from urllib2 import urlopen, HTTPError
 
 from config import XHTMLNS, XHTML, IMG_CACHE, MARKER_CLASS_SPLIT
-from cgi_utils import log
+from book_utils import log
 
 ADJUST_HEADING_WEIGHT = False
 

@@ -14,7 +14,7 @@ import lxml, lxml.html, lxml.cssselect
 from lxml import etree
 
 from objavi.xhtml_utils import split_tree
-from objavi.cgi_utils import log
+from objavi.book_utils import log
 from objavi.config import DC, XHTML, XHTMLNS, FM, MARKER_CLASS_INFO, MARKER_CLASS_SPLIT
 from booki.bookizip import BookiZip
 

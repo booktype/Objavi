@@ -41,7 +41,7 @@ import lxml, lxml.html
 from lxml import etree
 
 from objavi import config, epub_utils
-from objavi.cgi_utils import log, run, shift_file, make_book_name, guess_lang, guess_text_dir
+from objavi.book_utils import log, run, shift_file, make_book_name, guess_lang, guess_text_dir
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline
 from objavi.epub import add_guts, _find_tag
 from objavi.xhtml_utils import EpubChapter, split_tree

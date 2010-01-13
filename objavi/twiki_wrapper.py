@@ -4,7 +4,7 @@ import os, sys, time, re
 import tempfile
 
 from objavi import config
-from objavi.cgi_utils import log, guess_lang, guess_text_dir, make_book_name
+from objavi.book_utils import log, guess_lang, guess_text_dir, make_book_name
 from urllib2 import urlopen
 from urlparse import urlparse, urlsplit, urljoin
 from booki.bookizip import add_metadata, BookiZip

@@ -27,7 +27,7 @@ from pprint import pformat
 
 from objavi.fmbook import log, Book, make_book_name, HTTP_HOST
 from objavi import config
-from objavi.cgi_utils import parse_args, optionise, listify, shift_file
+from objavi.cgi_utils import parse_args, optionise, listify
 from objavi.cgi_utils import output_blob_and_exit, is_utf8, isfloat, isfloat_or_auto, is_isbn
 from objavi.twiki_wrapper import get_book_list
 

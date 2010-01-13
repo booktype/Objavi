@@ -24,7 +24,7 @@ import re
 from subprocess import Popen, PIPE
 
 from objavi import config
-from objavi.cgi_utils import log, run
+from objavi.book_utils import log, run
 
 
 def find_containing_paper(w, h):

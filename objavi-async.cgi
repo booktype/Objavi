@@ -26,14 +26,14 @@ import re, time
 import traceback
 from pprint import pformat
 
-from objavi.fmbook import log, Book, make_book_name, HTTP_HOST, find_archive_urls
+from objavi.fmbook import Book, HTTP_HOST, find_archive_urls
 from objavi import config
-from objavi.cgi_utils import parse_args, optionise, listify, shift_file, get_server_list
-from objavi.cgi_utils import output_blob_and_exit, is_utf8, isfloat, isfloat_or_auto, is_isbn
-from objavi.cgi_utils import output_blob_and_shut_up
-from objavi.cgi_utils import get_size_list, get_default_css, font_links, is_url, init_log
-
-from objavi.twiki_wrapper import get_book_list
+from objavi import twiki_wrapper
+from objavi.book_utils import init_log, log, make_book_name
+from objavi.cgi_utils import parse_args, optionise, listify, get_server_list
+from objavi.cgi_utils import is_utf8, isfloat, isfloat_or_auto, is_isbn, is_url
+from objavi.cgi_utils import output_blob_and_exit, output_blob_and_shut_up
+from objavi.cgi_utils import get_size_list, get_default_css, font_links
 
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and

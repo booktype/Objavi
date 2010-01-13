@@ -24,7 +24,8 @@ import re, traceback
 from pprint import pformat
 
 from objavi.twiki_wrapper import TWikiBook, get_book_list
-from objavi.cgi_utils import parse_args, optionise, shift_file, output_blob_and_exit, log, make_book_name
+from objavi.cgi_utils import parse_args, optionise, output_blob_and_exit
+from objavi.book_utils import shift_file, log
 from objavi import config
 
 
