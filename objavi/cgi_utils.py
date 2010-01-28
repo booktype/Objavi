@@ -18,7 +18,6 @@
 
 import os, sys
 import cgi, re
-import time
 from getopt import gnu_getopt
 from subprocess import Popen, PIPE
 
@@ -214,12 +213,15 @@ def output_blob_and_shut_up(blob, content_type="application/octet-stream", filen
     #sys.stdout.close()
 
 ##Decorator functions for output
-def output_and_exit(f, content_type="text/html; charset=utf-8"):
+
+def output_and_exit(f, content_type="text/html"):
     """Decorator: prefix function output with http headers and exit
     immediately after."""
-    def output(*args):
-        print "Content-type: %s\n" % (content_type,)
-        f(*args)
+    def output(args):
+        print "Content-type: text/html; charset=utf-8"
+        content = f(args)
+        print "Content-length: %s" % len(content)
+        print content
         sys.exit()
     return output
 
@@ -228,5 +230,5 @@ def print_template(template, mapping):
     f = open(template)
     string = f.read()
     f.close()
-    print string % mapping
+    return string % mapping
 

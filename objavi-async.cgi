@@ -32,7 +32,7 @@ from objavi import twiki_wrapper
 from objavi.book_utils import init_log, log, make_book_name
 from objavi.cgi_utils import parse_args, optionise, listify, get_server_list
 from objavi.cgi_utils import is_utf8, isfloat, isfloat_or_auto, is_isbn, is_url
-from objavi.cgi_utils import output_blob_and_exit, output_blob_and_shut_up
+from objavi.cgi_utils import output_blob_and_exit, output_blob_and_shut_up, output_and_exit
 from objavi.cgi_utils import get_size_list, get_default_css, font_links
 
 
@@ -121,22 +121,10 @@ def get_page_settings(args):
     settings['engine'] = args.get('engine', config.DEFAULT_ENGINE)
     return settings
 
-
-def output_and_exit(f, content_type="text/html"):
-    """Decorator: prefix function output with http headers and exit
-    immediately after."""
-    def output(args):
-        print "Content-type: text/html; charset=utf-8"
-        content = f(args)
-        print "Content-length: %s" % len(content)
-        print content
-        sys.exit()
-    return output
-
-
 @output_and_exit
 def mode_booklist(args):
-    return optionise(get_book_list(args.get('server', config.DEFAULT_SERVER)),
+    #XXX need to include booki servers
+    return optionise(twiki_wrapper.get_book_list(args.get('server', config.DEFAULT_SERVER)),
                      default=args.get('book'))
 
 @output_and_exit

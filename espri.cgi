@@ -68,7 +68,8 @@ def inet_espri(epuburl):
 ARG_VALIDATORS = {
     "book": is_name,
     "url": is_url,
-    'mode': ('zip', 'html').__contains__
+    'mode': ('zip', 'html').__contains__,
+    'method': config.CGI_METHODS.__contains__,
 }
 
 if __name__ == '__main__':
