@@ -298,7 +298,7 @@ def mode_book(args):
     progress_bar = make_progress_page(bookid, bookname, mode, destination)
 
     with Book(bookid, server, bookname, page_settings=page_settings,
-              watcher=progress_bar, isbn=args.get('isbn'),
+              watchers=[progress_bar], isbn=args.get('isbn'),
               license=args.get('license'), title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
         if CGI_CONTEXT:
@@ -335,7 +335,7 @@ def mode_openoffice(args):
     progress_bar = make_progress_page(bookid, bookname, 'openoffice', destination)
 
     with Book(bookid, server, bookname,
-              watcher=progress_bar, isbn=args.get('isbn'),
+              watchers=[progress_bar], isbn=args.get('isbn'),
               license=args.get('license'), title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
         if CGI_CONTEXT:
@@ -357,7 +357,7 @@ def mode_epub(args):
     progress_bar = make_progress_page(bookid, bookname, 'epub', destination)
 
     with Book(bookid, server, bookname=bookname,
-              watcher=progress_bar, title=args.get('title'),
+              watchers=[progress_bar], title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
 
         book.make_epub(use_cache=config.USE_CACHED_IMAGES)
@@ -374,7 +374,7 @@ def mode_bookizip(args):
     progress_bar = make_progress_page(bookid, bookname, 'bookizip', destination)
 
     with Book(bookid, server, bookname=bookname,
-              watcher=progress_bar, title=args.get('title'),
+              watchers=[progress_bar], title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
         book.publish_bookizip()
         output_multi(book, config.BOOKIZIP_MIMETYPE, destination)
