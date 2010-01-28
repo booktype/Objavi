@@ -1,3 +1,14 @@
+Changed in 2.2  (2009-12-20)
+  - New booki-zip format
+  - Long xhtml files split in epub
+  - merge epub and pdf channels
+  - isolate twiki-handling code
+  - better handling of Arabic text
+  - many bugfixes
+
+Changed in 2.1+ (circa 2009-10-15)
+  - epub output and import (via espri)
+  - redirect epub output to archive.org
 
 Changed in 2.1  (2009-09-01)
   - Multi-column format (for newsprint).
