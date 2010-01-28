@@ -289,7 +289,10 @@ class TWikiBook(object):
         self.titles = []
 
         credits_html = self.get_chapter_html('Credits', wrapped=True)
-        tree = lxml.html.document_fromstring(credits_html)
+        encoding = config.SERVER_DEFAULTS[self.server]['toc-encoding']
+        parser = lxml.html.HTMLParser(encoding=encoding)
+
+        tree = lxml.html.document_fromstring(credits_html, parser=parser)
         name_re = re.compile(r'^\s*(.+?) ((?:\d{4},? ?)+)$')
         spine_iter = iter(self.metadata['spine'])
 
