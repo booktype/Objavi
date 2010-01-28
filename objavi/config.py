@@ -89,7 +89,7 @@ SERVER_DEFAULTS = {
         'interface': 'Booki',
         'toc_header': 'Table of Contents',
         },
-    'www.booki.cc': {
+    'booki.cc': {
         'css-book': 'static/en.flossmanuals.net.css',
         'css-web': 'static/en.flossmanuals.net-web.css',
         'css-newspaper': 'static/en.flossmanuals.net-newspaper.css',
@@ -191,6 +191,9 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents',
         },
 }
+
+if 'booki.cc' in SERVER_DEFAULTS:
+    SERVER_DEFAULTS['www.booki.cc'] = SERVER_DEFAULTS['booki.cc']
 
 
 LANGUAGE_DIR = {
