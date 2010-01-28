@@ -509,7 +509,11 @@ class Book(object):
         for ID in self.spine:
             details = self.manifest[ID]
             log(ID, pformat(details))
-            root = self.get_tree_by_id(ID).getroot()
+            # ACO MIJENJAO
+            try:
+                root = self.get_tree_by_id(ID).getroot()
+            except:
+                continue
             #handle any TOC points in this file
             for point in tocmap[details['url']]:
                 #if the url has a #identifier, use it. Otherwise, make
