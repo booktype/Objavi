@@ -176,7 +176,7 @@ class TWikiBook(object):
 
         lang = guess_lang(self.server, self.book)
         self.dir = guess_text_dir(self.server, self.book)
-        log(self.server, self.book, lang, self.dir)
+        #log(self.server, self.book, lang, self.dir)
         if lang is not None:
             add_metadata(meta, 'language', lang)
         if self.dir is not None:
@@ -188,7 +188,7 @@ class TWikiBook(object):
         waiting_for_url = []
 
         for t in toc_iterator(self.server, self.book):
-            log(t)
+            #log(t)
             if t.is_title():
                 meta[config.DC]['title'][''] = [t.title]
                 continue
@@ -242,7 +242,7 @@ class TWikiBook(object):
                              use_cache=use_cache)
             images = c.localise_links()
             all_images.update(images)
-            log(chapter, self.credits)
+            #log(chapter, self.credits)
             bz.add_to_package(chapter, chapter + '.html',
                               c.as_html(), **self.credits.get(chapter, {}))
 
@@ -289,10 +289,15 @@ class TWikiBook(object):
         self.titles = []
 
         credits_html = self.get_chapter_html('Credits', wrapped=True)
-        encoding = config.SERVER_DEFAULTS[self.server]['toc-encoding']
-        parser = lxml.html.HTMLParser(encoding=encoding)
+        try:
+            parser = lxml.html.HTMLParser(encoding='utf-8')
+            tree = lxml.html.document_fromstring(credits_html, parser=parser)
+        except UnicodeDecodeError, e:
+            log("book isn't unicode! (%s)" %(e,))
+            encoding = config.SERVER_DEFAULTS[self.server]['toc-encoding']
+            parser = lxml.html.HTMLParser(encoding=encoding)
+            tree = lxml.html.document_fromstring(credits_html, parser=parser)
 
-        tree = lxml.html.document_fromstring(credits_html, parser=parser)
         name_re = re.compile(r'^\s*(.+?) ((?:\d{4},? ?)+)$')
         spine_iter = iter(self.metadata['spine'])
 
@@ -309,7 +314,7 @@ class TWikiBook(object):
                     e = e.getnext()
                     if not e.tail or e.tag != 'br':
                         break
-                    log(e.tail)
+                    #log(e.tail)
                     if e.tail.startswith(u'\u00a9'): # \u00a9 == copyright symbol
                         m = name_re.match(e.tail[1:])
                         author, dates = m.groups()

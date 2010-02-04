@@ -659,6 +659,7 @@ class Book(object):
                     _add_initial_number(item, chapter)
                     log(item.text, debug='HTMLGEN')
                     chapter += 1
+                log("#%s is %s" % (t['html_id'], self.tree.cssselect('#'+ t['html_id'])))
                 location = self.tree.cssselect('#'+ t['html_id'])[0]
                 location.addprevious(section)
 
