@@ -76,6 +76,18 @@ TRY_BOOK_CLEANUP_ON_DEL = False
 
 LOCALHOST = 'localhost'
 
+LANGUAGE_CSS = {
+    'en': {None: 'static/en.flossmanuals.net.css',
+           'web': 'static/en.flossmanuals.net-web.css',
+           'newspaper': 'static/en.flossmanuals.net-newspaper.css',
+           'openoffice': 'static/en.flossmanuals.net-openoffice.css',
+           },
+
+    'my': {None: 'static/my.flossmanuals.net.css',}
+}
+
+
+
 SERVER_DEFAULTS = {
     'booki.flossmanuals.net': {
         'css-book': 'static/en.flossmanuals.net.css',
@@ -139,11 +151,11 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents',
         },
     'translate.flossmanuals.net': {
-        'css-book': 'static/translate.flossmanuals.net.css',
-        'css-web': 'static/translate.flossmanuals.net-web.css',
-        'css-newspaper': 'static/translate.flossmanuals.net-newspaper.css',
-        'css': 'static/translate.flossmanuals.net.css',
-        'css-openoffice': 'static/translate.flossmanuals.net-openoffice.css',
+        'css-book': None, #'static/translate.flossmanuals.net.css',
+        'css-web': None, #'static/translate.flossmanuals.net-web.css',
+        'css-newspaper': None, #'static/translate.flossmanuals.net-newspaper.css',
+        'css': None, #'static/translate.flossmanuals.net.css',
+        'css-openoffice': None, #'static/translate.flossmanuals.net-openoffice.css',
         'lang': None,
         'dir': 'auto',
         'toc-encoding': 'iso-8859-1',
