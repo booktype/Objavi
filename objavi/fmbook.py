@@ -675,6 +675,13 @@ class Book(object):
         htmltree = self.tree
         if css is None or not css.strip():
             defaults = config.SERVER_DEFAULTS[self.server]
+            css_default = defaults['css-%s' % mode]
+            if css_default is None:
+                #guess from language -- this should come first
+                css_modes = config.LANGUAGE_CSS.get(self.lang,
+                                                    config.LANGUAGE_CSS['en'])
+                css_default = css_modes.get(mode, css_modes[None])
+
             url = 'file://' + os.path.abspath(defaults['css-%s' % mode])
         elif not re.match(r'^http://\S+$', css):
             fn = self.save_tempfile('objavi.css', css)
