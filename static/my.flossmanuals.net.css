@@ -1,0 +1,123 @@
+/* styles for burmese */
+
+body {
+  font-family: 'Padauk';
+  background: #fff;
+  color: #000;
+  line-height: 1.4em;
+}
+
+
+.unseen{
+  z-index: -66;
+  margin-left: -1000pt;
+}
+
+
+.objavi-chapter{
+  color: #000;
+}
+
+h1 .initial{
+  color: #000;
+  font-size: 2em;
+}
+
+.objavi-subsection{
+  display: block;
+  page-break-before: always;
+/*  page-break-after: always;*/
+  text-transform: uppercase;
+  font-size: 20pt;
+}
+
+body .objavi-subsection:first-child{
+  page-break-before: avoid;
+}
+
+
+.objavi-subsection .initial {
+  font-size: 1em;
+  color: #000;
+}
+
+.objavi-subsection-heading{
+  font-size: 36pt;
+  font-weight: bold;
+}
+
+
+h1 {
+  text-transform: uppercase;
+  page-break-before: always;
+  background: white;
+}
+
+/*h1.first-heading {
+  page-break-before: avoid;
+}*/
+
+
+h2 {
+  text-transform: uppercase;
+}
+
+table {
+  float: none;
+}
+
+h1.frontpage{
+  font-size: 64pt;
+  text-align: center;
+  page-break-after: always;
+  page-break-before: avoid;
+  max-width: 700px;
+}
+
+div.copyright{
+  padding: 1em;
+}
+
+table.toc {
+  /*border: 1px dotted #999;*/
+  font-size: 17pt;
+  width: 95%;
+}
+
+
+td.chapter {
+  padding-left: 2em;
+  text-align: right;
+}
+
+td.pagenumber {
+  text-align: right;
+}
+
+td.section {
+  font-size: 1.1em;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+p, ul, ol {
+  page-break-inside: avoid;
+}
+
+pre, code, tt {
+  font-family: "Courier", "Courier New", monospace;
+  font-size: 0.8em;
+}
+
+pre {
+  max-width:700px;
+  overflow: hidden;
+}
+
+img {
+  max-width: 700px;
+  height: auto;
+}
+
+
+
