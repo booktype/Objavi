@@ -93,8 +93,9 @@ if __name__ == '__main__':
                 raise
     else:
         book_link = ''
+        url = None:
 
-    if mode == 'zip':
+    if mode == 'zip' and url is not None:
         f = open(url)
         data = f.read()
         f.close()
