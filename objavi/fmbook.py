@@ -240,11 +240,14 @@ class Book(object):
         if page_settings is not None:
             self.maker = PageSettings(**page_settings)
 
-        titles = get_metadata(self.metadata, 'title')
-        if titles:
-            self.title = titles[0]
+        if title:
+            self.title = title
         else:
-            self.title = 'A Manual About ' + self.book
+            titles = get_metadata(self.metadata, 'title')
+            if titles:
+                self.title = titles[0]
+            else:
+                self.title = 'A Manual About ' + self.book
 
         self.notify_watcher()
 
