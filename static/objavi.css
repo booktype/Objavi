@@ -210,3 +210,17 @@ div.form-item {
 /*  border-left: 2px solid #faa;*/
 }
 
+ul.radio-list {
+  display: inline-block;
+  margin:0px;
+  padding:0;
+  /*border: 1px solid red;*/
+
+}
+
+ul.radio-list li {
+ display: block;
+ margin: 0px;
+ padding: 2px;
+ /*border: 1px solid green;*/
+}
