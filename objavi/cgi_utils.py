@@ -217,16 +217,17 @@ def output_blob_and_shut_up(blob, content_type="application/octet-stream", filen
 def output_and_exit(f, content_type="text/html"):
     """Decorator: prefix function output with http headers and exit
     immediately after."""
-    def output(args):
+    def output(*args, **kwargs):
+        content = f(*args, **kwargs)
         print "Content-type: text/html; charset=utf-8"
-        content = f(args)
         print "Content-length: %s" % len(content)
+        print
         print content
         sys.exit()
     return output
 
 @output_and_exit
-def print_template(template, mapping):
+def print_template_and_exit(template, mapping):
     f = open(template)
     string = f.read()
     f.close()

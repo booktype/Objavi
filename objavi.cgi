@@ -27,7 +27,7 @@ from pprint import pformat
 
 from objavi.fmbook import log, Book, make_book_name, HTTP_HOST
 from objavi import config
-from objavi.cgi_utils import parse_args, optionise, listify
+from objavi.cgi_utils import parse_args, optionise, listify, output_and_exit
 from objavi.cgi_utils import output_blob_and_exit, is_utf8, isfloat, isfloat_or_auto, is_isbn
 from objavi.twiki_wrapper import get_book_list
 
@@ -200,27 +200,15 @@ def get_page_settings(args):
     settings['engine'] = args.get('engine', config.DEFAULT_ENGINE)
     return settings
 
-
-def output_and_exit(f):
-    """Decorator: prefix function output with http headers and exit
-    immediately after."""
-    def output(args):
-        if CGI_CONTEXT:
-            print "Content-type: text/html; charset=utf-8\n"
-        f(args)
-        sys.exit()
-    return output
-
-
 @output_and_exit
 def mode_booklist(args):
-    print optionise(get_book_list(args.get('server', config.DEFAULT_SERVER)),
-                    default=args.get('book'))
+    return optionise(get_book_list(args.get('server', config.DEFAULT_SERVER)),
+                     default=args.get('book'))
 
 @output_and_exit
 def mode_css(args):
     #XX sending as text/html, but it doesn't really matter
-    print get_default_css(args.get('server', config.DEFAULT_SERVER), args.get('pdftype', 'book'))
+    return get_default_css(args.get('server', config.DEFAULT_SERVER), args.get('pdftype', 'book'))
 
 
 @output_and_exit
@@ -265,7 +253,7 @@ def mode_form(args):
         log("valid but not used inputs: %s" % (_valid_inputs - _form_inputs))
         log("invalid form inputs: %s" % (_form_inputs - _valid_inputs))
 
-    print template % {'form': ''.join(form)}
+    return template % {'form': ''.join(form)}
 
 
 def output_multi(book, mimetype, destination):

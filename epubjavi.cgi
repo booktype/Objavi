@@ -4,7 +4,7 @@ import cgi
 from getopt import gnu_getopt
 
 from objavi.fmbook import log, ZipBook, make_book_name
-from objavi.cgi_utils import shift_file, parse_args, optionise, print_template
+from objavi.cgi_utils import shift_file, parse_args, optionise, print_template_and_exit
 from objavi import config
 
 USE_CACHED_IMAGES = True #avoid network -- will make out of date books in production!
@@ -12,10 +12,10 @@ USE_CACHED_IMAGES = True #avoid network -- will make out of date books in produc
 BOOKS = [x[:-4] for x in os.listdir(config.BOOKI_BOOK_DIR) if x.endswith('.zip')]
 
 def print_form(booklink):
-    print_template('templates/epubjavi.html',
-                   {'booklink': booklink,
-                    'booklist': optionise(sorted(BOOKS))}
-                   )
+    print_template_and_exit('templates/epubjavi.html',
+                            {'booklink': booklink,
+                             'booklist': optionise(sorted(BOOKS))}
+                            )
 
 def epubjavi(book, use_cached_images=USE_CACHED_IMAGES):
     book = ZipBook(config.LOCALHOST, book)
