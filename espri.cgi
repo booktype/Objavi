@@ -27,13 +27,13 @@ import traceback
 
 from objavi import epub
 from objavi.book_utils import log
-from objavi.cgi_utils import output_blob_and_exit, parse_args, print_template_and_exit
+from objavi.cgi_utils import output_blob_and_exit, parse_args, print_template_and_exit, output_blob_and_shut_up
 from objavi.cgi_utils import is_name, is_utf8, is_url
 from objavi import config
 
 IA_EPUB_URL = "http://www.archive.org/download/%s/%s.epub"
 
-def print_form(booklink):
+def print_form_and_exit(booklink):
     print_template_and_exit('templates/espri.html',
                             {'booklink': booklink, }
                             )
@@ -51,17 +51,11 @@ def async_start(content, mimetype):
     #log(sys.stdout, sys.stderr, sys.stdin)
 
 
-def async_finish(content, mimetype):
-    """Print any final http content."""
-    if content:
-        output_blob_and_exit(content, mimetype)
-
-
 def async_callback(callback_url, **kwargs):
     """Call the callback url with each message."""
     pid = os.fork()
     if pid:
-        log('child %s is doing callback with message %r' % (pid, message, ))
+        log('child %s is doing callback with message %r' % (pid, kwargs, ))
         return
     from urllib2 import urlopen, URLError
     from urllib import urlencode
@@ -143,7 +137,9 @@ if __name__ == '__main__':
     source_fn = SOURCES.get(source)['function']
 
     if mode == 'callback':
-        async_start('OK, got it... wait a tick', 'text/plain')
+        callback_url = args['callback']
+        async_start('OK, got it...  will call %r when done' % (callback_url,),
+                    'text/plain')
     log('here')
     url = None
     if book is not None:
@@ -154,7 +150,7 @@ if __name__ == '__main__':
             traceback.print_exc()
             log(e, args)
             book_link = '<p>Error: <b>%s</b> when trying to get <b>%s</b></p>' % (e, book)
-            if mode == 'zip':
+            if mode != 'html':
                 raise
     else:
         book_link = ''
@@ -162,7 +158,6 @@ if __name__ == '__main__':
     log('here')
     if mode == 'callback':
         async_callback(callback_url, url=url)
-        async_finish(url, args['callback'])
 
     elif mode == 'zip' and url is not None:
         f = open(url)
