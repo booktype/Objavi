@@ -125,7 +125,8 @@ def ensure_backwards_compatibility(args):
         args['book'] = args['url']
     if 'source' not in args:
         args['source'] = 'archive.org'
-
+    if 'callback' in args and 'mode' not in args:
+        args['mode'] = 'callback'
 
 if __name__ == '__main__':
     log('here')
