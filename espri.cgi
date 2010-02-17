@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Part of Espri, an importer of e-books into Booki
+# Part of the Objavi2 package.  This script imports e-books into Booki
 #
 # Copyright (C) 2009 Douglas Bagnall
 #
