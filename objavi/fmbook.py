@@ -132,6 +132,14 @@ def filename_toc_map(rtoc):
     traverse(rtoc)
     return tocmap
 
+def save_data(fn, data):
+    """Save without tripping up on unicode"""
+    if isinstance(data, unicode):
+        data = data.encode('utf8', 'ignore')
+    f = open(fn, 'w')
+    f.write(data)
+    f.close()
+
 
 class Book(object):
     page_numbers = 'latin'
@@ -289,26 +297,18 @@ class Book(object):
     def filepath(self, fn):
         return os.path.join(self.workdir, fn)
 
-    def save_data(self, fn, data):
-        """Save without tripping up on unicode"""
-        if isinstance(data, unicode):
-            data = data.encode('utf8', 'ignore')
-        f = open(fn, 'w')
-        f.write(data)
-        f.close()
-
     def save_tempfile(self, fn, data):
         """Save the data in a temporary directory that will be cleaned
         up when all is done.  Return the absolute file path."""
         fn = self.filepath(fn)
-        self.save_data(fn, data)
+        save_data(fn, data)
         return fn
 
     def make_oo_doc(self):
         """Make an openoffice document, using the html2odt script."""
         self.wait_for_xvfb()
         html_text = etree.tostring(self.tree, method="html")
-        self.save_data(self.body_html_file, html_text)
+        save_data(self.body_html_file, html_text)
         run([config.HTML2ODT, self.workdir, self.body_html_file, self.body_odt_file])
         log("Publishing %r as %r" % (self.body_odt_file, self.publish_file))
         os.rename(self.body_odt_file, self.publish_file)
@@ -339,7 +339,7 @@ class Book(object):
             ascii_html_file = self.filepath('body-ascii-headings.html')
             ascii_pdf_file = self.filepath('body-ascii-headings.pdf')
             html_text = lxml.etree.tostring(tree, method="html")
-            self.save_data(ascii_html_file, html_text)
+            save_data(ascii_html_file, html_text)
             self.maker.make_raw_pdf(ascii_html_file, ascii_pdf_file, outline=True)
             debugf = self.filepath('ascii_outline.txt')
             ascii_contents, ascii_text, number_of_ascii_pages = \
@@ -367,7 +367,7 @@ class Book(object):
         """Make a pdf of the HTML, using webkit"""
         #1. Save the html
         html_text = etree.tostring(self.tree, method="html")
-        self.save_data(self.body_html_file, html_text)
+        save_data(self.body_html_file, html_text)
 
         #2. Make a pdf of it
         self.maker.make_raw_pdf(self.body_html_file, self.body_pdf_file, outline=True)
@@ -403,7 +403,7 @@ class Book(object):
                 '<!--%s--></div></body></html>'
                 ) % (self.dir, self.css_url, self.title, inside_cover_html.decode('utf-8'),
                      self.toc_header, contents, self.title)
-        self.save_data(self.preamble_html_file, html)
+        save_data(self.preamble_html_file, html)
 
         self.maker.make_raw_pdf(self.preamble_html_file, self.preamble_pdf_file)
 
@@ -425,7 +425,7 @@ class Book(object):
 
         end_matter = self.compose_end_matter()
         log(end_matter)
-        self.save_data(self.tail_html_file, end_matter.decode('utf-8'))
+        save_data(self.tail_html_file, end_matter.decode('utf-8'))
         self.maker.make_raw_pdf(self.tail_html_file, self.tail_pdf_file)
 
         self.maker.reshape_pdf(self.tail_pdf_file, self.dir, centre_start=True,
@@ -466,7 +466,7 @@ class Book(object):
 
         #1. Save the html
         html_text = etree.tostring(self.tree, method="html")
-        self.save_data(self.body_html_file, html_text)
+        save_data(self.body_html_file, html_text)
 
         #2. Make a pdf of it (direct to to final pdf)
         self.maker.make_raw_pdf(self.body_html_file, self.pdf_file, outline=True)
