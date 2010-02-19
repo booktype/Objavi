@@ -28,7 +28,7 @@ POINT_2_MM = 25.4 / 72.0
 MM_2_POINT = 72.0 / 25.4
 INCH_2_POINT = 72
 
-KEEP_TEMP_FILES=True
+KEEP_TEMP_FILES = True
 TMPDIR = 'tmp'
 
 LOGDIR = '/var/local/objavi/log'

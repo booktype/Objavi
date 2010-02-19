@@ -129,7 +129,7 @@ def isfloat_or_auto(s):
 
 def is_isbn(s):
     # 10 or 13 digits with any number of hyphens, perhaps with check-digit missing
-    s =s.replace('-', '')
+    s = s.replace('-', '')
     return (re.match(r'^\d+[\dXx*]$', s) and len(s) in (9, 10, 12, 13))
 
 def is_url(s):

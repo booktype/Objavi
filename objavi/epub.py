@@ -292,7 +292,7 @@ class Epub(object):
         for c in real_chapters:
             try:
                 root = c.tree.getroot()
-            except:
+            except Exception:
                 root = c.tree
             try:
                 del root.attrib['xmlns']

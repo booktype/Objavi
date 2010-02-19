@@ -2,17 +2,16 @@
 
 import os, sys
 import time
-from pprint import pprint
-#import zipfile
+
 from cStringIO import StringIO
 
-import lxml, lxml.html, lxml.cssselect
+import lxml.html, lxml.cssselect
 from lxml import etree
 
 from objavi.book_utils import log
-from objavi.config import DC, XHTML, XHTMLNS, NAVPOINT_ID_TEMPLATE
+from objavi.config import NAVPOINT_ID_TEMPLATE
 
-from booki.bookizip import get_metadata, get_metadata_schemes
+from booki.bookizip import get_metadata
 
 ##Construct NCX
 BARE_NCX = ('<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" '
@@ -80,8 +79,8 @@ def write_navtree(parent, subtoc, counter, depth, maxdepth, filemap):
     return counter, maxdepth
 
 def make_navpoint(parent, n, title, url):
+    """Make the actual navpoint node"""    
     log((parent, n, title, url))
-    """Make the actual navpoint node"""
     navpoint = etree.SubElement(parent, 'navPoint',
                                 id=(NAVPOINT_ID_TEMPLATE % (n - 1)),
                                 playOrder=str(n))

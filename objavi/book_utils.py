@@ -76,7 +76,7 @@ def make_book_name(book, server, suffix='.pdf', timestamp=None):
 def guess_lang(server, book):
     lang = config.SERVER_DEFAULTS[server].get('lang')
     if lang is None and '_' in book:
-            lang = book[book.rindex('_') + 1:]
+        lang = book[book.rindex('_') + 1:]
     return lang
 
 def guess_text_dir(server, book):

@@ -201,7 +201,7 @@ class Section(object):
         self.title = title
 
     def __str__(self):
-        return '<Section id: %r title: %r>' %(self.ID, self.title)
+        return '<Section id: %r title: %r>' % (self.ID, self.title)
     __repr__ = __str__
 
 def split_tree(tree):

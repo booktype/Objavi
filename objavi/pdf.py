@@ -226,7 +226,7 @@ class PageSettings(object):
     def make_barcode_pdf(self, isbn, pdf, corner='br'):
         """Put an ISBN barcode in a corner of a single blank page."""
 
-        position = '%s,%s,%s,%s,%s' %(corner, self.width, self.height, self.side_margin, self.bottom_margin)
+        position = '%s,%s,%s,%s,%s' % (corner, self.width, self.height, self.side_margin, self.bottom_margin)
         cmd1 = [config.BOOKLAND,
                 '--position', position,
                 str(isbn)]

@@ -35,13 +35,13 @@ def get_book_list(server):
     in that many seconds, rather it will be read from disk.
     """
     if config.BOOK_LIST_CACHE:
-       cache_name = os.path.join(config.BOOK_LIST_CACHE_DIR, '%s.booklist' % server)
-       if (os.path.exists(cache_name) and
-           os.stat(cache_name).st_mtime + config.BOOK_LIST_CACHE > time.time()):
-           f = open(cache_name)
-           s = f.read()
-           f.close()
-           return s.split()
+        cache_name = os.path.join(config.BOOK_LIST_CACHE_DIR, '%s.booklist' % server)
+        if (os.path.exists(cache_name) and
+            os.stat(cache_name).st_mtime + config.BOOK_LIST_CACHE > time.time()):
+            f = open(cache_name)
+            s = f.read()
+            f.close()
+            return s.split()
 
     url = config.CHAPTER_URL % (server, 'TWiki', 'WebLeftBarWebsList')
     #url = 'http://%s/bin/view/TWiki/WebLeftBarWebsList?skin=text' % server
