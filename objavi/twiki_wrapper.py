@@ -406,7 +406,7 @@ class ImportedChapter(TWikiChapter):
         if cache_dir:
             self.image_cache = ImageCache(cache_dir)
         #XXX is text html-wrapped?
-        self._loadtree(html)
+        self._loadtree(text)
 
     def as_twikitext(self):
         """Get the twiki-style guts of the chapter from the tree"""

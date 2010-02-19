@@ -147,7 +147,7 @@ def mode_form(args):
     engine = args.get('engine', config.DEFAULT_ENGINE)
     d = {
         'server_options': optionise(get_server_list(), default=server),
-        'book_options': optionise(get_book_list(server), default=book),
+        'book_options': optionise(twiki_wrapper.get_book_list(server), default=book),
         'size_options': optionise(get_size_list(), default=size),
         'engines': optionise(config.ENGINES.keys(), default=engine),
         'pdf_types': optionise(sorted(k for k, v in config.CGI_MODES.iteritems() if v[0])),

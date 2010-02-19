@@ -42,6 +42,7 @@ from lxml import etree
 
 from objavi import config, epub_utils
 from objavi.book_utils import log, run, make_book_name, guess_lang, guess_text_dir
+from objavi.book_utils import ObjaviError
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline
 from objavi.epub import add_guts, _find_tag
 from objavi.xhtml_utils import EpubChapter, split_tree
@@ -845,6 +846,10 @@ class Book(object):
 
         has_authors = 'creator' in self.metadata[DC]
         if not has_authors and config.CLAIM_UNAUTHORED:
+            authors = []
+            for x in self.metadata[DC]['creator'].values():
+                authors.extend(x)
+
             meta_info_items.append({'item': DCNS + 'creator',
                                     'text': 'The Contributors'})
 

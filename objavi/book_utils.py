@@ -115,3 +115,6 @@ def shift_file(fn, dir, backup='~'):
         os.rename(dest, dest + backup)
     os.rename(fn, dest)
     return dest
+
+class ObjaviError(Exception):
+    pass
