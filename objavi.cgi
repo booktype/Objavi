@@ -384,6 +384,7 @@ def main():
     output_function = globals().get('mode_%s' % mode, mode_form)
     output_function(args)
 
+CGI_CONTEXT = True
 if __name__ == '__main__':
     if config.CGITB_DOMAINS and os.environ.get('REMOTE_ADDR') in config.CGITB_DOMAINS:
         import cgitb

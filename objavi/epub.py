@@ -480,9 +480,9 @@ def get_chapter_breaks(points, pwd):
         #if p['class']:
         #    log("found class=='%s' at depth %s" % (p['class'], depth))
         if not p.get('points'):
-            return depth
+            return
         for child in p['points']:
-            bottom = serialise(child, depth + 1)
+            serialise(child, depth + 1)
 
     for p in points:
         serialise(p, 1)
@@ -716,7 +716,6 @@ def parse_pagelist(e):
 
 def parse_pagetarget(e):
     #<!ELEMENT pageTarget (navLabel+, content)>
-    labels = get_labels(e)
     c = e.find(DAISYNS + 'content')
     ret = {
         'id': e.get('id'),
@@ -740,7 +739,6 @@ def parse_navlist(e):
 
 def parse_navtarget(e):
     #<!ELEMENT navTarget (navLabel+, content)>
-    labels = get_labels(e)
     c = e.find(DAISYNS + 'content')
     ret = {
         'id': e.get('id'),

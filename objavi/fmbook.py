@@ -509,7 +509,7 @@ class Book(object):
         log("Publishing %r as %r" % (self.bookizip_file, self.publish_file))
         try:
             run(['cp', '-l', self.bookizip_file, self.publish_file])
-        except OSError, e:
+        except OSError:
             run(['cp', self.bookizip_file, self.publish_file])
         self.notify_watcher()
 
@@ -531,7 +531,8 @@ class Book(object):
             # ACO MIJENJAO
             try:
                 root = self.get_tree_by_id(ID).getroot()
-            except:
+            except Exception, e:
+                log("hit %s when trying book.get_tree_by_id(%s).getroot()" % (e, ID))
                 continue
             #handle any TOC points in this file
             for point in tocmap[details['url']]:
@@ -610,10 +611,8 @@ class Book(object):
 
         chapter = 1
         page_num = 1
-        subsections = [] # for the subsection heading pages.
 
         outline_contents = iter(self.outline_contents)
-        headings = iter(self.headings)
 
         for section in self.toc:
             if not section.get('children'):
@@ -640,7 +639,6 @@ class Book(object):
 
         Also add initial numbers to chapters.
         """
-        headings = iter(self.headings)
         chapter = 1
         section = None
         log(self.toc)
@@ -886,7 +884,7 @@ class Book(object):
             "authorization: LOW %(S3_ACCESSKEY)s:%(S3_SECRET)s" % secrets,
             'x-archive-meta-mediatype:texts',
             'x-archive-meta-collection:opensource',
-            'x-archive-meta-title:%s' %(self.book,),
+            'x-archive-meta-title:%s' % (self.book,),
             'x-archive-meta-date:%s' % (now,),
             'x-archive-meta-creator:FLOSS Manuals Contributors',
             ]

@@ -28,7 +28,6 @@ from objavi.book_utils import log, run
 
 
 def find_containing_paper(w, h):
-    size = None
     for name, pw, ph in config.PAPER_SIZES:
         if pw >= w and ph >= h:
             mw = (pw - w) * 0.5

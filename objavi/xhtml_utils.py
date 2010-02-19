@@ -10,8 +10,8 @@ import re
 from urlparse import urlsplit
 from urllib2 import urlopen, HTTPError
 
-from config import XHTMLNS, XHTML, IMG_CACHE, MARKER_CLASS_SPLIT, MARKER_CLASS_INFO
-from book_utils import log
+from objavi.config import XHTMLNS, XHTML, IMG_CACHE, MARKER_CLASS_SPLIT, MARKER_CLASS_INFO
+from objavi.book_utils import log
 
 ADJUST_HEADING_WEIGHT = False
 
