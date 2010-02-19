@@ -54,25 +54,6 @@ def super_bleach(dirty_name):
     return 'untitled'
 
 
-def clean_args(arg_convertors):
-    """Like parse_args, but instead of the validator functions
-    returning true or false, they return None if the argument is
-    invalid, and a cleansed version if the argument is good.
-    """
-    query = cgi.FieldStorage()
-    options, args = gnu_getopt(sys.argv[1:], '', [x + '=' for x in arg_convertors])
-    options = dict(options)
-    data = {}
-    for key, convertor in arg_convertors.items():
-        raw_value = query.getfirst(key, options.get('--' + key, None))
-        if raw_value is not None:
-            val = convertor(raw_value)
-            if val is None:
-                log("argument '%s' is not valid ('%s')" % (key, raw_value))
-                continue
-            data[key] = val
-    return data
-
 ## common between different versions of objavi
 
 def get_server_list():
@@ -113,7 +94,7 @@ def font_links():
         links.append('<a href="%s?script=%s">%s</a>' % (config.FONT_LIST_URL, script, script))
     return links
 
-## Helper functions for parse_args & clean_args
+## Helper functions for parse_args
 
 def isfloat(s):
     #spaces?, digits!, dot?, digits?, spaces?
@@ -137,19 +118,15 @@ def is_url(s):
     s = s.strip()
     if not '://' in s:
         s = 'http://' + s
-    m = re.match(r'^https?://'
-                 r'(?:(?:[a-z0-9]+(?:-*[a-z0-9]+)*\.)+[a-z]{2,8}|'
-                 r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
-                 r'(?::\d+)?'
-                 r'(?:/?|/\S+)$', s, re.I
-                 )
-    if not m:
-        return False
-    return s
+    return re.match(r'^https?://'
+                    r'(?:(?:[a-z0-9]+(?:-*[a-z0-9]+)*\.)+[a-z]{2,8}|'
+                    r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
+                    r'(?::\d+)?'
+                    r'(?:/?|/\S+)$', s, re.I
+                    )
 
 def is_name(s):
-    if re.match(r'^[\w-]+$', s):
-        return s
+    return re.match(r'^[\w-]+$', s)
 
 def is_utf8(s):
     try:
@@ -158,15 +135,7 @@ def is_utf8(s):
     except UnicodeDecodeError:
         return False
 
-def pass_thru(func, default=None):
-    def test(s):
-        try:
-            if func(s):
-                return s
-        except Exception, e:
-            log('Testing %r with %s raised Exception %r' % (s, func, e))
-        return default
-    return test
+
 
 ## Formatting of lists
 
@@ -218,10 +187,8 @@ def output_blob_and_shut_up(blob, content_type="application/octet-stream", filen
     devnull = open('/dev/null', 'w')
     os.dup2(devnull.fileno(), sys.stdout.fileno())
     log(sys.stdout)
-    #sys.stdout.close()
 
-##Decorator functions for output
-
+##Decorator function for output
 def output_and_exit(f, content_type="text/html; charset=utf-8"):
     """Decorator: prefix function output with http headers and exit
     immediately after."""
