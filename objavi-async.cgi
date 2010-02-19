@@ -342,8 +342,8 @@ def mode_book(args):
               watchers=context.get_watchers(), isbn=args.get('isbn'),
               license=args.get('license'), title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
-        if CGI_CONTEXT:
-            book.spawn_x()
+
+        book.spawn_x()
 
         if 'toc_header' in args:
             book.toc_header = args['toc_header'].decode('utf-8')
@@ -374,8 +374,8 @@ def mode_openoffice(args):
               watchers=context.get_watchers(), isbn=args.get('isbn'),
               license=args.get('license'), title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
-        if CGI_CONTEXT:
-            book.spawn_x()
+
+        book.spawn_x()
         book.load_book()
         book.add_css(args.get('css'), 'openoffice')
         book.add_section_titles()
