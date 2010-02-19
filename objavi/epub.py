@@ -3,14 +3,13 @@
 import os, sys
 import zipfile
 from cStringIO import StringIO
-import copy
 
 try:
     from json import dumps
 except ImportError:
     from simplejson import dumps
 
-import lxml, lxml.html, lxml.cssselect
+import lxml.html, lxml.cssselect
 from lxml import etree
 
 from objavi.xhtml_utils import split_tree

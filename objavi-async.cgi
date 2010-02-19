@@ -23,7 +23,7 @@ from __future__ import with_statement
 
 import os, sys
 import re, time
-import traceback
+#import traceback
 from pprint import pformat
 
 from objavi.fmbook import Book, HTTP_HOST, find_archive_urls

@@ -22,7 +22,7 @@
 from __future__ import with_statement
 
 import os, sys
-import re, time
+import re
 from pprint import pformat
 
 from objavi.fmbook import log, Book, make_book_name, HTTP_HOST

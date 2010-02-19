@@ -22,8 +22,6 @@
 import cgi
 
 from objavi.book_utils import log
-from objavi import config
-
 
 def log_args():
     log("callback-test.cgi called the following arguments:")

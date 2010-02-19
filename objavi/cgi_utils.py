@@ -19,7 +19,6 @@
 import os, sys
 import cgi, re
 from getopt import gnu_getopt
-from subprocess import Popen, PIPE
 
 from objavi.book_utils import log
 from objavi import config

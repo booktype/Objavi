@@ -24,7 +24,7 @@ from objavi.book_utils import log
 import tempfile, os, re, sys
 import cgi
 import hashlib
-from subprocess import Popen, check_call, PIPE
+from subprocess import Popen, PIPE
 
 def get_font_list():
     p = Popen(['fc-list'], stdout=PIPE, stderr=PIPE)

@@ -6,14 +6,15 @@ import tempfile
 from objavi import config
 from objavi.book_utils import log, guess_lang, guess_text_dir, make_book_name
 from urllib2 import urlopen
-from urlparse import urlparse, urlsplit, urljoin
+from urlparse import urlsplit
 from booki.bookizip import add_metadata, BookiZip
 
 from objavi.xhtml_utils import BaseChapter, ImageCache
 
-from pprint import pformat
+#from pprint import pformat
 
 import lxml.html
+from lxml import etree
 
 CHAPTER_TEMPLATE = '''<html dir="%(dir)s">
 <head>

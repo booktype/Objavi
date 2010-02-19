@@ -1,17 +1,16 @@
 """Various things to do with [x]html that might be useful in more than
 one place."""
 
-import lxml, lxml.html, lxml.html.clean
+import lxml.html, lxml.html.clean
 from lxml import etree
 
-import os, sys
-import re, copy
-from cStringIO import StringIO
+import os
+import re
 
-from urlparse import urlparse, urlsplit, urljoin
+from urlparse import urlsplit
 from urllib2 import urlopen, HTTPError
 
-from config import XHTMLNS, XHTML, IMG_CACHE, MARKER_CLASS_SPLIT
+from config import XHTMLNS, XHTML, IMG_CACHE, MARKER_CLASS_SPLIT, MARKER_CLASS_INFO
 from book_utils import log
 
 ADJUST_HEADING_WEIGHT = False

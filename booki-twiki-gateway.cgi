@@ -21,7 +21,7 @@
 
 import os, sys
 import re, traceback
-from pprint import pformat
+#from pprint import pformat
 
 from objavi.twiki_wrapper import TWikiBook, get_book_list
 from objavi.cgi_utils import parse_args, optionise, output_blob_and_exit
