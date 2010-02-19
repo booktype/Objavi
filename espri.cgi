@@ -19,16 +19,17 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os, sys
-import re, time
-from urllib2 import urlopen, HTTPError
+import time
+from urllib2 import urlopen, URLError
+from urllib import urlencode, unquote
 from urlparse import urlsplit
-from urllib import unquote
-import traceback
+import traceback, tempfile
+from subprocess import check_call, CalledProcessError
 
 from objavi import epub
 from objavi.book_utils import log
 from objavi.cgi_utils import output_blob_and_exit, parse_args, print_template_and_exit, output_blob_and_shut_up
-from objavi.cgi_utils import is_name, is_utf8, is_url
+from objavi.cgi_utils import is_utf8, is_url, super_bleach
 from objavi import config
 
 IA_EPUB_URL = "http://www.archive.org/download/%s/%s.epub"
@@ -57,8 +58,6 @@ def async_callback(callback_url, **kwargs):
     if pid:
         log('child %s is doing callback with message %r' % (pid, kwargs, ))
         return
-    from urllib2 import urlopen, URLError
-    from urllib import urlencode
     data = urlencode(kwargs)
     try:
         f = urlopen(callback_url, data)
@@ -71,6 +70,7 @@ def async_callback(callback_url, **kwargs):
 
 
 def espri(epuburl, zipurl):
+    log(epuburl, zipurl)
     f = urlopen(epuburl)
     s = f.read()
     f.close()
@@ -89,20 +89,58 @@ def ia_espri(book_id):
     return zipurl
 
 def inet_espri(epuburl):
-    filename = '_'.join(unquote(os.path.basename(urlsplit(epuburl).path)).split())
-    if filename.lower().endswith('.epub'):
+    tainted_name = unquote(os.path.basename(urlsplit(epuburl).path))
+    filename = super_bleach(tainted_name)
+    if filename.lower().endswith('-epub'):
         filename = filename[:-5]
     zipurl = '%s/%s-%s.zip' % (config.BOOKI_BOOK_DIR, filename, time.strftime('%F_%T'))
     espri(epuburl, zipurl)
     return zipurl
 
-def wikibooks_espri(book_id):
-    epuburl = IA_EPUB_URL % (book_id, book_id)
-    log(epuburl)
-    zipurl = '%s/%s.zip' % (config.BOOKI_BOOK_DIR, book_id)
-    espri(epuburl, zipurl)
-    return zipurl
+
+TIMEOUT_CMD = 'timeout'
+WIKIBOOKS_TIMEOUT = '600'
+WIKIBOOKS_CMD = 'wikibooks2epub'
+WIKIBOOKS_CACHE = 'cache/wikibooks'
+
+class TimeoutError(Exception):
     pass
+
+def wikibooks_espri(wiki_url):
+    """Wikibooks import using the wikibooks2epub script by Jan Gerber
+    to first convert the wikibook to an epub, which can then be turned
+    into a bookizip via the espri function.
+    """
+    os.environ['oxCACHE'] = WIKIBOOKS_CACHE
+    tainted_name = unquote(os.path.basename(urlsplit(wiki_url).path))
+    filename = "%s-%s" % (super_bleach(tainted_name),
+                          time.strftime('%Y.%m.%d-%H.%M.%S'))
+    workdir = tempfile.mkdtemp(prefix=filename, dir=config.TMPDIR)
+    os.chmod(workdir, 0755)
+    epub_file = os.path.join(workdir, filename + '.epub')
+    epub_url = 'file://' + os.path.abspath(epub_file)
+    #epub_url = 'http://localhost/' + epub_file
+
+    #the wikibooks importer is a separate process, so run that, then collect the epub.
+    cmd = [TIMEOUT_CMD, WIKIBOOKS_TIMEOUT,
+           WIKIBOOKS_CMD,
+           '-i', wiki_url,
+           '-o', epub_file
+           ]
+    log(cmd)
+
+    try:
+        check_call(cmd)
+    except CalledProcessError, e:
+        if e.returncode == 137:
+            raise TimeoutError('Wikibooks took too long (over %s seconds)' % WIKIBOOKS_TIMEOUT)
+        raise
+
+    zipurl = '%s/%s.zip' % (config.BOOKI_BOOK_DIR, filename)
+    espri(epub_url, zipurl)
+    return zipurl
+
+
 
 
 SOURCES = {
@@ -128,8 +166,8 @@ def ensure_backwards_compatibility(args):
     if 'callback' in args and 'mode' not in args:
         args['mode'] = 'callback'
 
+
 if __name__ == '__main__':
-    log('here')
     args = parse_args(ARG_VALIDATORS)
     ensure_backwards_compatibility(args)
     mode = args.get('mode', 'html')
@@ -141,7 +179,6 @@ if __name__ == '__main__':
         callback_url = args['callback']
         async_start('OK, got it...  will call %r when done' % (callback_url,),
                     'text/plain')
-    log('here')
     url = None
     if book is not None:
         try:
@@ -156,7 +193,6 @@ if __name__ == '__main__':
     else:
         book_link = ''
 
-    log('here')
     if mode == 'callback':
         async_callback(callback_url, url=url)
 

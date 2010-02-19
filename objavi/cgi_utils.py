@@ -46,6 +46,15 @@ def parse_args(arg_validators):
     log(data, debug='STARTUP')
     return data
 
+def super_bleach(dirty_name):
+    """Replace potentially nasty characters with safe ones."""
+    # a bit drastic: refine if it matters
+    name = ''.join((x if x.isalnum() else '-') for x in dirty_name)
+    if name:
+        return name
+    return 'untitled'
+
+
 def clean_args(arg_convertors):
     """Like parse_args, but instead of the validator functions
     returning true or false, they return None if the argument is
