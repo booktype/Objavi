@@ -22,6 +22,7 @@
 from __future__ import with_statement
 
 import os, sys
+os.chdir('..')
 import re
 from pprint import pformat
 

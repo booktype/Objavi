@@ -1,5 +1,7 @@
 #!/usr/bin/python
 import os, sys
+os.chdir('..')
+
 import cgi
 from getopt import gnu_getopt
 

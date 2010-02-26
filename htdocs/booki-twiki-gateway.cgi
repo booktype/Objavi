@@ -20,6 +20,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os, sys
+os.chdir('..')
+
 import re, traceback
 #from pprint import pformat
 

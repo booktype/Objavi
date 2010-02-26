@@ -19,6 +19,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os, sys
+os.chdir('..')
+
 import time
 from urllib2 import urlopen, URLError
 from urllib import urlencode, unquote
