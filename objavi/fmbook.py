@@ -51,9 +51,8 @@ from iarchive import epub as ia_epub
 from booki.bookizip import get_metadata, add_metadata
 
 TMPDIR = os.path.abspath(config.TMPDIR)
-DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
+DOC_ROOT = os.environ.get('DOCUMENT_ROOT', config.HTDOCS)
 HTTP_HOST = os.environ.get('HTTP_HOST', '')
-PUBLISH_PATH = "%s/books/" % DOC_ROOT
 
 def find_archive_urls(bookid, bookname):
     s3url = 'http://s3.us.archive.org/booki-%s/%s' % (bookid, bookname)
@@ -248,8 +247,7 @@ class Book(object):
         self.pdf_file = self.filepath('final.pdf')
         self.body_odt_file = self.filepath('body.odt')
 
-        self.publish_file = os.path.join(PUBLISH_PATH, bookname)
-        self.publish_url = os.path.join(config.PUBLISH_URL, bookname)
+        self.publish_file = os.path.abspath(os.path.join(config.PUBLISH_DIR, bookname))
 
         if page_settings is not None:
             self.maker = PageSettings(**page_settings)
@@ -987,7 +985,11 @@ class Book(object):
         cgi process dies particularly badly. So kill them if they have
         been running for a long time."""
         log("running kill_old_processes")
-        p = Popen(['ps', '-C' 'Xvfb soffice soffice.bin html2odt ooffice wkhtmltopdf',
+        killable_names = ' '.join(['Xvfb', 'soffice', 'soffice.bin', 'ooffice',
+                                   os.path.basename(config.HTML2ODT),
+                                   os.path.basename(config.WKHTMLTOPDF),
+                                   ])
+        p = Popen(['ps', '-C', killable_names,
                    '-o', 'pid,etime', '--no-headers'], stdout=PIPE)
         data = p.communicate()[0].strip()
         if data:

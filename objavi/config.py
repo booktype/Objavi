@@ -23,6 +23,9 @@
 #XXX eventually, read in a real config file.
 #XXX Some of these values should be editable via an admin cgi script
 
+#cgi scripts chdir here to escape htdocs
+BASEDIR = ".."
+
 #Not really configurable (72 pt per inch / 25.4 mm per inch)
 POINT_2_MM = 25.4 / 72.0
 MM_2_POINT = 72.0 / 25.4
@@ -31,18 +34,19 @@ INCH_2_POINT = 72
 KEEP_TEMP_FILES = True
 TMPDIR = 'tmp'
 
-LOGDIR = '/var/local/objavi/log'
+LOGDIR = 'log'
 REDIRECT_LOG = True
 LOG_ROTATE_SIZE = 1000000
 
-EPUB_DIR = 'books'
-BOOKI_BOOK_DIR = 'booki-books'
+HTDOCS = 'htdocs'
+BOOKI_BOOK_DIR = '/htdocs/booki-books'
+BOOKI_BOOK_URL = '/booki-books'
 
 FIREFOX = 'firefox'
 WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
 
-HTML2ODT = './html2odt'
+HTML2ODT = 'bin/html2odt'
 
 #CGITB_DOMAINS = ('203.97.236.46', '202.78.240.7')
 CGITB_DOMAINS = False
@@ -56,14 +60,16 @@ PDFEDIT_MAX_PAGES = 40
 
 #keep book lists around for this time without refetching
 BOOK_LIST_CACHE = 3600 * 2
-BOOK_LIST_CACHE_DIR = 'cache'
+CACHE_DIR = 'cache'
 
+#for twiki import
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
-PUBLISH_URL = "/books/"
 
-POLL_NOTIFY_PATH = 'progress/%s.txt'
-POLL_NOTIFY_URL = 'http://%(HTTP_HOST)s/progress/%(bookname)s.txt'
+PUBLISH_DIR = 'htdocs/books'
+
+POLL_NOTIFY_PATH = 'htdocs/progress/%s.txt'
+#POLL_NOTIFY_URL = 'http://%(HTTP_HOST)s/progress/%(bookname)s.txt'
 
 ZIP_URLS = {
     'TWiki':   'http://%(HTTP_HOST)s/booki-twiki-gateway.cgi?server=%(server)s&book=%(book)s&mode=zip',
@@ -95,9 +101,8 @@ LANGUAGE_CSS = {
            'openoffice': 'static/en.flossmanuals.net-openoffice.css',
            },
 
-    'my': {None: 'static/my.flossmanuals.net.css',}
+    'my': {None: 'static/my.flossmanuals.net.css',},
 }
-
 
 
 SERVER_DEFAULTS = {
@@ -384,6 +389,7 @@ NOWHERE_TEMPLATE = 'templates/nowhere.txt'
 
 CGI_METHODS = ('sync', 'async', 'poll')
 
+#used by objavi-async
 CGI_DESTINATIONS = {
     'archive.org': {'sync': (ARCHIVE_TEMPLATE, 'text/plain; charset=utf-8'),
                     'async': (ARCHIVE_TEMPLATE, 'text/plain; charset=utf-8'),

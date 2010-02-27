@@ -28,12 +28,10 @@ from pprint import pformat
 
 from objavi.fmbook import log, Book, make_book_name, HTTP_HOST
 from objavi import config
-from objavi.cgi_utils import parse_args, optionise, listify, output_and_exit
+from objavi.cgi_utils import parse_args, optionise, listify, output_and_exit, font_links
 from objavi.cgi_utils import output_blob_and_exit, is_utf8, isfloat, isfloat_or_auto, is_isbn
 from objavi.twiki_wrapper import get_book_list
 
-FORM_TEMPLATE = os.path.abspath('templates/form.html')
-PROGRESS_TEMPLATE = os.path.abspath('templates/progress.html')
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
 # functions to validate their values. (None means no validation).
@@ -97,16 +95,6 @@ def get_default_css(server=config.DEFAULT_SERVER, mode='book'):
     f.close()
     return s
 
-def font_links():
-    """Links to various example pdfs."""
-    links = []
-    for script in os.listdir(config.FONT_EXAMPLE_SCRIPT_DIR):
-        if not script.isalnum():
-            log("warning: font-sample %s won't work; skipping" % script)
-            continue
-        links.append('<a href="%s?script=%s">%s</a>' % (config.FONT_LIST_URL, script, script))
-    return links
-
 
 def make_progress_page(book, bookname, mode, destination='html'):
     """Return a function that will notify the user of progress.  In
@@ -117,7 +105,7 @@ def make_progress_page(book, bookname, mode, destination='html'):
         return lambda message: '******* got message "%s"' %message
 
     print "Content-type: text/html; charset=utf-8\n"
-    f = open(PROGRESS_TEMPLATE)
+    f = open(config.PROGRESS_TEMPLATE)
     template = f.read()
     f.close()
     progress_list = ''.join('<li id="%s">%s</li>\n' % x[:2] for x in config.PROGRESS_POINTS
@@ -214,7 +202,7 @@ def mode_css(args):
 
 @output_and_exit
 def mode_form(args):
-    f = open(FORM_TEMPLATE)
+    f = open(config.FORM_TEMPLATE)
     template = f.read()
     f.close()
     f = open(config.FONT_LIST_INCLUDE)

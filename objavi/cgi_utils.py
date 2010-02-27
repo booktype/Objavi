@@ -94,6 +94,7 @@ def font_links():
         links.append('<a href="%s?script=%s">%s</a>' % (config.FONT_LIST_URL, script, script))
     return links
 
+
 ## Helper functions for parse_args
 
 def isfloat(s):

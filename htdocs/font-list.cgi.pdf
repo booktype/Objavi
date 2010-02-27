@@ -80,7 +80,7 @@ script = form.getfirst('script')
 if script not in (x for x in os.listdir(config.FONT_EXAMPLE_SCRIPT_DIR) if x.isalnum()):
     script = 'latin'
 
-pdfname = os.path.join(config.BOOK_LIST_CACHE_DIR, 'font-list-%s-%s.pdf' %(script, h.hexdigest()))
+pdfname = os.path.join(config.CACHE_DIR, 'font-list-%s-%s.pdf' %(script, h.hexdigest()))
 
 if not os.path.exists(pdfname):
     #So this particular font list has not been made before
@@ -93,7 +93,7 @@ if not os.path.exists(pdfname):
     html = font_html(fonts, example_template, dir)
     font_pdf(html, pdfname)
 
-    include_name = os.path.join(config.BOOK_LIST_CACHE_DIR, 'font-list.inc')
+    include_name = os.path.join(config.CACHE_DIR, 'font-list.inc')
     html_font_list(fonts, include_name)
 
 

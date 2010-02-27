@@ -71,8 +71,8 @@ def async_callback(callback_url, **kwargs):
     os._exit(0)
 
 
-def espri(epuburl, zipurl):
-    log(epuburl, zipurl)
+def espri(epuburl, bookid):
+    log(epuburl, bookid)
     f = urlopen(epuburl)
     s = f.read()
     f.close()
@@ -81,23 +81,23 @@ def espri(epuburl, zipurl):
     e.parse_meta()
     e.parse_opf()
     e.parse_ncx()
-    e.make_bookizip(zipurl)
+    zipfile = '%s/%s.zip' % (config.BOOKI_BOOK_DIR, bookid)    
+    e.make_bookizip(zipfile)
 
 def ia_espri(book_id):
     epuburl = IA_EPUB_URL % (book_id, book_id)
     log(epuburl)
-    zipurl = '%s/%s.zip' % (config.BOOKI_BOOK_DIR, book_id)
-    espri(epuburl, zipurl)
-    return zipurl
+    espri(epuburl, bookid)
+    return bookid
 
 def inet_espri(epuburl):
     tainted_name = unquote(os.path.basename(urlsplit(epuburl).path))
     filename = super_bleach(tainted_name)
     if filename.lower().endswith('-epub'):
         filename = filename[:-5]
-    zipurl = '%s/%s-%s.zip' % (config.BOOKI_BOOK_DIR, filename, time.strftime('%F_%T'))
-    espri(epuburl, zipurl)
-    return zipurl
+    bookid = '%s-%s' % (filename, time.strftime('%F_%T'))
+    espri(epuburl, bookid)
+    return bookid
 
 
 TIMEOUT_CMD = 'timeout'
@@ -115,11 +115,11 @@ def wikibooks_espri(wiki_url):
     """
     os.environ['oxCACHE'] = WIKIBOOKS_CACHE
     tainted_name = unquote(os.path.basename(urlsplit(wiki_url).path))
-    filename = "%s-%s" % (super_bleach(tainted_name),
-                          time.strftime('%Y.%m.%d-%H.%M.%S'))
-    workdir = tempfile.mkdtemp(prefix=filename, dir=config.TMPDIR)
+    bookid = "%s-%s" % (super_bleach(tainted_name),
+                        time.strftime('%Y.%m.%d-%H.%M.%S'))
+    workdir = tempfile.mkdtemp(prefix=bookid, dir=config.TMPDIR)
     os.chmod(workdir, 0755)
-    epub_file = os.path.join(workdir, filename + '.epub')
+    epub_file = os.path.join(workdir, bookid + '.epub')
     epub_url = 'file://' + os.path.abspath(epub_file)
     #epub_url = 'http://localhost/' + epub_file
 
@@ -138,9 +138,8 @@ def wikibooks_espri(wiki_url):
             raise TimeoutError('Wikibooks took too long (over %s seconds)' % WIKIBOOKS_TIMEOUT)
         raise
 
-    zipurl = '%s/%s.zip' % (config.BOOKI_BOOK_DIR, filename)
-    espri(epub_url, zipurl)
-    return zipurl
+    espri(epub_url, bookid)
+    return bookid
 
 
 
@@ -181,10 +180,12 @@ if __name__ == '__main__':
         callback_url = args['callback']
         async_start('OK, got it...  will call %r when done' % (callback_url,),
                     'text/plain')
+    filename = None
     url = None
     if book is not None:
         try:
-            url = source_fn(book)
+            filename = source_fn(book)
+            url = '%s/%s' % (config.BOOKI_BOOK_URL, filename)
             book_link = '<p>Download <a href="%s">%s</a>.</p>' % (url, url)
         except Exception, e:
             traceback.print_exc()
@@ -195,15 +196,15 @@ if __name__ == '__main__':
     else:
         book_link = ''
 
-    if mode == 'callback':
+    if mode == 'callback':        
         async_callback(callback_url, url=url)
 
-    elif mode == 'zip' and url is not None:
-        f = open(url)
+    elif mode == 'zip' and filename is not None:
+        f = open(os.path.join(config.BOOKI_BOOK_DIR, filename))
         data = f.read()
         f.close()
         output_blob_and_exit(data, config.BOOKIZIP_MIMETYPE,
-                             os.path.basename(url))
+                             filename)
     else:
         log(book_link)
         print_form_and_exit(book_link)

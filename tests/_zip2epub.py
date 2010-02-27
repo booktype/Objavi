@@ -10,7 +10,7 @@ except ImportError:
 
 from objavi.fmbook import log, Book, make_book_name
 from objavi.cgi_utils import shift_file
-from objavi.config import EPUB_DIR
+from objavi.config import PUBLISH_DIR
 from iarchive import epub as ia_epub
 from objavi.xhtml_utils import EpubChapter
 
@@ -114,4 +114,4 @@ if __name__ == '__main__':
     book = ZipBook(zipstring)
     print book
     book.make_epub()
-    shift_file(book.epubfile, EPUB_DIR)
+    shift_file(book.epubfile, PUBLISH_DIR)
