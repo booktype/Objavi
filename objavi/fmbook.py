@@ -936,7 +936,7 @@ class Book(object):
                            #'-whitepixel', str(2 ** 24 -1),
                            #'+extension', 'Composite',
                            '-dpi', '96',
-                           '-kb',
+                           #'-kb',
                            '-nolisten', 'tcp',
                            ])
 
