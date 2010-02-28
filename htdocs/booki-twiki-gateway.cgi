@@ -31,7 +31,7 @@ from objavi.book_utils import shift_file, log
 from objavi import config
 
 
-def make_booki_package(server, bookid,  use_cache=False):
+def make_booki_package(server, bookid, use_cache=False):
     """Extract all chapters from the specified book, as well as
     associated images and metadata, and zip it all up for conversion
     to epub.
@@ -40,7 +40,7 @@ def make_booki_package(server, bookid,  use_cache=False):
     will be reused.
     """
     book = TWikiBook(bookid, server)
-    return book.make_bookizip()
+    return book.make_bookizip(use_cache=use_cache)
 
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     make_all = args.get('all')
     if 'server' in args and 'book' in args:
-        zfn = make_booki_package(args['server'], args['book'],  use_cache)
+        zfn = make_booki_package(args['server'], args['book'], use_cache)
         fn = shift_file(zfn, config.BOOKI_BOOK_DIR)
         ziplink = '<p><a href="%s">%s zip file.</a></p>' % (fn, args['book'])
 
