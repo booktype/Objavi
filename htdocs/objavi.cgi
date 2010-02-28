@@ -23,6 +23,9 @@ from __future__ import with_statement
 
 import os, sys
 os.chdir('..')
+sys.path.insert(0, os.path.abspath('.'))
+#print >> sys.stderr, sys.path
+
 import re
 from pprint import pformat
 

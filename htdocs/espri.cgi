@@ -20,6 +20,7 @@
 
 import os, sys
 os.chdir('..')
+sys.path.insert(0, os.path.abspath('.'))
 
 import time
 from urllib2 import urlopen, URLError

@@ -23,6 +23,8 @@ from __future__ import with_statement
 
 import os, sys
 os.chdir('..')
+sys.path.insert(0, os.path.abspath('.'))
+
 import re, time
 #import traceback
 from pprint import pformat
