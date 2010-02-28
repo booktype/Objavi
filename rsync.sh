@@ -3,13 +3,13 @@ HERE=`dirname $0`
 
 rsync $@ -a \
     --include='tests/*.py' \
-    --exclude='books' \
-    --exclude='booki-books' \
-    --exclude='epub' \
+    --exclude='htdocs/books' \
+    --exclude='htdocs/booki-books' \
+    --exclude='htdocs/tmp' \
     --exclude='booki' \
     --exclude='pdf' \
+    --exclude='log' \
     --exclude='perl' \
-    --exclude='tmp' \
     --exclude='misc' \
     --exclude='cache' \
     --exclude='examples' \
