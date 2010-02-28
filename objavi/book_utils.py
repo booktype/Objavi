@@ -20,6 +20,7 @@ General utility functions.
 """
 
 import os, sys
+import shutil
 import time
 from subprocess import Popen, PIPE
 
@@ -109,11 +110,12 @@ def run(cmd):
 
 def shift_file(fn, dir, backup='~'):
     """Shift a file and save backup (only works on same filesystem)"""
+    log("shifting file %r to %s" % (fn, dir))
     base = os.path.basename(fn)
     dest = os.path.join(dir, base)
     if backup and os.path.exists(dest):
         os.rename(dest, dest + backup)
-    os.rename(fn, dest)
+    shutil.move(fn, dest)
     return dest
 
 class ObjaviError(Exception):
