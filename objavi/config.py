@@ -32,14 +32,14 @@ MM_2_POINT = 72.0 / 25.4
 INCH_2_POINT = 72
 
 KEEP_TEMP_FILES = True
-TMPDIR = 'tmp'
+TMPDIR = 'htdocs/tmp'
 
 LOGDIR = 'log'
 REDIRECT_LOG = True
 LOG_ROTATE_SIZE = 1000000
 
 HTDOCS = 'htdocs'
-BOOKI_BOOK_DIR = '/htdocs/booki-books'
+BOOKI_BOOK_DIR = 'htdocs/booki-books'
 BOOKI_BOOK_URL = '/booki-books'
 
 FIREFOX = 'firefox'
