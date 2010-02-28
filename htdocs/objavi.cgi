@@ -31,7 +31,7 @@ from pprint import pformat
 
 from objavi.fmbook import log, Book, make_book_name, HTTP_HOST
 from objavi import config
-from objavi.cgi_utils import parse_args, optionise, listify, output_and_exit, font_links
+from objavi.cgi_utils import parse_args, optionise, listify, output_and_exit, font_links, get_default_css
 from objavi.cgi_utils import output_blob_and_exit, is_utf8, isfloat, isfloat_or_auto, is_isbn
 from objavi.twiki_wrapper import get_book_list
 
@@ -87,17 +87,6 @@ def get_size_list():
     return [x[1:] for x in sorted(calc_size(k, v.get('pointsize'), v.get('class', ''))
                                   for k, v in config.PAGE_SIZE_DATA.iteritems())
             ]
-
-def get_default_css(server=config.DEFAULT_SERVER, mode='book'):
-    """Get the default CSS text for the selected server"""
-    log(server)
-    cssfile = config.SERVER_DEFAULTS[server]['css-%s' % mode]
-    log(cssfile)
-    f = open(cssfile)
-    s = f.read()
-    f.close()
-    return s
-
 
 def make_progress_page(book, bookname, mode, destination='html'):
     """Return a function that will notify the user of progress.  In

@@ -74,10 +74,14 @@ def get_size_list():
                                   for k, v in config.PAGE_SIZE_DATA.iteritems())
             ]
 
+def url2path(url):
+    """convert htdocs-relative addresses to local file paths"""
+    return config.HTDOCS + '/' + url.lstrip('/')
+
 def get_default_css(server=config.DEFAULT_SERVER, mode='book'):
     """Get the default CSS text for the selected server"""
     log(server)
-    cssfile = config.SERVER_DEFAULTS[server]['css-%s' % mode]
+    cssfile = url2path(config.SERVER_DEFAULTS[server]['css-%s' % mode])
     log(cssfile)
     f = open(cssfile)
     s = f.read()
@@ -93,7 +97,6 @@ def font_links():
             continue
         links.append('<a href="%s?script=%s">%s</a>' % (config.FONT_LIST_URL, script, script))
     return links
-
 
 ## Helper functions for parse_args
 
