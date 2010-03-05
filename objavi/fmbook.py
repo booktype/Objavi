@@ -43,7 +43,7 @@ from lxml import etree
 from objavi import config, epub_utils
 from objavi.book_utils import log, run, make_book_name, guess_lang, guess_text_dir
 from objavi.book_utils import ObjaviError
-from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline
+from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline, parse_extracted_outline
 from objavi.epub import add_guts, _find_tag
 from objavi.xhtml_utils import EpubChapter, split_tree
 
@@ -246,6 +246,7 @@ class Book(object):
         self.isbn_pdf_file = None
         self.pdf_file = self.filepath('final.pdf')
         self.body_odt_file = self.filepath('body.odt')
+        self.outline_file = self.filepath('outline.txt')
 
         self.publish_file = os.path.abspath(os.path.join(config.PUBLISH_DIR, bookname))
 
@@ -313,9 +314,30 @@ class Book(object):
         self.notify_watcher()
 
     def extract_pdf_outline(self):
-        #self.outline_contents, self.outline_text, number_of_pages = parse_outline(self.body_pdf_file, 1)
-        debugf = self.filepath('outline.txt')
-        self.outline_contents, self.outline_text, number_of_pages = \
+        """Get the outline (table of contents) for the PDF, which
+        wkhtmltopdf should have written to a file.  If that file
+        doesn't exist (or config says not to use it), fall back to
+        using self._extract_pdf_outline_the_old_way, below.
+        """
+        if config.USE_DUMP_OUTLINE:
+            try:
+                self.outline_contents, number_of_pages = \
+                                       parse_extracted_outline(self.outline_file)
+
+            except Exception, e:
+                traceback.print_exc()
+                number_of_pages = self._extract_pdf_outline_the_old_way()
+        else:
+            number_of_pages = self._extract_pdf_outline_the_old_way()
+
+        self.notify_watcher()
+        return number_of_pages
+
+    def _extract_pdf_outline_the_old_way(self):
+        """Try to get the PDF outline using pdftk.  This doesn't work
+        well with all scripts."""
+        debugf = self.filepath('extracted-outline.txt')
+        self.outline_contents, number_of_pages = \
                 parse_outline(self.body_pdf_file, 1, debugf)
 
         if not self.outline_contents:
@@ -339,8 +361,8 @@ class Book(object):
             html_text = lxml.etree.tostring(tree, method="html")
             save_data(ascii_html_file, html_text)
             self.maker.make_raw_pdf(ascii_html_file, ascii_pdf_file, outline=True)
-            debugf = self.filepath('ascii_outline.txt')
-            ascii_contents, ascii_text, number_of_ascii_pages = \
+            debugf = self.filepath('ascii-extracted-outline.txt')
+            ascii_contents, number_of_ascii_pages = \
                 parse_outline(ascii_pdf_file, 1, debugf)
             self.outline_contents = []
             log ("number of pages: %s, post ascii: %s" %
@@ -354,11 +376,7 @@ class Book(object):
                 log((ascii_title, title, depth, pageno))
 
                 self.outline_contents.append((title, depth, pageno))
-        else:
-            for x in self.outline_contents:
-                log(x)
 
-        self.notify_watcher()
         return number_of_pages
 
     def make_body_pdf(self):
@@ -368,7 +386,7 @@ class Book(object):
         save_data(self.body_html_file, html_text)
 
         #2. Make a pdf of it
-        self.maker.make_raw_pdf(self.body_html_file, self.body_pdf_file, outline=True)
+        self.maker.make_raw_pdf(self.body_html_file, self.body_pdf_file, outline=True, outline_file=self.outline_file)
         self.notify_watcher('generate_pdf')
 
         n_pages = self.extract_pdf_outline()
@@ -467,7 +485,7 @@ class Book(object):
         save_data(self.body_html_file, html_text)
 
         #2. Make a pdf of it (direct to to final pdf)
-        self.maker.make_raw_pdf(self.body_html_file, self.pdf_file, outline=True)
+        self.maker.make_raw_pdf(self.body_html_file, self.pdf_file, outline=True, outline_file=self.outline_file)
         self.notify_watcher('generate_pdf')
         n_pages = count_pdf_pages(self.pdf_file)
 
@@ -609,7 +627,7 @@ class Book(object):
 
         chapter = 1
         page_num = 1
-
+        log(self.outline_contents)
         outline_contents = iter(self.outline_contents)
 
         for section in self.toc:
@@ -620,7 +638,9 @@ class Book(object):
 
             for point in section['children']:
                 try:
-                    h1_text, level, page_num = outline_contents.next()
+                    level = 99
+                    while level > 1:
+                        h1_text, level, page_num = outline_contents.next()
                 except StopIteration:
                     log("contents data not found for %s. Stopping" % (point,))
                     break

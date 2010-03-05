@@ -46,6 +46,10 @@ FIREFOX = 'firefox'
 WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
 
+#use hacked version of wkhtmltopdf that writes outline to a file
+USE_DUMP_OUTLINE = True
+CONTENTS_DEPTH = 1
+
 HTML2ODT = 'bin/html2odt'
 
 #CGITB_DOMAINS = ('203.97.236.46', '202.78.240.7')
