@@ -107,6 +107,7 @@ def run(cmd):
         raise
     log("%s\n%s returned %s and produced\nstdout:%s\nstderr:%s" %
         (' '.join(cmd), cmd[0], p.poll(), out, err))
+    return p.poll()
 
 def shift_file(fn, dir, backup='~'):
     """Shift a file and save backup (only works on same filesystem)"""
