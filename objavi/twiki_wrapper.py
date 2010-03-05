@@ -4,7 +4,7 @@ import os, sys, time, re
 import tempfile
 
 from objavi import config
-from objavi.book_utils import log, guess_lang, guess_text_dir, make_book_name
+from objavi.book_utils import log, guess_lang, guess_text_dir, make_book_name, decode_html_entities
 from urllib2 import urlopen
 from urlparse import urlsplit
 from booki.bookizip import add_metadata, BookiZip
@@ -95,9 +95,9 @@ class TocItem(object):
         #
         # chapter is twiki name of the chapter
         # title is a human readable name of the chapter.
-        self.status = status
-        self.chapter = chapter
-        self.title = title
+        self.status = decode_html_entities(status)
+        self.chapter = decode_html_entities(chapter)
+        self.title = decode_html_entities(title)
 
     def is_chapter(self):
         return self.status == '1'

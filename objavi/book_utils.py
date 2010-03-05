@@ -21,7 +21,7 @@ General utility functions.
 
 import os, sys
 import shutil
-import time
+import time, re
 from subprocess import Popen, PIPE
 
 #from objavi.fmbook import log
@@ -121,3 +121,17 @@ def shift_file(fn, dir, backup='~'):
 
 class ObjaviError(Exception):
     pass
+
+
+def decode_html_entities(text):
+    def fixup(m):
+        entity = m.group(0)
+        try:
+            if entity[:3] == "&#x":
+                return unichr(int(entity[3:-1], 16))
+            elif entity[:2] == "&#":
+                return unichr(int(entity[2:-1]))
+        except ValueError:
+            log("ignoring bad entity %s" % entity)
+        return entity
+    return re.sub("&#?[0-9a-fA-F]+;", fixup, text)
