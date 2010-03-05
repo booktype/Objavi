@@ -617,7 +617,7 @@ class Book(object):
         """Generate HTML containing the table of contents.  This can
         only be done after the main PDF has been made, because the
         page numbers are contained in the PDF outline."""
-        header = '<h1>Table of Contents</h1><table class="toc">\n'
+        header = '<table class="toc">\n'
         row_tmpl = ('<tr><td class="chapter">%s</td><td class="title">%s</td>'
                     '<td class="pagenumber">%s</td></tr>\n')
         empty_section_tmpl = ('<tr><td class="empty-section" colspan="3">%s</td></tr>\n')
