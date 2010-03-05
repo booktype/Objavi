@@ -46,6 +46,7 @@ from objavi.book_utils import ObjaviError
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline, parse_extracted_outline
 from objavi.epub import add_guts, _find_tag
 from objavi.xhtml_utils import EpubChapter, split_tree
+from objavi.cgi_utils import url2path
 
 from iarchive import epub as ia_epub
 from booki.bookizip import get_metadata, add_metadata
@@ -700,15 +701,12 @@ class Book(object):
                 css_modes = config.LANGUAGE_CSS.get(self.lang,
                                                     config.LANGUAGE_CSS['en'])
                 css_default = css_modes.get(mode, css_modes[None])
-            url = 'file://' + os.path.abspath(css_default)
+            url = 'file://' + os.path.abspath(url2path(css_default))
         elif not re.match(r'^http://\S+$', css):
             fn = self.save_tempfile('objavi.css', css)
             url = 'file://' + fn
         else:
             url = css
-        #XXX for debugging and perhaps sensible anyway
-        #url = url.replace('file:///home/douglas/objavi2', '')
-
 
         #find the head -- it's probably first child but lets not assume.
         for child in htmltree:
