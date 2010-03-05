@@ -154,6 +154,39 @@ class BaseChapter(object):
         #        log('found bad tag %s' % e.tag)
         self.cleaner(self.tree)
 
+
+    def fix_bad_structure(self):
+        """Attempt to match booki chapter conventions.  This doesn't
+        care about xhtml correctness, just booki correctness"""
+        #0. is the first element preceded by text?
+        body = self.tree.iter('body').next()
+        if body.text.strip():
+            log("BAD STRUCTURE: text %r before first tag (not fixing)" % body.text.strip())
+        # 1. is the first element an h1?
+        el1 = body[0]
+        if el1.tag != 'h1':
+            log("BAD STRUCTURE: firstelement is %r " % el1.tag)
+            if el1.tag == 'link' and el1.get('rel') == 'File-List':
+                #some crappy word thing, delete it
+                del body[0]
+                el1 = body[0]
+            if el1.tag in ('h2', 'h3', 'strong', 'b'):
+                log("converting %r to 'h1'" % el1.tag)
+                el1.tag = 'h1'
+
+        #2. how many <h1>s are there?
+        h1s = body.findall('h1')
+        if not h1s:
+            log("BAD STRUCTURE: no h1! making one up")
+            h1 = body.makeelement('h1')
+            h1.text = "Somebody Should Set The Title For This Chapter!"
+            body.insert(0, h1)
+        elif len(h1s) > 1:
+            log("BAD STRUCTURE: found extra h1s: %s, converting to h2" % h1s[1:])
+            for h1 in h1s[1:]:
+                h1.tag = 'h2'
+
+
     def _loadtree(self, html):
         try:
             try:

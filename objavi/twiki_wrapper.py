@@ -242,6 +242,7 @@ class TWikiBook(object):
             c = TWikiChapter(self.server, self.book, chapter, contents,
                              use_cache=use_cache)
             images = c.localise_links()
+            c.fix_bad_structure()
             all_images.update(images)
             #log(chapter, self.credits)
             bz.add_to_package(chapter, chapter + '.html',
