@@ -157,19 +157,40 @@ class BaseChapter(object):
 
     def fix_bad_structure(self):
         """Attempt to match booki chapter conventions.  This doesn't
-        care about xhtml correctness, just booki correctness"""
+        care about xhtml correctness, just booki correctness.
+
+        This function's philosophy is to be aggressive, and be
+        modified upon complaint."""
+
         #0. is the first element preceded by text?
         body = self.tree.iter('body').next()
         if body.text.strip():
             log("BAD STRUCTURE: text %r before first tag (not fixing)" % body.text.strip())
+
+        #0.5 Remove any <link>, <script>, and <style> tags
+        #they are at best spurious
+        for tag in ['link', 'style', 'script', etree.Comment]:
+            for e in body.iter(tag):
+                log("BAD STRUCTURE: trying remove %r (with tail %r)" % (e, e.tail))
+                parent = e.getparent()
+                if e.tail:
+                    log("rescuing that tail")
+                    p = e.getprevious()
+                    if p is None:
+                        parent.text = (parent.text or "") + e.tail
+                    else:
+                        p.tail = (p.tail or "") + e.tail
+                parent.remove(e)
+
+        #0.75 Remove style attribute from all elements!
+        for e in body.iter():
+            if e.get('style'):
+                del e.attrib['style']
+
         # 1. is the first element an h1?
         el1 = body[0]
         if el1.tag != 'h1':
             log("BAD STRUCTURE: firstelement is %r " % el1.tag)
-            if el1.tag == 'link' and el1.get('rel') == 'File-List':
-                #some crappy word thing, delete it
-                del body[0]
-                el1 = body[0]
             if el1.tag in ('h2', 'h3', 'strong', 'b'):
                 log("converting %r to 'h1'" % el1.tag)
                 el1.tag = 'h1'
