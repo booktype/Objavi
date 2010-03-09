@@ -20,15 +20,19 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os, sys
+os.chdir('..')
+sys.path.insert(0, os.path.abspath('.'))
+
 import re, traceback
-from pprint import pformat
+#from pprint import pformat
 
 from objavi.twiki_wrapper import TWikiBook, get_book_list
-from objavi.cgi_utils import parse_args, optionise, shift_file, output_blob_and_exit, log, make_book_name
+from objavi.cgi_utils import parse_args, optionise, output_blob_and_exit
+from objavi.book_utils import shift_file, log
 from objavi import config
 
 
-def make_booki_package(server, bookid,  use_cache=False):
+def make_booki_package(server, bookid, use_cache=False):
     """Extract all chapters from the specified book, as well as
     associated images and metadata, and zip it all up for conversion
     to epub.
@@ -37,7 +41,7 @@ def make_booki_package(server, bookid,  use_cache=False):
     will be reused.
     """
     book = TWikiBook(bookid, server)
-    return book.make_bookizip()
+    return book.make_bookizip(use_cache=use_cache)
 
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
@@ -59,7 +63,7 @@ if __name__ == '__main__':
 
     make_all = args.get('all')
     if 'server' in args and 'book' in args:
-        zfn = make_booki_package(args['server'], args['book'],  use_cache)
+        zfn = make_booki_package(args['server'], args['book'], use_cache)
         fn = shift_file(zfn, config.BOOKI_BOOK_DIR)
         ziplink = '<p><a href="%s">%s zip file.</a></p>' % (fn, args['book'])
 
@@ -68,7 +72,7 @@ if __name__ == '__main__':
             f = open(fn)
             data = f.read()
             f.close()
-            output_blob_and_exit(data, 'application/x-booki+zip', args['book'] + '.zip')
+            output_blob_and_exit(data, config.BOOKIZIP_MIMETYPE, args['book'] + '.zip')
 
     elif 'server' in args and make_all is not None:
         links = []

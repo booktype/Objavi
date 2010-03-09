@@ -25,7 +25,7 @@ def get_compressed_size(s):
 
 config.EPUB_FILE_SIZE_MAX = 100000
 
-def split_file(fn, splitter, name):
+def split_file(fn, splitter):
     f = open(fn)
     html = f.read()
     f.close()
@@ -48,18 +48,61 @@ def split_file(fn, splitter, name):
         log([len(x) for x in fragments])
         tree = lxml.html.fromstring(''.join(fragments))
 
+        jostle_markers(tree)
+
         html2 = etree.tostring(tree, encoding='UTF-8', method='html')
         f = open('/tmp/marked.html', 'w')
         f.write(html2)
         f.close()
 
-        chapters = splitter(tree)
+        t = time.time()
+        chapters, name = splitter(tree)
+        print "%s took %s" % (splitter, time.time() - t)
+
         log(chapters)
         for i, c in enumerate(chapters):
             f = open('/tmp/%s_%s.html' % (name, i + 1,), 'w')
             f.write(etree.tostring(c, encoding='UTF-8', method='html'))
             f.close()
 
+
+INESCAPABLE_TAGS = frozenset(['html', 'head', 'body', 'blockquote', 'center',
+                              'div', 'form', 'frameset', 'frame', 'noframes',
+                              ])
+
+def jostle_markers(root):
+    """If a marker is not separating block level elements, try to
+    move it out until it is, without completely ruining everything."""
+    stacks = []
+    for hr in root.iter(tag='hr'):
+        if hr.get('class') == MARKER_CLASS:
+            stack = frozenset(x for x in hr.iterancestors())
+            stacks.append((hr, stack))
+
+    for i, (hr, stack) in enumerate(stacks):
+        if hr.get('class') == MARKER_CLASS:
+            while True:
+                parent = hr.getparent()
+                log('i is %s hr is %s, parent is %s' %(i, hr, parent))
+                if parent.tag in ('html', 'body'):
+                    log('hit body')
+                    break
+
+                #don't allow two stacks to merge
+                if ((i > 0 and parent in stacks[i - 1][1]) or
+                    (i + 1 < len(stacks) and parent in stacks[i + 1][1])):
+                    log('hit neighbour')
+                    break
+
+                #unless hr is right before the closing tag, don't jump
+                #out of div, center or blockquote.
+                if (parent.tag in INESCAPABLE_TAGS and
+                    not (hr.getnext() is None and not hr.tail)):
+                    log('hit %s' % parent.tag)
+                    break
+
+                parent.addnext(hr)
+                continue
 
 
 def copy_element(src, create):
@@ -77,7 +120,7 @@ def copy_element(src, create):
     dest.tail = src.tail
     return dest
 
-def split_document(doc):
+def split_document_1(doc):
     """Split the document along chapter boundaries."""
     try:
         root = doc.getroot()
@@ -88,7 +131,7 @@ def split_document(doc):
     chapters = [front_matter]
 
     _climb_and_split(root, front_matter, chapters)
-    return chapters
+    return chapters, 'split1'
 
 def _climb_and_split(src, dest, chapters):
     for child in src.iterchildren():
@@ -173,15 +216,75 @@ def split_document_2(doc):
         #stacks have run out -- the rest of the tree is the last section
         chapters.append(src)
 
-    return chapters
+    return chapters, 'split2'
+
+
+def split_document_3(doc):
+    try:
+        root = doc.getroot()
+    except AttributeError:
+        root = doc
+
+    stacks = []
+    for hr in doc.iter(tag='hr'):
+        if hr.get('class') == MARKER_CLASS:
+            stack = [hr]
+            stack.extend(x for x in hr.iterancestors())
+            stacks.append(stack[:-1])
+
+    iterstacks = iter(stacks)
+
+
+    src = root
+    dest = lxml.html.Element(root.tag, **root.attrib)
+    doc = dest
+    stack = iterstacks.next()
+    marker = stack[0]
+    current = stack.pop()
+
+    chapters = []
+    try:
+        while True:
+            for e in src:
+                if e != current:
+                    dest.append(e)
+                elif e is marker:
+                    # got one
+                    src.remove(e)
+                    chapters.append(doc)
+                    src = root
+                    dest = lxml.html.Element(root.tag, **src.attrib)
+                    doc = dest
+                    stack = iterstacks.next()
+                    marker = stack[0]
+                    current = stack.pop()
+
+                    break
+                else:
+                    #go in a level
+                    dest = etree.SubElement(dest, e.tag, **e.attrib)
+                    dest.text = e.text
+                    e.text = None
+                    src = e
+                    current = stack.pop()
+
+                    break
+    except StopIteration:
+        #stacks have run out -- the rest of the tree is the last section
+        chapters.append(src)
+
+    return chapters, 'split3'
 
 
 
+#log = lambda x: None
+#def log(*args):
+#    return
 
-#print sys.argv
-t = time.time()
-#split_file(HTML_FILE, split_document, 'recurse')
-split_file(HTML_FILE, split_document_2, 'stack')
-print time.time() - t
+for splitter in (split_document_1, split_document_2, split_document_3,
+                 split_document_1, split_document_2, split_document_3,
+    ):
+    split_file(HTML_FILE, splitter)
+
 
 

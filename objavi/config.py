@@ -23,22 +23,34 @@
 #XXX eventually, read in a real config file.
 #XXX Some of these values should be editable via an admin cgi script
 
+#cgi scripts chdir here to escape htdocs
+BASEDIR = ".."
+
 #Not really configurable (72 pt per inch / 25.4 mm per inch)
 POINT_2_MM = 25.4 / 72.0
 MM_2_POINT = 72.0 / 25.4
 INCH_2_POINT = 72
 
-KEEP_TEMP_FILES=True
-TMPDIR = 'tmp'
+KEEP_TEMP_FILES = True
+TMPDIR = 'htdocs/tmp'
 
-EPUB_DIR = 'books'
-BOOKI_BOOK_DIR = 'booki-books'
+LOGDIR = 'log'
+REDIRECT_LOG = True
+LOG_ROTATE_SIZE = 1000000
+
+HTDOCS = 'htdocs'
+BOOKI_BOOK_DIR = 'htdocs/booki-books'
+BOOKI_BOOK_URL = '/booki-books'
 
 FIREFOX = 'firefox'
 WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
 
-HTML2ODT = './html2odt'
+#use hacked version of wkhtmltopdf that writes outline to a file
+USE_DUMP_OUTLINE = True
+CONTENTS_DEPTH = 1
+
+HTML2ODT = 'bin/html2odt'
 
 #CGITB_DOMAINS = ('203.97.236.46', '202.78.240.7')
 CGITB_DOMAINS = False
@@ -52,18 +64,28 @@ PDFEDIT_MAX_PAGES = 40
 
 #keep book lists around for this time without refetching
 BOOK_LIST_CACHE = 3600 * 2
-BOOK_LIST_CACHE_DIR = 'cache'
+CACHE_DIR = 'cache'
 
+#for twiki import
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
-PUBLISH_URL = "/books/"
 
-TWIKI_GATEWAY_URL = 'http://%s/booki-twiki-gateway.cgi?server=%s&book=%s&mode=zip'
-BOOKI_ZIP_URL = 'http://%(server)s/export/%(book)s/export'
+PUBLISH_DIR = 'htdocs/books'
+
+POLL_NOTIFY_PATH = 'htdocs/progress/%s.txt'
+#POLL_NOTIFY_URL = 'http://%(HTTP_HOST)s/progress/%(bookname)s.txt'
+
+ZIP_URLS = {
+    'TWiki':   'http://%(HTTP_HOST)s/booki-twiki-gateway.cgi?server=%(server)s&book=%(book)s&mode=zip',
+    'Booki':   'http://%(server)s/export/%(book)s/export',
+    'Archive': 'http://%(HTTP_HOST)s/espri.cgi?mode=zip&book=%(book)s',
+}
 
 DEFAULT_SERVER = 'en.flossmanuals.net'
 DEFAULT_SIZE = 'COMICBOOK'
 DEFAULT_ENGINE = 'webkit'
+
+BOOKIZIP_MIMETYPE = "application/x-booki+zip"
 
 RTL_SCRIPTS = ['persian', 'arabic', 'hebrew', 'urdu']
 
@@ -82,11 +104,8 @@ LANGUAGE_CSS = {
            'newspaper': 'static/en.flossmanuals.net-newspaper.css',
            'openoffice': 'static/en.flossmanuals.net-openoffice.css',
            },
-
     'my': {None: 'static/my.flossmanuals.net.css',}
 }
-
-
 
 SERVER_DEFAULTS = {
     'booki.flossmanuals.net': {
@@ -111,6 +130,18 @@ SERVER_DEFAULTS = {
         'toc-encoding': None,
         'display': False,
         'interface': 'Booki',
+        'toc_header': 'Table of Contents',
+        },
+    'archive.org': {
+        'css-book': 'static/en.flossmanuals.net.css',
+        'css-web': 'static/en.flossmanuals.net-web.css',
+        'css-newspaper': 'static/en.flossmanuals.net-newspaper.css',
+        'css-openoffice': 'static/en.flossmanuals.net-openoffice.css',
+        'lang': 'en',
+        'dir': 'LTR',
+        'toc-encoding': None,
+        'display': False,
+        'interface': 'Archive',
         'toc_header': 'Table of Contents',
         },
     LOCALHOST: {
@@ -337,26 +368,54 @@ LICENSES = {
 
 DEFAULT_LICENSE = 'GPLv2+'
 
-CGI_MODES = { # arguments are: (publication, )
-    'book': (True,),
-    'newspaper': (True,),
-    'web': (True,),
-    'openoffice': (True,),
-    'booklist': (False,),
-    'css': (False,),
-    'form': (False,),
-    'epub':(True,),
+CGI_MODES = { # arguments are: (publication, extension, mimetype)
+    'book': (True, '.pdf', "application/pdf"),
+    'newspaper': (True, '.pdf', "application/pdf"),
+    'web': (True, '.pdf', "application/pdf"),
+    'openoffice': (True, '.odt', "application/vnd.oasis.opendocument.text"),
+    'booklist': (False, None, None),
+    'css': (False, None, None),
+    'form': (False, None, None),
+    'epub':(True, '.epub', "application/epub+zip"),
+    'bookizip':(True, '.zip', BOOKIZIP_MIMETYPE),
 }
 
+PUBLIC_CGI_MODES = tuple(k for k, v in CGI_MODES.items() if v[0])
 
-#PUBLISH_DESTINATIONS
-PUBLISH_DESTINATIONS = {
-    'archive.org': None,
-    'download': None,
-    'html': None,
-    'nowhere': None,
+FORM_TEMPLATE = 'templates/form.html'
+PROGRESS_ASYNC_TEMPLATE = 'templates/progress-async.html'
+PROGRESS_TEMPLATE = 'templates/progress.html'
+ASYNC_TEMPLATE = 'templates/async.txt'
+ARCHIVE_TEMPLATE = 'templates/archive.txt'
+NOWHERE_TEMPLATE = 'templates/nowhere.txt'
+
+CGI_METHODS = ('sync', 'async', 'poll')
+
+#used by objavi-async
+CGI_DESTINATIONS = {
+    'archive.org': {'sync': (ARCHIVE_TEMPLATE, 'text/plain; charset=utf-8'),
+                    'async': (ARCHIVE_TEMPLATE, 'text/plain; charset=utf-8'),
+                    'poll': (None, None),
+                    'default': 'sync',
+                    },
+    'download': {'sync': (None, None),
+                 'async': (ASYNC_TEMPLATE, 'text/plain; charset=utf-8'),
+                 'poll': (None, None),
+                 'default': 'sync',
+                 },
+    'html': {'sync': (PROGRESS_TEMPLATE, 'text/html; charset=utf-8'),
+             'async': (ASYNC_TEMPLATE, 'text/plain; charset=utf-8'),
+             'poll': (PROGRESS_ASYNC_TEMPLATE, 'text/html; charset=utf-8'),
+             'default': 'sync',
+             },
+    'nowhere': {'sync': (NOWHERE_TEMPLATE, 'text/plain; charset=utf-8'),
+                'async': (NOWHERE_TEMPLATE, 'text/plain; charset=utf-8'),
+                'poll': (ASYNC_TEMPLATE, 'text/plain; charset=utf-8'),
+                'default': 'sync',
+                },
 }
-DEFAULT_PUBLISH_DESTINATION = 'html'
+
+DEFAULT_CGI_DESTINATION = 'html'
 
 
 FORM_INPUTS = (
@@ -406,10 +465,12 @@ FORM_ELEMENT_TYPES = {
     'ul': '<ul id="%(id)s">%(val)s</ul>',
 }
 
+FINISHED_MESSAGE = 'FINISHED'
+
 PROGRESS_POINTS = (
-    ("start", "wake up", ('book', 'newspaper', 'web', 'openoffice', 'epub')),
-    ("fetch_zip", "Load data", ('book', 'newspaper', 'web', 'openoffice', 'epub')),
-    ("__init__", "Initialise the book", ('book', 'newspaper', 'web', 'openoffice', 'epub')),
+    ("start", "wake up", PUBLIC_CGI_MODES),
+    ("fetch_zip", "Load data", PUBLIC_CGI_MODES),
+    ("__init__", "Initialise the book", PUBLIC_CGI_MODES),
     ("load_book", "Fetch the book", ('book', 'newspaper', 'web', 'openoffice')),
     ("add_css", "Add css", ('book', 'newspaper', 'web', 'openoffice')),
     ("add_section_titles", "Add section titles", ('book', 'newspaper', 'web', 'openoffice')),
@@ -425,7 +486,7 @@ PROGRESS_POINTS = (
     ('make_end_matter_pdf', "Generate end matter pdf", ('book',)),
     ("concatenated_pdfs", "concatenate the pdfs", ('book',)),
     #("publish_pdf", "Publish the pdf", ('book', 'newspaper', 'web')),
-    ("finished", "Finished!", ('book', 'newspaper', 'web', 'openoffice', 'epub')),
+    (FINISHED_MESSAGE, "Finished!", PUBLIC_CGI_MODES),
 )
 
 #XML namespace stuff
@@ -443,6 +504,8 @@ NAVPOINT_ID_TEMPLATE = 'chapter%s'
 
 CLAIM_UNAUTHORED = False
 
+IMG_CACHE = 'cache/images/'
+
 USE_IMG_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
 USE_ZIP_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
 
@@ -456,7 +519,8 @@ EPUB_COMPRESSED_SIZE_MAX = 70000
 EPUB_FILE_SIZE_MAX = 200000
 
 #used to identify marker tags in html
-MARKER_CLASS = "espri-marker-name-clash-with-no-one"
+MARKER_CLASS_SPLIT = "espri-marker-name-clash-with-no-one--split"
+MARKER_CLASS_INFO = "espri-marker-name-clash-with-no-one--info"
 
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))

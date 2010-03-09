@@ -6,7 +6,7 @@ function objavi_show_progress(task){
     e.css("color", "black");
     e.next().css("color", "red");
 
-    if (task == 'finished' || task == 'publish_pdf'){
+    if (task == 'FINISHED' || task == 'finished'){
         $(".oncomplete").css("display", "block");
     }
 }

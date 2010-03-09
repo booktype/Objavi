@@ -22,13 +22,13 @@
 import os, sys
 import re
 from subprocess import Popen, PIPE
+import urllib
 
 from objavi import config
-from objavi.cgi_utils import log, run
+from objavi.book_utils import log, run
 
 
 def find_containing_paper(w, h):
-    size = None
     for name, pw, ph in config.PAPER_SIZES:
         if pw >= w and ph >= h:
             mw = (pw - w) * 0.5
@@ -90,14 +90,23 @@ class PageSettings(object):
 
 
 
-    def _webkit_command(self, html, pdf, outline=False):
+    def _webkit_command(self, html, pdf, outline=False, outline_file=None):
         m = [str(x) for x in self.margins]
         outline_args = ['--outline',  '--outline-depth', '2'] * outline
+        if outline_file is not None:
+            outline_args += ['--dump-outline', outline_file]
+
         greyscale_args = ['-g'] * self.grey_scale
-        cmd = ([config.WKHTMLTOPDF, '-q', '-s', self.papersize,
+        quiet_args = ['-q']
+        cmd = ([config.WKHTMLTOPDF] +
+               quiet_args +
+               ['-s', self.papersize,
                '-T', m[0], '-R', m[1], '-B', m[2], '-L', m[3],
-               '-d', '100'] + outline_args + greyscale_args +
-               config.WKHTMLTOPDF_EXTRA_COMMANDS + [html, pdf])
+               '-d', '100'] +
+               outline_args +
+               greyscale_args +
+               config.WKHTMLTOPDF_EXTRA_COMMANDS +
+               [html, pdf])
         log(' '.join(cmd))
         return cmd
 
@@ -109,10 +118,10 @@ class PageSettings(object):
         log(' '.join(cmd))
         return cmd
 
-    def make_raw_pdf(self, html, pdf, outline=False):
+    def make_raw_pdf(self, html, pdf, outline=False, outline_file=None):
         func = getattr(self, '_%s_command' % self.engine)
         if self.columns == 1:
-            cmd = func(html, pdf, outline=outline)
+            cmd = func(html, pdf, outline=outline, outline_file=outline_file)
             run(cmd)
         else:
             printable_width = self.width - 2.0 * self.side_margin - self.gutter
@@ -135,7 +144,7 @@ class PageSettings(object):
                                        )
 
             column_pdf = pdf[:-4] + '-single-column.pdf'
-            columnmaker.make_raw_pdf(html, column_pdf, outline=outline)
+            columnmaker.make_raw_pdf(html, column_pdf, outline=outline, outline_file=outline_file)
             columnmaker.reshape_pdf(column_pdf)
             cmd = ['pdfnup',
                    '--nup', '%sx1' % int(self.columns),
@@ -226,7 +235,7 @@ class PageSettings(object):
     def make_barcode_pdf(self, isbn, pdf, corner='br'):
         """Put an ISBN barcode in a corner of a single blank page."""
 
-        position = '%s,%s,%s,%s,%s' %(corner, self.width, self.height, self.side_margin, self.bottom_margin)
+        position = '%s,%s,%s,%s,%s' % (corner, self.width, self.height, self.side_margin, self.bottom_margin)
         cmd1 = [config.BOOKLAND,
                 '--position', position,
                 str(isbn)]
@@ -270,6 +279,46 @@ def rotate_pdf(pdfin, pdfout):
            pdfout
            ]
     run(cmd)
+
+def parse_extracted_outline(outline_file, depth=config.CONTENTS_DEPTH):
+    """Extract outline data from a file structured as follows:
+
+    The first line contains the text "Pages: ", followed by the total
+    number of pages in the PDF (all numbers are in ascii decimal
+    digits).
+
+    Each following line looks like this
+
+    "Level: " <level> "  Page: "  <page number> "  Title: " <title> "\n"
+
+    where <level> is an integer indicating the significance of the
+    heading, <page number> is self-explanatory, and <title> is the
+    title encoded as utf-8 text that has been escaped as in a URI:
+    non-alphanumeric characters are replaced by "%" followed by two
+    hexadecimal digits giving their value (This escaping system is
+    variously called "url-encoding" or "percent-encoding" and is
+    described in section 2.1 of RFC 3986).
+    """
+    f = open(outline_file, 'r')
+    page_line = f.next()
+    log(page_line)
+    page_count = int(re.match('^Pages: (\d+)', page_line).group(1))
+
+    contents = []
+    for line in f:
+        m = re.match('Level: (\d+)\s+Page: (\d+)\s+Title: (\S*)', line)
+        level = int(m.group(1))
+        if level > depth:
+            continue
+        pagenum = int(m.group(2))
+        title = urllib.unquote(m.group(3)).strip()#.decode('utf-8')
+        if not title:
+            log("WARNING: heading level %s on page %s is empty string" % (level, pagenum))
+        contents.append((title, level, pagenum))
+
+    return contents, page_count
+
+
 
 def parse_outline(pdf, level_threshold, debug_filename=None):
     """Create a structure reflecting the outline of a PDF.
@@ -323,4 +372,4 @@ def parse_outline(pdf, level_threshold, debug_filename=None):
     except StopIteration:
         pass
 
-    return contents, outline, page_count
+    return contents, page_count

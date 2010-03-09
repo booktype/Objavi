@@ -3,17 +3,18 @@
 import os, sys
 import zipfile
 from cStringIO import StringIO
-import copy
 
 try:
     from json import dumps
 except ImportError:
     from simplejson import dumps
 
-import lxml, lxml.html, lxml.cssselect
+import lxml.html, lxml.cssselect
 from lxml import etree
 
-from objavi.config import DC, XHTML, XHTMLNS, FM, MARKER_CLASS
+from objavi.xhtml_utils import split_tree
+from objavi.book_utils import log
+from objavi.config import DC, XHTML, XHTMLNS, FM, MARKER_CLASS_INFO, MARKER_CLASS_SPLIT
 from booki.bookizip import BookiZip
 
 #XML namespaces.  The *NS varients are in {curly brackets} for clark's syntax
@@ -25,12 +26,7 @@ CONTAINERNS = '{urn:oasis:names:tc:opendocument:xmlns:container}'
 MARKUP_TYPES = ('application/xhtml+xml', 'text/html', "application/x-dtbncx+xml")
 HTML_TYPES = ('application/xhtml+xml', 'text/html')
 
-def log(*messages, **kwargs):
-    for m in messages:
-        try:
-            print >> sys.stderr, m
-        except Exception:
-            print >> sys.stderr, repr(m)
+ADD_INFO_MARKERS = False
 
 
 html_parser = lxml.html.HTMLParser(encoding="utf-8")
@@ -259,7 +255,7 @@ class Epub(object):
                 tree = self.gettree(fn, parse=_html_parse)
                 root = tree.getroot()
                 body = _find_tag(root, 'body')
-                if not len(body):
+                if not len(body) and ADD_INFO_MARKERS:
                     add_marker(body, 'espri-empty-file-%s' % ID, title=fn, child=True)
                 first_el = body[0]
             #point the links to the new names. XXX probably fragile
@@ -271,11 +267,13 @@ class Epub(object):
                 else:
                     start = first_el
                 labels = point['labels']
-                add_marker(start, 'espri-chapter-%(id)s' % point,
+                add_marker(start, '%(id)s' % point,
+                           klass=MARKER_CLASS_SPLIT,
                            title=find_good_label(labels, lang),
                            subsections=str(bool(point['points'])))
 
-            add_marker(first_el, 'espri-new-file-%s' % ID, title=fn)
+            if ADD_INFO_MARKERS:
+                add_marker(first_el, 'espri-new-file-%s' % ID, title=fn)
             add_guts(root, doc)
         return doc
 
@@ -285,34 +283,33 @@ class Epub(object):
         doc = self.concat_document()
         bz = BookiZip(zfn)
 
-        chapters = split_document(doc)
+        chapters = split_tree(doc) #destroys doc.
         real_chapters = drop_empty_chapters(chapters)
         rightsholders = [c for c, extra in self.metadata[DC].get('creator', ())]
         contributors = rightsholders + [c for c, extra in self.metadata[DC].get('contributor', ())]
 
         spine = []
-        for id, title, tree in real_chapters:
+        for c in real_chapters:
             try:
-                root = tree.getroot()
-            except:
-                root = tree
+                root = c.tree.getroot()
+            except Exception:
+                root = c.tree
             try:
                 del root.attrib['xmlns']
                 del root.attrib['version']
                 del root.attrib['xml:lang']
-            except KeyError,e:
+            except KeyError, e:
                 log(e)
-            if title:
+            if c.title:
                 head = root.makeelement('head')
                 _title = etree.SubElement(head, 'title')
-                _title.text = title
+                _title.text = c.title
                 root.insert(0, head)
-            #blob = etree.tostring(tree)
-            blob = lxml.html.tostring(tree)
-            bz.add_to_package(id, '%s.html' % id, blob, mediatype='text/html',
+            blob = lxml.html.tostring(c.tree)
+            bz.add_to_package(c.ID, '%s.html' % c.ID, blob, mediatype='text/html',
                               contributors=contributors,
                               rightsholders=rightsholders)
-            spine.append(id)
+            spine.append(c.ID)
 
         #add the images and other non-html data unchanged.
         for id, data in self.manifest.iteritems():
@@ -412,7 +409,7 @@ def drop_empty_chapters(chapters):
     good_chapters = []
     for c in chapters:
         good = False
-        for e in c[2].iter():
+        for e in c.tree.iter():
             if ((e.text and e.text.strip()) or
                 (e.tail and e.tail.strip()) or
                 e.tag in ('img',)):
@@ -421,83 +418,6 @@ def drop_empty_chapters(chapters):
         if good:
             good_chapters.append(c)
     return good_chapters
-
-
-def copy_element(src, create):
-    """Return a copy of the src element, with all its attributes and
-    tail, using create to make the copy. create is probably an
-    Element._makeelement method, to associate the copy with the right
-    tree, but it could be etree.HTMLElement."""
-    if isinstance(src.tag, basestring):
-        dest = create(src.tag)
-    else:
-        dest = copy.copy(src)
-
-    for k, v in src.items():
-        dest.set(k, v)
-    dest.tail = src.tail
-    return dest
-
-def split_document(doc):
-    """Split the document along chapter boundaries."""
-    #XXX tests/html_split.py shows a method that is twice as fast.
-    try:
-        root = doc.getroot()
-    except AttributeError:
-        root = doc
-
-    front_matter = copy_element(root, lxml.html.Element)
-    chapters = [('espri-unindexed-front-matter',
-                 'Unindexed Front Matter',
-                 front_matter)]
-
-    _climb_and_split(root, front_matter, chapters)
-    return chapters
-
-def _climb_and_split(src, dest, chapters):
-    for child in src.iterchildren():
-        if child.tag == 'hr' and child.get('class') == MARKER_CLASS:
-            ID = child.get('id')
-            if ID.startswith('espri-chapter-'):
-                title = child.get('title') or ID
-                new = copy_element(src, lxml.html.Element)
-
-                #build a new tree to this point
-                root = new
-                for a in src.iterancestors():
-                    a2 = copy_element(a, root.makeelement)
-                    a2.append(root)
-                    root = a2
-
-                chapters.append((ID[14:], title, root))
-
-                #trim the tail of the finished one.
-                dest.tail = None
-                for a in dest.iterancestors():
-                    a.tail = None
-
-                #now the new tree is the destination
-                dest = new
-            else:
-                log("skipping %s" % etree.tostring(child))
-
-        else:
-            new = copy_element(child, dest.makeelement)
-            new.text = child.text
-            dest.append(new)
-
-            new2 = _climb_and_split(child, new, chapters)
-            if new2 != new:
-                dest = new2.getparent()
-    return dest
-
-
-def save_chapters(chapters):
-    for id, tree in chapters.items():
-        string = lxml.html.tostring(tree, method='html')
-        f = open('/tmp/x%s.html' % id, 'w')
-        f.write(string)
-        f.close()
 
 
 def add_guts(src, dest):
@@ -534,11 +454,11 @@ def _find_tag(doc, tag):
     return doc.iter(tag).next()
 
 
-def add_marker(el, ID, child=False, **kwargs):
+def add_marker(el, ID, child=False, klass=MARKER_CLASS_INFO, **kwargs):
     """Add a marker before the element, or inside it if child is true"""
     marker = el.makeelement('hr')
     marker.set('id', ID)
-    marker.set('class', MARKER_CLASS)
+    marker.set('class', klass)
     for k, v in kwargs.items():
         marker.set(k, v)
     if child:
@@ -560,9 +480,9 @@ def get_chapter_breaks(points, pwd):
         #if p['class']:
         #    log("found class=='%s' at depth %s" % (p['class'], depth))
         if not p.get('points'):
-            return depth
+            return
         for child in p['points']:
-            bottom = serialise(child, depth + 1)
+            serialise(child, depth + 1)
 
     for p in points:
         serialise(p, 1)
@@ -796,7 +716,6 @@ def parse_pagelist(e):
 
 def parse_pagetarget(e):
     #<!ELEMENT pageTarget (navLabel+, content)>
-    labels = get_labels(e)
     c = e.find(DAISYNS + 'content')
     ret = {
         'id': e.get('id'),
@@ -820,7 +739,6 @@ def parse_navlist(e):
 
 def parse_navtarget(e):
     #<!ELEMENT navTarget (navLabel+, content)>
-    labels = get_labels(e)
     c = e.find(DAISYNS + 'content')
     ret = {
         'id': e.get('id'),

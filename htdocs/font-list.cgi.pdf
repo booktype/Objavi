@@ -19,11 +19,16 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+import os, sys
+os.chdir('..')
+sys.path.insert(0, os.path.abspath('.'))
+
 from objavi import config
-import tempfile, os, re, sys
+from objavi.book_utils import log
+import tempfile, re
 import cgi
 import hashlib
-from subprocess import Popen, check_call, PIPE
+from subprocess import Popen, PIPE
 
 def get_font_list():
     p = Popen(['fc-list'], stdout=PIPE, stderr=PIPE)
@@ -50,7 +55,8 @@ def font_pdf(html, pdfname):
            htmlname, pdfname]
 
     p = Popen(cmd, stdout=PIPE, stderr=PIPE)
-    print >>sys.stderr, p.communicate()
+    r = p.communicate()
+    log(r)
 
 def html_font_list(fonts, name):
     f = open(name, 'w')
@@ -75,7 +81,7 @@ script = form.getfirst('script')
 if script not in (x for x in os.listdir(config.FONT_EXAMPLE_SCRIPT_DIR) if x.isalnum()):
     script = 'latin'
 
-pdfname = os.path.join(config.BOOK_LIST_CACHE_DIR, 'font-list-%s-%s.pdf' %(script, h.hexdigest()))
+pdfname = os.path.join(config.CACHE_DIR, 'font-list-%s-%s.pdf' %(script, h.hexdigest()))
 
 if not os.path.exists(pdfname):
     #So this particular font list has not been made before
@@ -88,7 +94,7 @@ if not os.path.exists(pdfname):
     html = font_html(fonts, example_template, dir)
     font_pdf(html, pdfname)
 
-    include_name = os.path.join(config.BOOK_LIST_CACHE_DIR, 'font-list.inc')
+    include_name = os.path.join(config.CACHE_DIR, 'font-list.inc')
     html_font_list(fonts, include_name)
 
 

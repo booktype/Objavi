@@ -22,41 +22,24 @@
 from __future__ import with_statement
 
 import os, sys
-import re, time
+os.chdir('..')
+sys.path.insert(0, os.path.abspath('.'))
+#print >> sys.stderr, sys.path
+
+import re
 from pprint import pformat
 
 from objavi.fmbook import log, Book, make_book_name, HTTP_HOST
 from objavi import config
-from objavi.cgi_utils import parse_args, optionise, listify, shift_file
-from objavi.cgi_utils import output_blob_and_exit, is_utf8
+from objavi.cgi_utils import parse_args, optionise, listify, output_and_exit, font_links, get_default_css
+from objavi.cgi_utils import output_blob_and_exit, is_utf8, isfloat, isfloat_or_auto, is_isbn
 from objavi.twiki_wrapper import get_book_list
-
-FORM_TEMPLATE = os.path.abspath('templates/form.html')
-PROGRESS_TEMPLATE = os.path.abspath('templates/progress.html')
-
-def isfloat(s):
-    #spaces?, digits!, dot?, digits?, spaces?
-    #return re.compile(r'^\s*[+-]?\d+\.?\d*\s*$').match
-    try:
-        float(s)
-        return True
-    except ValueError:
-        return False
-
-def isfloat_or_auto(s):
-    return isfloat(s) or s.lower() in ('', 'auto')
-
-def is_isbn(s):
-    # 10 or 13 digits with any number of hyphens, perhaps with check-digit missing
-    s =s.replace('-', '')
-    return (re.match(r'^\d+[\dXx*]$', s) and len(s) in (9, 10, 12, 13))
 
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
 # functions to validate their values. (None means no validation).
 ARG_VALIDATORS = {
     "book": re.compile(r'^([\w-]+/?)*[\w-]+$').match, # can be: BlahBlah/Blah_Blah
-    "project": re.compile(r'^[\w-]+$').match,
     "css": is_utf8, # an url, empty (for default), or css content
     "title": lambda x: len(x) < 999 and is_utf8(x),
     #"header": None, # header text, UNUSED
@@ -78,7 +61,7 @@ ARG_VALIDATORS = {
     "pdftype": lambda x: config.CGI_MODES.get(x, [False])[0],
     "rotate": u"yes".__eq__,
     "grey_scale": u"yes".__eq__,
-    "destination": config.PUBLISH_DESTINATIONS.__contains__,
+    "destination": config.CGI_DESTINATIONS.__contains__,
     "toc_header": is_utf8,
     "max-age": isfloat,
 }
@@ -105,27 +88,6 @@ def get_size_list():
                                   for k, v in config.PAGE_SIZE_DATA.iteritems())
             ]
 
-def get_default_css(server=config.DEFAULT_SERVER, mode='book'):
-    """Get the default CSS text for the selected server"""
-    log(server)
-    cssfile = config.SERVER_DEFAULTS[server]['css-%s' % mode]
-    log(cssfile)
-    f = open(cssfile)
-    s = f.read()
-    f.close()
-    return s
-
-def font_links():
-    """Links to various example pdfs."""
-    links = []
-    for script in os.listdir(config.FONT_EXAMPLE_SCRIPT_DIR):
-        if not script.isalnum():
-            log("warning: font-sample %s won't work; skipping" % script)
-            continue
-        links.append('<a href="%s?script=%s">%s</a>' % (config.FONT_LIST_URL, script, script))
-    return links
-
-
 def make_progress_page(book, bookname, mode, destination='html'):
     """Return a function that will notify the user of progress.  In
     CGI context this means making an html page to display the
@@ -135,7 +97,7 @@ def make_progress_page(book, bookname, mode, destination='html'):
         return lambda message: '******* got message "%s"' %message
 
     print "Content-type: text/html; charset=utf-8\n"
-    f = open(PROGRESS_TEMPLATE)
+    f = open(config.PROGRESS_TEMPLATE)
     template = f.read()
     f.close()
     progress_list = ''.join('<li id="%s">%s</li>\n' % x[:2] for x in config.PROGRESS_POINTS
@@ -160,7 +122,7 @@ def make_progress_page(book, bookname, mode, destination='html'):
                        'objavi_show_progress("%s");\n'
                        '</script>' % message
                        )
-                if message == 'finished':
+                if message == config.FINISHED_MESSAGE:
                     print '</body></html>'
             sys.stdout.flush()
         except ValueError, e:
@@ -219,32 +181,20 @@ def get_page_settings(args):
     settings['engine'] = args.get('engine', config.DEFAULT_ENGINE)
     return settings
 
-
-def output_and_exit(f):
-    """Decorator: prefix function output with http headers and exit
-    immediately after."""
-    def output(args):
-        if CGI_CONTEXT:
-            print "Content-type: text/html; charset=utf-8\n"
-        f(args)
-        sys.exit()
-    return output
-
-
 @output_and_exit
 def mode_booklist(args):
-    print optionise(get_book_list(args.get('server', config.DEFAULT_SERVER)),
-                    default=args.get('book'))
+    return optionise(get_book_list(args.get('server', config.DEFAULT_SERVER)),
+                     default=args.get('book'))
 
 @output_and_exit
 def mode_css(args):
     #XX sending as text/html, but it doesn't really matter
-    print get_default_css(args.get('server', config.DEFAULT_SERVER), args.get('pdftype', 'book'))
+    return get_default_css(args.get('server', config.DEFAULT_SERVER), args.get('pdftype', 'book'))
 
 
 @output_and_exit
 def mode_form(args):
-    f = open(FORM_TEMPLATE)
+    f = open(config.FORM_TEMPLATE)
     template = f.read()
     f.close()
     f = open(config.FONT_LIST_INCLUDE)
@@ -284,7 +234,7 @@ def mode_form(args):
         log("valid but not used inputs: %s" % (_valid_inputs - _form_inputs))
         log("invalid form inputs: %s" % (_form_inputs - _valid_inputs))
 
-    print template % {'form': ''.join(form)}
+    return template % {'form': ''.join(form)}
 
 
 def output_multi(book, mimetype, destination):
@@ -313,11 +263,11 @@ def mode_book(args):
     server = args.get('server', config.DEFAULT_SERVER)
     page_settings = get_page_settings(args)
     bookname = make_book_name(bookid, server)
-    destination = args.get('destination', config.DEFAULT_PUBLISH_DESTINATION)
+    destination = args.get('destination', config.DEFAULT_CGI_DESTINATION)
     progress_bar = make_progress_page(bookid, bookname, mode, destination)
 
     with Book(bookid, server, bookname, page_settings=page_settings,
-              watcher=progress_bar, isbn=args.get('isbn'), project=args.get('project'),
+              watchers=[progress_bar], isbn=args.get('isbn'),
               license=args.get('license'), title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
         if CGI_CONTEXT:
@@ -350,11 +300,11 @@ def mode_openoffice(args):
     bookid = args.get('book')
     server = args.get('server', config.DEFAULT_SERVER)
     bookname = make_book_name(bookid, server, '.odt')
-    destination = args.get('destination', config.DEFAULT_PUBLISH_DESTINATION)
+    destination = args.get('destination', config.DEFAULT_CGI_DESTINATION)
     progress_bar = make_progress_page(bookid, bookname, 'openoffice', destination)
 
-    with Book(bookid, server, bookname,  project=args.get('project'),
-              watcher=progress_bar, isbn=args.get('isbn'),
+    with Book(bookid, server, bookname,
+              watchers=[progress_bar], isbn=args.get('isbn'),
               license=args.get('license'), title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
         if CGI_CONTEXT:
@@ -366,23 +316,37 @@ def mode_openoffice(args):
         output_multi(book, "application/vnd.oasis.opendocument.text", destination)
 
 
-#Not using output_and_exit, because the content type might not be text/html
 def mode_epub(args):
     log('making epub with\n%s' % pformat(args))
     #XXX need to catch and process lack of necessary arguments.
     bookid = args.get('book')
     server = args.get('server', config.DEFAULT_SERVER)
     bookname = make_book_name(bookid, server, '.epub')
-    project = args.get('project')
-    destination = args.get('destination', config.DEFAULT_PUBLISH_DESTINATION)
+    destination = args.get('destination', config.DEFAULT_CGI_DESTINATION)
     progress_bar = make_progress_page(bookid, bookname, 'epub', destination)
 
-    with Book(bookid, server, bookname=bookname, project=project,
-              watcher=progress_bar, title=args.get('title'),
+    with Book(bookid, server, bookname=bookname,
+              watchers=[progress_bar], title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
 
         book.make_epub(use_cache=config.USE_CACHED_IMAGES)
         output_multi(book, "application/epub+zip", destination)
+
+
+def mode_bookizip(args):
+    log('making bookizip with\n%s' % pformat(args))
+    bookid = args.get('book')
+    server = args.get('server', config.DEFAULT_SERVER)
+    bookname = make_book_name(bookid, server, '.zip')
+
+    destination = args.get('destination', config.DEFAULT_CGI_DESTINATION)
+    progress_bar = make_progress_page(bookid, bookname, 'bookizip', destination)
+
+    with Book(bookid, server, bookname=bookname,
+              watchers=[progress_bar], title=args.get('title'),
+              max_age=float(args.get('max-age', -1))) as book:
+        book.publish_bookizip()
+        output_multi(book, config.BOOKIZIP_MIMETYPE, destination)
 
 
 def main():
@@ -401,6 +365,7 @@ def main():
     output_function = globals().get('mode_%s' % mode, mode_form)
     output_function(args)
 
+CGI_CONTEXT = True
 if __name__ == '__main__':
     if config.CGITB_DOMAINS and os.environ.get('REMOTE_ADDR') in config.CGITB_DOMAINS:
         import cgitb

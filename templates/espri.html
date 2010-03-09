@@ -37,15 +37,25 @@ with this program; if not, write to the Free Software Foundation, Inc.,
         %(booklink)s
 
         <div id="iarchive_div" class="form-item">
-          <div class="input_title">Internet Archive book ID</div>
+          <div class="input_title">Import source</div>
           <div class="input_contents">
-            <input id="book" name="book" />
+            <ul class="radio-list">
+            <li><input id="source1" name="source" type="radio" value="archive.org" checked="checked" />Internet Archive ID </li>
+            <li><input id="source2" name="source" type="radio" value="url" />URI (of an epub)</li>
+            <li><input id="source3" name="source" type="radio" value="wikibooks" />Wikibooks ID.</li>
+            </ul>
           </div>
         </div>
-        <div id="internet_div" class="form-item">
-          <div class="input_title">or epub url</div>
+        <div id="iarchive_div" class="form-item">
+          <div class="input_title">Book</div>
           <div class="input_contents">
-            <input id="url" name="url" />
+            <input id="book" name="book" style="width:40em" />
+          </div>
+        </div>
+        <div id="iarchive_div" class="form-item">
+          <div class="input_title">Callback (advanced)</div>
+          <div class="input_contents">
+            <input id="callback" name="callback" style="width:40em" />
           </div>
         </div>
 

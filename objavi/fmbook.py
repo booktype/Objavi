@@ -37,23 +37,28 @@ try:
 except ImportError:
     import json
 
-import lxml, lxml.html
+import lxml.html
 from lxml import etree
 
 from objavi import config, epub_utils
-from objavi.cgi_utils import log, run, shift_file, make_book_name, guess_lang, guess_text_dir
-from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline
+from objavi.book_utils import log, run, make_book_name, guess_lang, guess_text_dir
+from objavi.book_utils import ObjaviError
+from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline, parse_extracted_outline
 from objavi.epub import add_guts, _find_tag
+from objavi.xhtml_utils import EpubChapter, split_tree
+from objavi.cgi_utils import url2path
 
 from iarchive import epub as ia_epub
-from booki.xhtml_utils import EpubChapter
-from booki.bookizip import get_metadata, add_metadata, clear_metadata, get_metadata_schemes
+from booki.bookizip import get_metadata, add_metadata
 
 TMPDIR = os.path.abspath(config.TMPDIR)
-DOC_ROOT = os.environ.get('DOCUMENT_ROOT', '.')
+DOC_ROOT = os.environ.get('DOCUMENT_ROOT', config.HTDOCS)
 HTTP_HOST = os.environ.get('HTTP_HOST', '')
-PUBLISH_PATH = "%s/books/" % DOC_ROOT
 
+def find_archive_urls(bookid, bookname):
+    s3url = 'http://s3.us.archive.org/booki-%s/%s' % (bookid, bookname)
+    detailsurl = 'http://archive.org/details/booki-%s' % (bookid,)
+    return (s3url, detailsurl)
 
 def _get_best_title(tocpoint):
     if 'html_title' in tocpoint:
@@ -127,48 +132,57 @@ def filename_toc_map(rtoc):
     traverse(rtoc)
     return tocmap
 
+def save_data(fn, data):
+    """Save without tripping up on unicode"""
+    if isinstance(data, unicode):
+        data = data.encode('utf8', 'ignore')
+    f = open(fn, 'w')
+    f.write(data)
+    f.close()
+
 
 class Book(object):
     page_numbers = 'latin'
     preamble_page_numbers = 'roman'
 
     def notify_watcher(self, message=None):
-        if self.watcher:
+        if self.watchers:
             if  message is None:
                 #message is the name of the caller
                 message = traceback.extract_stack(None, 2)[0][2]
             log("notify_watcher called with '%s'" % message)
-            self.watcher(message)
+            for w in self.watchers:
+                w(message)
 
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.notify_watcher('finished')
+    def __exit__(self, exc_type, exc_value, tb):
+        self.notify_watcher(config.FINISHED_MESSAGE)
         self.cleanup()
         #could deal with exceptions here and return true
 
 
-    def __init__(self, book, server, bookname, project=None,
-                 page_settings=None, watcher=None, isbn=None,
+    def __init__(self, book, server, bookname,
+                 page_settings=None, watchers=None, isbn=None,
                  license=config.DEFAULT_LICENSE, title=None,
                  max_age=0):
-        log("*** Starting new book %s ***" % bookname,
-            "starting zipbook with", server, book, project)
-        self.watcher = watcher
+        log("*** Starting new book %s ***" % bookname)
+        self.watchers = set()
+        if watchers is not None:
+            self.watchers.update(watchers)
         self.notify_watcher('start')
         self.bookname = bookname
         self.book = book
         self.server = server
-        self.project = project
         self.cookie = ''.join(random.sample(ascii_letters, 10))
         try:
-            blob = fetch_zip(server, book, project, save=True, max_age=max_age)
+            blob, self.bookizip_file = fetch_zip(server, book, save=True, max_age=max_age)
         except HTTPError, e:
-            #log(e.url)
             traceback.print_exc()
             self.notify_watcher("ERROR:\n Couldn't get %r\n %s %s" % (e.url, e.code, e.msg))
             #not much to do?
+            #raise 502 Bad Gateway ?
             sys.exit()
         f = StringIO(blob)
         self.notify_watcher('fetch_zip')
@@ -233,21 +247,21 @@ class Book(object):
         self.isbn_pdf_file = None
         self.pdf_file = self.filepath('final.pdf')
         self.body_odt_file = self.filepath('body.odt')
+        self.outline_file = self.filepath('outline.txt')
 
-        self.publish_file = os.path.join(PUBLISH_PATH, bookname)
-        self.publish_url = os.path.join(config.PUBLISH_URL, bookname)
+        self.publish_file = os.path.abspath(os.path.join(config.PUBLISH_DIR, bookname))
 
         if page_settings is not None:
             self.maker = PageSettings(**page_settings)
 
-        if title:
+        if title is not None:
             self.title = title
         else:
             titles = get_metadata(self.metadata, 'title')
             if titles:
                 self.title = titles[0]
             else:
-                self.title = 'A Manual About ' + self.book
+                self.title = 'A Book About ' + self.book
 
         self.notify_watcher()
 
@@ -283,35 +297,48 @@ class Book(object):
     def filepath(self, fn):
         return os.path.join(self.workdir, fn)
 
-    def save_data(self, fn, data):
-        """Save without tripping up on unicode"""
-        if isinstance(data, unicode):
-            data = data.encode('utf8', 'ignore')
-        f = open(fn, 'w')
-        f.write(data)
-        f.close()
-
     def save_tempfile(self, fn, data):
         """Save the data in a temporary directory that will be cleaned
         up when all is done.  Return the absolute file path."""
         fn = self.filepath(fn)
-        self.save_data(fn, data)
+        save_data(fn, data)
         return fn
 
     def make_oo_doc(self):
         """Make an openoffice document, using the html2odt script."""
         self.wait_for_xvfb()
         html_text = etree.tostring(self.tree, method="html")
-        self.save_data(self.body_html_file, html_text)
+        save_data(self.body_html_file, html_text)
         run([config.HTML2ODT, self.workdir, self.body_html_file, self.body_odt_file])
         log("Publishing %r as %r" % (self.body_odt_file, self.publish_file))
         os.rename(self.body_odt_file, self.publish_file)
         self.notify_watcher()
 
     def extract_pdf_outline(self):
-        #self.outline_contents, self.outline_text, number_of_pages = parse_outline(self.body_pdf_file, 1)
-        debugf = self.filepath('outline.txt')
-        self.outline_contents, self.outline_text, number_of_pages = \
+        """Get the outline (table of contents) for the PDF, which
+        wkhtmltopdf should have written to a file.  If that file
+        doesn't exist (or config says not to use it), fall back to
+        using self._extract_pdf_outline_the_old_way, below.
+        """
+        if config.USE_DUMP_OUTLINE:
+            try:
+                self.outline_contents, number_of_pages = \
+                                       parse_extracted_outline(self.outline_file)
+
+            except Exception, e:
+                traceback.print_exc()
+                number_of_pages = self._extract_pdf_outline_the_old_way()
+        else:
+            number_of_pages = self._extract_pdf_outline_the_old_way()
+
+        self.notify_watcher()
+        return number_of_pages
+
+    def _extract_pdf_outline_the_old_way(self):
+        """Try to get the PDF outline using pdftk.  This doesn't work
+        well with all scripts."""
+        debugf = self.filepath('extracted-outline.txt')
+        self.outline_contents, number_of_pages = \
                 parse_outline(self.body_pdf_file, 1, debugf)
 
         if not self.outline_contents:
@@ -333,10 +360,10 @@ class Book(object):
             ascii_html_file = self.filepath('body-ascii-headings.html')
             ascii_pdf_file = self.filepath('body-ascii-headings.pdf')
             html_text = lxml.etree.tostring(tree, method="html")
-            self.save_data(ascii_html_file, html_text)
+            save_data(ascii_html_file, html_text)
             self.maker.make_raw_pdf(ascii_html_file, ascii_pdf_file, outline=True)
-            debugf = self.filepath('ascii_outline.txt')
-            ascii_contents, ascii_text, number_of_ascii_pages = \
+            debugf = self.filepath('ascii-extracted-outline.txt')
+            ascii_contents, number_of_ascii_pages = \
                 parse_outline(ascii_pdf_file, 1, debugf)
             self.outline_contents = []
             log ("number of pages: %s, post ascii: %s" %
@@ -350,21 +377,17 @@ class Book(object):
                 log((ascii_title, title, depth, pageno))
 
                 self.outline_contents.append((title, depth, pageno))
-        else:
-            for x in self.outline_contents:
-                log(x)
 
-        self.notify_watcher()
         return number_of_pages
 
     def make_body_pdf(self):
         """Make a pdf of the HTML, using webkit"""
         #1. Save the html
         html_text = etree.tostring(self.tree, method="html")
-        self.save_data(self.body_html_file, html_text)
+        save_data(self.body_html_file, html_text)
 
         #2. Make a pdf of it
-        self.maker.make_raw_pdf(self.body_html_file, self.body_pdf_file, outline=True)
+        self.maker.make_raw_pdf(self.body_html_file, self.body_pdf_file, outline=True, outline_file=self.outline_file)
         self.notify_watcher('generate_pdf')
 
         n_pages = self.extract_pdf_outline()
@@ -397,7 +420,7 @@ class Book(object):
                 '<!--%s--></div></body></html>'
                 ) % (self.dir, self.css_url, self.title, inside_cover_html.decode('utf-8'),
                      self.toc_header, contents, self.title)
-        self.save_data(self.preamble_html_file, html)
+        save_data(self.preamble_html_file, html)
 
         self.maker.make_raw_pdf(self.preamble_html_file, self.preamble_pdf_file)
 
@@ -419,7 +442,7 @@ class Book(object):
 
         end_matter = self.compose_end_matter()
         log(end_matter)
-        self.save_data(self.tail_html_file, end_matter.decode('utf-8'))
+        save_data(self.tail_html_file, end_matter.decode('utf-8'))
         self.maker.make_raw_pdf(self.tail_html_file, self.tail_pdf_file)
 
         self.maker.reshape_pdf(self.tail_pdf_file, self.dir, centre_start=True,
@@ -460,10 +483,10 @@ class Book(object):
 
         #1. Save the html
         html_text = etree.tostring(self.tree, method="html")
-        self.save_data(self.body_html_file, html_text)
+        save_data(self.body_html_file, html_text)
 
         #2. Make a pdf of it (direct to to final pdf)
-        self.maker.make_raw_pdf(self.body_html_file, self.pdf_file, outline=True)
+        self.maker.make_raw_pdf(self.body_html_file, self.pdf_file, outline=True, outline_file=self.outline_file)
         self.notify_watcher('generate_pdf')
         n_pages = count_pdf_pages(self.pdf_file)
 
@@ -496,6 +519,16 @@ class Book(object):
         os.rename(self.pdf_file, self.publish_file)
         self.notify_watcher()
 
+    def publish_bookizip(self):
+        """Publish the bookizip.  For this, copy rather than move,
+        because the bookizip might be used by further processing.  If
+        possible, a hard link is created."""
+        log("Publishing %r as %r" % (self.bookizip_file, self.publish_file))
+        try:
+            run(['cp', '-l', self.bookizip_file, self.publish_file])
+        except OSError:
+            run(['cp', self.bookizip_file, self.publish_file])
+        self.notify_watcher()
 
     def concat_html(self):
         """Join all the chapters together into one tree.  Keep the TOC
@@ -515,7 +548,8 @@ class Book(object):
             # ACO MIJENJAO
             try:
                 root = self.get_tree_by_id(ID).getroot()
-            except:
+            except Exception, e:
+                log("hit %s when trying book.get_tree_by_id(%s).getroot()" % (e, ID))
                 continue
             #handle any TOC points in this file
             for point in tocmap[details['url']]:
@@ -583,7 +617,7 @@ class Book(object):
         """Generate HTML containing the table of contents.  This can
         only be done after the main PDF has been made, because the
         page numbers are contained in the PDF outline."""
-        header = '<h1>Table of Contents</h1><table class="toc">\n'
+        header = '<table class="toc">\n'
         row_tmpl = ('<tr><td class="chapter">%s</td><td class="title">%s</td>'
                     '<td class="pagenumber">%s</td></tr>\n')
         empty_section_tmpl = ('<tr><td class="empty-section" colspan="3">%s</td></tr>\n')
@@ -594,10 +628,8 @@ class Book(object):
 
         chapter = 1
         page_num = 1
-        subsections = [] # for the subsection heading pages.
-
+        log(self.outline_contents)
         outline_contents = iter(self.outline_contents)
-        headings = iter(self.headings)
 
         for section in self.toc:
             if not section.get('children'):
@@ -607,7 +639,9 @@ class Book(object):
 
             for point in section['children']:
                 try:
-                    h1_text, level, page_num = outline_contents.next()
+                    level = 99
+                    while level > 1:
+                        h1_text, level, page_num = outline_contents.next()
                 except StopIteration:
                     log("contents data not found for %s. Stopping" % (point,))
                     break
@@ -624,7 +658,6 @@ class Book(object):
 
         Also add initial numbers to chapters.
         """
-        headings = iter(self.headings)
         chapter = 1
         section = None
         log(self.toc)
@@ -668,15 +701,12 @@ class Book(object):
                 css_modes = config.LANGUAGE_CSS.get(self.lang,
                                                     config.LANGUAGE_CSS['en'])
                 css_default = css_modes.get(mode, css_modes[None])
-            url = 'file://' + os.path.abspath(css_default)
+            url = 'file://' + os.path.abspath(url2path(css_default))
         elif not re.match(r'^http://\S+$', css):
             fn = self.save_tempfile('objavi.css', css)
             url = 'file://' + fn
         else:
             url = css
-        #XXX for debugging and perhaps sensible anyway
-        #url = url.replace('file:///home/douglas/objavi2', '')
-
 
         #find the head -- it's probably first child but lets not assume.
         for child in htmltree:
@@ -830,6 +860,10 @@ class Book(object):
 
         has_authors = 'creator' in self.metadata[DC]
         if not has_authors and config.CLAIM_UNAUTHORED:
+            authors = []
+            for x in self.metadata[DC]['creator'].values():
+                authors.extend(x)
+
             meta_info_items.append({'item': DCNS + 'creator',
                                     'text': 'The Contributors'})
 
@@ -860,14 +894,13 @@ class Book(object):
         log(secrets)
         now = time.strftime('%F')
         s3output = self.filepath('s3-output.txt')
-        s3url = 'http://s3.us.archive.org/booki-%s/%s' % (self.book, self.bookname)
-        detailsurl = 'http://archive.org/details/booki-%s' % (self.book,)
+        s3url, detailsurl = find_archive_urls(self.book, self.bookname)
         headers = [
             'x-amz-auto-make-bucket:1',
             "authorization: LOW %(S3_ACCESSKEY)s:%(S3_SECRET)s" % secrets,
             'x-archive-meta-mediatype:texts',
             'x-archive-meta-collection:opensource',
-            'x-archive-meta-title:%s' %(self.book,),
+            'x-archive-meta-title:%s' % (self.book,),
             'x-archive-meta-date:%s' % (now,),
             'x-archive-meta-creator:FLOSS Manuals Contributors',
             ]
@@ -919,7 +952,7 @@ class Book(object):
                            #'-whitepixel', str(2 ** 24 -1),
                            #'+extension', 'Composite',
                            '-dpi', '96',
-                           '-kb',
+                           #'-kb',
                            '-nolisten', 'tcp',
                            ])
 
@@ -970,7 +1003,11 @@ class Book(object):
         cgi process dies particularly badly. So kill them if they have
         been running for a long time."""
         log("running kill_old_processes")
-        p = Popen(['ps', '-C' 'Xvfb soffice soffice.bin html2odt ooffice wkhtmltopdf',
+        killable_names = ' '.join(['Xvfb', 'soffice', 'soffice.bin', 'ooffice',
+                                   os.path.basename(config.HTML2ODT),
+                                   os.path.basename(config.WKHTMLTOPDF),
+                                   ])
+        p = Popen(['ps', '-C', killable_names,
                    '-o', 'pid,etime', '--no-headers'], stdout=PIPE)
         data = p.communicate()[0].strip()
         if data:
@@ -1034,7 +1071,7 @@ def _read_cached_zip(server, book, max_age):
             f = open(zipname)
             blob = f.read()
             f.close()
-            return blob
+            return blob, zipname
         log("%s is too old, must reload" % zipname)
         return None
     except (IOError, IndexError, ValueError), e:
@@ -1042,15 +1079,13 @@ def _read_cached_zip(server, book, max_age):
         return None
 
 
-
-def fetch_zip(server, book, project, save=False, max_age=-1):
-    interface = config.SERVER_DEFAULTS[server]['interface']
-    if interface not in ('Booki', 'TWiki'):
+def fetch_zip(server, book, save=False, max_age=-1, filename=None):
+    interface = config.SERVER_DEFAULTS[server].get('interface', 'Booki')
+    try:
+        url = config.ZIP_URLS[interface] % {'HTTP_HOST': HTTP_HOST,
+                                            'server': server, 'book':book}
+    except KeyError:
         raise NotImplementedError("Can't handle '%s' interface" % interface)
-    if interface == 'Booki':
-        url = config.BOOKI_ZIP_URL  % {'server': server, 'project': project, 'book':book}
-    else:
-        url = config.TWIKI_GATEWAY_URL % (HTTP_HOST, server, book)
 
     if use_cache() and max_age < 0:
         #default to 12 hours cache on objavi.halo.gen.nz
@@ -1060,24 +1095,27 @@ def fetch_zip(server, book, project, save=False, max_age=-1):
         log('WARNING: trying to use cached booki-zip',
             'If you are debugging booki-zip creation, you will go CRAZY'
             ' unless you switch this off')
-        blob = _read_cached_zip(server, book, max_age)
-        if blob is not None:
-            return blob
+        blob_and_name = _read_cached_zip(server, book, max_age)
+        if blob_and_name is not None:
+            return blob_and_name
 
     log('fetching zip from %s'% url)
     f = urlopen(url)
     blob = f.read()
     f.close()
     if save:
-        zipname = make_book_name(book, server, '.zip')
-        f = open('%s/%s' % (config.BOOKI_BOOK_DIR, zipname), 'w')
+        if filename is None:
+            filename = '%s/%s' % (config.BOOKI_BOOK_DIR,
+                                  make_book_name(book, server, '.zip'))
+        f = open(filename, 'w')
         f.write(blob)
         f.close()
-    return blob
+    return blob, filename
 
 
-
-def split_html(html, compressed_size=None, xhtmlise=False):
+def split_html(html, compressed_size=None, fix_markup=False):
+    """Split long html files into pieces that will work nicely on a
+    Sony Reader."""
     if compressed_size is None:
         import zlib
         compressed_size = len(zlib.compress(html))
@@ -1089,9 +1127,9 @@ def split_html(html, compressed_size=None, xhtmlise=False):
     if not splits:
         return [html]
 
-    if xhtmlise:
-        #xhtmlisation removes '<' in attributes etc, which makes the
-        #marker insertion more reliable
+    if fix_markup:
+        #remove '<' in attributes etc, which makes the marker
+        #insertion more reliable
         html = etree.tostring(lxml.html.fromstring(html),
                               encoding='UTF-8',
                               #method='html'
@@ -1103,60 +1141,11 @@ def split_html(html, compressed_size=None, xhtmlise=False):
     for i in range(splits):
         e = html.find('<', target * (i + 1))
         fragments.append(html[s:e])
-        fragments.append('<hr class="%s" id="split_%s" />' % (config.MARKER_CLASS, i))
+        fragments.append('<hr class="%s" id="split_%s" />' % (config.MARKER_CLASS_SPLIT, i))
         s = e
     fragments.append(html[s:])
-    root = lxml.html.fromstring(''.join(fragments))
 
-    # find the node lineages along which to split the document.
-    # anything outside these lines (i.e., branches) can be copied
-    # wholesale.
-
-    stacks = []
-    for hr in root.iter(tag='hr'):
-        if hr.get('class') == config.MARKER_CLASS:
-            stack = [hr]
-            stack.extend(x for x in hr.iterancestors())
-            stack.reverse()
-            stacks.append(stack)
-
-    iterstacks = iter(stacks)
-
-    src = root
-    log('root is', root, root.attrib, type(root.attrib))
-    dest = lxml.html.Element(root.tag, **dict(root.items()))
-    doc = dest
-    stack = iterstacks.next()
-    marker = stack[-1]
-
-    chapters = []
-    try:
-        while True:
-            for e in src:
-                if e not in stack:
-                    #cut and paste branch
-                    dest.append(e)
-                elif e is marker:
-                    #got one
-                    src.remove(e)
-                    chapters.append(doc)
-                    src = root
-                    dest = lxml.html.Element(root.tag, **dict(root.items()))
-                    doc = dest
-                    stack = iterstacks.next()
-                    marker = stack[-1]
-                    break
-                else:
-                    #next level
-                    dest = etree.SubElement(dest, e.tag, **dict(e.items()))
-                    dest.text = e.text
-                    e.text = None
-                    src = e
-                    break
-    except StopIteration:
-        #stacks have run out -- the rest of the tree is the last section
-        chapters.append(src)
-
-    #return chapters
-    return [etree.tostring(c, encoding='UTF-8', method='html') for c in chapters]
+    #XXX somehow try to avoid split in silly places (e.g, before inline elements)
+    chapters = split_tree(lxml.html.fromstring(''.join(fragments)))
+    return [etree.tostring(c.tree, encoding='UTF-8', method='html') for c in chapters]
 

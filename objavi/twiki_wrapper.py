@@ -4,14 +4,17 @@ import os, sys, time, re
 import tempfile
 
 from objavi import config
-from objavi.cgi_utils import log, guess_lang, guess_text_dir, make_book_name
+from objavi.book_utils import log, guess_lang, guess_text_dir, make_book_name, decode_html_entities
 from urllib2 import urlopen
+from urlparse import urlsplit
 from booki.bookizip import add_metadata, BookiZip
-from booki.xhtml_utils import TWikiChapter
 
-from pprint import pformat
+from objavi.xhtml_utils import BaseChapter, ImageCache
+
+#from pprint import pformat
 
 import lxml.html
+from lxml import etree
 
 CHAPTER_TEMPLATE = '''<html dir="%(dir)s">
 <head>
@@ -32,13 +35,13 @@ def get_book_list(server):
     in that many seconds, rather it will be read from disk.
     """
     if config.BOOK_LIST_CACHE:
-       cache_name = os.path.join(config.BOOK_LIST_CACHE_DIR, '%s.booklist' % server)
-       if (os.path.exists(cache_name) and
-           os.stat(cache_name).st_mtime + config.BOOK_LIST_CACHE > time.time()):
-           f = open(cache_name)
-           s = f.read()
-           f.close()
-           return s.split()
+        cache_name = os.path.join(config.CACHE_DIR, '%s.booklist' % server)
+        if (os.path.exists(cache_name) and
+            os.stat(cache_name).st_mtime + config.BOOK_LIST_CACHE > time.time()):
+            f = open(cache_name)
+            s = f.read()
+            f.close()
+            return s.split()
 
     url = config.CHAPTER_URL % (server, 'TWiki', 'WebLeftBarWebsList')
     #url = 'http://%s/bin/view/TWiki/WebLeftBarWebsList?skin=text' % server
@@ -92,9 +95,9 @@ class TocItem(object):
         #
         # chapter is twiki name of the chapter
         # title is a human readable name of the chapter.
-        self.status = status
-        self.chapter = chapter
-        self.title = title
+        self.status = decode_html_entities(status)
+        self.chapter = decode_html_entities(chapter)
+        self.title = decode_html_entities(title)
 
     def is_chapter(self):
         return self.status == '1'
@@ -239,6 +242,7 @@ class TWikiBook(object):
             c = TWikiChapter(self.server, self.book, chapter, contents,
                              use_cache=use_cache)
             images = c.localise_links()
+            c.fix_bad_structure()
             all_images.update(images)
             #log(chapter, self.credits)
             bz.add_to_package(chapter, chapter + '.html',
@@ -333,3 +337,81 @@ class TWikiBook(object):
 
         except StopIteration:
             log('Apparently run out of chapters on title %s!' % title)
+
+
+
+
+class TWikiChapter(BaseChapter):
+    image_cache = ImageCache()
+
+    def __init__(self, server, book, chapter_name, html, use_cache=False,
+                 cache_dir=None):
+        self.server = server
+        self.book = book
+        self.name = chapter_name
+        self.use_cache = use_cache
+        if cache_dir:
+            self.image_cache = ImageCache(cache_dir)
+        self._loadtree(html)
+
+    def localise_links(self):
+        """Find image links, convert them to local links, and fetch
+        the images from the net so the local links work"""
+        images = []
+        def localise(oldlink):
+            fragments = urlsplit(oldlink)
+            if '.' not in fragments.path:
+                log('ignoring %s' % oldlink)
+                return oldlink
+            base, ext = fragments.path.rsplit('.', 1)
+            ext = ext.lower()
+            if (not fragments.scheme.startswith('http') or
+                (fragments.netloc != self.server and 'flossmanuals.net' not in fragments.netloc) or
+                ext not in ('png', 'gif', 'jpg', 'jpeg', 'svg', 'css', 'js') or
+                '/pub/' not in base
+                ):
+                log('ignoring %s' % oldlink)
+                return oldlink
+
+            newlink = self.image_cache.fetch_if_necessary(oldlink, use_cache=self.use_cache)
+            if newlink is not None:
+                images.append(newlink)
+                return newlink
+            log("can't do anything for %s -- why?" % (oldlink,))
+            return oldlink
+
+        self.tree.rewrite_links(localise, base_href=('http://%s/bin/view/%s/%s' %
+                                                     (self.server, self.book, self.name)))
+        return images
+
+
+#XXX almost certainly broken and out of date!
+class Author(object):
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+
+class ImportedChapter(TWikiChapter):
+    """Used for git import"""
+    def __init__(self, lang, book, chapter_name, text, author, email, date, server=None,
+                 use_cache=False, cache_dir=None):
+        self.lang = lang
+        self.book = book
+        self.name = chapter_name
+        self.author = Author(author, email)
+        self.date = date
+        if server is None:
+            server = '%s.flossmanuals.net' % lang
+        self.server = server
+        self.use_cache = use_cache
+        if cache_dir:
+            self.image_cache = ImageCache(cache_dir)
+        #XXX is text html-wrapped?
+        self._loadtree(text)
+
+    def as_twikitext(self):
+        """Get the twiki-style guts of the chapter from the tree"""
+        text = etree.tostring(self.tree.find('body'), method='html')
+        text = re.sub(r'^.*?<body.*?>\s*', '', text)
+        text = re.sub(r'\s*</body>.*$', '\n', text)
+        return text
