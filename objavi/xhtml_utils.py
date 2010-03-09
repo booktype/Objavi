@@ -189,6 +189,9 @@ class BaseChapter(object):
 
         # 1. is the first element an h1?
         el1 = body[0]
+        if el1.tag == 'div' and len(body) == 1:
+            #The body has a "content" div. we should compact it.
+            log("DODGY STRUCTURE: containing div. ")
         if el1.tag != 'h1':
             log("BAD STRUCTURE: firstelement is %r " % el1.tag)
             if el1.tag in ('h2', 'h3', 'strong', 'b'):
