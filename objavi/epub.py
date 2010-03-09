@@ -628,7 +628,7 @@ def get_labels(e, tag='{http://www.daisy.org/z3986/2005/ncx/}navLabel'):
     # navLabel is ubiquitous.  There can be one for each language, so
     # construct a dict.
     labels = {}
-    for label in e.findall(tag):
+    for label in e.iterchildren(tag):
         lang = label.get(XMLNS + 'lang')
         labels[lang] = get_ncxtext(e)
     return labels
@@ -649,12 +649,12 @@ def parse_ncx(ncx):
 
     head = ncx.find(DAISYNS + 'head')
     #<!ELEMENT head (meta+)>
-    for meta in head.findall(DAISYNS + 'meta'):
+    for meta in head.iterchildren(DAISYNS + 'meta'):
         #whatever 'scheme' is
         setheader(meta.get('name'), meta.get('content'), meta.get('scheme'))
 
     for t in ('docTitle', 'docAuthor'):
-        for e in ncx.findall(DAISYNS + t):
+        for e in ncx.iterchildren(DAISYNS + t):
             if e is not None:
                 setheader(t, get_ncxtext(e))
 
@@ -688,13 +688,13 @@ def parse_navmap(e):
     return {
         'info': get_labels(e, DAISYNS + 'navInfo'),
         'labels': get_labels(e),
-        'points': tuple(parse_navpoint(x) for x in e.findall(DAISYNS + 'navPoint')),
+        'points': tuple(parse_navpoint(x) for x in e.iterchildren(DAISYNS + 'navPoint')),
         }
 
 def parse_navpoint(e):
     #<!ELEMENT navPoint (navLabel+, content, navPoint*)>
     c = e.find(DAISYNS + 'content')
-    subpoints = tuple(parse_navpoint(x) for x in e.findall(DAISYNS + 'navPoint'))
+    subpoints = tuple(parse_navpoint(x) for x in e.iterchildren(DAISYNS + 'navPoint'))
     return {
         'id': e.get('id'),
         'class': e.get('class'),
@@ -711,7 +711,7 @@ def parse_pagelist(e):
     return {
         'info': get_labels(e, DAISYNS + 'navInfo'),
         'labels': get_labels(e),
-        'targets': tuple(parse_pagetarget(x) for x in e.findall(DAISYNS + 'pageTarget')),
+        'targets': tuple(parse_pagetarget(x) for x in e.iterchildren(DAISYNS + 'pageTarget')),
         }
 
 def parse_pagetarget(e):
@@ -734,7 +734,7 @@ def parse_navlist(e):
     return {
         'info': get_labels(e, DAISYNS + 'navInfo'),
         'labels': get_labels(e),
-        'targets': tuple(parse_navtarget(x) for x in e.findall(DAISYNS + 'navTarget')),
+        'targets': tuple(parse_navtarget(x) for x in e.iterchildren(DAISYNS + 'navTarget')),
         }
 
 def parse_navtarget(e):
