@@ -196,7 +196,7 @@ class BaseChapter(object):
                 el1.tag = 'h1'
 
         #2. how many <h1>s are there?
-        h1s = body.findall('h1')
+        h1s = list(body.iter('h1'))
         if not h1s:
             log("BAD STRUCTURE: no h1! making one up")
             h1 = body.makeelement('h1')
