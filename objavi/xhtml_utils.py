@@ -161,7 +161,6 @@ class BaseChapter(object):
 
         This function's philosophy is to be aggressive, and be
         modified upon complaint."""
-
         #0. is the first element preceded by text?
         body = self.tree.iter('body').next()
         if body.text.strip():
@@ -171,7 +170,7 @@ class BaseChapter(object):
         #they are at best spurious
         for tag in ['link', 'style', 'script', etree.Comment]:
             for e in body.iter(tag):
-                log("BAD STRUCTURE: trying remove %r (with tail %r)" % (e, e.tail))
+                log("BAD STRUCTURE: trying remove %s (with tail %s)" % (e, e.tail))
                 parent = e.getparent()
                 if e.tail:
                     log("rescuing that tail")

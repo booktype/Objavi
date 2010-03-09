@@ -124,6 +124,12 @@ class ObjaviError(Exception):
 
 
 def decode_html_entities(text):
+    for encoding in ('ascii', 'utf-8', 'iso-8859-1'):
+        try:
+            text = text.decode(encoding)
+            break
+        except UnicodeDecodeError:
+            continue
     def fixup(m):
         entity = m.group(0)
         try:
@@ -134,4 +140,4 @@ def decode_html_entities(text):
         except ValueError:
             log("ignoring bad entity %s" % entity)
         return entity
-    return re.sub("&#?[0-9a-fA-F]+;", fixup, text)
+    return re.sub("&#?[0-9a-fA-F]+;", fixup, text).encode('utf-8')
