@@ -42,7 +42,7 @@ from lxml import etree
 
 from objavi import config, epub_utils
 from objavi.book_utils import log, run, make_book_name, guess_lang, guess_text_dir
-from objavi.book_utils import ObjaviError
+from objavi.book_utils import ObjaviError, log_types
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline, parse_extracted_outline
 from objavi.epub import add_guts, _find_tag
 from objavi.xhtml_utils import EpubChapter, split_tree
@@ -406,8 +406,8 @@ class Book(object):
     def make_preamble_pdf(self):
         contents = self.make_contents()
         inside_cover_html = self.compose_inside_cover()
-        log(self.dir, self.css_url, self.title, inside_cover_html,
-            self.toc_header, contents, self.title)
+        log_types(self.dir, self.css_url, self.title, inside_cover_html,
+                  self.toc_header, contents, self.title)
 
         html = ('<html dir="%s"><head>\n'
                 '<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />\n'

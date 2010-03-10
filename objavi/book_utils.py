@@ -65,6 +65,19 @@ def log(*messages, **kwargs):
                 print >> sys.stderr, repr(m)
         sys.stderr.flush()
 
+def log_types(*args, **kwargs):
+    """Log the type of the messages as well as their value (size constrained)."""
+    size = kwargs.get('size', 50)
+    for a in args:
+        try:
+            s = ("%s" % (a,))
+        except Exception:
+            try:
+                s = ("%r" % (a,))
+            except Exception:
+                s = '<UNPRINTABLE!>'
+        log("%s: %s" % (type(a), s[:size]))
+
 def make_book_name(book, server, suffix='.pdf', timestamp=None):
     lang = config.SERVER_DEFAULTS.get(server, config.SERVER_DEFAULTS[config.DEFAULT_SERVER])['lang']
     book = ''.join(x for x in book if x.isalnum())
