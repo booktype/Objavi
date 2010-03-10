@@ -170,7 +170,8 @@ class BaseChapter(object):
         #they are at best spurious
         for tag in ['link', 'style', 'script', etree.Comment]:
             for e in body.iter(tag):
-                log("BAD STRUCTURE: trying to remove '%s' (with tail %s)" % (("%s" % e)[:60], e.tail))                
+                log("BAD STRUCTURE: trying to remove '%s' (with tail %s)" %
+                    (("%s" % e)[:60], e.tail))
                 parent = e.getparent()
                 if e.tail:
                     log("rescuing that tail")
