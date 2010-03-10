@@ -88,7 +88,7 @@ def espri(epuburl, bookid):
 def ia_espri(book_id):
     epuburl = IA_EPUB_URL % (book_id, book_id)
     log(epuburl)
-    espri(epuburl, bookid)
+    espri(epuburl, book_id)
     return bookid
 
 def inet_espri(epuburl):
