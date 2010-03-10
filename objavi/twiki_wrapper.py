@@ -307,8 +307,14 @@ class TWikiBook(object):
             for e in tree.iter('i'):
                 if e.tail or e.getnext().tag != 'br':
                     continue
-                title = e.text
                 chapter = spine_iter.next()
+                try:
+                    title = e.text
+                except UnicodeDecodeError:
+                    #The chapter's name has been encoded in iso-8859-1 and
+                    #inserted into the utf-8 page with no transcoding.
+                    title = ('Something to the effect of %r in a utf-8'
+                             ' incompatible encoding') % chapter
                 log("chapter %r title %r" % (chapter, title))
                 contributors = []
                 rightsholders = []
