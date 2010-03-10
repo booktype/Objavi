@@ -109,7 +109,7 @@ def guess_text_dir(server, book):
         else:
             dir = 'LTR'
     log("server %s, book %s: found dir %s" %(server, book, dir))
-    return dir
+    return str(dir)
 
 def run(cmd):
     try:
