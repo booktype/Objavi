@@ -991,7 +991,10 @@ class Book(object):
             time.sleep(0.2)
         else:
             log("Xvfb would not die! kill -9! kill -9!")
-            os.kill(p.pid, 9)
+            try:
+                os.kill(p.pid, 9)
+            except OSError, e:
+                log(e)
 
         if random.random() < 0.1:
             # occasionally kill old xvfbs and soffices, if there are any.
