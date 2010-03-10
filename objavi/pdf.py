@@ -331,7 +331,7 @@ def parse_outline(pdf, level_threshold, debug_filename=None):
     cmd = ('pdftk', pdf, 'dump_data')
     p = Popen(cmd, stdout=PIPE, stderr=PIPE)
     outline, err = p.communicate()
-    log("OUTLINE:", outline)
+    #log("OUTLINE:", outline)
     if debug_filename is not None:
         try:
             f = open(debug_filename, 'w')

@@ -122,10 +122,10 @@ def serialise_toc(rtoc):
 
 def filename_toc_map(rtoc):
     tocmap = {}
-    log(rtoc)
+    #log(rtoc)
     def traverse(toc):
         for point in toc:
-            log(point.keys())
+            #log(point.keys())
             tocmap.setdefault(point['filename'], []).append(point)
             if 'children' in point:
                 traverse(point['children'])
@@ -440,7 +440,7 @@ class Book(object):
             self.notify_watcher('make_barcode_pdf')
 
         end_matter = self.compose_end_matter()
-        log(end_matter)
+        #log(end_matter)
         save_data(self.tail_html_file, end_matter.decode('utf-8'))
         self.maker.make_raw_pdf(self.tail_html_file, self.tail_pdf_file)
 
@@ -543,7 +543,7 @@ class Book(object):
         tocmap = filename_toc_map(self.toc)
         for ID in self.spine:
             details = self.manifest[ID]
-            log(ID, pformat(details))
+            #log(ID, pformat(details))
             # ACO MIJENJAO
             try:
                 root = self.get_tree_by_id(ID).getroot()
@@ -627,7 +627,7 @@ class Book(object):
 
         chapter = 1
         page_num = 1
-        log(self.outline_contents)
+        #log(self.outline_contents)
         outline_contents = iter(self.outline_contents)
 
         for section in self.toc:
@@ -661,7 +661,7 @@ class Book(object):
         """
         chapter = 1
         section = None
-        log(self.toc)
+        #log(self.toc)
         for t in self.toc:
             #only top level sections get a subsection page,
             #and only if they have children.
@@ -789,7 +789,7 @@ class Book(object):
         spinemap = {} #map IDs to multi-file chapters
         for ID in self.manifest:
             details = self.manifest[ID]
-            log(ID, pformat(details))
+            #log(ID, pformat(details))
             fn, mediatype = details['url'], details['mimetype']
             content = self.store.read(fn)
             if mediatype == 'text/html':
@@ -892,7 +892,6 @@ class Book(object):
             secrets[x] = f.read().strip()
             f.close()
 
-        log(secrets)
         now = time.strftime('%F')
         s3output = self.filepath('s3-output.txt')
         s3url, detailsurl = find_archive_urls(self.book, self.bookname)
