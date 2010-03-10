@@ -261,6 +261,8 @@ class Book(object):
                 self.title = titles[0]
             else:
                 self.title = 'A Book About ' + self.book
+        if isinstance(self.title, unicode):
+            self.title = self.title.encode('utf-8')
 
         self.notify_watcher()
 
