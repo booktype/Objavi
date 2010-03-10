@@ -418,7 +418,7 @@ class Book(object):
                 '<div class="contents"><h1>%s</h1>\n%s</div>\n'
                 '<div style="page-break-after: always; color:#fff" class="unseen">.'
                 '<!--%s--></div></body></html>'
-                ) % (self.dir, self.css_url, self.title, inside_cover_html.decode('utf-8'),
+                ) % (self.dir, self.css_url, self.title, inside_cover_html,
                      self.toc_header, contents, self.title)
         save_data(self.preamble_html_file, html)
 
@@ -649,6 +649,8 @@ class Book(object):
                 chapter += 1
 
         doc = header + '\n'.join(contents) + footer
+        if isinstance(doc, unicode):
+            doc = doc.encode('utf-8')
         self.notify_watcher()
         return doc
 
