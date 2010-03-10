@@ -571,8 +571,8 @@ class Book(object):
                             fragment = body[0].get('id')
                         #the chapter starts with a heading. that heading should be the chapter name.
                         if body[0].tag in ('h1', 'h2', 'h3'):
-                            log('chapter has title "%s", found html title "%s"' %
-                                (point['title'], body[0].text_content()))
+                            #log('chapter has title "%s", found html title "%s"' %
+                            #    (point['title'], body[0].text_content()))
                             point['html_title'] = body[0].text_content()
                     else:
                         marker = body.makeelement('div', style="display:none",
