@@ -26,7 +26,7 @@ import urllib
 
 from objavi import config
 from objavi.book_utils import log, run
-
+from objavi.cgi_utils import path2url
 
 def find_containing_paper(w, h):
     for name, pw, ph in config.PAPER_SIZES:
@@ -119,9 +119,10 @@ class PageSettings(object):
         return cmd
 
     def make_raw_pdf(self, html, pdf, outline=False, outline_file=None):
+        html_url = path2url(html, full=True)
         func = getattr(self, '_%s_command' % self.engine)
         if self.columns == 1:
-            cmd = func(html, pdf, outline=outline, outline_file=outline_file)
+            cmd = func(html_url, pdf, outline=outline, outline_file=outline_file)
             run(cmd)
         else:
             printable_width = self.width - 2.0 * self.side_margin - self.gutter

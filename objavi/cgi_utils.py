@@ -18,11 +18,13 @@
 
 import os, sys
 import cgi, re
+import urllib
 from getopt import gnu_getopt
 
 from objavi.book_utils import log
 from objavi import config
 
+SERVER_NAME = os.environ.get('SERVER_NAME', 'localhost')
 
 def parse_args(arg_validators):
     """Read and validate CGI or commandline arguments, putting the
@@ -77,6 +79,22 @@ def get_size_list():
 def url2path(url):
     """convert htdocs-relative addresses to local file paths"""
     return config.HTDOCS + '/' + url.lstrip('/')
+
+_htdocs = os.path.abspath(config.HTDOCS)
+def path2url(path, default='/missing_path?%(path)s', full=False):
+    """convert local file paths to htdocs-relative addresses.  If the
+    file is not in the web tree, return default"""
+    if path.startswith('file:///'):
+        path = path[7:]
+    path = os.path.abspath(path)
+    if path.startswith(_htdocs):
+        path = path[len(_htdocs):]
+    else:
+        path = default % {'path': urllib.quote(path)}
+    if full:
+        return 'http://%s%s' % (SERVER_NAME, path)
+    return path
+
 
 def get_default_css(server=config.DEFAULT_SERVER, mode='book'):
     """Get the default CSS text for the selected server"""

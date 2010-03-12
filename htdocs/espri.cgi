@@ -32,7 +32,7 @@ from subprocess import check_call, CalledProcessError
 from objavi import epub
 from objavi.book_utils import log
 from objavi.cgi_utils import output_blob_and_exit, parse_args, print_template_and_exit, output_blob_and_shut_up
-from objavi.cgi_utils import is_utf8, is_url, super_bleach
+from objavi.cgi_utils import is_utf8, is_url, super_bleach, path2url
 from objavi import config
 
 IA_EPUB_URL = "http://www.archive.org/download/%s/%s.epub"
@@ -121,8 +121,7 @@ def wikibooks_espri(wiki_url):
     workdir = tempfile.mkdtemp(prefix=bookid, dir=config.TMPDIR)
     os.chmod(workdir, 0755)
     epub_file = os.path.join(workdir, bookid + '.epub')
-    epub_url = 'file://' + os.path.abspath(epub_file)
-    #epub_url = 'http://localhost/' + epub_file
+    epub_url = path2url(epub_file, full=True)
 
     #the wikibooks importer is a separate process, so run that, then collect the epub.
     cmd = [TIMEOUT_CMD, WIKIBOOKS_TIMEOUT,
