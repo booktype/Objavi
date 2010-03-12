@@ -27,7 +27,7 @@
         #Sometimes it takes a while. Wait.
         TimeOut 600
 
-	DocumentRoot /home/douglas/objavi2
+	DocumentRoot /home/douglas/objavi2/htdocs
 	<Directory />
 		Options FollowSymLinks
 		AllowOverride None
@@ -37,12 +37,12 @@
 		AllowOverride None
 		Order allow,deny
 		Allow from all
-		AddHandler cgi-script .py .cgi
-                # Remove input filters in case mod_deflate is being used.
-                RemoveOutputFilter .py .cgi
+		AddHandler cgi-script .cgi
+                # Remove output filters in case mod_deflate is being used.
+                RemoveOutputFilter .cgi
 	</Directory>
 
-        DirectoryIndex index.html objavi2.py
+        DirectoryIndex index.html objavi.cgi
 	ErrorLog /var/log/apache2/objavi-error.log
 
 	# Possible values include: debug, info, notice, warn, error, crit,
