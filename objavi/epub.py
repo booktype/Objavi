@@ -653,12 +653,12 @@ def parse_ncx(ncx):
         #whatever 'scheme' is
         setheader(meta.get('name'), meta.get('content'), meta.get('scheme'))
 
+    root = ncx.getroot()
     for t in ('docTitle', 'docAuthor'):
-        for e in ncx.iterchildren(DAISYNS + t):
+        for e in root.iterchildren(DAISYNS + t):
             if e is not None:
                 setheader(t, get_ncxtext(e))
 
-    root = ncx.getroot()
     for attr, header in (('dir', 'dir'),
                          (XMLNS + 'lang', 'lang')):
         value = root.get(attr)
