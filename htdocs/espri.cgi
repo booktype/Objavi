@@ -85,11 +85,11 @@ def espri(epuburl, bookid):
     zipfile = '%s/%s.zip' % (config.BOOKI_BOOK_DIR, bookid)    
     e.make_bookizip(zipfile)
 
-def ia_espri(book_id):
-    epuburl = IA_EPUB_URL % (book_id, book_id)
+def ia_espri(bookid):
+    epuburl = IA_EPUB_URL % (bookid, bookid)
     log(epuburl)
-    espri(epuburl, book_id)
-    return bookid
+    espri(epuburl, bookid)
+    return '%s.zip' % bookid
 
 def inet_espri(epuburl):
     tainted_name = unquote(os.path.basename(urlsplit(epuburl).path))
@@ -98,7 +98,7 @@ def inet_espri(epuburl):
         filename = filename[:-5]
     bookid = '%s-%s' % (filename, time.strftime('%F_%T'))
     espri(epuburl, bookid)
-    return bookid
+    return '%s.zip' % bookid
 
 
 TIMEOUT_CMD = 'timeout'
@@ -139,8 +139,7 @@ def wikibooks_espri(wiki_url):
         raise
 
     espri(epub_url, bookid)
-    return bookid
-
+    return '%s.zip' % bookid
 
 
 
