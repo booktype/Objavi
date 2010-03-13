@@ -34,9 +34,9 @@ from string import ascii_letters
 from pprint import pformat
 
 try:
-    import simplejson as json
-except ImportError:
     import json
+except ImportError:
+    import simplejson as json
 
 import lxml.html
 from lxml import etree
