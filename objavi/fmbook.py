@@ -486,7 +486,8 @@ class Book(object):
         #go in every page (i.e., into the template)
         menu = etree.Element('ul', Class=config.TEMPLATING_MENU_ELEMENT)
         contents = etree.Element('div', Class=config.TEMPLATING_REPLACED_ELEMENT)
-        etree.SubElement(contents, 'h1').text = self.title
+        #log(type(self.title), self.title, self.title.decode('utf-8'))
+        etree.SubElement(contents, 'h1').text = self.title.decode('utf-8')
 
         savename = first_name
         for ID in self.spine:
@@ -511,11 +512,15 @@ class Book(object):
 
         #function to template content and write to disk
         def save_content(content, title, filename):
+            if not isinstance(title, unicode):
+                title = title.decode('utf-8')
             content.set('id', config.TEMPLATING_CONTENTS_ID)
             dest = copy.deepcopy(template_tree)
+            dest.set('dir', self.dir)
             for e in dest.iterdescendants(config.TEMPLATING_REPLACED_ELEMENT):
                 e.getparent().replace(e, content)
             for e in dest.iterdescendants('title'):
+                #log(type(title), title)
                 e.text = title
             self.save_tempfile(os.path.join(destdir, filename), lxml.html.tostring(dest))
 
