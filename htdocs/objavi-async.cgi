@@ -409,20 +409,17 @@ def mode_bookizip(args):
 def mode_templated_html(args):
     log('making templated html with\n%s' % pformat(args))
     context = Context(args)
+    template = args.get('html_template')
+    log(template)
     with Book(context.bookid, context.server, context.bookname,
               watchers=context.get_watchers(), title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
 
-        book.make_templated_html(template=args.get('template'))
+        book.make_templated_html(template=template)
         context.finish(book)
-
 
 def mode_templated_html_zip(args):
     pass
-
-
-
-
 
 def main():
     args = parse_args(ARG_VALIDATORS)

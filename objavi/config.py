@@ -74,8 +74,16 @@ PUBLISH_DIR = 'htdocs/books'
 
 HTML_PUBLISH_DIR = 'htdocs/published'
 TEMPLATING_REPLACED_ELEMENT = 'contentgoeshere'
+TEMPLATING_MENU_ELEMENT = 'menugoeshere'
 TEMPLATING_CONTENTS_ID = 'main-content'
 TEMPLATING_DEFAULT_TEMPLATE = 'templates/templating_template.html'
+
+TEMPLATING_INDEX_FIRST = 'first'
+TEMPLATING_INDEX_CONTENTS = 'contents'
+TEMPLATING_INDEX_MODES = {  # contents file, first file
+    TEMPLATING_INDEX_FIRST: ('contents.html', 'index.html'),
+    TEMPLATING_INDEX_CONTENTS: ('index.html', None),
+}
 
 POLL_NOTIFY_PATH = 'htdocs/progress/%s.txt'
 #POLL_NOTIFY_URL = 'http://%(HTTP_HOST)s/progress/%(bookname)s.txt'
@@ -383,8 +391,8 @@ CGI_MODES = { # arguments are: (publication, extension, mimetype)
     'form': (False, None, None),
     'epub': (True, '.epub', "application/epub+zip"),
     'bookizip': (True, '.zip', BOOKIZIP_MIMETYPE),
-    'templated_html':  (True, None, None),
-    'templated_html_zip':  (True, '.zip', 'application/zip'),
+    'templated_html':  (True, '', 'text/html'),
+#    'templated_html_zip':  (True, '.zip', 'application/zip'),
 }
 
 PUBLIC_CGI_MODES = tuple(k for k, v in CGI_MODES.items() if v[0])
