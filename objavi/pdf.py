@@ -110,13 +110,6 @@ class PageSettings(object):
         log(' '.join(cmd))
         return cmd
 
-    def _gecko_command(self, html, pdf, outline=False):
-        m = [str(x) for x in self.margins]
-        #firefox -P pdfprint -print URL -printprinter "printer_settings"
-        cmd = [config.FIREFOX, '-P', 'pdfprint', '-print',
-               html, '-printprinter', self.moz_printer]
-        log(' '.join(cmd))
-        return cmd
 
     def make_raw_pdf(self, html, pdf, outline=False, outline_file=None):
         html_url = path2url(html, full=True)
