@@ -68,6 +68,7 @@ ARG_VALIDATORS = {
     "max-age": isfloat,
     "method": config.CGI_METHODS.__contains__,
     "callback": is_url,
+    "html_template": is_utf8,
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
@@ -332,9 +333,6 @@ class Context(object):
         log('watchers are %s' % watchers)
         return watchers
 
-
-
-
 def mode_book(args):
     # so we're making a pdf.
     context = Context(args)
@@ -407,6 +405,23 @@ def mode_bookizip(args):
               max_age=float(args.get('max-age', -1))) as book:
         book.publish_bookizip()
         context.finish(book)
+
+def mode_templated_html(args):
+    log('making templated html with\n%s' % pformat(args))
+    context = Context(args)
+    with Book(context.bookid, context.server, context.bookname,
+              watchers=context.get_watchers(), title=args.get('title'),
+              max_age=float(args.get('max-age', -1))) as book:
+
+        book.make_templated_html(template=args.get('template'))
+        context.finish(book)
+
+
+def mode_templated_html_zip(args):
+    pass
+
+
+
 
 
 def main():

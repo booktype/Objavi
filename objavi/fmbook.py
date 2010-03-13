@@ -24,6 +24,7 @@ import os, sys
 import tempfile
 import re, time
 import random
+import copy
 from subprocess import Popen, check_call, PIPE
 from cStringIO import StringIO
 from urllib2 import urlopen, HTTPError
@@ -463,6 +464,89 @@ class Book(object):
                     self.isbn_pdf_file)
 
         self.notify_watcher('concatenated_pdfs')
+
+    def make_templated_html(self, template=None, zip=False):
+        """Make a templated html version of the book"""
+        self.unpack_static()
+        if template is None:
+            f = open(config.TEMPLATING_DEFAULT_TEMPLATE)
+            template = f.read()
+            f.close()
+        template_tree = lxml.html.document_fromstring(template)
+        tocmap = filename_toc_map(self.toc)
+
+        if zip == False:
+            destdir = self.filepath('html')
+            os.mkdir(destdir)
+            os.rename(self.filepath('static'), self.filepath(os.path.join(destdir, 'static')))
+            def save(filename, tree):
+                self.save_tempfile(os.path.join(destdir, filename), lxml.html.tostring(tree))
+        else:
+            zfilename = self.filepath('publish.zip')
+            zipfile = ZipFile(zfilename, 'w', ZIP_DEFLATED)
+            for img in os.listdir(self.filepath('static')):
+                zinfo = ZipInfo('static/' + img)
+                zinfo.external_attr = 0644 << 16L # set permissions
+                f = os.path.join('static', img)
+                zipfile.writestr(zinfo, f.read())
+                f.close()
+            def save(filename, tree):
+                zinfo = ZipInfo(filename)
+                zinfo.external_attr = 0644 << 16L # set permissions
+                zipfile.writestr(zinfo, lxml.html.tostring(tree))
+
+        contents = etree.Element('div')
+        etree.SubElement(contents, 'h1').text = self.title
+
+        for ID in self.spine:
+            details = self.manifest[ID]
+            try:
+                root = self.get_tree_by_id(ID).getroot()
+            except Exception, e:
+                log("hit %s when trying book.get_tree_by_id(%s).getroot()" % (e, ID))
+                continue
+
+            dest = copy.deepcopy(template_tree)
+
+            try:
+                title = dest.iter('title').next()
+            except StopIteration:
+                title = etree.SubElement(dest, 'title')
+            #log(template, dest, etree.tostring(dest), config.TEMPLATING_REPLACED_ELEMENT)
+            try:
+                e = dest.iterdescendants(config.TEMPLATING_REPLACED_ELEMENT).next()
+                log(e)
+            except StopIteration:
+                log("couldn't find element %s in: %s" % (config.TEMPLATING_REPLACED_ELEMENT, template))
+
+            body = root.find('body')
+
+            e.getparent().replace(e, body)
+            body.tag = 'div'
+            body.set('id', config.TEMPLATING_CONTENTS_ID)
+
+            filename = details['url']
+            save(filename, dest)
+
+            log(details)
+            #handle any TOC points in this file.  There should only be one!
+            for point in tocmap[filename]:
+                log(point)
+                if point['type'] == 'booki-section':
+                    etree.SubElement(contents, 'h2').text = point['title']
+                else:
+                    if not title.text:
+                        title.text = point['title']
+                    div = etree.SubElement(contents, 'div')
+                    a = etree.SubElement(div, 'a', href=filename)
+                    a.text = point['title']
+
+        dest = copy.deepcopy(template_tree)
+        e = dest.iterdescendants(config.TEMPLATING_REPLACED_ELEMENT).next()
+        e.getparent().replace(e, contents)
+        title.text = self.title
+        save('index.html', dest)
+        self.notify_watcher()
 
 
     def make_simple_pdf(self, mode):

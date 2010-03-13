@@ -72,6 +72,11 @@ CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
 
 PUBLISH_DIR = 'htdocs/books'
 
+HTML_PUBLISH_DIR = 'htdocs/published'
+TEMPLATING_REPLACED_ELEMENT = 'contentgoeshere'
+TEMPLATING_CONTENTS_ID = 'main-content'
+TEMPLATING_DEFAULT_TEMPLATE = 'templates/templating_template.html'
+
 POLL_NOTIFY_PATH = 'htdocs/progress/%s.txt'
 #POLL_NOTIFY_URL = 'http://%(HTTP_HOST)s/progress/%(bookname)s.txt'
 
@@ -376,8 +381,10 @@ CGI_MODES = { # arguments are: (publication, extension, mimetype)
     'booklist': (False, None, None),
     'css': (False, None, None),
     'form': (False, None, None),
-    'epub':(True, '.epub', "application/epub+zip"),
-    'bookizip':(True, '.zip', BOOKIZIP_MIMETYPE),
+    'epub': (True, '.epub', "application/epub+zip"),
+    'bookizip': (True, '.zip', BOOKIZIP_MIMETYPE),
+    'templated_html':  (True, None, None),
+    'templated_html_zip':  (True, '.zip', 'application/zip'),
 }
 
 PUBLIC_CGI_MODES = tuple(k for k, v in CGI_MODES.items() if v[0])
@@ -450,6 +457,9 @@ FORM_INPUTS = (
     ("css", "CSS", "textarea", "css", "advanced css-custom openoffice", ""),
 
     ("rotate", "Rotate pages for binding", "input[type=checkbox]", 'yes', "advanced", "(for RTL books on LTR printing presses, and vice versa)."),
+
+    ("html_template", "HTML Template", "textarea", None, "advanced ", ""),
+
     #("engine", "Layout engine", "select", "engines", "advanced", ""),
     #("header", "Header Text", "input[type=text]", None, "advanced", ""),
     ("max-age", "Use cached data", "input[type=text]", None, "advanced numeric-field", "(younger than this many minutes)."),
