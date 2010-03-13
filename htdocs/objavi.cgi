@@ -24,16 +24,19 @@ from __future__ import with_statement
 import os, sys
 os.chdir('..')
 sys.path.insert(0, os.path.abspath('.'))
-#print >> sys.stderr, sys.path
 
-import re
+import re, time
+#import traceback
 from pprint import pformat
 
-from objavi.fmbook import log, Book, make_book_name, HTTP_HOST
+from objavi.fmbook import Book, HTTP_HOST, find_archive_urls
 from objavi import config
-from objavi.cgi_utils import parse_args, optionise, listify, output_and_exit, font_links, get_default_css
-from objavi.cgi_utils import output_blob_and_exit, is_utf8, isfloat, isfloat_or_auto, is_isbn
-from objavi.twiki_wrapper import get_book_list
+from objavi import twiki_wrapper
+from objavi.book_utils import init_log, log, make_book_name
+from objavi.cgi_utils import parse_args, optionise, listify, get_server_list
+from objavi.cgi_utils import is_utf8, isfloat, isfloat_or_auto, is_isbn, is_url
+from objavi.cgi_utils import output_blob_and_exit, output_blob_and_shut_up, output_and_exit
+from objavi.cgi_utils import get_size_list, get_default_css, font_links
 
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
@@ -42,7 +45,6 @@ ARG_VALIDATORS = {
     "book": re.compile(r'^([\w-]+/?)*[\w-]+$').match, # can be: BlahBlah/Blah_Blah
     "css": is_utf8, # an url, empty (for default), or css content
     "title": lambda x: len(x) < 999 and is_utf8(x),
-    #"header": None, # header text, UNUSED
     "isbn": is_isbn,
     "license": config.LICENSES.__contains__,
     "server": config.SERVER_DEFAULTS.__contains__,
@@ -58,76 +60,18 @@ ARG_VALIDATORS = {
     "column_margin": isfloat_or_auto,
     "cgi-context": lambda x: x.lower() in '1true0false',
     "mode": config.CGI_MODES.__contains__,
-    "pdftype": lambda x: config.CGI_MODES.get(x, [False])[0],
+    "pdftype": lambda x: config.CGI_MODES.get(x, [False])[0], #for css mode
     "rotate": u"yes".__eq__,
     "grey_scale": u"yes".__eq__,
     "destination": config.CGI_DESTINATIONS.__contains__,
     "toc_header": is_utf8,
     "max-age": isfloat,
+    "method": config.CGI_METHODS.__contains__,
+    "callback": is_url,
+    "html_template": is_utf8,
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
-
-
-def get_server_list():
-    return sorted(k for k, v in config.SERVER_DEFAULTS.items() if v['display'])
-
-
-def get_size_list():
-    #order by increasing areal size.
-    def calc_size(name, pointsize, klass):
-        if pointsize:
-            mmx = pointsize[0] * config.POINT_2_MM
-            mmy = pointsize[1] * config.POINT_2_MM
-            return (mmx * mmy, name, klass,
-                    '%s (%dmm x %dmm)' % (name, mmx, mmy))
-
-        return (0, name, klass, name) # presumably 'custom'
-
-    return [x[1:] for x in sorted(calc_size(k, v.get('pointsize'), v.get('class', ''))
-                                  for k, v in config.PAGE_SIZE_DATA.iteritems())
-            ]
-
-def make_progress_page(book, bookname, mode, destination='html'):
-    """Return a function that will notify the user of progress.  In
-    CGI context this means making an html page to display the
-    messages, which are then sent as javascript snippets on the same
-    connection."""
-    if not CGI_CONTEXT or destination != 'html':
-        return lambda message: '******* got message "%s"' %message
-
-    print "Content-type: text/html; charset=utf-8\n"
-    f = open(config.PROGRESS_TEMPLATE)
-    template = f.read()
-    f.close()
-    progress_list = ''.join('<li id="%s">%s</li>\n' % x[:2] for x in config.PROGRESS_POINTS
-                            if mode in x[2])
-
-    d = {
-        'book': book,
-        'bookname': bookname,
-        'progress_list': progress_list,
-    }
-    print template % d
-    def progress_notifier(message):
-        try:
-            if message.startswith('ERROR:'):
-                log('got an error! %r' % message)
-                print ('<b class="error-message">'
-                       '%s\n'
-                       '</b></body></html>' % message
-                       )
-            else:
-                print ('<script type="text/javascript">\n'
-                       'objavi_show_progress("%s");\n'
-                       '</script>' % message
-                       )
-                if message == config.FINISHED_MESSAGE:
-                    print '</body></html>'
-            sys.stdout.flush()
-        except ValueError, e:
-            log("failed to send message %r, got exception %r" % (message, e))
-    return progress_notifier
 
 
 def get_page_settings(args):
@@ -183,7 +127,8 @@ def get_page_settings(args):
 
 @output_and_exit
 def mode_booklist(args):
-    return optionise(get_book_list(args.get('server', config.DEFAULT_SERVER)),
+    #XXX need to include booki servers
+    return optionise(twiki_wrapper.get_book_list(args.get('server', config.DEFAULT_SERVER)),
                      default=args.get('book'))
 
 @output_and_exit
@@ -206,7 +151,7 @@ def mode_form(args):
     engine = args.get('engine', config.DEFAULT_ENGINE)
     d = {
         'server_options': optionise(get_server_list(), default=server),
-        'book_options': optionise(get_book_list(server), default=book),
+        'book_options': optionise(twiki_wrapper.get_book_list(server), default=book),
         'size_options': optionise(get_size_list(), default=size),
         'engines': optionise(config.ENGINES.keys(), default=engine),
         'pdf_types': optionise(sorted(k for k, v in config.CGI_MODES.iteritems() if v[0])),
@@ -237,57 +182,185 @@ def mode_form(args):
     return template % {'form': ''.join(form)}
 
 
-def output_multi(book, mimetype, destination):
-    if destination == 'download':
-        f = open(book.publish_file)
-        data = f.read()
-        f.close()
-        output_blob_and_exit(data, mimetype, book.bookname)
-    else:
+
+class Context(object):
+    """Work out what to show the caller.  The method/destination matrix:
+
+    [dest/method]   sync        async       poll
+    archive.org     url         id          id
+    download        data        .           .
+    html            html 1      .           html 2
+    nowhere         url         id          id
+
+    'html 1' is dripfed progress reports; 'html 2' polls via
+    javascript.  'id' is the book filename.  'url' is a full url
+    locating the file on archive.org or the objavi server.  '.'  means
+    unimplemented.
+    """
+
+    pollfile = None
+    def __init__(self, args):
+        self.bookid = args.get('book')
+        self.server = args.get('server', config.DEFAULT_SERVER)
+        self.mode = args.get('mode', 'book')
+        extension = config.CGI_MODES.get(self.mode)[1]
+        self.bookname = make_book_name(self.bookid, self.server, extension)
+        self.destination = args.get('destination', config.DEFAULT_CGI_DESTINATION)
+        self.callback = args.get('callback', None)
+        self.method = args.get('method', config.CGI_DESTINATIONS[self.destination]['default'])
+        self.template, self.mimetype = config.CGI_DESTINATIONS[self.destination][self.method]
         if HTTP_HOST:
-            bookurl = "http://%s/books/%s" % (HTTP_HOST, book.bookname,)
+            self.bookurl = "http://%s/books/%s" % (HTTP_HOST, self.bookname,)
         else:
-            bookurl = "books/%s" % (book.bookname,)
+            self.bookurl = "books/%s" % (self.bookname,)
 
-        if destination == 'archive.org':
-            details_url, s3url = book.publish_s3()
-            output_blob_and_exit("%s\n%s" % (bookurl, details_url), 'text/plain')
-        elif destination == 'nowhere':
-            output_blob_and_exit(bookurl, 'text/plain')
+        self.details_url, self.s3url = find_archive_urls(self.bookid, self.bookname)
+        self.start()
 
+    def start(self):
+        """Begin (and in many cases, finish) http output.
+
+        In asynchronous modes, fork and close down stdout.
+        """
+        log(self.template, self.mimetype, self.destination, self.method)
+        if self.template is not None:
+            progress_list = ''.join('<li id="%s">%s</li>\n' % x[:2] for x in config.PROGRESS_POINTS
+                                    if self.mode in x[2])
+            d = {
+                'book': self.bookid,
+                'bookname': self.bookname,
+                'progress_list': progress_list,
+                'details_url': self.details_url,
+                's3url': self.s3url,
+                'bookurl': self.bookurl,
+                }
+            f = open(self.template)
+            content = f.read() % d
+            f.close()
+        else:
+            content = ''
+
+        if self.method == 'sync':
+            print 'Content-type: %s\n\n%s' %(self.mimetype, content)
+        else:
+            output_blob_and_shut_up(content, self.mimetype)
+            log(sys.stdout, sys.stderr, sys.stdin)
+            if os.fork():
+                os._exit(0)
+            sys.stdout.close()
+            sys.stdin.close()
+            log(sys.stdout, sys.stderr, sys.stdin)
+
+
+    def finish(self, book):
+        """Print any final http content."""
+        if self.destination == 'archive.org':
+            book.publish_s3()
+        elif self.destination == 'download' and self.method == 'sync':
+            f = open(book.publish_file)
+            data = f.read()
+            f.close()
+            output_blob_and_exit(data, config.CGI_MODES[self.mode][2], self.bookname)
+
+
+    def log_notifier(self, message):
+        """Send messages to the log only."""
+        log('******* got message "%s"' %message)
+
+    def callback_notifier(self, message):
+        """Call the callback url with each message."""
+        log('in callback_notifier')
+        pid = os.fork()
+        if pid:
+            log('child %s is doing callback with message %r' % (pid, message, ))
+            return
+        from urllib2 import urlopen, URLError
+        from urllib import urlencode
+        data = urlencode({'message': message})
+        try:
+            f = urlopen(self.callback, data)
+            time.sleep(2)
+            f.close()
+        except URLError, e:
+            #traceback.print_exc()
+            log("ERROR in callback:\n %r\n %s %s" % (e.url, e.code, e.msg))
+        os._exit(0)
+
+    def javascript_notifier(self, message):
+        """Print little bits of javascript which will be appended to
+        an unfinished html page."""
+        try:
+            if message.startswith('ERROR:'):
+                log('got an error! %r' % message)
+                print ('<b class="error-message">'
+                       '%s\n'
+                       '</b></body></html>' % message
+                       )
+            else:
+                print ('<script type="text/javascript">\n'
+                       'objavi_show_progress("%s");\n'
+                       '</script>' % message
+                       )
+                if message == config.FINISHED_MESSAGE:
+                    print '</body></html>'
+            sys.stdout.flush()
+        except ValueError, e:
+            log("failed to send message %r, got exception %r" % (message, e))
+
+    def pollee_notifier(self, message):
+        """Append the message to a file that the remote server can poll"""
+        if self.pollfile is None or self.pollfile.closed:
+            self.pollfile = open(config.POLL_NOTIFY_PATH % self.bookname, 'a')
+        self.pollfile.write('%s\n' % message)
+        self.pollfile.flush()
+        #self.pollfile.close()
+        #if message == config.FINISHED_MESSAGE:
+        #    self.pollfile.close()
+
+    def get_watchers(self):
+        """Based on the CGI arguments, return a likely set of notifier
+        methods."""
+        log('in get_watchers. method %r, callback %r, destination %r' %
+            (self.method, self.callback, self.destination))
+        watchers = set()
+        if self.method == 'poll':
+            watchers.add(self.pollee_notifier)
+        if self.method == 'async' and self.callback:
+            watchers.add(self.callback_notifier)
+        if self.method == 'sync' and  self.destination == 'html':
+            watchers.add(self.javascript_notifier)
+        watchers.add(self.log_notifier)
+        log('watchers are %s' % watchers)
+        return watchers
 
 def mode_book(args):
     # so we're making a pdf.
-    mode = args.get('mode', 'book')
-    bookid = args.get('book')
-    server = args.get('server', config.DEFAULT_SERVER)
+    context = Context(args)
     page_settings = get_page_settings(args)
-    bookname = make_book_name(bookid, server)
-    destination = args.get('destination', config.DEFAULT_CGI_DESTINATION)
-    progress_bar = make_progress_page(bookid, bookname, mode, destination)
 
-    with Book(bookid, server, bookname, page_settings=page_settings,
-              watchers=[progress_bar], isbn=args.get('isbn'),
+    with Book(context.bookid, context.server, context.bookname,
+              page_settings=page_settings,
+              watchers=context.get_watchers(), isbn=args.get('isbn'),
               license=args.get('license'), title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
-        if CGI_CONTEXT:
-            book.spawn_x()
+
+        book.spawn_x()
 
         if 'toc_header' in args:
             book.toc_header = args['toc_header'].decode('utf-8')
         book.load_book()
-        book.add_css(args.get('css'), mode)
+        book.add_css(args.get('css'), context.mode)
         book.add_section_titles()
 
-        if mode == 'book':
+        if context.mode == 'book':
             book.make_book_pdf()
-        elif mode in ('web', 'newspaper'):
-            book.make_simple_pdf(mode)
+        elif context.mode in ('web', 'newspaper'):
+            book.make_simple_pdf(context.mode)
         if "rotate" in args:
             book.rotate180()
 
         book.publish_pdf()
-        output_multi(book, "application/pdf", destination)
+        context.finish(book)
 
 #These ones are similar enough to be handled by the one function
 mode_newspaper = mode_book
@@ -297,57 +370,56 @@ mode_web = mode_book
 def mode_openoffice(args):
     """Make an openoffice document.  A whole lot of the inputs have no
     effect."""
-    bookid = args.get('book')
-    server = args.get('server', config.DEFAULT_SERVER)
-    bookname = make_book_name(bookid, server, '.odt')
-    destination = args.get('destination', config.DEFAULT_CGI_DESTINATION)
-    progress_bar = make_progress_page(bookid, bookname, 'openoffice', destination)
-
-    with Book(bookid, server, bookname,
-              watchers=[progress_bar], isbn=args.get('isbn'),
+    context = Context(args)
+    with Book(context.bookid, context.server, context.bookname,
+              watchers=context.get_watchers(), isbn=args.get('isbn'),
               license=args.get('license'), title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
-        if CGI_CONTEXT:
-            book.spawn_x()
+
+        book.spawn_x()
         book.load_book()
         book.add_css(args.get('css'), 'openoffice')
         book.add_section_titles()
         book.make_oo_doc()
-        output_multi(book, "application/vnd.oasis.opendocument.text", destination)
-
+        context.finish(book)
 
 def mode_epub(args):
     log('making epub with\n%s' % pformat(args))
     #XXX need to catch and process lack of necessary arguments.
-    bookid = args.get('book')
-    server = args.get('server', config.DEFAULT_SERVER)
-    bookname = make_book_name(bookid, server, '.epub')
-    destination = args.get('destination', config.DEFAULT_CGI_DESTINATION)
-    progress_bar = make_progress_page(bookid, bookname, 'epub', destination)
+    context = Context(args)
 
-    with Book(bookid, server, bookname=bookname,
-              watchers=[progress_bar], title=args.get('title'),
+    with Book(context.bookid, context.server, context.bookname,
+              watchers=context.get_watchers(), title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
 
         book.make_epub(use_cache=config.USE_CACHED_IMAGES)
-        output_multi(book, "application/epub+zip", destination)
+        context.finish(book)
 
 
 def mode_bookizip(args):
     log('making bookizip with\n%s' % pformat(args))
-    bookid = args.get('book')
-    server = args.get('server', config.DEFAULT_SERVER)
-    bookname = make_book_name(bookid, server, '.zip')
+    context = Context(args)
 
-    destination = args.get('destination', config.DEFAULT_CGI_DESTINATION)
-    progress_bar = make_progress_page(bookid, bookname, 'bookizip', destination)
-
-    with Book(bookid, server, bookname=bookname,
-              watchers=[progress_bar], title=args.get('title'),
+    with Book(context.bookid, context.server, context.bookname,
+              watchers=context.get_watchers(), title=args.get('title'),
               max_age=float(args.get('max-age', -1))) as book:
         book.publish_bookizip()
-        output_multi(book, config.BOOKIZIP_MIMETYPE, destination)
+        context.finish(book)
 
+def mode_templated_html(args):
+    log('making templated html with\n%s' % pformat(args))
+    context = Context(args)
+    template = args.get('html_template')
+    log(template)
+    with Book(context.bookid, context.server, context.bookname,
+              watchers=context.get_watchers(), title=args.get('title'),
+              max_age=float(args.get('max-age', -1))) as book:
+
+        book.make_templated_html(template=template)
+        context.finish(book)
+
+def mode_templated_html_zip(args):
+    pass
 
 def main():
     args = parse_args(ARG_VALIDATORS)
@@ -365,10 +437,10 @@ def main():
     output_function = globals().get('mode_%s' % mode, mode_form)
     output_function(args)
 
-CGI_CONTEXT = True
 if __name__ == '__main__':
     if config.CGITB_DOMAINS and os.environ.get('REMOTE_ADDR') in config.CGITB_DOMAINS:
         import cgitb
         cgitb.enable()
+    init_log()
     main()
 
