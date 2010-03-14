@@ -2,6 +2,8 @@ body {
   font-family: 'Gillius ADF';
   background: #fff;
   color: #000;
+  width: 100%;
+  overflow: hidden;
 }
 
 #book-title {

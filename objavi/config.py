@@ -73,10 +73,13 @@ CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
 PUBLISH_DIR = 'htdocs/books'
 
 HTML_PUBLISH_DIR = 'htdocs/published'
-TEMPLATING_REPLACED_ELEMENT = 'contentgoeshere'
-TEMPLATING_MENU_ELEMENT = 'menugoeshere'
+TEMPLATING_REPLACED_ELEMENT = 'content-goes-here'
+TEMPLATING_MENU_ELEMENT = 'menu-goes-here'
+TEMPLATING_BOOK_TITLE_ELEMENT = 'book-title-goes-here'
+TEMPLATING_CHAPTER_TITLE_ELEMENT = 'chapter-title-goes-here'
 TEMPLATING_CONTENTS_ID = 'main-content'
-TEMPLATING_DEFAULT_TEMPLATE = 'templates/templating_template.html'
+#TEMPLATING_DEFAULT_TEMPLATE = 'templates/templating_template.html'
+TEMPLATING_DEFAULT_TEMPLATE = 'templates/templating_template_flossmanuals.html'
 
 TEMPLATING_INDEX_FIRST = 'first'
 TEMPLATING_INDEX_CONTENTS = 'contents'

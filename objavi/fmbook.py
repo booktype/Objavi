@@ -466,7 +466,7 @@ class Book(object):
         self.notify_watcher('concatenated_pdfs')
 
     def make_templated_html(self, template=None, zip=False, index=config.TEMPLATING_INDEX_FIRST):
-        """Make a templated html version of the book"""
+        """Make a templated html version of the book."""
         #set up the directory and static files
         self.unpack_static()
         destdir = self.filepath('html')
@@ -486,7 +486,10 @@ class Book(object):
         #go in every page (i.e., into the template)
         menu = etree.Element('ul', Class=config.TEMPLATING_MENU_ELEMENT)
         contents = etree.Element('div', Class=config.TEMPLATING_REPLACED_ELEMENT)
-        #log(type(self.title), self.title, self.title.decode('utf-8'))
+
+        booktitle = etree.Element('div', Class=config.TEMPLATING_BOOK_TITLE_ELEMENT)
+        booktitle.text = self.title
+
         etree.SubElement(contents, 'h1').text = self.title.decode('utf-8')
 
         savename = first_name
@@ -506,19 +509,30 @@ class Book(object):
                     li.tail = '\n'
                     etree.SubElement(li, 'a', href=savename).text = point['title']
                     savename = None
-        #put the menu into the template (if it wants it)
+        #put the menu and book title into the template (if it wants it)
         for e in template_tree.iterdescendants(config.TEMPLATING_MENU_ELEMENT):
-            e.getparent().replace(e, menu)
+            e.getparent().replace(e, copy.deepcopy(menu))
+        for e in template_tree.iterdescendants(config.TEMPLATING_BOOK_TITLE_ELEMENT):
+            e.getparent().replace(e, copy.deepcopy(booktitle))
 
         #function to template content and write to disk
         def save_content(content, title, filename):
             if not isinstance(title, unicode):
                 title = title.decode('utf-8')
             content.set('id', config.TEMPLATING_CONTENTS_ID)
+            content.tag = 'div'
             dest = copy.deepcopy(template_tree)
             dest.set('dir', self.dir)
             for e in dest.iterdescendants(config.TEMPLATING_REPLACED_ELEMENT):
+                #copy only if there are more than 2
+                if content.getparent() is not None:
+                    content = copy.deepcopy(content)
                 e.getparent().replace(e, content)
+
+            chaptertitle = etree.Element('div', Class=config.TEMPLATING_CHAPTER_TITLE_ELEMENT)
+            chaptertitle.text = title
+            for e in template_tree.iterdescendants(config.TEMPLATING_CHAPTER_TITLE_ELEMENT):
+                e.getparent().replace(e, copy.deepcopy(chaptertitle))
             for e in dest.iterdescendants('title'):
                 #log(type(title), title)
                 e.text = title
