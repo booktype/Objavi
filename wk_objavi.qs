@@ -65,6 +65,7 @@ const OPERATIONS = {
     index: 32,
     even_pages: 64,
 
+    dummy: 128,
     all: 0xffff
 };
 

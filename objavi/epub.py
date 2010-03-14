@@ -165,6 +165,9 @@ class Epub(object):
         self.media_map = {}
         for k, v in self.manifest.items():
             fn, mimetype = v
+            if isinstance(fn, unicode):
+                log('Stupid unicode: %r' % fn)
+
             if mimetype not in MARKUP_TYPES:
                 oldfn = fn
                 if '/' in fn:
@@ -314,6 +317,8 @@ class Epub(object):
         #add the images and other non-html data unchanged.
         for id, data in self.manifest.iteritems():
             fn, mimetype = data
+            if isinstance(fn, unicode):
+                log("Hateful unicode: %r" % fn)
             if mimetype not in MARKUP_TYPES:
                 blob = self.zip.read(fn)
                 bz.add_to_package(id, self.media_map[fn], blob, mimetype,
@@ -577,6 +582,9 @@ def parse_manifest(manifest, pwd):
     for t in manifest.iterchildren(ns + 'item'):
         id = t.get('id')
         href = os.path.join(pwd, t.get('href'))
+        if isinstance(href, unicode):
+            log('damn unicode: %r' % href)
+            log(etree.tostring(t))
         media_type = t.get('media-type')
         items[id] = (href, media_type) #XXX does media-type matter?
 

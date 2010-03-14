@@ -187,7 +187,7 @@ def saveImages(title, base='/tmp/book'):
         f = os.path.join(base, unquote(localImageLink(image).replace('http:__', '')))
         _images.append(f.replace(base+'/', ''))
         if not os.path.exists(f.encode('utf-8')):
-            saveUrl(image, f)
+            saveUrl(image, f.encode('utf-8'))
     return _images
 
 def epub_files(title, items):

@@ -131,6 +131,8 @@ def wikibooks_espri(wiki_url):
            '-o', epub_file
            ]
     log(cmd)
+    log(os.environ)
+    log(os.getcwd())
 
     try:
         check_call(cmd)
