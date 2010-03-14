@@ -44,7 +44,7 @@ line-height:17px;
 	height:90px;
 	width:120px;
 	background-image: url('/floss/pub/TWiki/FlossSkin2/image.png');
-	background-repeat : no;
+	background-repeat : none;
 }
 
 p.writers_comment
