@@ -114,7 +114,8 @@ def wikibooks_espri(wiki_url):
     to first convert the wikibook to an epub, which can then be turned
     into a bookizip via the espri function.
     """
-    os.environ['oxCACHE'] = WIKIBOOKS_CACHE
+    os.environ['oxCACHE'] = os.path.abspath(WIKIBOOKS_CACHE)
+    os.environ['LANG'] = 'en_NZ.UTF-8'
     tainted_name = unquote(os.path.basename(urlsplit(wiki_url).path))
     bookid = "%s-%s" % (super_bleach(tainted_name),
                         time.strftime('%Y.%m.%d-%H.%M.%S'))
