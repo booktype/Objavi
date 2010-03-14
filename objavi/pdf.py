@@ -159,19 +159,22 @@ class PageSettings(object):
                     even_pages=True):
         """Spin the pdf for RTL text, resize it to the right size, and
         shift the gutter left and right"""
-        ops = 'resize'
+        ops = []
         if self.gutter:
-            ops += ',shift'
+            ops.append('shift')
         if even_pages:
-            ops += ',even_pages'
+            ops.append('even_pages')
         gutter = self.gutter
         if dir == 'RTL':
             gutter = -gutter
+        if not ops:
+            return
+
         cmd = ['pdfedit', '-s', 'wk_objavi.qs',
                'dir=%s' % dir,
                'filename=%s' % pdf,
                'output_filename=%s' % pdf,
-               'operation=%s' % ops,
+               'operation=%s' % ','.join(ops),
                'width=%s' % self.width,
                'height=%s' % self.height,
                'offset=%s' % gutter,
