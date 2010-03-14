@@ -488,7 +488,8 @@ class Book(object):
         contents = etree.Element('div', Class=config.TEMPLATING_REPLACED_ELEMENT)
 
         booktitle = etree.Element('div', Class=config.TEMPLATING_BOOK_TITLE_ELEMENT)
-        booktitle.text = self.title
+        log(self.title)
+        booktitle.text = self.title.decode('utf-8')
 
         etree.SubElement(contents, 'h1').text = self.title.decode('utf-8')
 
