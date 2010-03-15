@@ -104,9 +104,13 @@ class PageSettings(object):
         quiet_args = ['-q']
         cmd = ([config.WKHTMLTOPDF] +
                quiet_args +
-               ['-s', self.papersize,
-               '-T', m[0], '-R', m[1], '-B', m[2], '-L', m[3],
-               '-d', '100'] +
+               ['--page-width', str(self.width * config.POINT_2_MM),
+                '--page-height', str(self.height * config.POINT_2_MM),
+                '-T', m[0], '-R', m[1], '-B', m[2], '-L', m[3],
+                #'--disable-smart-shrinking',
+                '-d', '100',
+                #'--zoom', '1.2',
+                ] +
                outline_args +
                greyscale_args +
                config.WKHTMLTOPDF_EXTRA_COMMANDS +
@@ -164,6 +168,8 @@ class PageSettings(object):
         """Spin the pdf for RTL text, resize it to the right size, and
         shift the gutter left and right"""
         ops = []
+        if self.columns > 1:
+            ops.append('resize')
         if self.gutter:
             ops.append('shift')
         if even_pages:
