@@ -42,6 +42,9 @@ HTDOCS = 'htdocs'
 BOOKI_BOOK_DIR = 'htdocs/booki-books'
 BOOKI_BOOK_URL = '/booki-books'
 
+BOOKI_SHARED_DIRECTORY = 'htdocs/shared'
+BOOKI_SHARED_LONELY_USER_PREFIX = 'lonely-user-'
+
 FIREFOX = 'firefox'
 WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
@@ -474,6 +477,8 @@ FORM_INPUTS = (
     #("engine", "Layout engine", "select", "engines", "advanced", ""),
     #("header", "Header Text", "input[type=text]", None, "advanced", ""),
     ("max-age", "Use cached data", "input[type=text]", None, "advanced numeric-field", "(younger than this many minutes)."),
+    ("booki-group", "Booki group", "input[type=text]", None, "advanced", "Pretend the book belongs to this Booki group"),
+    ("booki-user", "Booki user", "input[type=text]", None, "advanced", "Pretend the book belongs to this Booki user"),
     #("destination", "Use cached data", "input[type=text]", None, "advanced", "(younger than this many minutes)."),
 )
 

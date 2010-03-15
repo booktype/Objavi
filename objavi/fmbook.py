@@ -1025,6 +1025,34 @@ class Book(object):
         self.notify_watcher()
         return detailsurl, s3url
 
+    def publish_shared(self, group=None, user=None):
+        """Make symlinks from the BOOKI_SHARED_DIRECTORY to the
+        published file, so that a virtual host can be set up to
+        publish the files from a static location.  If group is set, it
+        is used as a subdirectory, otherwise a virtual group like
+        'lonely-user-XXX' is used."""
+        if group is None:
+            if user is None:
+                return
+            group = config.BOOKI_SHARED_LONELY_USER_PREFIX + user
+        group = group.replace('..', '+').replace('/', '+')
+        group = re.sub("[^\w%.,-]+", "_", group)[:250]
+        groupdir = os.path.join(config.BOOKI_SHARED_DIRECTORY, group)
+
+        generic_name = re.sub(r'-\d{4}\.\d\d\.\d\d\-\d\d\.\d\d\.\d\d', '', self.bookname)
+        log(self.bookname, generic_name)
+
+        if not os.path.exists(groupdir):
+            os.mkdir(groupdir)
+
+        #change directory, for least symlink confusion
+        pwd = os.getcwd()
+        os.chdir(groupdir)
+        if os.path.exists(generic_name):
+            os.unlink(generic_name)
+        os.symlink(os.path.abspath(self.publish_file), generic_name)
+        os.chdir(pwd)
+
 
     def spawn_x(self):
         """Start an Xvfb instance, using a new server number.  A

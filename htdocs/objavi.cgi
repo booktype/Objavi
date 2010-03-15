@@ -69,6 +69,8 @@ ARG_VALIDATORS = {
     "method": config.CGI_METHODS.__contains__,
     "callback": is_url,
     "html_template": is_utf8,
+    "booki-group": is_utf8,
+    "booki-user": is_utf8,
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
@@ -215,6 +217,8 @@ class Context(object):
             self.bookurl = "books/%s" % (self.bookname,)
 
         self.details_url, self.s3url = find_archive_urls(self.bookid, self.bookname)
+        self.booki_group = args.get('booki-group')
+        self.booki_user = args.get('booki-user')
         self.start()
 
     def start(self):
@@ -254,6 +258,7 @@ class Context(object):
 
     def finish(self, book):
         """Print any final http content."""
+        book.publish_shared(self.booki_group, self.booki_user)
         if self.destination == 'archive.org':
             book.publish_s3()
         elif self.destination == 'download' and self.method == 'sync':
