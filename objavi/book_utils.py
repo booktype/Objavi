@@ -79,7 +79,7 @@ def log_types(*args, **kwargs):
         log("%s: %s" % (type(a), s[:size]))
 
 def make_book_name(book, server, suffix='.pdf', timestamp=None):
-    lang = config.SERVER_DEFAULTS.get(server, config.SERVER_DEFAULTS[config.DEFAULT_SERVER])['lang']
+    lang = guess_lang(server, book)
     book = ''.join(x for x in book if x.isalnum())
     if timestamp is None:
         timestamp = time.strftime('%Y.%m.%d-%H.%M.%S')
@@ -88,6 +88,8 @@ def make_book_name(book, server, suffix='.pdf', timestamp=None):
                            suffix)
 
 def guess_lang(server, book):
+    if server is None:
+        server = config.DEFAULT_SERVER
     lang = config.SERVER_DEFAULTS[server].get('lang')
     if lang is None and '_' in book:
         lang = book[book.rindex('_') + 1:]
