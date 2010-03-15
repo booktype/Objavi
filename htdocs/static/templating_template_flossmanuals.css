@@ -64,6 +64,15 @@
   font-weight: bold;
 }
 
+.ds-contentcontainer {
+  padding: 0em .5em;
+}
+/*#ds-contentcontainer div {
+  margin-left:1.2em;
+  float:right;
+}
+*/
+
 #ds-layout {
   table-layout: fixed;
   width: 670px;
@@ -111,31 +120,37 @@ body {
 }
 
 div.arrow {
-  position:relative;
-  width:50px;
-  top:5px;
-  float:left;
+  position:absolute;
 }
 
-div.left{
-  left:10px;
+.arrow.left{
+  left: 10px;
 }
 
-div.right{
-  left:528px;
+.arrow.right{
+  right: 10px;
+  text-align:right;
 }
 
-#ds-contentcontainer div {
-  margin-left:1.2em;
-  float:right;
+.arrow.top{
+  top: 12px;
+}
+
+.arrow.bottom{
+  bottom: 12px;
+}
+
+
+div.navbar {
+  height: 30px;
 }
 
 #edit-links {
   color: black;
   border: 1px;
   position: absolute;
-  top:60px;
-  left:502px;
+  top:12px;
+  left:400px;
 }
 
 #edit-links a {
@@ -146,9 +161,14 @@ div.right{
 }
 
 #main {
+  width: 670px;
+  border: 5px solid #666666;
+  padding: 0px;
+  margin:0px;
+  background: #FFF7F0;
   position:absolute;
-  left:240px;
-  top:11px;
+  left:250px;
+  top:21px;
 }
 
 #main-content{
@@ -156,3 +176,106 @@ div.right{
 }
 
 
+/* Everything below here imported form typography.css */
+
+img {
+  border:0px;
+}
+
+body {
+  font-family : trebuchet,verdana, sans-serif;
+  font-size: 12px;
+  line-height:17px;
+}
+
+
+a:link {
+	color:#666666;
+}
+a:visited {
+	color:#000000;
+}
+a:active {
+	color:#000000;
+}
+a:hover {
+	color:#000000;
+}
+
+pre, span.code, span.verbatim {
+font-size: 12px;
+line-height: 1.5em;
+background-color: #FFE5CC;
+border: 0px solid #000000;
+margin-left : 0.5em;
+margin-bottom : 20px;
+margin-right : 1em;
+padding-left: 1em;
+padding-right: 1em;
+padding-top: 0.2em;
+padding-bottom: 0.2em;
+color : black;
+white-space: pre-wrap;       /* css-3 */
+white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+white-space: -pre-wrap;      /* Opera 4-6 */
+white-space: -o-pre-wrap;    /* Opera 7 */
+word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+
+hr {
+  border : none;
+  background-color : #666666;
+  color : #000000;
+  height : 2px;
+  width:120px;
+  margin-left:0px;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+ul, li {
+  margin-bottom: 5px;
+  margin-top: 0px;
+}
+
+h1, h2, h3 {
+  font-family : Arial, verdana, sans-serif;
+  font-weight : Bold;
+  margin-bottom: 10px;
+  margin-top: 0px;
+}
+
+h1 {
+  font-size: 24px;
+  line-height: 32px;
+  letter-spacing: -1px;
+}
+
+h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  margin-top: 15px;
+  padding-top : 15px;
+}
+
+h3 {
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+h4, h5, h6 {font-weight : Bold;font-size: 12px;}
+
+/*
+ * this might cause more problems that it solves, but fixed-width type
+ * is extremely tiny in Firefox with some sizing methods (eg with 76%
+ * font-sizing)
+*/
+
+body kbd, body tt, body code {
+  font-size: x-small;
+}
+
+p {
+  margin-top: 1em;
+}

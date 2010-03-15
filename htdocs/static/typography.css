@@ -112,6 +112,7 @@ div.container {
 	height: 5000px;
 }
 
+/*
 div.left {
 	position: absolute;
 	top: 0px;
@@ -127,6 +128,7 @@ div.top {
 	width: 500px;
 	height: 100%;
 }
+*/
 
 div.main {
 	position: absolute;
@@ -167,10 +169,6 @@ margin-left: 2em;
 margin-right: 2em;
 padding: .5em 1em .5em 1em;
 font-family: monospace;
-}
-
-.ds-contentcontainer {
-padding: 0em .5em .5em 0em;
 }
 
 
