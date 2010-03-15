@@ -441,9 +441,9 @@ FORM_INPUTS = (
     ("server", "FLOSS Manuals server", "select", "server_options", "", ""),
     ("book", "Manual", "select", "book_options", "", ""),
     ("title", "Book title", "input[type=text]", None, "", ""),
-    ("license", "License", "select", "licenses", "", ""),
+    ("mode", "Document type", "select", "pdf_types", "openoffice", ""),
 
-    ("mode", "Document type", "select", "pdf_types", "advanced openoffice", ""),
+    ("license", "License", "select", "licenses", "advanced", ""),
     ("isbn", "ISBN", "input[type=text]", None, "advanced", "(13 digits)"),
     ("toc_header", "Table of Contents header", "input[type=text]", None, "advanced", ""),
 
@@ -506,6 +506,7 @@ PROGRESS_POINTS = (
     ("make_preamble_pdf", "Generate preamble pdf", ('book',)),
     ('make_end_matter_pdf', "Generate end matter pdf", ('book',)),
     ("concatenated_pdfs", "concatenate the pdfs", ('book',)),
+    ("make_templated_html", "Make templated HTML", ('templated_html',)),
     #("publish_pdf", "Publish the pdf", ('book', 'newspaper', 'web')),
     (FINISHED_MESSAGE, "Finished!", PUBLIC_CGI_MODES),
 )
