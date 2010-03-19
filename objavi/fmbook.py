@@ -647,7 +647,8 @@ class Book(object):
         #'mimetype': '',
         #'rightsholders': []
         #'url': ''}
-        doc = lxml.html.document_fromstring('<html><body></body></html>')
+        doc = lxml.html.document_fromstring('<html dir="%s"><body dir="%s"></body></html>'
+                                            % (self.dir, self.dir))
         tocmap = filename_toc_map(self.toc)
         for ID in self.spine:
             details = self.manifest[ID]
