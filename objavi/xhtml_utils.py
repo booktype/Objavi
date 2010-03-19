@@ -182,10 +182,13 @@ class BaseChapter(object):
                         p.tail = (p.tail or "") + e.tail
                 parent.remove(e)
 
-        #0.75 Remove style attribute from all elements!
+        #0.75 Remove style and dir attributes from all elements!
+        #style is usually doing bad things, and perhaps dir is too.
         for e in body.iter():
             if e.get('style'):
                 del e.attrib['style']
+            if e.get('dir') and e.tag not in ('html', 'body'):
+                del e.attrib['dir']
 
         # 1. is the first element an h1?
         el1 = body[0]
