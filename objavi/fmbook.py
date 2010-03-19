@@ -579,7 +579,7 @@ class Book(object):
         #0. Add heading to begining of html
         body = list(self.tree.cssselect('body'))[0]
         e = body.makeelement('h1', {'id': 'book-title'})
-        e.text = self.title
+        e.text = self.title.decode('utf-8')
         body.insert(0, e)
         intro = lxml.html.fragment_fromstring(self.compose_inside_cover())
         e.addnext(intro)
