@@ -83,6 +83,8 @@ def expand_toc(toc, depth=1, index=0):
     """Reformat toc slightly for convenience"""
     for item in toc:
         url = item.get('url', '').lstrip('/')
+        if url == '':
+            log('Item with empty url: %s' %(item,))
         bits = url.split('#', 1)
         filename = bits[0]
         fragment = (bits[1] if len(bits) == 2 else None)
