@@ -163,6 +163,9 @@ class BaseChapter(object):
         modified upon complaint."""
         #0. is the first element preceded by text?
         body = self.tree.iter('body').next()
+        if len(body) == 0:
+            log("BAD STRUCTURE: empty html, adding something")
+            body.SubElement('span')
         if body.text.strip():
             log("BAD STRUCTURE: text %r before first tag (not fixing)" % body.text.strip())
 
