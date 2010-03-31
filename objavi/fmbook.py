@@ -212,6 +212,8 @@ class Book(object):
         self.toc_header = get_metadata(self.metadata, 'toc_header', ns=config.FM, default=[None])[0]
         if not self.toc_header:
             self.toc_header = config.SERVER_DEFAULTS[server]['toc_header']
+        if isinstance(self.toc_header, unicode):
+            self.toc_header = self.toc_header.encode('utf-8')
 
         self.dir = str(get_metadata(self.metadata, 'dir', ns=config.FM, default=[None])[0])
         if not self.dir:
