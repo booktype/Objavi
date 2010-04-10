@@ -82,7 +82,8 @@ def _add_initial_number(e, n):
 def expand_toc(toc, depth=1, index=0):
     """Reformat toc slightly for convenience"""
     for item in toc:
-        url = item.get('url', '').lstrip('/')
+        url = item.get('url') or ''
+        url = url.lstrip('/')
         if url == '':
             log('Item with empty url: %s' %(item,))
         bits = url.split('#', 1)
