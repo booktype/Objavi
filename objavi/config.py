@@ -536,7 +536,8 @@ IMG_CACHE = 'cache/images/'
 USE_IMG_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
 USE_ZIP_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
 
-IGNORABLE_TWIKI_BOOKS = ('Main', 'TWiki', 'PR', 'Trash', 'Sandbox')
+IGNORABLE_TWIKI_BOOKS = ('Main', 'TWiki', 'PR', 'Trash', 'Sandbox',
+                         'Floss', 'Publish', 'Remix', 'Snippets')
 
 WHITESPACE_AND_NULL = ''.join(chr(_x) for _x in range(33))
 
