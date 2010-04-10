@@ -165,7 +165,7 @@ class BaseChapter(object):
         body = self.tree.iter('body').next()
         if len(body) == 0:
             log("BAD STRUCTURE: empty html, adding something")
-            body.SubElement('span')
+            etree.SubElement(body, 'span')
         if body.text.strip():
             log("BAD STRUCTURE: text %r before first tag (not fixing)" % body.text.strip())
 
