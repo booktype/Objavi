@@ -81,6 +81,8 @@ def write_navtree(parent, subtoc, counter, depth, maxdepth, filemap):
 def make_navpoint(parent, n, title, url):
     """Make the actual navpoint node"""    
     log((parent, n, title, url))
+    if url is None:
+        url = ''
     navpoint = etree.SubElement(parent, 'navPoint',
                                 id=(NAVPOINT_ID_TEMPLATE % (n - 1)),
                                 playOrder=str(n))
