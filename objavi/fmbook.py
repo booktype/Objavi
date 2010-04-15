@@ -1155,6 +1155,13 @@ class Book(object):
                    '-o', 'pid,etime', '--no-headers'], stdout=PIPE)
         data = p.communicate()[0].strip()
         if data:
+            def try_to_kill(pid, signal=15):
+                log('kill -%s %s ' % (signal, pid))
+                try:
+                    os.kill(int(pid), signal)
+                except OSError, e:
+                    log('PID %s seems dead (kill -%s gives %s)' % (pid, signal, e))
+
             lines = data.split('\n')
             pids = []
             for line in lines:
@@ -1167,19 +1174,13 @@ class Book(object):
                 # 50 minutes should be enough xvfb time for anyone
                 if days or hours or int(minutes) > 50:
                     pid = int(pid)
-                    log("going to kill pid %s" % pid)
-                    os.kill(pid, 15)
+                    try_to_kill(pid, 15)
                     pids.append(pid)
 
             time.sleep(1.0)
             for pid in pids:
                 #try again in case any are lingerers
-                try:
-                    os.kill(int(pid), 9)
-                except OSError, e:
-                    log('PID %s seems dead (re-kill gives %s)' % (pid, e))
-                    continue
-                log('killing %s with -9' % pid)
+                try_to_kill(pid, 9)
         self.notify_watcher()
 
     def cleanup(self):
