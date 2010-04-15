@@ -187,6 +187,18 @@ SERVER_DEFAULTS = {
         'interface': 'TWiki',
         'toc_header': 'Table of Contents',
         },
+    'fi.flossmanuals.net': {
+        'css-book': '/static/en.flossmanuals.net.css',
+        'css-web': '/static/en.flossmanuals.net-web.css',
+        'css-newspaper': '/static/en.flossmanuals.net-newspaper.css',
+        'css-openoffice': '/static/en.flossmanuals.net-openoffice.css',
+        'lang': 'fi',
+        'dir': 'LTR',
+        'toc-encoding': None,
+        'display': True,
+        'interface': 'TWiki',
+        'toc_header': 'Table of Contents',
+        },
     'fr.flossmanuals.net': {
         'css-book': '/static/fr.flossmanuals.net.css',
         'css-web': '/static/fr.flossmanuals.net-web.css',
