@@ -91,6 +91,8 @@ TEMPLATING_INDEX_MODES = {  # contents file, first file
     TEMPLATING_INDEX_CONTENTS: ('index.html', None),
 }
 
+TAR_TEMPLATED_HTML = True
+
 POLL_NOTIFY_PATH = 'htdocs/progress/%s.txt'
 #POLL_NOTIFY_URL = 'http://%(HTTP_HOST)s/progress/%(bookname)s.txt'
 
