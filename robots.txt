@@ -1,9 +1,0 @@
-User-agent: *
-Disallow: /tmp
-Disallow: /booki-books
-Disallow: /bin   # some robots think it is an FM twiki site with /bin/view etc
-Disallow: /cache
-Disallow: /objavi
-
-# Disallow: /books
-
