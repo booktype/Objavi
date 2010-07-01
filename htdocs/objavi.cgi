@@ -355,7 +355,7 @@ def mode_book(args):
         book.spawn_x()
 
         if 'toc_header' in args:
-            book.toc_header = args['toc_header'].decode('utf-8')
+            book.toc_header = args['toc_header']
         book.load_book()
         book.add_css(args.get('css'), context.mode)
         book.add_section_titles()
