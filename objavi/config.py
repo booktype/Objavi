@@ -405,7 +405,8 @@ CGI_MODES = { # arguments are: (publication, extension, mimetype)
     'book': (True, '.pdf', "application/pdf"),
     'newspaper': (True, '.pdf', "application/pdf"),
     'web': (True, '.pdf', "application/pdf"),
-    'openoffice': (True, '.odt', "application/vnd.oasis.opendocument.text"),
+    #XX stop openoffice for now: it doesn't work anyway
+    #'openoffice': (True, '.odt', "application/vnd.oasis.opendocument.text"),
     'booklist': (False, None, None),
     'css': (False, None, None),
     'form': (False, None, None),
