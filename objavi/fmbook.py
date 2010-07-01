@@ -476,7 +476,7 @@ class Book(object):
         self.unpack_static()
         destdir = self.filepath(os.path.basename(self.publish_file))
         os.mkdir(destdir)
-        os.rename(self.filepath('static'), self.filepath(os.path.join(destdir, 'static')))
+        os.rename(self.filepath('static'), os.path.join(destdir, 'static'))
 
         if not template:
             template_tree = lxml.html.parse(config.TEMPLATING_DEFAULT_TEMPLATE).getroot()
