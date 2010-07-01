@@ -310,8 +310,9 @@ class Context(object):
                        )
                 if message == config.FINISHED_MESSAGE:
                     print '</body></html>'
+
             sys.stdout.flush()
-        except ValueError, e:
+        except (ValueError, IOError), e:
             log("failed to send message %r, got exception %r" % (message, e))
 
     def pollee_notifier(self, message):
