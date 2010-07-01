@@ -47,7 +47,7 @@ from objavi.book_utils import ObjaviError, log_types
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline, parse_extracted_outline
 from objavi.epub import add_guts, _find_tag
 from objavi.xhtml_utils import EpubChapter, split_tree
-from objavi.cgi_utils import url2path, path2url
+from objavi.cgi_utils import url2path, path2url, try_to_kill
 
 from iarchive import epub as ia_epub
 from booki.bookizip import get_metadata, add_metadata
@@ -1129,7 +1129,7 @@ class Book(object):
         check_call(['xauth', 'remove', self.xserver_no])
         p = self.xvfb
         log("trying to kill Xvfb %s" % p.pid)
-        os.kill(p.pid, 15)
+        try_to_kill(p.pid, 15)
         for i in range(10):
             if p.poll() is not None:
                 log("%s died with %s" % (p.pid, p.poll()))
@@ -1139,7 +1139,7 @@ class Book(object):
         else:
             log("Xvfb would not die! kill -9! kill -9!")
             try:
-                os.kill(p.pid, 9)
+                try_to_kill(p.pid, 9)
             except OSError, e:
                 log(e)
 
@@ -1161,13 +1161,6 @@ class Book(object):
                    '-o', 'pid,etime', '--no-headers'], stdout=PIPE)
         data = p.communicate()[0].strip()
         if data:
-            def try_to_kill(pid, signal=15):
-                log('kill -%s %s ' % (signal, pid))
-                try:
-                    os.kill(int(pid), signal)
-                except OSError, e:
-                    log('PID %s seems dead (kill -%s gives %s)' % (pid, signal, e))
-
             lines = data.split('\n')
             pids = []
             for line in lines:

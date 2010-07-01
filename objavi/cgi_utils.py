@@ -230,3 +230,10 @@ def print_template_and_exit(template, mapping):
     f.close()
     return string % mapping
 
+def try_to_kill(pid, signal=15):
+    log('kill -%s %s ' % (signal, pid))
+    try:
+        os.kill(int(pid), signal)
+    except OSError, e:
+        log('PID %s seems dead (kill -%s gives %s)' % (pid, signal, e))
+
