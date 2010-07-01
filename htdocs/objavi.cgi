@@ -261,7 +261,9 @@ class Context(object):
         book.publish_shared(self.booki_group, self.booki_user)
         if self.destination == 'archive.org':
             book.publish_s3()
-        elif self.destination == 'download' and self.method == 'sync':
+        elif (self.destination == 'download' and
+              self.method == 'sync' and
+              self.mode != 'templated_html'):
             f = open(book.publish_file)
             data = f.read()
             f.close()
