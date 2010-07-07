@@ -288,42 +288,58 @@ def rotate_pdf(pdfin, pdfout):
     run(cmd)
 
 def parse_extracted_outline(outline_file, depth=config.CONTENTS_DEPTH):
-    """Extract outline data from a file structured as follows:
+    '''Extract outline data from an XML file structured as follows:
 
-    The first line contains the text "Pages: ", followed by the total
-    number of pages in the PDF (all numbers are in ascii decimal
-    digits).
+      <?xml version="1.0" encoding="UTF-8"?>
+      <outline xmlns="http://code.google.com/p/wkhtmltopdf/outline">
+        <item title="" page="0" link="__WKANCHOR_0" backLink="__WKANCHOR_1">
+          <item title="1. ANONYMOUS" page="2" link="__WKANCHOR_2" backLink="__WKANCHOR_3"/>
+          <item title="2. HOW THIS BOOK IS WRITTEN" page="4" link="__WKANCHOR_4" backLink="__WKANCHOR_5">
+            <item title="WHAT IS A BOOK SPRINT?" page="4" link="__WKANCHOR_6" backLink="__WKANCHOR_7"/>
+            <item title="HOW TO WRITE THIS BOOK" page="11" link="__WKANCHOR_c" backLink="__WKANCHOR_d">
+              <item title="1. Register" page="11" link="__WKANCHOR_e" backLink="__WKANCHOR_f"/>
+              <item title="2. Contribute!" page="11" link="__WKANCHOR_g" backLink="__WKANCHOR_h"/>
+            </item>
+          </item>
+          <item title="3. ASSUMPTIONS" page="13" link="__WKANCHOR_i" backLink="__WKANCHOR_j">
+            <item title="WHAT THIS BOOK IS NOT..." page="13" link="__WKANCHOR_k" backLink="__WKANCHOR_l"/>
+          </item>
+        </item>
+      </outline>
 
-    Each following line looks like this
+     In other words:
 
-    "Level: " <level> "  Page: "  <page number> "  Title: " <title> "\n"
+     <!ELEMENT outline (item*)>
+     <!ELEMENT item (item*)>
+     and item has the following attributes:
+       title:    url-escaped string
+       page:     page number
+       link:     link to here from the TOC
+       backLink: link back to the TOC
 
-    where <level> is an integer indicating the significance of the
-    heading, <page number> is self-explanatory, and <title> is the
-    title encoded as utf-8 text that has been escaped as in a URI:
-    non-alphanumeric characters are replaced by "%" followed by two
-    hexadecimal digits giving their value (This escaping system is
-    variously called "url-encoding" or "percent-encoding" and is
-    described in section 2.1 of RFC 3986).
-    """
+    Title is encoded as utf-8 text that has been "percent-encoding" as
+    described in section 2.1 of RFC 3986.
+    '''
+    from lxml import etree
     f = open(outline_file, 'r')
-    page_line = f.next()
-    log(page_line)
-    page_count = int(re.match('^Pages: (\d+)', page_line).group(1))
+    tree = etree.parse(f)
+    f.close()
 
     contents = []
-    for line in f:
-        m = re.match('Level: (\d+)\s+Page: (\d+)\s+Title: (\S*)', line)
-        level = int(m.group(1))
-        if level > depth:
-            continue
-        pagenum = int(m.group(2))
-        title = urllib.unquote(m.group(3)).strip()#.decode('utf-8')
-        if not title:
-            log("WARNING: heading level %s on page %s is empty string" % (level, pagenum))
-        contents.append((title, level, pagenum))
 
-    return contents, page_count
+    def parse_item(e, depth):
+        title = urllib.unquote(e.get('title')).strip()
+        pageno = int(e.get('page'))
+        if depth:
+            contents.append((title, depth, pageno))
+        for x in e.iterchildren(config.WKTOCNS + 'item'):
+            parse_item(x, depth + 1)
+
+    for x in tree.getroot().iterchildren(config.WKTOCNS + 'item'):
+        parse_item(x, 0)
+
+    log(contents)
+    return contents
 
 
 

@@ -537,6 +537,7 @@ DC = "http://purl.org/dc/elements/1.1/"
 FM = "http://booki.cc/"
 XHTMLNS = '{http://www.w3.org/1999/xhtml}'
 XHTML = 'http://www.w3.org/1999/xhtml'
+WKTOCNS = "{http://code.google.com/p/wkhtmltopdf/outline}"
 
 S3_SECRET = '/home/douglas/s3.archive.org-secret'
 S3_ACCESSKEY = '/home/douglas/s3.archive.org-accesskey'

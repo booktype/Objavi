@@ -327,16 +327,18 @@ class Book(object):
         doesn't exist (or config says not to use it), fall back to
         using self._extract_pdf_outline_the_old_way, below.
         """
+        number_of_pages = None
         if config.USE_DUMP_OUTLINE:
             try:
-                self.outline_contents, number_of_pages = \
-                                       parse_extracted_outline(self.outline_file)
-
+                self.outline_contents = parse_extracted_outline(self.outline_file)
             except Exception, e:
                 traceback.print_exc()
                 number_of_pages = self._extract_pdf_outline_the_old_way()
         else:
             number_of_pages = self._extract_pdf_outline_the_old_way()
+
+        if number_of_pages is None:
+            number_of_pages = count_pdf_pages(self.body_pdf_file)
 
         self.notify_watcher()
         return number_of_pages
