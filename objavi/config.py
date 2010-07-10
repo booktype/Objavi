@@ -155,6 +155,18 @@ SERVER_DEFAULTS = {
         'interface': 'Booki',
         'toc_header': 'Table of Contents',
         },
+    'booki.halo.gen.nz': {
+        'css-book': '/static/en.flossmanuals.net.css',
+        'css-web': '/static/en.flossmanuals.net-web.css',
+        'css-newspaper': '/static/en.flossmanuals.net-newspaper.css',
+        'css-openoffice': '/static/en.flossmanuals.net-openoffice.css',
+        'lang': 'en',
+        'dir': 'LTR',
+        'toc-encoding': None,
+        'display': SHOW_BOOKI_SERVERS,
+        'interface': 'Booki',
+        'toc_header': 'Table of Contents',
+        },
     'archive.org': {
         'css-book': '/static/en.flossmanuals.net.css',
         'css-web': '/static/en.flossmanuals.net-web.css',
