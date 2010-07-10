@@ -48,7 +48,6 @@ BOOKI_BOOK_URL = '/booki-books'
 BOOKI_SHARED_DIRECTORY = 'htdocs/shared'
 BOOKI_SHARED_LONELY_USER_PREFIX = 'lonely-user-'
 
-FIREFOX = 'firefox'
 WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
 
