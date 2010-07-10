@@ -1,10 +1,10 @@
-
 body
 {
-    margin:0;
-    padding:0;
-    background-image: url("/static/background-2.png");
-    color: black;
+  margin:0;
+  padding:0;
+  background-image: url("/static/tile_grey.png");
+  color: black;
+  font-family: "dejavu sans", helvetica, arial, verdana, sans-serif;
 }
 
 #main {
@@ -24,16 +24,16 @@ body
   left: 0px;
   width: 100%;
   padding: 2em 1em;
-  border-bottom: 3px solid #f60;
+  border-bottom: 3px solid #f00;
 }
 
 h1 {
-  color: #ff7f00;
+  color: #333;
   margin-top: 0px;
 }
 
 h2 {
-  color: #ff7f00;
+  color: #333;
 }
 
 h3 {
@@ -170,7 +170,7 @@ div.form-item {
 }
 
 #license_div {
-  background: #feb;
+  background: #eee;
 }
 
 #isbn_div {
@@ -179,11 +179,11 @@ div.form-item {
 
 
 #booksize_div{
-  background: #feb;
+  background: #eee;
 }
 
 .booksize {
-  background: #feb;
+  background: #eee;
 }
 
 .margins {
@@ -191,7 +191,7 @@ div.form-item {
 }
 
 .columns {
-  background: #feb;
+  background: #eee;
 }
 
 #grey_scale_div {
@@ -199,7 +199,7 @@ div.form-item {
 }
 
 .css-url, .css-custom, #css-control_div {
-  background: #feb;
+  background: #eee;
 }
 
 #rotate_div {
@@ -207,7 +207,7 @@ div.form-item {
 }
 
 #engine_div {
-  background: #feb;
+  background: #eee;
 }
 
 .advanced {
