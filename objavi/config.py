@@ -20,6 +20,7 @@
 
 """This module contains constant values used to produce books.
 """
+from os import environ as _environ
 #XXX eventually, read in a real config file.
 #XXX Some of these values should be editable via an admin cgi script
 
@@ -37,6 +38,8 @@ TMPDIR = 'htdocs/tmp'
 LOGDIR = 'log'
 REDIRECT_LOG = True
 LOG_ROTATE_SIZE = 1000000
+
+SHOW_BOOKI_SERVERS = bool(_environ.get("SHOW_BOOKI_SERVERS", False))
 
 HTDOCS = 'htdocs'
 BOOKI_BOOK_DIR = 'htdocs/booki-books'
@@ -149,7 +152,7 @@ SERVER_DEFAULTS = {
         'lang': 'en',
         'dir': 'LTR',
         'toc-encoding': None,
-        'display': False,
+        'display': SHOW_BOOKI_SERVERS,
         'interface': 'Booki',
         'toc_header': 'Table of Contents',
         },
