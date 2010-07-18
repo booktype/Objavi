@@ -1,7 +1,7 @@
 #!/bin/sh
 HERE=`dirname $0`
 
-rsync $@ -a \
+rsync $@ -v -a \
     --include='tests/*.py' \
     --exclude='htdocs/books' \
     --exclude='htdocs/booki-books' \
@@ -21,6 +21,6 @@ rsync $@ -a \
 
 echo $HERE
 
-rsync -r $HERE/../booki/lib/booki/ cloudy.halo.gen.nz:objavi2/booki/
+#rsync -r $HERE/../booki/lib/booki/ cloudy.halo.gen.nz:objavi2/booki/
 #rsync $HERE/../booki/lib/booki/ cloudy.halo.gen.nz:objavi2/booki/
-echo booki
+#echo booki
