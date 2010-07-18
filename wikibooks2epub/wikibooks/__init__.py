@@ -187,7 +187,7 @@ def saveImages(title, base='/tmp/book'):
         f = os.path.join(base, unquote(localImageLink(image).replace('http:__', '')))
         _images.append(f.replace(base+'/', ''))
         if not os.path.exists(f.encode('utf-8')):
-            saveUrl(image, f.encode('utf-8'))
+            saveUrl(image, f)
     return _images
 
 def epub_files(title, items):
@@ -330,7 +330,8 @@ def createEpub(title, output=None):
     f.close()
     container(base)
     tmp_output=os.path.join(tmptree, '%s.epub'%title)
-    os.system('cd "%s";zip -q0X  "%s" mimetype;zip -qXr9D  "%s" *'%(base, tmp_output, tmp_output))
+    cmd = u'cd "%s";zip -q0X  "%s" mimetype;zip -qXr9D  "%s" *'%(base, tmp_output, tmp_output)
+    os.system(cmd.encode('utf-8'))
     if output:
         shutil.copyfile(tmp_output, output)
         shutil.rmtree(tmptree)
