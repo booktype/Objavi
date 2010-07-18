@@ -12,6 +12,9 @@ body
   padding: 15px 20px;
   background: white;
   /*border: 4px double #fb7;*/
+  border: 1px solid black;
+  border-top:10px solid black;
+  -moz-box-shadow:4px 4px 5px #848284;
 }
 
 .error-message{
