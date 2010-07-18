@@ -49,6 +49,7 @@ def make_booki_package(server, bookid, use_cache=False):
 ARG_VALIDATORS = {
     "book": re.compile(r'^(\w+/?)*\w+$').match, # can be: BlahBlah/Blah_Blah
     "server": config.SERVER_DEFAULTS.__contains__,
+    "source": config.SERVER_DEFAULTS.__contains__,
     "use-cache": None,
     'mode': ('zip', 'html').__contains__,
     "all": ['all', 'skip-existing'].__contains__,
@@ -57,6 +58,8 @@ ARG_VALIDATORS = {
 if __name__ == '__main__':
 
     args = parse_args(ARG_VALIDATORS)
+    if 'source' in args and not 'server' in args:
+        args['server'] = args['source']
     use_cache = args.get('use-cache')
     if use_cache is None:
         use_cache = (os.environ.get('HTTP_HOST') in config.USE_IMG_CACHE_ALWAYS_HOSTS)
