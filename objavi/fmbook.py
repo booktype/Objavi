@@ -693,7 +693,6 @@ class Book(object):
                         first = body[0]
                         while (first.tag == 'div' and
                                len(first) and
-                               first.get('id') is None and
                                first[0].tag in ('h1', 'h2', 'h3', 'h4', 'p', 'div')):
                             #descend into nested divs, looking for the real beginning
                             first = first[0]
