@@ -46,7 +46,7 @@ from objavi.book_utils import log, run, make_book_name, guess_lang, guess_text_d
 from objavi.book_utils import ObjaviError, log_types
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline, parse_extracted_outline
 from objavi.epub import add_guts, _find_tag
-from objavi.xhtml_utils import EpubChapter, split_tree
+from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree
 from objavi.cgi_utils import url2path, path2url, try_to_kill
 
 from iarchive import epub as ia_epub
@@ -67,9 +67,6 @@ def _get_best_title(tocpoint):
     if 'title' in tocpoint:
         return tocpoint['title']
     return 'Untitled'
-
-def _empty_html_tree():
-    return lxml.html.document_fromstring('<html><body></body></html>').getroottree()
 
 def _add_initial_number(e, n):
     """Put a styled chapter number n at the beginning of element e."""
@@ -292,14 +289,14 @@ class Book(object):
         if mimetype == 'text/html':
             if s:
                 log('html ID %r is empty! Not parsing' % (id,))
-                tree = _empty_html_tree()
+                tree = empty_html_tree()
             else:
                 try:
                     tree = lxml.html.parse(f)
                 except etree.XMLSyntaxError, e:
                     log('Could not parse html ID %r, filename %r, string %r... exception %s' %
                         (id, name, s[:20], e))
-                    tree = _empty_html_tree()
+                    tree = empty_html_tree()
         elif 'xml' in mimetype: #XXX or is this just asking for trouble?
             tree = etree.parse(f)
         else:

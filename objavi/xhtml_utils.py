@@ -35,6 +35,9 @@ XML_DEC = '<?xml version="1.0" encoding="UTF-8"?>\n'
 
 IMG_PREFIX = 'static/'
 
+def empty_html_tree():
+    return lxml.html.document_fromstring('<html><body></body></html>').getroottree()
+
 def convert_tags(root, elmap):
     for el in root.iterdescendants():
         if el.tag in elmap:
@@ -228,7 +231,7 @@ class BaseChapter(object):
         except etree.XMLSyntaxError, e:
             log('Could not parse html file %r, string %r... exception %s' %
                 (self.name, html[:40], e))
-            self.tree = lxml.html.document_fromstring('<html><body></body></html>').getroottree()
+            self.tree = empty_html_tree()
 
 
 class EpubChapter(BaseChapter):
