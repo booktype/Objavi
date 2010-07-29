@@ -68,6 +68,8 @@ def _get_best_title(tocpoint):
         return tocpoint['title']
     return 'Untitled'
 
+def _empty_html_tree():
+    return lxml.html.document_fromstring('<html><body></body></html>').getroottree()
 
 def _add_initial_number(e, n):
     """Put a styled chapter number n at the beginning of element e."""
@@ -288,12 +290,16 @@ class Book(object):
         s = self.store.read(name)
         f = StringIO(s)
         if mimetype == 'text/html':
-            try:
-                tree = lxml.html.parse(f)
-            except etree.XMLSyntaxError, e:
-                log('Could not parse html ID %r, filename %r, string %r... exception %s' %
-                    (id, name, s[:20], e))
-                tree = lxml.html.document_fromstring('<html><body></body></html>').getroottree()
+            if s:
+                log('html ID %r is empty! Not parsing' % (id,))
+                tree = _empty_html_tree()
+            else:
+                try:
+                    tree = lxml.html.parse(f)
+                except etree.XMLSyntaxError, e:
+                    log('Could not parse html ID %r, filename %r, string %r... exception %s' %
+                        (id, name, s[:20], e))
+                    tree = _empty_html_tree()
         elif 'xml' in mimetype: #XXX or is this just asking for trouble?
             tree = etree.parse(f)
         else:
