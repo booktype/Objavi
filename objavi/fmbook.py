@@ -287,7 +287,7 @@ class Book(object):
         s = self.store.read(name)
         f = StringIO(s)
         if mimetype == 'text/html':
-            if s:
+            if s == '':
                 log('html ID %r is empty! Not parsing' % (id,))
                 tree = empty_html_tree()
             else:
