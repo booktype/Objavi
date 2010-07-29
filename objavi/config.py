@@ -65,7 +65,7 @@ BOOKLAND = 'bookland/bookland'
 
 # how many pages to number in one pdfedit process (which has
 # exponential memory leak)
-PDFEDIT_MAX_PAGES = 40
+PDFEDIT_MAX_PAGES = 20
 
 #keep book lists around for this time without refetching
 BOOK_LIST_CACHE = 3600 * 2
