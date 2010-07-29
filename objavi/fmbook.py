@@ -690,15 +690,23 @@ class Book(object):
                     #reuse first tag if it is suitable.
                     if (len(body) and
                         body[0].tag in ('h1', 'h2', 'h3', 'h4', 'p', 'div')):
-                        if body[0].get('id') is None:
-                            body[0].set('id', fragment)
+                        first = body[0]
+                        while (first.tag == 'div' and
+                               len(first) and
+                               first.get('id') is None and
+                               first[0].tag in ('h1', 'h2', 'h3', 'h4', 'p', 'div')):
+                            #descend into nested divs, looking for the real beginning
+                            first = first[0]
+
+                        if first.get('id') is None:
+                            first.set('id', fragment)
                         else:
-                            fragment = body[0].get('id')
+                            fragment = first.get('id')
                         #the chapter starts with a heading. that heading should be the chapter name.
-                        if body[0].tag in ('h1', 'h2', 'h3'):
+                        if first.tag in ('h1', 'h2', 'h3'):
                             #log('chapter has title "%s", found html title "%s"' %
                             #    (point['title'], body[0].text_content()))
-                            point['html_title'] = body[0].text_content()
+                            point['html_title'] = first.text_content()
                     else:
                         marker = body.makeelement('div', style="display:none",
                                                   id=fragment)
@@ -730,7 +738,7 @@ class Book(object):
         self.tree = self.concat_html()
         self.save_tempfile('raw.html', etree.tostring(self.tree, method='html'))
 
-        self.headings = [x for x in self.tree.cssselect('h1')]
+        self.headings = [x for x in self.tree.iter('h1')]
         if self.headings:
             self.headings[0].set('class', "first-heading")
         for h1 in self.headings:
