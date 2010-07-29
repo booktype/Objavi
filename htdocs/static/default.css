@@ -98,9 +98,11 @@ td.section {
   font-weight: bold;
 }
 
+/*
 p, ul, ol {
   page-break-inside: avoid;
 }
+*/
 
 pre, code, tt {
   font-family: "Courier", "Courier New", monospace;
@@ -108,14 +110,29 @@ pre, code, tt {
 }
 
 pre {
-  max-width:700px;
+  max-width:98%;
   overflow: hidden;
 }
 
 img {
-  max-width: 700px;
-  height: auto;
+  max-width: 98%;
+  height: auto !important;
 }
 
 
+h1, h2, h3, h4, h5, h6{
+  page-break-after: avoid;
+  page-break-inside: avoid;
+}
 
+
+.page-break{
+  page-break-before: always;
+  height: 7em;
+  display: block;
+}
+
+
+.glossary hr{
+  display: none;
+}
