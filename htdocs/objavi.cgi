@@ -36,7 +36,7 @@ from objavi.book_utils import init_log, log, make_book_name
 from objavi.cgi_utils import parse_args, optionise, listify, get_server_list
 from objavi.cgi_utils import is_utf8, isfloat, isfloat_or_auto, is_isbn, is_url
 from objavi.cgi_utils import output_blob_and_exit, output_blob_and_shut_up, output_and_exit
-from objavi.cgi_utils import get_size_list, get_default_css, font_links
+from objavi.cgi_utils import get_size_list, get_default_css, font_links, set_memory_limit
 
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
@@ -430,6 +430,7 @@ def mode_templated_html_zip(args):
     pass
 
 def main():
+    set_memory_limit(config.OBJAVI_CGI_MEMORY_LIMIT)
     args = parse_args(ARG_VALIDATORS)
     mode = args.get('mode')
     if mode is None and 'book' in args:

@@ -238,3 +238,13 @@ def try_to_kill(pid, signal=15):
     except OSError, e:
         log('PID %s seems dead (kill -%s gives %s)' % (pid, signal, e))
 
+
+def set_memory_limit(limit, hard_limit=None):
+    """Prevent this process and its children using more than <limit>
+    bytes.  If hard_limit is set, the process may get some grace
+    between the two limits (but in practice probably won't)."""
+    from resource import setrlimit, RLIMIT_AS
+    if hard_limit is None:
+        hard_limit = limit
+    setrlimit(RLIMIT_AS, (limit, hard_limit))
+
