@@ -977,8 +977,9 @@ class Book(object):
         DCNS = config.DCNS
         DC = config.DC
         meta_info_items = []
-        for ns, namespace in self.metadata.items():
-            for keyword, schemes in namespace.items():
+        log(pformat(self.metadata))
+        for ns in [DC]:
+            for keyword, schemes in self.metadata[ns].items():
                 if ns:
                     keyword = '{%s}%s' % (ns, keyword)
                 for scheme, values in schemes.items():
@@ -992,6 +993,7 @@ class Book(object):
                                 item['atts'] = {'role': scheme}
                             else:
                                 item['atts'] = {'scheme': scheme}
+                        meta_info_items.append(item)
 
         has_authors = 'creator' in self.metadata[DC]
         if not has_authors and config.CLAIM_UNAUTHORED:
@@ -1005,7 +1007,7 @@ class Book(object):
             meta_info_items.append({'item': DCNS + 'rights',
                                     'text': 'This book is free. Copyright %s' % (', '.join(authors))}
                                    )
-
+        log(meta_info_items)
         tree_str = ia_epub.make_opf(meta_info_items,
                                     ebook.manifest_items,
                                     ebook.spine_items,
