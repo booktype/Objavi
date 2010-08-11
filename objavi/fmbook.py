@@ -231,7 +231,10 @@ class Book(object):
             (self.dir, 'dir', '', config.FM),
             ):
             if var is not None:
-                add_metadata(self.metadata, key, var, scheme=scheme, ns=ns)
+                current = get_metadata(self.metadata, key, ns=ns, scheme=scheme)
+                log("current values %r, proposed %r" % (current, var))
+                if var not in current:
+                    add_metadata(self.metadata, key, var, scheme=scheme, ns=ns)
 
         self.isbn = get_metadata(self.metadata, 'id', scheme='ISBN', default=[None])[0]
         self.license = get_metadata(self.metadata, 'rights', scheme='License', default=[None])[0]
