@@ -31,7 +31,7 @@ from pprint import pformat
 
 from objavi.fmbook import Book, HTTP_HOST, find_archive_urls
 from objavi import config
-from objavi import twiki_wrapper
+from objavi import twiki_wrapper, booki_wrapper
 from objavi.book_utils import init_log, log, make_book_name
 from objavi.cgi_utils import parse_args, optionise, listify, get_server_list
 from objavi.cgi_utils import is_utf8, isfloat, isfloat_or_auto, is_isbn, is_url
@@ -130,8 +130,12 @@ def get_page_settings(args):
 @output_and_exit
 def mode_booklist(args):
     #XXX need to include booki servers
-    return optionise(twiki_wrapper.get_book_list(args.get('server', config.DEFAULT_SERVER)),
-                     default=args.get('book'))
+    server = args.get('server', config.DEFAULT_SERVER)
+    if config.SERVER_DEFAULTS[server]['interface'] == 'Booki':
+        books = booki_wrapper.get_book_list(server)
+    else:
+        books = twiki_wrapper.get_book_list(server)
+    return optionise(books, default=args.get('book'))
 
 @output_and_exit
 def mode_css(args):
