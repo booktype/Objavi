@@ -666,6 +666,8 @@ class Book(object):
         #'mimetype': '',
         #'rightsholders': []
         #'url': ''}
+        if self.dir is None:
+            self.dir = 'LTR'
         doc = lxml.html.document_fromstring('<html dir="%s"><body dir="%s"></body></html>'
                                             % (self.dir, self.dir))
         tocmap = filename_toc_map(self.toc)
