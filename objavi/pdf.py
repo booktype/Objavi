@@ -110,6 +110,7 @@ class PageSettings(object):
                 #'--disable-smart-shrinking',
                 '-d', '100',
                 #'--zoom', '1.2',
+                '--encoding', 'UTF-8',
                 ] +
                outline_args +
                greyscale_args +
