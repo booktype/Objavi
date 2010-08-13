@@ -1,0 +1,137 @@
+body {
+  font-family: "Dejavu Sans";
+  background: #fff;
+  color: #000;
+}
+
+
+.unseen{
+  z-index: -66;
+  margin-left: -1000pt;
+}
+
+
+.objavi-chapter{
+  color: #000;
+}
+
+h1 .initial{
+  color: #000;
+  font-size: 2em;
+}
+
+.objavi-subsection{
+  display: block;
+  page-break-before: always;
+/*  page-break-after: always;*/
+  text-transform: uppercase;
+  font-size: 20pt;
+}
+
+body .objavi-subsection:first-child{
+  page-break-before: avoid;
+}
+
+
+.objavi-subsection .initial {
+  font-size: 1em;
+  color: #000;
+}
+
+.objavi-subsection-heading{
+  font-size: 36pt;
+  font-weight: bold;
+}
+
+
+h1 {
+  text-transform: uppercase;
+  page-break-before: always;
+  background: white;
+}
+
+/*h1.first-heading {
+  page-break-before: avoid;
+}*/
+
+
+h2 {
+  text-transform: uppercase;
+}
+
+table {
+  float: none;
+}
+
+h1.frontpage{
+  font-size: 64pt;
+  text-align: center;
+  page-break-after: always;
+  page-break-before: avoid;
+  max-width: 700px;
+}
+
+div.copyright{
+  padding: 1em;
+}
+
+table.toc {
+  /*border: 1px dotted #999;*/
+  font-size: 17pt;
+  width: 95%;
+}
+
+
+td.chapter {
+  padding-left: 2em;
+  text-align: right;
+}
+
+td.pagenumber {
+  text-align: right;
+}
+
+td.section {
+  font-size: 1.1em;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+/*
+p, ul, ol {
+  page-break-inside: avoid;
+}
+*/
+
+pre, code, tt {
+  font-family: "Courier", "Courier New", monospace;
+  font-size: 0.8em;
+}
+
+pre {
+  max-width:98%;
+  overflow: hidden;
+}
+
+img {
+  max-width: 98%;
+  height: auto !important;
+}
+
+
+h1, h2, h3, h4, h5, h6{
+  page-break-after: avoid;
+  page-break-inside: avoid;
+}
+
+
+.page-break{
+  page-break-before: always;
+  height: 7em;
+  display: block;
+}
+
+
+.glossary hr{
+  display: none;
+}
