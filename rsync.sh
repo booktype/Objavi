@@ -1,5 +1,7 @@
 #!/bin/sh
 HERE=`dirname $0`
+THERE='cloudy.halo.gen.nz:objavi2'
+#THERE='www.booki.cc:objavi2'
 
 rsync $@ -v -a \
     --include='tests/*.py' \
@@ -17,7 +19,7 @@ rsync $@ -v -a \
     --exclude='*.pyc' \
     --exclude='tests/' \
     --exclude='rsync.sh' \
-    $HERE 'cloudy.halo.gen.nz:objavi2'
+    $HERE $THERE
 
 echo $HERE
 
