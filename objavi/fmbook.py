@@ -320,7 +320,7 @@ class Book(object):
     def make_oo_doc(self):
         """Make an openoffice document, using the html2odt script."""
         self.wait_for_xvfb()
-        html_text = etree.tostring(self.tree, method="html")
+        html_text = etree.tostring(self.tree, method="html", encoding="UTF-8")
         save_data(self.body_html_file, html_text)
         run([config.HTML2ODT, self.workdir, self.body_html_file, self.body_odt_file])
         log("Publishing %r as %r" % (self.body_odt_file, self.publish_file))
@@ -374,7 +374,7 @@ class Book(object):
 
             ascii_html_file = self.filepath('body-ascii-headings.html')
             ascii_pdf_file = self.filepath('body-ascii-headings.pdf')
-            html_text = lxml.etree.tostring(tree, method="html")
+            html_text = lxml.etree.tostring(tree, method="html", encoding="UTF-8")
             save_data(ascii_html_file, html_text)
             self.maker.make_raw_pdf(ascii_html_file, ascii_pdf_file, outline=True)
             debugf = self.filepath('ascii-extracted-outline.txt')
@@ -398,7 +398,7 @@ class Book(object):
     def make_body_pdf(self):
         """Make a pdf of the HTML, using webkit"""
         #1. Save the html
-        html_text = etree.tostring(self.tree, method="html")
+        html_text = etree.tostring(self.tree, method="html", encoding="UTF-8")
         save_data(self.body_html_file, html_text)
 
         #2. Make a pdf of it
@@ -550,7 +550,7 @@ class Book(object):
             for e in dest.iterdescendants('title'):
                 #log(type(title), title)
                 e.text = title
-            self.save_tempfile(os.path.join(destdir, filename), lxml.html.tostring(dest))
+            self.save_tempfile(os.path.join(destdir, filename), lxml.html.tostring(dest, encoding="UTF-8"))
 
 
         #write the contents to a file. (either index.html or contents.html)
@@ -608,7 +608,7 @@ class Book(object):
             self.maker.gutter = 0
 
         #1. Save the html
-        html_text = etree.tostring(self.tree, method="html")
+        html_text = etree.tostring(self.tree, method="html", encoding="UTF-8")
         save_data(self.body_html_file, html_text)
 
         #2. Make a pdf of it (direct to to final pdf)
