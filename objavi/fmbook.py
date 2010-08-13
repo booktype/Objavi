@@ -46,7 +46,7 @@ from objavi.book_utils import log, run, make_book_name, guess_lang, guess_text_d
 from objavi.book_utils import ObjaviError, log_types
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline, parse_extracted_outline
 from objavi.epub import add_guts, _find_tag
-from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree
+from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree, utf8_html_parser
 from objavi.cgi_utils import url2path, path2url, try_to_kill
 
 from iarchive import epub as ia_epub
@@ -295,7 +295,7 @@ class Book(object):
                 tree = empty_html_tree()
             else:
                 try:
-                    tree = lxml.html.parse(f)
+                    tree = lxml.html.parse(f, parser=utf8_html_parser)
                 except etree.XMLSyntaxError, e:
                     log('Could not parse html ID %r, filename %r, string %r... exception %s' %
                         (id, name, s[:20], e))
@@ -487,7 +487,7 @@ class Book(object):
         os.rename(self.filepath('static'), os.path.join(destdir, 'static'))
 
         if not template:
-            template_tree = lxml.html.parse(config.TEMPLATING_DEFAULT_TEMPLATE).getroot()
+            template_tree = lxml.html.parse(config.TEMPLATING_DEFAULT_TEMPLATE, parser=utf8_html_parser).getroot()
         else:
             template_tree = lxml.html.document_fromstring(template)
 

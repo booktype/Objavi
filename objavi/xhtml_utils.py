@@ -35,6 +35,8 @@ XML_DEC = '<?xml version="1.0" encoding="UTF-8"?>\n'
 
 IMG_PREFIX = 'static/'
 
+utf8_html_parser = lxml.html.HTMLParser(encoding='utf-8')
+
 def empty_html_tree():
     return lxml.html.document_fromstring('<html><body></body></html>').getroottree()
 
@@ -104,7 +106,7 @@ class ImageCache(object):
 
 
 class BaseChapter(object):
-    parser = lxml.html.HTMLParser(encoding='utf-8')
+    parser = utf8_html_parser
     def as_html(self):
         """Serialise the tree as html."""
         return etree.tostring(self.tree, method='html', encoding='utf-8')

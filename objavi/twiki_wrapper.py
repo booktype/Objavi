@@ -9,7 +9,7 @@ from urllib2 import urlopen
 from urlparse import urlsplit
 from booki.bookizip import add_metadata, BookiZip
 
-from objavi.xhtml_utils import BaseChapter, ImageCache
+from objavi.xhtml_utils import BaseChapter, ImageCache, utf8_html_parser
 
 #from pprint import pformat
 
@@ -292,8 +292,7 @@ class TWikiBook(object):
 
         credits_html = self.get_chapter_html('Credits', wrapped=True)
         try:
-            parser = lxml.html.HTMLParser(encoding='utf-8')
-            tree = lxml.html.document_fromstring(credits_html, parser=parser)
+            tree = lxml.html.document_fromstring(credits_html, parser=utf8_html_parser)
         except UnicodeDecodeError, e:
             log("book isn't unicode! (%s)" %(e,))
             encoding = config.SERVER_DEFAULTS[self.server]['toc-encoding']

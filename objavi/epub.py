@@ -12,7 +12,7 @@ except ImportError:
 import lxml.html, lxml.cssselect
 from lxml import etree
 
-from objavi.xhtml_utils import split_tree
+from objavi.xhtml_utils import split_tree, utf8_html_parser
 from objavi.book_utils import log
 from objavi.config import DC, XHTML, XHTMLNS, FM, MARKER_CLASS_INFO, MARKER_CLASS_SPLIT
 from booki.bookizip import BookiZip
@@ -29,7 +29,7 @@ HTML_TYPES = ('application/xhtml+xml', 'text/html')
 ADD_INFO_MARKERS = False
 
 
-html_parser = lxml.html.HTMLParser(encoding="utf-8")
+html_parser = utf8_html_parser
 xhtml_parser = lxml.html.XHTMLParser(encoding="utf-8")
 
 def _xhtml_parse(*args, **kwargs):
