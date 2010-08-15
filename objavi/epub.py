@@ -16,6 +16,7 @@ from lxml import etree
 from objavi.xhtml_utils import split_tree, utf8_html_parser
 from objavi.book_utils import log
 from objavi.config import DC, XHTML, XHTMLNS, FM, MARKER_CLASS_INFO, MARKER_CLASS_SPLIT
+from objavi import config
 from booki.bookizip import BookiZip
 
 #XML namespaces.  The *NS varients are in {curly brackets} for clark's syntax
@@ -291,9 +292,10 @@ class Epub(object):
         real_chapters = drop_empty_chapters(chapters)
         rightsholders = [c for c, extra in self.metadata[DC].get('creator', ())]
         contributors = rightsholders + [c for c, extra in self.metadata[DC].get('contributor', ())]
-        primary_id = self.metadata[DC].get('identifier', [None])[0]
+        primary_id = self.metadata[DC].get('identifier', [[None]])[0][0]
         if primary_id is None:
             primary_id = "%s-%s" % (zfn, time.strftime('%Y.%m.%d-%H.%M.%S'))
+        log(primary_id)
 
         spine = []
         for c in real_chapters:
