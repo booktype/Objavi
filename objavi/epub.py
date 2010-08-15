@@ -3,6 +3,7 @@
 import os, sys
 import zipfile
 from cStringIO import StringIO
+import time
 
 try:
     from json import dumps
@@ -290,6 +291,9 @@ class Epub(object):
         real_chapters = drop_empty_chapters(chapters)
         rightsholders = [c for c, extra in self.metadata[DC].get('creator', ())]
         contributors = rightsholders + [c for c, extra in self.metadata[DC].get('contributor', ())]
+        primary_id = self.metadata[DC].get('identifier', [None])[0]
+        if primary_id is None:
+            primary_id = "%s-%s" % (zfn, time.strftime('%Y.%m.%d-%H.%M.%S'))
 
         spine = []
         for c in real_chapters:
@@ -377,7 +381,7 @@ class Epub(object):
                     dest.setdefault(scheme, []).append(value)
 
         if not metadata[FM]['book']:
-            metadata[FM]['book'][''] = [''.join(x for x in str(metadata[DC]['identifier'][''][0]) if x.isalnum())]
+            metadata[FM]['book'][''] = [''.join(x for x in primary_id if x.isalnum())]
         if not metadata[FM]['server']:
             metadata[FM]['server'][''] = [config.DEFAULT_BOOKI_SERVER]
 
