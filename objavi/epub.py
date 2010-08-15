@@ -301,12 +301,9 @@ class Epub(object):
                 root = c.tree.getroot()
             except Exception:
                 root = c.tree
-            try:
-                del root.attrib['xmlns']
-                del root.attrib['version']
-                del root.attrib['xml:lang']
-            except KeyError, e:
-                log(e)
+            for attr in ('xmlns', 'version', 'xml:lang'):
+                if attr in root.attrib:
+                    del root.attrib[attr]
             if c.title:
                 head = root.makeelement('head')
                 _title = etree.SubElement(head, 'title')
