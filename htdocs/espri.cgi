@@ -73,7 +73,9 @@ def async_callback(callback_url, **kwargs):
 
 
 def espri(epuburl, bookid):
-    log(epuburl, bookid)
+    """Make a bookizip from the epub at <epuburl> and save it as
+    <bookid>.zip."""
+    log("starting espri", epuburl, bookid)
     f = urlopen(epuburl)
     s = f.read()
     f.close()
@@ -82,16 +84,18 @@ def espri(epuburl, bookid):
     e.parse_meta()
     e.parse_opf()
     e.parse_ncx()
-    zipfile = '%s/%s.zip' % (config.BOOKI_BOOK_DIR, bookid)    
+    zipfile = '%s/%s.zip' % (config.BOOKI_BOOK_DIR, bookid)
     e.make_bookizip(zipfile)
 
 def ia_espri(bookid):
+    """Import an Internet Archive epub given an archive id"""
     epuburl = IA_EPUB_URL % (bookid, bookid)
     log(epuburl)
     espri(epuburl, bookid)
     return '%s.zip' % bookid
 
 def inet_espri(epuburl):
+    """Import an epub from an arbitrary url"""
     tainted_name = unquote(os.path.basename(urlsplit(epuburl).path))
     filename = super_bleach(tainted_name)
     if filename.lower().endswith('-epub'):
@@ -198,7 +202,7 @@ if __name__ == '__main__':
     else:
         book_link = ''
 
-    if mode == 'callback':        
+    if mode == 'callback':
         async_callback(callback_url, url=url)
 
     elif mode == 'zip' and filename is not None:
