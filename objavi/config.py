@@ -108,6 +108,7 @@ ZIP_URLS = {
 }
 
 DEFAULT_SERVER = 'en.flossmanuals.net'
+DEFAULT_BOOKI_SERVER = 'www.booki.cc'
 DEFAULT_SIZE = 'COMICBOOK'
 DEFAULT_ENGINE = 'webkit'
 

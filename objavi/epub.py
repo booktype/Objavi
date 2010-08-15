@@ -379,7 +379,7 @@ class Epub(object):
         if not metadata[FM]['book']:
             metadata[FM]['book'][''] = [''.join(x for x in str(metadata[DC]['identifier'][''][0]) if x.isalnum())]
         if not metadata[FM]['server']:
-            metadata[FM]['server'][''] = ['www.booki.cc']
+            metadata[FM]['server'][''] = [config.DEFAULT_BOOKI_SERVER]
 
         log(metadata)
 
