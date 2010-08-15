@@ -274,7 +274,7 @@ class Epub(object):
                 labels = point['labels']
                 add_marker(start, '%(id)s' % point,
                            klass=MARKER_CLASS_SPLIT,
-                           title=find_good_label(labels, lang),
+                           title=find_good_label(labels, lang) or 'untitled',
                            subsections=str(bool(point['points'])))
 
             if ADD_INFO_MARKERS:
