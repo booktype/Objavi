@@ -584,5 +584,7 @@ EPUB_FILE_SIZE_MAX = 200000
 MARKER_CLASS_SPLIT = "espri-marker-name-clash-with-no-one--split"
 MARKER_CLASS_INFO = "espri-marker-name-clash-with-no-one--info"
 
+FOOTER_HTML = 'htdocs/static/boilerplate/footer.html'
+
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))

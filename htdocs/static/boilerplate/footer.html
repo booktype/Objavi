@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><script>
+
+function replace(){
+    var args = {
+      args: document.location.search.substring(1)
+    };
+    var pairs = args.args.split('&');
+    for (var i = 0; i < pairs.length; i++){
+        var p = pairs[i].split('=', 2);
+        args[p[0]] = p[1];
+    }
+
+    for (var a in args){
+        var elements = document.getElementsByClassName(a);
+        for (var i = 0; i < elements.length; i++){
+            elements[i].textContent = args[a];
+        }
+    }
+    if (args["page"]){
+        var odd = parseInt(args["page"]) & 1;
+        document.getElementById(odd ? "even" : "odd").style.display = "none";
+    }
+}
+
+</script>
+
+<!--<link rel="stylesheet" href="%(stylesheet)s" />-->
+<style>
+#odd {
+  text-align: right;
+}
+
+#even {
+  text-align: left;
+}
+
+#odd div, #even div {
+  display: inline-block;
+}
+
+</style>
+
+</head>
+<body onload="replace()">
+
+<!--'frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection'
+  'args' -->
+
+<div id="odd">
+<div class="page"></div>
+</div>
+
+<div id="even">
+<div class="page"></div>
+</div>
+
+</body>
+</html>

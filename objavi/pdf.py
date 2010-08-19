@@ -111,6 +111,7 @@ class PageSettings(object):
                 '-d', '100',
                 #'--zoom', '1.2',
                 '--encoding', 'UTF-8',
+                '--footer-html', path2url(config.FOOTER_HTML, full=True),
                 ] +
                outline_args +
                greyscale_args +
