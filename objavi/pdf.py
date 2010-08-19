@@ -94,7 +94,7 @@ class PageSettings(object):
 
 
 
-    def _webkit_command(self, html, pdf, outline=False, outline_file=None):
+    def _webkit_command(self, html_url, pdf, outline=False, outline_file=None):
         m = [str(x) for x in self.margins]
         outline_args = ['--outline',  '--outline-depth', '2'] * outline
         if outline_file is not None:
@@ -116,7 +116,7 @@ class PageSettings(object):
                outline_args +
                greyscale_args +
                config.WKHTMLTOPDF_EXTRA_COMMANDS +
-               [html, pdf])
+               [html_url, pdf])
         log(' '.join(cmd))
         return cmd
 
