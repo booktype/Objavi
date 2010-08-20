@@ -72,12 +72,6 @@ class PageSettings(object):
 
         # calculate margins in mm for browsers
         self.margins = []
-        ## for m, clip in ((self.top_margin, clipy),
-        ##                 (self.side_margin, clipx + 0.5 * self.gutter),
-        ##                 (self.bottom_margin, clipy + 0.5 * config.PAGE_NUMBER_SIZE),
-        ##                 (self.side_margin, clipx + 0.5 * self.gutter),
-        ##                 ):
-        ##     self.margins.append((m + clip) * config.POINT_2_MM)
         for m, clip in ((self.top_margin, 0),
                         (self.side_margin, 0.5 * self.gutter),
                         (self.bottom_margin, 0.5 * config.PAGE_NUMBER_SIZE),
