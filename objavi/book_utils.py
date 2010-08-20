@@ -102,20 +102,17 @@ def guess_text_dir(server, book):
         dir = None
     if dir not in ('LTR', 'RTL'):
         log("server %s, book %s: no specified dir (%s)" %(server, book, dir))
-        if '_' in book:
-            lang = book[book.rindex('_') + 1:]
-            dir = config.LANGUAGE_DIR.get(lang, 'LTR')
-        elif '.' in server:
-            lang = server[:server.index('.')]
-            dir = config.LANGUAGE_DIR.get(lang, 'LTR')
-        else:
-            dir = 'LTR'
+        lang = guess_lang(server, book)
+        dir = config.LANGUAGE_DIR.get(lang, 'LTR')
     log("server %s, book %s: found dir %s" %(server, book, dir))
-    #last gasp redundant attempt to avoid None
-    dir_s = str(dir).upper()
-    if dir_s not in ('LTR', 'RTL'):
-        dir_s = 'LTR'
-    return dir_s
+    return dir
+
+def guess_page_number_style(lang, dir):
+    if lang in config.BOILERPLATE_HTML:
+        return lang
+    elif dir in config.BOILERPLATE_HTML:
+        return dir
+    return 'LTR'
 
 def run(cmd):
     try:

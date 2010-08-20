@@ -43,7 +43,7 @@ from lxml import etree
 
 from objavi import config, epub_utils
 from objavi.book_utils import log, run, make_book_name, guess_lang, guess_text_dir
-from objavi.book_utils import ObjaviError, log_types
+from objavi.book_utils import ObjaviError, log_types, guess_page_number_style
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline, parse_extracted_outline
 from objavi.epub import add_guts, _find_tag
 from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree, utf8_html_parser
@@ -145,8 +145,7 @@ def save_data(fn, data):
 
 
 class Book(object):
-    page_numbers = 'latin'
-    preamble_page_numbers = 'roman'
+    page_numbers = 'latin-arabic'
 
     def notify_watcher(self, message=None):
         if self.watchers:
@@ -220,6 +219,8 @@ class Book(object):
         self.dir = str(get_metadata(self.metadata, 'dir', ns=config.FM, default=[None])[0])
         if not self.dir:
             self.dir = guess_text_dir(server, book)
+
+        self.page_number_style = guess_page_number_style(self.lang, self.dir)
 
         #Patch in the extra metadata. (lang and dir may be set from config)
         #these should be read from zip -- so should go into zip?
@@ -376,7 +377,8 @@ class Book(object):
             ascii_pdf_file = self.filepath('body-ascii-headings.pdf')
             html_text = lxml.etree.tostring(tree, method="html", encoding="UTF-8")
             save_data(ascii_html_file, html_text)
-            self.maker.make_raw_pdf(ascii_html_file, ascii_pdf_file, outline=True, page_num=self.lang)
+            self.maker.make_raw_pdf(ascii_html_file, ascii_pdf_file, outline=True,
+                                    page_num=self.page_number_style)
             debugf = self.filepath('ascii-extracted-outline.txt')
             ascii_contents, number_of_ascii_pages = \
                 parse_outline(ascii_pdf_file, 1, debugf)
@@ -403,7 +405,8 @@ class Book(object):
 
         #2. Make a pdf of it
         self.maker.make_raw_pdf(self.body_html_file, self.body_pdf_file, outline=True,
-                                outline_file=self.outline_file, page_num=self.lang)
+                                outline_file=self.outline_file,
+                                page_num=self.page_number_style)
         self.notify_watcher('generate_pdf')
 
         n_pages = self.extract_pdf_outline()
@@ -606,7 +609,8 @@ class Book(object):
 
         #2. Make a pdf of it (direct to to final pdf)
         self.maker.make_raw_pdf(self.body_html_file, self.pdf_file, outline=True,
-                                outline_file=self.outline_file, page_num=self.lang)
+                                outline_file=self.outline_file,
+                                page_num=self.page_number_style)
         self.notify_watcher('generate_pdf')
         n_pages = count_pdf_pages(self.pdf_file)
 

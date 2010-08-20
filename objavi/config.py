@@ -585,12 +585,13 @@ MARKER_CLASS_SPLIT = "espri-marker-name-clash-with-no-one--split"
 MARKER_CLASS_INFO = "espri-marker-name-clash-with-no-one--info"
 
 BOILERPLATE_HTML = { #(footer, header)
-    'en': ('htdocs/static/boilerplate/footer-en.html', None),
+    'LTR': ('htdocs/static/boilerplate/footer-LTR.html', None),
+    'RTL': ('htdocs/static/boilerplate/footer-RTL.html', None),
     'fa': ('htdocs/static/boilerplate/footer-fa.html', None),
     'none': (None, None),
 }
 
-DEFAULT_BOILERPLATE_HTML = BOILERPLATE_HTML['en']
+DEFAULT_BOILERPLATE_HTML = BOILERPLATE_HTML['LTR']
 
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))
