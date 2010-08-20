@@ -228,51 +228,6 @@ class PageSettings(object):
                ]
         run(cmd)
 
-    def _number_pdf(self, pdf, numbers='latin', dir='LTR',
-                    number_start=1):
-        cmd = ['pdfedit', '-s', 'wk_objavi.qs',
-               'operation=page_numbers',
-               'dir=%s' % dir,
-               'filename=%s' % pdf,
-               'output_filename=%s' % pdf,
-               'number_start=%s' % number_start,
-               'number_style=%s' % numbers,
-               'number_bottom=%s' % self.number_bottom,
-               'number_margin=%s' % self.number_margin,
-               ]
-        run(cmd)
-
-    def number_pdf(self, pdf, pages, **kwargs):
-        # if there are too many pages for pdfedit to handle in one go,
-        # split the job into bits.  <pages> may not be exact
-        if pages is None or pages <= config.PDFEDIT_MAX_PAGES:
-            self._number_pdf(pdf, **kwargs)
-        else:
-            # section_size must be even
-            sections = pages // config.PDFEDIT_MAX_PAGES + 1
-            section_size = (pages // sections + 2) & ~1
-
-            pdf_sections = []
-            s = kwargs.pop('number_start', 1)
-            while s < pages:
-                e = s + section_size - 1
-                pdf_section = '%s-%s-%s.pdf' % (pdf[:-4], s, e)
-                if e < pages - 1:
-                    page_range = '%s-%s' % (s, e)
-                else:
-                    page_range = '%s-end' % s
-                run(['pdftk',
-                     pdf,
-                     'cat',
-                     page_range,
-                     'output',
-                     pdf_section,
-                     ])
-                self._number_pdf(pdf_section, number_start=s, **kwargs)
-                pdf_sections.append(pdf_section)
-                s = e + 1
-
-            concat_pdfs(pdf, *pdf_sections)
 
     def make_barcode_pdf(self, isbn, pdf, corner='br'):
         """Put an ISBN barcode in a corner of a single blank page."""
