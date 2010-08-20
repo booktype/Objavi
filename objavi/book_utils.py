@@ -117,11 +117,10 @@ def guess_page_number_style(lang, dir):
 
 
 def get_number_localiser(locale):
-    lut = {
-        'fa': 0x6f0 - 48,
-        'ar': 0x660 - 48,
-        }
-    offset = lut.get(locale)
+    """Create a function that will convert a number into a string in
+    the locale appropriate script.  Often the returned function is
+    simply 'str'."""
+    offset = config.LOCALISED_DIGITS.get(locale)
     if offset is None:
         return str
 

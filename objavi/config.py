@@ -588,8 +588,18 @@ BOILERPLATE_HTML = { #(footer, header)
     'LTR': ('htdocs/static/boilerplate/footer-LTR.html', None),
     'RTL': ('htdocs/static/boilerplate/footer-RTL.html', None),
     'fa': ('htdocs/static/boilerplate/footer-fa.html', None),
+    'hi': ('htdocs/static/boilerplate/footer-hi.html', None),
     'none': (None, None),
 }
+
+#offset to the zero from ascii zero. 1-9 are added to this.
+LOCALISED_DIGITS = {
+    'fa': 0x6f0 - 48,
+    'ar': 0x660 - 48,
+    'hi': 0x966 - 48,
+    'my': 0x1040 - 48,
+}
+
 
 DEFAULT_BOILERPLATE_HTML = BOILERPLATE_HTML['LTR']
 
