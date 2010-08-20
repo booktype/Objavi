@@ -122,9 +122,9 @@ class PageSettings(object):
 
 
     def make_raw_pdf(self, html, pdf, outline=False, outline_file=None):
-        html_url = path2url(html, full=True)
-        func = getattr(self, '_%s_command' % self.engine)
         if self.columns == 1:
+            html_url = path2url(html, full=True)
+            func = getattr(self, '_%s_command' % self.engine)
             cmd = func(html_url, pdf, outline=outline, outline_file=outline_file)
             run(cmd)
         else:
