@@ -111,7 +111,11 @@ def guess_text_dir(server, book):
         else:
             dir = 'LTR'
     log("server %s, book %s: found dir %s" %(server, book, dir))
-    return str(dir)
+    #last gasp redundant attempt to avoid None
+    dir_s = str(dir).upper()
+    if dir_s not in ('LTR', 'RTL'):
+        dir_s = 'LTR'
+    return dir_s
 
 def run(cmd):
     try:
