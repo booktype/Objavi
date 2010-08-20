@@ -41,9 +41,10 @@ def find_containing_paper(w, h):
 class PageSettings(object):
     """Calculates and wraps commands for the generation and processing
     of PDFs"""
-    def __init__(self, pointsize, **kwargs):
+    def __init__(self, tmpdir, pointsize, **kwargs):
         # the formulas for default gutters, margins and column margins
         # are quite ad-hoc and certainly improvable.
+        self.tmpdir = tmpdir
         self.width, self.height = pointsize
         self.papersize, clipx, clipy = find_containing_paper(self.width, self.height)
         self.grey_scale = 'grey_scale' in kwargs
@@ -93,12 +94,41 @@ class PageSettings(object):
                     log("self.%s: %s" % (x, getattr(self, x)), debug='PDFGEN')
 
 
+    def get_boilerplate(self, requested):
+        """Return (footer url, header url)"""
+        footer_tmpl, header_tmpl = config.BOILERPLATE_HTML.get(requested,
+                                                               config.DEFAULT_BOILERPLATE_HTML)
+        html = []
+        for fn in (footer_tmpl, header_tmpl):
+            if fn is not None:
+                f = open(fn)
+                s = f.read()
+                f.close()
+                #XXX can manipulate footer here, for CSS etc
+                fn2 = os.path.join(self.tmpdir, os.path.basename(fn))
+                f = open(fn2, 'w')
+                f.write(s)
+                f.close()
+                html.append(path2url(fn2, full=True))
+            else:
+                html.append(None)
 
-    def _webkit_command(self, html_url, pdf, outline=False, outline_file=None):
+        return html
+
+
+    def _webkit_command(self, html_url, pdf, outline=False, outline_file=None, page_num=None):
         m = [str(x) for x in self.margins]
         outline_args = ['--outline',  '--outline-depth', '2'] * outline
         if outline_file is not None:
             outline_args += ['--dump-outline', outline_file]
+
+        page_num_args = []
+        if page_num:
+            footer_url, header_url = self.get_boilerplate(page_num)
+            if footer_url is not None:
+                page_num_args += ['--footer-html', footer_url]
+            if header_url is not None:
+                page_num_args += ['--header-html', header_url]
 
         greyscale_args = ['-g'] * self.grey_scale
         quiet_args = ['-q']
@@ -111,8 +141,8 @@ class PageSettings(object):
                 '-d', '100',
                 #'--zoom', '1.2',
                 '--encoding', 'UTF-8',
-                '--footer-html', path2url(config.FOOTER_HTML, full=True),
                 ] +
+               page_num_args +
                outline_args +
                greyscale_args +
                config.WKHTMLTOPDF_EXTRA_COMMANDS +
@@ -121,11 +151,11 @@ class PageSettings(object):
         return cmd
 
 
-    def make_raw_pdf(self, html, pdf, outline=False, outline_file=None):
+    def make_raw_pdf(self, html, pdf, outline=False, outline_file=None, page_num=None):
         if self.columns == 1:
             html_url = path2url(html, full=True)
             func = getattr(self, '_%s_command' % self.engine)
-            cmd = func(html_url, pdf, outline=outline, outline_file=outline_file)
+            cmd = func(html_url, pdf, outline=outline, outline_file=outline_file, page_num=page_num)
             run(cmd)
         else:
             printable_width = self.width - 2.0 * self.side_margin - self.gutter
@@ -139,7 +169,7 @@ class PageSettings(object):
                 for k in ('width', 'side_margin', 'gutter', 'column_margin', 'columns', 'height'):
                     log("self.%s: %r" % (k, getattr(self, k)))
 
-            columnmaker = PageSettings((page_width, self.height),
+            columnmaker = PageSettings(self.tmpdir, (page_width, self.height),
                                        gutter=0, top_margin=self.top_margin,
                                        side_margin=side_margin,
                                        bottom_margin=self.bottom_margin,
@@ -148,7 +178,8 @@ class PageSettings(object):
                                        )
 
             column_pdf = pdf[:-4] + '-single-column.pdf'
-            columnmaker.make_raw_pdf(html, column_pdf, outline=outline, outline_file=outline_file)
+            columnmaker.make_raw_pdf(html, column_pdf, outline=outline,
+                                     outline_file=outline_file, page_num=None)
             columnmaker.reshape_pdf(column_pdf)
             cmd = ['pdfnup',
                    '--nup', '%sx1' % int(self.columns),

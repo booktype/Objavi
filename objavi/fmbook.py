@@ -259,7 +259,7 @@ class Book(object):
         self.publish_file = os.path.abspath(os.path.join(config.PUBLISH_DIR, bookname))
 
         if page_settings is not None:
-            self.maker = PageSettings(**page_settings)
+            self.maker = PageSettings(self.workdir, **page_settings)
 
         if title is not None:
             self.title = title
@@ -376,7 +376,7 @@ class Book(object):
             ascii_pdf_file = self.filepath('body-ascii-headings.pdf')
             html_text = lxml.etree.tostring(tree, method="html", encoding="UTF-8")
             save_data(ascii_html_file, html_text)
-            self.maker.make_raw_pdf(ascii_html_file, ascii_pdf_file, outline=True)
+            self.maker.make_raw_pdf(ascii_html_file, ascii_pdf_file, outline=True, page_num=self.lang)
             debugf = self.filepath('ascii-extracted-outline.txt')
             ascii_contents, number_of_ascii_pages = \
                 parse_outline(ascii_pdf_file, 1, debugf)
@@ -402,7 +402,8 @@ class Book(object):
         save_data(self.body_html_file, html_text)
 
         #2. Make a pdf of it
-        self.maker.make_raw_pdf(self.body_html_file, self.body_pdf_file, outline=True, outline_file=self.outline_file)
+        self.maker.make_raw_pdf(self.body_html_file, self.body_pdf_file, outline=True,
+                                outline_file=self.outline_file, page_num=self.lang)
         self.notify_watcher('generate_pdf')
 
         n_pages = self.extract_pdf_outline()
@@ -458,7 +459,7 @@ class Book(object):
         end_matter = self.compose_end_matter()
         #log(end_matter)
         save_data(self.tail_html_file, end_matter.decode('utf-8'))
-        self.maker.make_raw_pdf(self.tail_html_file, self.tail_pdf_file)
+        self.maker.make_raw_pdf(self.tail_html_file, self.tail_pdf_file, page_num=None)
 
         self.maker.reshape_pdf(self.tail_pdf_file, self.dir, centre_start=True,
                                centre_end=True, even_pages=False)
@@ -612,7 +613,8 @@ class Book(object):
         save_data(self.body_html_file, html_text)
 
         #2. Make a pdf of it (direct to to final pdf)
-        self.maker.make_raw_pdf(self.body_html_file, self.pdf_file, outline=True, outline_file=self.outline_file)
+        self.maker.make_raw_pdf(self.body_html_file, self.pdf_file, outline=True,
+                                outline_file=self.outline_file, page_num=self.lang)
         self.notify_watcher('generate_pdf')
         n_pages = count_pdf_pages(self.pdf_file)
 
@@ -844,6 +846,10 @@ class Book(object):
             url = path2url(self.save_tempfile('objavi.css', css), full=True)
         else:
             url = css
+
+        #add a link for the footers and headers
+        if not os.path.exists(self.filepath("objavi.css")):
+            self.save_tempfile('objavi.css', '@import url("%s");\n' % url)
 
         #find the head -- it's probably first child but lets not assume.
         for child in htmltree:

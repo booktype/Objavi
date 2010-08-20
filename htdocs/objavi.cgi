@@ -71,6 +71,7 @@ ARG_VALIDATORS = {
     "html_template": is_utf8,
     "booki-group": is_utf8,
     "booki-user": is_utf8,
+    "page-numbers": config.BOILERPLATE_HTML.__contains__,
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())

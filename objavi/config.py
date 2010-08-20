@@ -513,6 +513,7 @@ FORM_INPUTS = (
     ("booki-group", "Booki group", "input[type=text]", None, "advanced", "Pretend the book belongs to this Booki group"),
     ("booki-user", "Booki user", "input[type=text]", None, "advanced", "Pretend the book belongs to this Booki user"),
     #("destination", "Use cached data", "input[type=text]", None, "advanced", "(younger than this many minutes)."),
+    ("page-numbers", "Page numbering style", "select", None, "advanced", '"en" for latin-arabic numbers'),
 )
 
 FORM_ELEMENT_TYPES = {
@@ -584,18 +585,13 @@ EPUB_FILE_SIZE_MAX = 200000
 MARKER_CLASS_SPLIT = "espri-marker-name-clash-with-no-one--split"
 MARKER_CLASS_INFO = "espri-marker-name-clash-with-no-one--info"
 
-FOOTER_HTML = {
-    'en': 'htdocs/static/boilerplate/footer-en.html',
-    'fa': 'htdocs/static/boilerplate/footer-fa.html',
+BOILERPLATE_HTML = { #(footer, header)
+    'en': ('htdocs/static/boilerplate/footer-en.html', None),
+    'fa': ('htdocs/static/boilerplate/footer-fa.html', None),
+    'none': (None, None),
 }
 
-HEADER_HTML = {
-    'en': 'htdocs/static/boilerplate/footer-en.html',
-    'fa': 'htdocs/static/boilerplate/footer-fa.html',
-}
-
-DEFAULT_FOOTER_HTML = FOOTER_HTML['en']
-DEFAULT_HEADER_HTML = HEADER_HTML['en']
+DEFAULT_BOILERPLATE_HTML = BOILERPLATE_HTML['en']
 
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))
