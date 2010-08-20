@@ -68,7 +68,7 @@ def _get_best_title(tocpoint):
         return tocpoint['title']
     return 'Untitled'
 
-def _add_initial_number(e, n):
+def _add_initial_number(e, n, localiser=str):
     """Put a styled chapter number n at the beginning of element e."""
     initial = e.makeelement("strong", Class="initial")
     e.insert(0, initial)
@@ -76,7 +76,7 @@ def _add_initial_number(e, n):
     if e.text is not None:
         initial.tail += e.text
     e.text = ''
-    initial.text = "%s." % n
+    initial.text = "%s." % localiser(n)
 
 def expand_toc(toc, depth=1, index=0):
     """Reformat toc slightly for convenience"""
@@ -795,6 +795,7 @@ class Book(object):
         chapter = 1
         section = None
         #log(self.toc)
+        localiser = get_number_localiser(self.page_number_style)
         for t in self.toc:
             #only top level sections get a subsection page,
             #and only if they have children.
@@ -808,10 +809,10 @@ class Book(object):
                         item.text = child['html_title']
                         heading = self.tree.cssselect('#'+ child['html_id'])
                         if heading:
-                            _add_initial_number(heading[0], chapter)
+                            _add_initial_number(heading[0], chapter, localiser)
                     else:
                         item.text = child['title']
-                    _add_initial_number(item, chapter)
+                    _add_initial_number(item, chapter, localiser)
                     log(item.text, debug='HTMLGEN')
                     chapter += 1
                 log("#%s is %s" % (t['html_id'], self.tree.cssselect('#'+ t['html_id'])))
