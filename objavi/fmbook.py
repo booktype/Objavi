@@ -43,7 +43,7 @@ from lxml import etree
 
 from objavi import config, epub_utils
 from objavi.book_utils import log, run, make_book_name, guess_lang, guess_text_dir
-from objavi.book_utils import ObjaviError, log_types, guess_page_number_style
+from objavi.book_utils import ObjaviError, log_types, guess_page_number_style, get_number_localiser
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline, parse_extracted_outline
 from objavi.epub import add_guts, _find_tag
 from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree, utf8_html_parser
@@ -145,8 +145,6 @@ def save_data(fn, data):
 
 
 class Book(object):
-    page_numbers = 'latin-arabic'
-
     def notify_watcher(self, message=None):
         if self.watchers:
             if  message is None:
@@ -761,6 +759,8 @@ class Book(object):
         #log(self.outline_contents)
         outline_contents = iter(self.outline_contents)
 
+        localise_number = get_number_localiser(self.page_number_style)
+
         for section in self.toc:
             if not section.get('children'):
                 contents.append(empty_section_tmpl % section['title'])
@@ -775,7 +775,9 @@ class Book(object):
                 except StopIteration:
                     log("contents data not found for %s. Stopping" % (point,))
                     break
-                contents.append(row_tmpl % (chapter, _get_best_title(point), page_num))
+                contents.append(row_tmpl % (localise_number(chapter),
+                                            _get_best_title(point),
+                                            localise_number(page_num)))
                 chapter += 1
 
         doc = header + '\n'.join(contents) + footer

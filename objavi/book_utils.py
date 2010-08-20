@@ -114,6 +114,28 @@ def guess_page_number_style(lang, dir):
         return dir
     return 'LTR'
 
+
+
+def get_number_localiser(locale):
+    lut = {
+        'fa': 0x6f0 - 48,
+        'ar': 0x660 - 48,
+        }
+    offset = lut.get(locale)
+    if offset is None:
+        return str
+
+    def _localiser(n):
+        out = []
+        for c in str(n):
+            if c.isdigit():
+                c = unichr(ord(c) + offset)
+            out.append(c)
+        return ''.join(out)#.encode('UTF-8')
+
+    return _localiser
+
+
 def run(cmd):
     try:
         p = Popen(cmd, stdout=PIPE, stderr=PIPE)
