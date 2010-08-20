@@ -158,6 +158,8 @@ class PageSettings(object):
             cmd = func(html_url, pdf, outline=outline, outline_file=outline_file, page_num=page_num)
             run(cmd)
         else:
+            #For multiple columns, generate a narrower single column pdf, and
+            #paste it into columns using pdfnup.
             printable_width = self.width - 2.0 * self.side_margin - self.gutter
             column_width = (printable_width - (self.columns - 1) * self.column_margin) / self.columns
             page_width = column_width + self.column_margin
