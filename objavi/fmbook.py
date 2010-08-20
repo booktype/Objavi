@@ -434,7 +434,7 @@ class Book(object):
                      self.toc_header, contents, self.title)
         save_data(self.preamble_html_file, html)
 
-        self.maker.make_raw_pdf(self.preamble_html_file, self.preamble_pdf_file)
+        self.maker.make_raw_pdf(self.preamble_html_file, self.preamble_pdf_file, page_num=None)
 
         self.maker.reshape_pdf(self.preamble_pdf_file, self.dir, centre_start=True)
 
