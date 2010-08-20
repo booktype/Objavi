@@ -588,6 +588,8 @@ BOILERPLATE_HTML = { #(footer, header)
     'LTR': ('htdocs/static/boilerplate/footer-LTR.html', None),
     'RTL': ('htdocs/static/boilerplate/footer-RTL.html', None),
     'fa': ('htdocs/static/boilerplate/footer-fa.html', None),
+    'ar': ('htdocs/static/boilerplate/footer-ar.html', None),
+    'my': ('htdocs/static/boilerplate/footer-my.html', None),
     'hi': ('htdocs/static/boilerplate/footer-hi.html', None),
     'none': (None, None),
 }

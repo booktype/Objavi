@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head><script>
+
+//farsi   0x06f0 + n
+//arabic  0x0660 + n
+//hindi   0x966 
+//burmese 0x1040 
+
+
+function convert_numbers(s){
+    var s2 = "";
+    for (var i = 0; i < s.length; i++){
+        var c = s.charCodeAt(i);
+        if (c >= 48 && c < 58){
+            c += 0x1040 - 48;
+        }
+        s2 = s2.concat(String.fromCharCode(c));
+    }
+    return s2;
+}
+
+function replace(){
+    var args = {
+      args: document.location.search.substring(1)
+    };
+    var pairs = args.args.split('&');
+    for (var i = 0; i < pairs.length; i++){
+        var p = pairs[i].split('=', 2);
+        args[p[0]] = p[1];
+    }
+
+    for (var a in args){
+        var elements = document.getElementsByClassName(a);
+        for (var i = 0; i < elements.length; i++){
+            elements[i].textContent = convert_numbers(args[a]);
+        }
+    }
+    if (args["page"]){
+        var odd = parseInt(args["page"]) & 1;
+        document.getElementById(odd ? "odd-footer" : "even-footer").style.display = "none";
+    }
+}
+
+</script>
+
+<style>
+#odd-footer {
+  text-align: right;
+}
+
+#even-footer {
+  text-align: left;
+}
+
+#odd-footer div, #even-footer div {
+  display: inline-block;
+}
+</style>
+
+<link rel="stylesheet" href="objavi.css" />
+</head>
+
+<body onload="replace()">
+
+<!--'frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection'
+  'args' -->
+
+<div id="odd-footer">
+<div class="page"></div>
+</div>
+
+<div id="even-footer">
+<div class="page"></div>
+</div>
+
+</body>
+</html>
