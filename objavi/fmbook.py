@@ -413,10 +413,6 @@ class Book(object):
         self.maker.reshape_pdf(self.body_pdf_file, self.dir, centre_end=True)
         self.notify_watcher('reshape_pdf')
 
-        #5 add page numbers
-        self.maker.number_pdf(self.body_pdf_file, n_pages, dir=self.dir,
-                              numbers=self.page_numbers)
-        self.notify_watcher("number_pdf")
         self.notify_watcher()
 
     def make_preamble_pdf(self):
@@ -441,10 +437,6 @@ class Book(object):
         self.maker.make_raw_pdf(self.preamble_html_file, self.preamble_pdf_file)
 
         self.maker.reshape_pdf(self.preamble_pdf_file, self.dir, centre_start=True)
-
-        self.maker.number_pdf(self.preamble_pdf_file, None, dir=self.dir,
-                            numbers=self.preamble_page_numbers,
-                            number_start=-2)
 
         self.notify_watcher()
 

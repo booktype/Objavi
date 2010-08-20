@@ -540,7 +540,6 @@ PROGRESS_POINTS = (
     ("extract_pdf_outline", "Find page numbers", ('book',)),
     ("reshape_pdf", "Cut pages to size", ('book', 'newspaper',)),
     #('make_body_pdf', "Generate the main pdf", ('book', 'newspaper', 'web')),
-    ("number_pdf", "Number pages", ('book', 'newspaper',)),
     ("make_contents", "Calculate Table of Contents", ('book',)),
     ("make_preamble_pdf", "Generate preamble pdf", ('book',)),
     ('make_end_matter_pdf', "Generate end matter pdf", ('book',)),
