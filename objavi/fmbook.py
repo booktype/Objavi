@@ -615,10 +615,6 @@ class Book(object):
             self.maker.reshape_pdf(self.pdf_file, self.dir, centre_end=True)
             self.notify_watcher('reshape_pdf')
 
-            #4. add page numbers
-            self.maker.number_pdf(self.pdf_file, n_pages,
-                                  dir=self.dir, numbers=self.page_numbers)
-            self.notify_watcher("number_pdf")
         self.notify_watcher()
 
 
