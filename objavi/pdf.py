@@ -30,15 +30,7 @@ from objavi.cgi_utils import path2url
 from config import POINT_2_MM
 
 PDFNUP = 'bin/pdfnup'
-def find_containing_paper(w, h):
-    for name, pw, ph in config.PAPER_SIZES:
-        if pw >= w and ph >= h:
-            mw = (pw - w) * 0.5
-            mh = (ph - h) * 0.5
-            return (name, mw, mh)
 
-    raise ValueError("page sized %.2fmm x %.2fmm won't fit on any paper!" %
-                     (w * config.POINT_2_MM, h * config.POINT_2_MM))
 
 class PageSettings(object):
     """Calculates and wraps commands for the generation and processing
@@ -48,7 +40,6 @@ class PageSettings(object):
         # are quite ad-hoc and certainly improvable.
         self.tmpdir = tmpdir
         self.width, self.height = pointsize
-        self.papersize, clipx, clipy = find_containing_paper(self.width, self.height)
         self.grey_scale = 'grey_scale' in kwargs
 
         self.engine = kwargs.get('engine', config.DEFAULT_ENGINE)
@@ -217,8 +208,6 @@ class PageSettings(object):
         """Spin the pdf for RTL text, resize it to the right size, and
         shift the gutter left and right"""
         ops = []
-        if self.columns > 1:
-            ops.append('resize')
         if self.gutter:
             ops.append('shift')
         if even_pages:
