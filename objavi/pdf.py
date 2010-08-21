@@ -27,6 +27,7 @@ import urllib
 from objavi import config
 from objavi.book_utils import log, run
 from objavi.cgi_utils import path2url
+from config import POINT_2_MM
 
 def find_containing_paper(w, h):
     for name, pw, ph in config.PAPER_SIZES:
@@ -77,7 +78,7 @@ class PageSettings(object):
                         (self.bottom_margin, 0.5 * config.PAGE_NUMBER_SIZE),
                         (self.side_margin, 0.5 * self.gutter),
                         ):
-            self.margins.append((m + clip) * config.POINT_2_MM)
+            self.margins.append((m + clip) * POINT_2_MM)
 
         if 'PDFGEN' in config.DEBUG_MODES:
             log("making PageSettings with:")
@@ -128,8 +129,8 @@ class PageSettings(object):
         quiet_args = ['-q']
         cmd = ([config.WKHTMLTOPDF] +
                quiet_args +
-               ['--page-width', str(self.width * config.POINT_2_MM),
-                '--page-height', str(self.height * config.POINT_2_MM),
+               ['--page-width', str(self.width * POINT_2_MM),
+                '--page-height', str(self.height * POINT_2_MM),
                 '-T', m[0], '-R', m[1], '-B', m[2], '-L', m[3],
                 #'--disable-smart-shrinking',
                 '-d', '100',
