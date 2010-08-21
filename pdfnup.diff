@@ -1,0 +1,42 @@
+--- /usr/bin/pdfnup	2008-07-26 02:01:41.000000000 +1200
++++ bin/pdfnup	2010-08-21 15:36:21.000000000 +1200
+@@ -48,6 +48,8 @@
+ scale=1.0              ## don't scale the resultant pages
+ openright=false        ## don't insert blank page at front of document
+ tidy=true              ## delete all temporary files immediately
++paperwidth=
++paperheight=
+ ##
+ ##  END OF CONFIGURATION
+ #######################################################################
+@@ -176,6 +178,10 @@
+   	       shift;;
+   	--frame) frame="${2}"
+   	         shift;;
++  	--paperwidth) paperwidth="${2}"
++  	         shift;;
++  	--paperheight) paperheight="${2}"
++  	         shift;;
+   	--paper) paper="${2}"
+   	         shift;;
+   	--orient) orient="${2}"
+@@ -286,6 +292,8 @@
+   msgFile="$tempfileDir"/"$uniqueName".msgs
+   (sed s*pdfname*"$tempfileDir"/"$uniqueName"source.pdf* <<EndTemplate
+ \documentclass[papersize,orientation]{article}
++\paperwidth=
++\paperheight=
+ \usepackage{pdfpages}
+ \begin{document}
+ \includepdf[pages=,nup=,frame=,fitpaper=,trim=,delta=,offset=,scale=,turn=,noautoscale=,column=,columnstrict=,openright=]{pdfname}
+@@ -307,6 +315,10 @@
+     | sed s/column=/column="$column"/ \
+     | sed s/columnstrict=/columnstrict="$columnstrict"/ \
+     | sed s/papersize/"$paper"/ \
++    | sed s/paperwidth=/paperwidth="$paperwidth"/ \
++    | sed s/paperheight=/paperheight="$paperheight"/ \
++    | sed s/paperwidth=\$// \
++    | sed s/paperheight=\$// \
+     | sed s/orientation/"$orient"/ > $texFile
+   echo "  Temporary LaTeX file for this job is ""$texFile"
+   ##
