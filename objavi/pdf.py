@@ -29,6 +29,7 @@ from objavi.book_utils import log, run
 from objavi.cgi_utils import path2url
 from config import POINT_2_MM
 
+PDFNUP = 'bin/pdfnup'
 def find_containing_paper(w, h):
     for name, pw, ph in config.PAPER_SIZES:
         if pw >= w and ph >= h:
@@ -178,14 +179,32 @@ class PageSettings(object):
             columnmaker.make_raw_pdf(html, column_pdf, outline=outline,
                                      outline_file=outline_file, page_num=None)
             columnmaker.reshape_pdf(column_pdf)
-            cmd = ['pdfnup',
+
+            # pdfnup seems to round down to an even number of output
+            # pages.  For example, if a book fills 13 pages, it will
+            # clip it to 12.  So it is necessary to add blank pages to
+            # round it up to an even number of output pages, which is
+            # to say a multiple of (self.columns * 2) input pages.
+
+            column_pages = count_pdf_pages(column_pdf)
+            overflow_pages = column_pages % (self.columns * 2)
+            if overflow_pages:
+                extra_pages = self.columns * 2 - overflow_pages
+            else:
+                extra_pages = 0
+
+            cmd = [PDFNUP,
                    '--nup', '%sx1' % int(self.columns),
-                   '--paper', self.papersize.lower() + 'paper',
+                   #'--paper', papersize.lower() + 'paper',
                    '--outfile', pdf,
-                   '--offset', '0 0', #'%scm 0' % (self.margins[1] * 0.1),
                    '--noautoscale', 'true',
                    '--orient', 'portrait',
+                   '--paperwidth', '%smm' % int(self.width * POINT_2_MM),
+                   '--paperheight', '%smm' % int(self.height * POINT_2_MM),
                    #'--tidy', 'false',
+                   '--pages', '1-last%s' % (',{}' * extra_pages,),
+                   #'--columnstrict', 'true',
+                   #'--column', 'true',
                    column_pdf
                    ]
 
