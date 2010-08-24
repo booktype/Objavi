@@ -311,22 +311,6 @@ DEBUG_MODES = (
     )
 DEBUG_ALL = False
 
-#convert all sizes to points
-PAPER_SIZES = [(s, x * MM_2_POINT, y * MM_2_POINT) for s, x, y in  (
-    ("A5", 148, 210),
-    #("B5", 176, 250),
-    ("A4", 210, 297),
-    #("B4", 250, 353),
-    ("A3", 297, 420),
-    #("B3", 353, 500),
-    ("A2", 420, 594),
-    #("B2", 500, 707),
-    ("A1", 594, 841),
-    #("B1", 707, 1000),
-    ("A0", 841, 1189),
-    ("B0", 1000, 1414),
-)]
-
 # margins are BASE_MARGIN + PROPORTIONAL_MARGIN * min(width, height)
 BASE_MARGIN = 22
 PROPORTIONAL_MARGIN = 0.04
@@ -335,8 +319,11 @@ BASE_GUTTER = 15
 PROPORTIONAL_GUTTER = 0.011
 
 PAGE_EXTREMA = {
+    #Maximum sizes based on B0 paper.  There was once a good reason
+    #for that, and there is no pressing need to change now (enough for
+    #anyone, etc).
     'page_width':  (1, 1000, MM_2_POINT),
-    'page_height': (1, 1414, MM_2_POINT), #can't be bigger than biggest PAPER_SIZE
+    'page_height': (1, 1414, MM_2_POINT),
     'gutter': (-1000, 1000, MM_2_POINT),
     'top_margin': (0, 1500, MM_2_POINT),
     'side_margin': (0, 1500, MM_2_POINT),
@@ -344,8 +331,6 @@ PAGE_EXTREMA = {
     "columns": (1, 12, 1),
     "column_margin": (0, 1000, MM_2_POINT),
 }
-
-PAGE_NUMBER_SIZE = 11 #XXX this is not used by pdfedit! (ie, it is a guess)
 
 PAGE_SIZE_DATA = {
     'COMICBOOK':      {'pointsize': ((6.625 * 72), (10.25 * 72)), 'class': "lulu"},
@@ -539,7 +524,6 @@ PROGRESS_POINTS = (
     ("generate_pdf", "Generate the main pdf", ('book', 'newspaper', 'web')),
     ("extract_pdf_outline", "Find page numbers", ('book',)),
     ("reshape_pdf", "Cut pages to size", ('book', 'newspaper',)),
-    #('make_body_pdf', "Generate the main pdf", ('book', 'newspaper', 'web')),
     ("make_contents", "Calculate Table of Contents", ('book',)),
     ("make_preamble_pdf", "Generate preamble pdf", ('book',)),
     ('make_end_matter_pdf', "Generate end matter pdf", ('book',)),

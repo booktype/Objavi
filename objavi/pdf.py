@@ -60,14 +60,12 @@ class PageSettings(object):
         self.column_margin = kwargs.get('column_margin',
                                         default_margin * 2 / (5.0 + self.columns))
 
-        self.number_bottom = self.bottom_margin - 0.6 * config.PAGE_NUMBER_SIZE
-        self.number_margin = self.side_margin
 
         # calculate margins in mm for browsers
         self.margins = []
         for m, clip in ((self.top_margin, 0),
                         (self.side_margin, 0.5 * self.gutter),
-                        (self.bottom_margin, 0.5 * config.PAGE_NUMBER_SIZE),
+                        (self.bottom_margin, 0),
                         (self.side_margin, 0.5 * self.gutter),
                         ):
             self.margins.append((m + clip) * POINT_2_MM)
