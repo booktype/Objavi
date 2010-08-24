@@ -103,7 +103,7 @@ def guess_text_dir(server, book):
     if dir not in ('LTR', 'RTL'):
         log("server %s, book %s: no specified dir (%s)" %(server, book, dir))
         lang = guess_lang(server, book)
-        dir = config.LANGUAGE_DIR.get(lang, 'LTR')
+        dir = config.LANGUAGE_DIR.get(lang, config.DEFAULT_DIR)
     log("server %s, book %s: found dir %s" %(server, book, dir))
     return dir
 
@@ -112,7 +112,7 @@ def guess_page_number_style(lang, dir):
         return lang
     elif dir in config.BOILERPLATE_HTML:
         return dir
-    return 'LTR'
+    return config.DEFAULT_DIR
 
 
 

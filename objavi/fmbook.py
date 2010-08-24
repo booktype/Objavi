@@ -662,7 +662,7 @@ class Book(object):
         #'rightsholders': []
         #'url': ''}
         if self.dir is None:
-            self.dir = 'LTR'
+            self.dir = config.DEFAULT_DIR
         doc = lxml.html.document_fromstring('<html dir="%s"><body dir="%s"></body></html>'
                                             % (self.dir, self.dir))
         tocmap = filename_toc_map(self.toc)

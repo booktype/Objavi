@@ -107,6 +107,8 @@ ZIP_URLS = {
     'Archive': 'http://%(HTTP_HOST)s/espri.cgi?mode=zip&book=%(book)s',
 }
 
+DEFAULT_DIR = 'LTR'
+
 DEFAULT_SERVER = 'en.flossmanuals.net'
 DEFAULT_BOOKI_SERVER = 'www.booki.cc'
 DEFAULT_SIZE = 'COMICBOOK'
@@ -578,6 +580,9 @@ BOILERPLATE_HTML = { #(footer, header)
     'none': (None, None),
 }
 
+#default to western-arabic in default text dir
+DEFAULT_BOILERPLATE_HTML = BOILERPLATE_HTML[DEFAULT_DIR]
+
 #offset to the zero from ascii zero. 1-9 are added to this.
 LOCALISED_DIGITS = {
     'fa': 0x6f0 - 48,
@@ -589,7 +594,6 @@ LOCALISED_DIGITS = {
 PAGE_NUMBER_OPTIONS = BOILERPLATE_HTML.keys() + ['auto']
 DEFAULT_PAGE_NUMBER_OPTION = 'auto'
 
-DEFAULT_BOILERPLATE_HTML = BOILERPLATE_HTML['LTR']
 
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))
