@@ -167,6 +167,8 @@ def mode_form(args):
         'font_list': listify(font_list),
         'default_license' : config.DEFAULT_LICENSE,
         'licenses' : optionise(config.LICENSES, default=config.DEFAULT_LICENSE),
+        'page_numbers' : optionise(config.PAGE_NUMBER_OPTIONS,
+                                   default=config.DEFAULT_PAGE_NUMBER_OPTION),
         'yes': 'yes',
         None: '',
     }
@@ -355,7 +357,9 @@ def mode_book(args):
               page_settings=page_settings,
               watchers=context.get_watchers(), isbn=args.get('isbn'),
               license=args.get('license'), title=args.get('title'),
-              max_age=float(args.get('max-age', -1))) as book:
+              max_age=float(args.get('max-age', -1)),
+              page_number_style=args.get('page-numbers'),
+              ) as book:
 
         book.spawn_x()
 
@@ -387,7 +391,9 @@ def mode_openoffice(args):
     with Book(context.bookid, context.server, context.bookname,
               watchers=context.get_watchers(), isbn=args.get('isbn'),
               license=args.get('license'), title=args.get('title'),
-              max_age=float(args.get('max-age', -1))) as book:
+              max_age=float(args.get('max-age', -1)),
+              page_number_style=args.get('page-numbers'),
+              ) as book:
 
         book.spawn_x()
         book.load_book()
@@ -403,7 +409,9 @@ def mode_epub(args):
 
     with Book(context.bookid, context.server, context.bookname,
               watchers=context.get_watchers(), title=args.get('title'),
-              max_age=float(args.get('max-age', -1))) as book:
+              max_age=float(args.get('max-age', -1)),
+              page_number_style=args.get('page-numbers'),
+              ) as book:
 
         book.make_epub(use_cache=config.USE_CACHED_IMAGES)
         context.finish(book)
@@ -415,7 +423,9 @@ def mode_bookizip(args):
 
     with Book(context.bookid, context.server, context.bookname,
               watchers=context.get_watchers(), title=args.get('title'),
-              max_age=float(args.get('max-age', -1))) as book:
+              max_age=float(args.get('max-age', -1)),
+              page_number_style=args.get('page-numbers'),
+              ) as book:
         book.publish_bookizip()
         context.finish(book)
 

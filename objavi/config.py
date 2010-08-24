@@ -498,7 +498,7 @@ FORM_INPUTS = (
     ("booki-group", "Booki group", "input[type=text]", None, "advanced", "Pretend the book belongs to this Booki group"),
     ("booki-user", "Booki user", "input[type=text]", None, "advanced", "Pretend the book belongs to this Booki user"),
     #("destination", "Use cached data", "input[type=text]", None, "advanced", "(younger than this many minutes)."),
-    ("page-numbers", "Page numbering style", "select", None, "advanced", '"en" for latin-arabic numbers'),
+    ("page-numbers", "Page numbering style", "select", "page_numbers", "advanced", 'if in doubt, choose "auto"'),
 )
 
 FORM_ELEMENT_TYPES = {
@@ -586,6 +586,8 @@ LOCALISED_DIGITS = {
     'my': 0x1040 - 48,
 }
 
+PAGE_NUMBER_OPTIONS = BOILERPLATE_HTML.keys() + ['auto']
+DEFAULT_PAGE_NUMBER_OPTION = 'auto'
 
 DEFAULT_BOILERPLATE_HTML = BOILERPLATE_HTML['LTR']
 

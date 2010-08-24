@@ -166,7 +166,7 @@ class Book(object):
     def __init__(self, book, server, bookname,
                  page_settings=None, watchers=None, isbn=None,
                  license=config.DEFAULT_LICENSE, title=None,
-                 max_age=0):
+                 max_age=0, page_number_style=None):
         log("*** Starting new book %s ***" % bookname)
         self.watchers = set()
         if watchers is not None:
@@ -218,7 +218,10 @@ class Book(object):
         if not self.dir:
             self.dir = guess_text_dir(server, book)
 
-        self.page_number_style = guess_page_number_style(self.lang, self.dir)
+        if page_number_style is not None:
+            self.page_number_style = page_number_style
+        else:
+            self.page_number_style = guess_page_number_style(self.lang, self.dir)
 
         #Patch in the extra metadata. (lang and dir may be set from config)
         #these should be read from zip -- so should go into zip?
