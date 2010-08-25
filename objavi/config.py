@@ -471,16 +471,16 @@ FORM_INPUTS = (
     ("toc_header", "Table of Contents header", "input[type=text]", None, "advanced", ""),
 
     ("booksize", "Page size", "select", "size_options", "advanced", '(Size compatibility: <span class="lulu">Lulu</span>, <span class="newspaper">newspapers</span>, <span class="iso">ISO standards</span>)'),
-    ("page_width", "Page width", "input[type=text]", None, "advanced booksize numeric-field", ""),
-    ("page_height", "Page height", "input[type=text]", None, "advanced booksize numeric-field", ""),
+    ("page_width", "Page width", "input[type=text]", None, "advanced booksize numeric-field", "mm"),
+    ("page_height", "Page height", "input[type=text]", None, "advanced booksize numeric-field", "mm"),
 
-    ("top_margin", "Top margin", "input[type=text]", None, "advanced margins numeric-field", ""),
-    ("side_margin", "Side margin", "input[type=text]", None, "advanced margins numeric-field", ""),
-    ("bottom_margin", "Bottom margin", "input[type=text]", None, "advanced margins numeric-field", ""),
-    ("gutter", "Gutter", "input[type=text]", None, "advanced margins numeric-field", ""),
+    ("top_margin", "Top margin", "input[type=text]", None, "advanced margins numeric-field", "mm"),
+    ("side_margin", "Side margin", "input[type=text]", None, "advanced margins numeric-field", "mm"),
+    ("bottom_margin", "Bottom margin", "input[type=text]", None, "advanced margins numeric-field", "mm"),
+    ("gutter", "Gutter", "input[type=text]", None, "advanced margins numeric-field", "mm"),
 
     ("columns", "Columns", "input[type=text]", None, "advanced columns numeric-field", ""),
-    ("column_margin", "Column margin", "input[type=text]", None, "advanced columns numeric-field", ""),
+    ("column_margin", "Column margin", "input[type=text]", None, "advanced columns numeric-field", "mm"),
 
     ("grey_scale", "Grey-scale", "input[type=checkbox]", 'yes', "advanced", "(for black and white printing)"),
 
