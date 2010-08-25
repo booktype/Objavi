@@ -217,6 +217,8 @@ def output_and_exit(f, content_type="text/html; charset=utf-8"):
     immediately after."""
     def output(*args, **kwargs):
         content = f(*args, **kwargs)
+        if isinstance(content, unicode): #XXX assumes content_type charset is not changed
+            content = content.encode('UTF-8')
         print "Content-type: %s" % content_type
         print "Content-length: %s" % len(content)
         print
