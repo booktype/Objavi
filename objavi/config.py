@@ -463,16 +463,16 @@ FORM_INPUTS = (
     # input, name, input type, contents key, CSS classes, extra text
     ("server", "FLOSS Manuals server", "select", "server_options", "", ""),
     ("book", "Manual", "select", "book_options", "", ""),
-    ("title", "Book title", "input[type=text]", None, "", ""),
+    ("title", "Book title", "input[type=text]", None, "", "leave blank for default"),
     ("mode", "Document type", "select", "pdf_types", "openoffice", ""),
 
-    ("license", "License", "select", "licenses", "advanced", ""),
-    ("isbn", "ISBN", "input[type=text]", None, "advanced", "(13 digits)"),
-    ("toc_header", "Table of Contents header", "input[type=text]", None, "advanced", ""),
+    ("booksize", "Page size", "select", "size_options", "", '(Size compatibility: <span class="lulu">Lulu</span>, <span class="newspaper">newspapers</span>, <span class="iso">ISO standards</span>)'),
+    ("page_width", "Page width", "input[type=text]", None, "booksize numeric-field", "mm"),
+    ("page_height", "Page height", "input[type=text]", None, "booksize numeric-field", "mm"),
 
-    ("booksize", "Page size", "select", "size_options", "advanced", '(Size compatibility: <span class="lulu">Lulu</span>, <span class="newspaper">newspapers</span>, <span class="iso">ISO standards</span>)'),
-    ("page_width", "Page width", "input[type=text]", None, "advanced booksize numeric-field", "mm"),
-    ("page_height", "Page height", "input[type=text]", None, "advanced booksize numeric-field", "mm"),
+    ("license", "License", "select", "licenses", "advanced", ""),
+    ("toc_header", "Table of Contents header", "input[type=text]", None, "advanced", ""),
+    ("isbn", "ISBN", "input[type=text]", None, "advanced", "(13 digits)"),
 
     ("top_margin", "Top margin", "input[type=text]", None, "advanced margins numeric-field", "mm"),
     ("side_margin", "Side margin", "input[type=text]", None, "advanced margins numeric-field", "mm"),
@@ -492,14 +492,14 @@ FORM_INPUTS = (
 
     ("rotate", "Rotate pages for binding", "input[type=checkbox]", 'yes', "advanced", "(for RTL books on LTR printing presses, and vice versa)."),
 
-    ("html_template", "HTML Template", "textarea", None, "advanced ", ""),
+    ("html_template", "HTML Template", "textarea", None, "advanced html-template", 'for "templated html" output'),
 
     #("engine", "Layout engine", "select", "engines", "advanced", ""),
     #("header", "Header Text", "input[type=text]", None, "advanced", ""),
     ("max-age", "Use cached data", "input[type=text]", None, "advanced numeric-field", "(younger than this many minutes)."),
-    ("booki-group", "Booki group", "input[type=text]", None, "advanced", "Pretend the book belongs to this Booki group"),
-    ("booki-user", "Booki user", "input[type=text]", None, "advanced", "Pretend the book belongs to this Booki user"),
-    #("destination", "Use cached data", "input[type=text]", None, "advanced", "(younger than this many minutes)."),
+    ("booki-group", "Booki group", "input[type=text]", None, "advanced booki", "Pretend the book belongs to this Booki group"),
+    ("booki-user", "Booki user", "input[type=text]", None, "advanced booki", "Pretend the book belongs to this Booki user"),
+    #("destination", "Use cached data", "input[type=text]", None, "advanced", ""),
     ("page-numbers", "Page numbering style", "select", "page_numbers", "advanced", 'if in doubt, choose "auto"'),
 )
 

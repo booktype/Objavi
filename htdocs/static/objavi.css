@@ -177,16 +177,16 @@ div.form-item {
 }
 
 #isbn_div {
-  background: #fff;
+  background: #eee;
 }
 
 
 #booksize_div{
-  background: #eee;
+  background: #fff;
 }
 
 .booksize {
-  background: #eee;
+  background: #fff;
 }
 
 .margins {
@@ -194,6 +194,14 @@ div.form-item {
 }
 
 .columns {
+  background: #eee;
+}
+
+.booki {
+  background: #eee;
+}
+
+.html-template {
   background: #eee;
 }
 
