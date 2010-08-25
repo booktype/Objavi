@@ -101,10 +101,10 @@ function toggle_custom_size(){
 }
 
 function onload(){
-    $(".advanced").addClass("gone");
-
-    if ($("#toggle-advanced").length == 0){
-        $("#license_div").after('<button id="toggle-advanced">Show advanced options</button>');
+    //add the "advanced options" toggle buton before first advanced option.
+    while ($("#toggle-advanced").length == 0){
+        $("div.advanced").eq(0).before(
+            '<button id="toggle-advanced">Show advanced options</button>');
         $("#toggle-advanced").click(toggle_advanced);
     }
 
@@ -130,9 +130,17 @@ function onload(){
     $("#mode").change(mode_switch);
     $("#css-control").change(css_mode_switch);
     css_mode_switch();
+
+    //make sure the advanced bits are still hidden after css-controls are added
+    $(".advanced").addClass("gone");
+
     //load the booklist for the selected server
     load_booklist();
 }
 
+/* hide advanced options before page is loaded, rather than after. */
+$(".advanced").load(function(event){
+                        event.target.addClass("gone");
+                    });
 
 $(onload);
