@@ -525,7 +525,7 @@ PROGRESS_POINTS = (
     ("make_oo_doc", "Make the OpenOffice document", ('openoffice',)),
     ("generate_pdf", "Generate the main pdf", ('book', 'newspaper', 'web')),
     ("extract_pdf_outline", "Find page numbers", ('book',)),
-    ("reshape_pdf", "Cut pages to size", ('book', 'newspaper',)),
+    ("reshape_pdf", "Add gutters", ('book', 'newspaper',)),
     ("make_contents", "Calculate Table of Contents", ('book',)),
     ("make_preamble_pdf", "Generate preamble pdf", ('book',)),
     ('make_end_matter_pdf', "Generate end matter pdf", ('book',)),
