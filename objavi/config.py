@@ -157,7 +157,7 @@ SERVER_DEFAULTS = {
         'lang': 'en',
         'dir': 'LTR',
         'toc-encoding': None,
-        'display': SHOW_BOOKI_SERVERS,
+        'display': True,
         'interface': 'Booki',
         'toc_header': 'Table of Contents',
         },
