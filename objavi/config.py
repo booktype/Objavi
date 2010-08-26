@@ -338,13 +338,16 @@ PAGE_SIZE_DATA = {
     'COMICBOOK':      {'pointsize': ((6.625 * 72), (10.25 * 72)), 'class': "lulu"},
     "POCKET":         {'pointsize': (4.25 * 72, 6.875 * 72), 'class': "lulu"},
 
-    "USLETTER":       {'pointsize': (8.5 * 72, 11 * 72), 'class': "lulu"},
-    "USTRADE":        {'pointsize': (6 * 72, 9 * 72), 'class': "lulu"},
-    "LANDSCAPE9x7":   {'pointsize': (9 * 72, 7 * 72), 'class': "lulu"},
+    "USLETTER":       {'pointsize': (8.5 * 72, 11 * 72), 'class': "lulu us"},
+    "USTRADE6x9":     {'pointsize': (6 * 72, 9 * 72), 'class': "lulu us"},
+    "LANDSCAPE9x7":   {'pointsize': (9 * 72, 7 * 72), 'class': "lulu us"},
     "SQUARE7.5":      {'pointsize': (7.5 * 72, 7.5 * 72), 'class': "lulu"},
     "ROYAL":          {'pointsize': (6.139 * 72, 9.21 * 72), 'class': "lulu"},
     "CROWNQUARTO":    {'pointsize': (7.444 * 72, 9.681 * 72), 'class': "lulu"},
     "SQUARE8.5":      {'pointsize': (8.5 * 72, 8.5 * 72), 'class': "lulu"},
+    "US5.5x8.5":      {'pointsize': (5.5 * 72, 8.5 * 72), 'class': "us"},
+    "US5x8":          {'pointsize': (5 * 72, 8 * 72), 'class': "us"},
+    "US7x10":         {'pointsize': (7 * 72, 10 * 72), 'class': "us"},
 
     "A5":             {'pointsize': (148 * MM_2_POINT, 210 * MM_2_POINT), 'class': "lulu iso"},
     "A4":             {'pointsize': (210 * MM_2_POINT, 297 * MM_2_POINT), 'class': "lulu iso"},
@@ -358,7 +361,7 @@ PAGE_SIZE_DATA = {
 
     "UK Tabloid":     {'pointsize': (11 * INCH_2_POINT, 17 * INCH_2_POINT), 'class': 'newspaper'},
     "UK Broadsheet":  {'pointsize': (18 * INCH_2_POINT, 24 * INCH_2_POINT), 'class': 'newspaper'},
-    "US Broadsheet":  {'pointsize': (15 * INCH_2_POINT, 22.75 * INCH_2_POINT), 'class': 'newspaper'},
+    "US Broadsheet":  {'pointsize': (15 * INCH_2_POINT, 22.75 * INCH_2_POINT), 'class': 'newspaper us'},
     "Berliner"     :  {'pointsize': (315 * MM_2_POINT, 470 * MM_2_POINT), 'class': 'newspaper'},
     "Foolscap (F4)":  {'pointsize': (210 * MM_2_POINT, 330 * MM_2_POINT)},
 
