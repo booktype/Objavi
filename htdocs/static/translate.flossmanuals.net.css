@@ -136,3 +136,30 @@ h1, h2, h3, h4, h5, h6{
   display: none;
 }
 
+/* page number styles */
+
+#right-footer {
+  text-align: right;
+}
+
+#left-footer {
+  text-align: left;
+}
+
+/* examples:
+
+#right-footer .page:before{
+  content: " FLOSS Manuals ";
+  font-size: 85%;
+}
+
+#left-footer .page:after{
+  content: " FLOSS Manuals ";
+  font-size: 85%;
+}
+
+.page-footer {
+  color: red;
+}
+*/
+
