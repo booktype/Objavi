@@ -19,7 +19,7 @@ function replace(){
     }
     if (args["page"]){
         var odd = parseInt(args["page"]) & 1;
-        document.getElementById(odd ? "right-footer" : "left-footer").style.display = "none";
+        document.getElementById(odd ? "left-footer" : "right-footer").style.display = "none";
     }
 }
 
