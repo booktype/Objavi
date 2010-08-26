@@ -71,6 +71,8 @@ function mode_switch(){
 
 function load_booklist(){
     var server = $("#server").val();
+    //if it is still a text input, replace with a select
+    $("input#book").replaceWith('<select id="book" name="book"></select>');
     var w = $("#book");
     var book = w.val();
     w.attr('disabled', 'disabled');

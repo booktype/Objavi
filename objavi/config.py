@@ -466,7 +466,7 @@ DEFAULT_CGI_DESTINATION = 'html'
 FORM_INPUTS = (
     # input, name, input type, contents key, CSS classes, extra text
     ("server", "FLOSS Manuals server", "select", "server_options", "", ""),
-    ("book", "Manual", "select", "book_options", "", ""),
+    ("book", "Manual", "input[type=text]", "book_options", "", ""),
     ("title", "Book title", "input[type=text]", None, "", "leave blank for default"),
     ("mode", "Document type", "select", "pdf_types", "openoffice", ""),
 
