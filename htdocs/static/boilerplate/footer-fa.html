@@ -37,22 +37,22 @@ function replace(){
     }
     if (args["page"]){
         var odd = parseInt(args["page"]) & 1;
-        document.getElementById(odd ? "even-footer" : "odd-footer").style.display = "none";
+        document.getElementById(odd ? "left-footer" : "right-footer").style.display = "none";
     }
 }
 
 </script>
 
 <style>
-#odd-footer {
-  text-align: left;
-}
-
-#even-footer {
+#right-footer {
   text-align: right;
 }
 
-#odd-footer div, #even-footer div {
+#left-footer {
+  text-align: left;
+}
+
+#right-footer div, #left-footer div {
   display: inline-block;
 }
 </style>
@@ -65,11 +65,11 @@ function replace(){
 <!--'frompage', 'topage', 'page', 'webpage', 'section', 'subsection', 'subsubsection'
   'args' -->
 
-<div id="odd-footer">
+<div class="page-footer" id="right-footer">
 <div class="page"></div>
 </div>
 
-<div id="even-footer">
+<div class="page-footer" id="left-footer">
 <div class="page"></div>
 </div>
 
