@@ -55,8 +55,12 @@ input[type=text] {
   width: 400px;
 }
 
-select, option {
-  max-width: 75%;
+select {
+  max-width: 750px;
+}
+
+option {
+  max-width: 750px;
 }
 
 .gone {
