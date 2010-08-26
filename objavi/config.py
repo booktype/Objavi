@@ -342,8 +342,8 @@ PAGE_SIZE_DATA = {
     "USTRADE6x9":     {'pointsize': (6 * 72, 9 * 72), 'class': "lulu us"},
     "LANDSCAPE9x7":   {'pointsize': (9 * 72, 7 * 72), 'class': "lulu us"},
     "SQUARE7.5":      {'pointsize': (7.5 * 72, 7.5 * 72), 'class': "lulu"},
-    "ROYAL":          {'pointsize': (6.139 * 72, 9.21 * 72), 'class': "lulu"},
-    "CROWNQUARTO":    {'pointsize': (7.444 * 72, 9.681 * 72), 'class': "lulu"},
+    "ROYAL":          {'pointsize': (6.139 * 72, 9.21 * 72), 'class': "lulu us"},
+    "CROWNQUARTO":    {'pointsize': (7.444 * 72, 9.681 * 72), 'class': "lulu us"},
     "SQUARE8.5":      {'pointsize': (8.5 * 72, 8.5 * 72), 'class': "lulu"},
     "US5.5x8.5":      {'pointsize': (5.5 * 72, 8.5 * 72), 'class': "us"},
     "US5x8":          {'pointsize': (5 * 72, 8 * 72), 'class': "us"},
@@ -469,7 +469,7 @@ FORM_INPUTS = (
     ("title", "Book title", "input[type=text]", None, "", "leave blank for default"),
     ("mode", "Document type", "select", "pdf_types", "openoffice", ""),
 
-    ("booksize", "Page size", "select", "size_options", "", '(Size compatibility: <span class="lulu">Lulu</span>, <span class="newspaper">newspapers</span>, <span class="iso">ISO standards</span>)'),
+    ("booksize", "Page size", "select", "size_options", "", '(Size compatibility: <span class="lulu">Lulu</span>, <span class="newspaper">newspapers</span>, <span class="iso">ISO standards</span>, <span class="us">common in USA</span>)'),
     ("page_width", "Page width", "input[type=text]", None, "booksize numeric-field", "mm"),
     ("page_height", "Page height", "input[type=text]", None, "booksize numeric-field", "mm"),
 
