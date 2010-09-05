@@ -81,7 +81,7 @@ p, ul, ol {
 }
 
 pre, code, tt {
-  font-family: "Courier", "Courier New", monospace;
+  font-family: "Inconsolata", "Courier New", monospace;
   font-size: 0.8em;
 }
 
