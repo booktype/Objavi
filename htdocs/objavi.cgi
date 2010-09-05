@@ -101,7 +101,7 @@ def get_page_settings(args):
             continue
         min_val, max_val, multiplier = extrema
         if v < min_val or v > max_val:
-            log('rejecting %s: outside %s' % (v,) + extrema)
+            log('rejecting %s: outside %s' % (v, extrema))
         else:
             log('found %s=%s' % (k, v))
             settings[k] = v * multiplier #convert to points in many cases
