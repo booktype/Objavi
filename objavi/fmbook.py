@@ -796,14 +796,16 @@ class Book(object):
         Also add initial numbers to chapters.
         """
         chapter = 1
-        section = None
+        section_n = 1
         #log(self.toc)
         localiser = get_number_localiser(self.page_number_style)
         for t in self.toc:
             #only top level sections get a subsection page,
             #and only if they have children.
             if t.get('children'):
-                section = self.tree.makeelement('div', Class="objavi-subsection")
+                ID = "section-%d" % section_n
+                section_n += 1
+                section = self.tree.makeelement('div', Class="objavi-subsection", id=ID)
                 heading = etree.SubElement(section, 'div', Class="objavi-subsection-heading")
                 heading.text = t['title']
                 for child in t['children']:
