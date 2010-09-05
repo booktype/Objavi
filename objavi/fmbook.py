@@ -822,6 +822,9 @@ class Book(object):
                     chapter += 1
                 log("#%s is %s" % (t['html_id'], self.tree.cssselect('#'+ t['html_id'])))
                 location = self.tree.cssselect('#'+ t['html_id'])[0]
+                container = location.getparent()
+                if container.tag == 'div' and container[0] is location:
+                    location = container
                 location.addprevious(section)
 
 
