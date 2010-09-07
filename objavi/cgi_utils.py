@@ -34,6 +34,7 @@ def parse_args(arg_validators):
     query = cgi.FieldStorage()
     options, args = gnu_getopt(sys.argv[1:], '', [x + '=' for x in arg_validators])
     options = dict(options)
+    log("Starting request for %s", os.environ.get('REQUEST_URI'))
     log(query, debug='STARTUP')
     data = {}
     for key, validator in arg_validators.items():
@@ -44,8 +45,7 @@ def parse_args(arg_validators):
                 log("argument '%s' is not valid ('%s')" % (key, value))
                 continue
             data[key] = value
-
-    log(data, debug='STARTUP')
+    log("effective query is:" data)
     return data
 
 def super_bleach(dirty_name):
