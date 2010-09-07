@@ -335,45 +335,56 @@ PAGE_EXTREMA = {
 }
 
 PAGE_SIZE_DATA = {
-    'COMICBOOK':      {'pointsize': ((6.625 * 72), (10.25 * 72)), 'class': "lulu"},
-    "POCKET":         {'pointsize': (4.25 * 72, 6.875 * 72), 'class': "lulu"},
+    'COMICBOOK':      {'pointsize': ((6.625 * 72), (10.25 * 72)), 'class': "lulu", 'display': True},
+    "POCKET":         {'pointsize': (4.25 * 72, 6.875 * 72), 'class': "lulu", 'display': True},
 
-    "USLETTER":       {'pointsize': (8.5 * 72, 11 * 72), 'class': "lulu us"},
-    "USTRADE6x9":     {'pointsize': (6 * 72, 9 * 72), 'class': "lulu us"},
-    "LANDSCAPE9x7":   {'pointsize': (9 * 72, 7 * 72), 'class': "lulu us"},
-    "SQUARE7.5":      {'pointsize': (7.5 * 72, 7.5 * 72), 'class': "lulu"},
-    "ROYAL":          {'pointsize': (6.139 * 72, 9.21 * 72), 'class': "lulu us"},
-    "CROWNQUARTO":    {'pointsize': (7.444 * 72, 9.681 * 72), 'class': "lulu us"},
-    "SQUARE8.5":      {'pointsize': (8.5 * 72, 8.5 * 72), 'class': "lulu"},
-    "US5.5x8.5":      {'pointsize': (5.5 * 72, 8.5 * 72), 'class': "us"},
-    "US5x8":          {'pointsize': (5 * 72, 8 * 72), 'class': "us"},
-    "US7x10":         {'pointsize': (7 * 72, 10 * 72), 'class': "us"},
+    "USLETTER":       {'pointsize': (8.5 * 72, 11 * 72), 'class': "lulu us", 'display': True},
+    "USTRADE6x9":     {'pointsize': (6 * 72, 9 * 72), 'class': "lulu us", 'display': True},
+    "USTRADE":        {'pointsize': (6 * 72, 9 * 72), 'class': "lulu us", 'display': False}, #alias for booki
+    "LANDSCAPE9x7":   {'pointsize': (9 * 72, 7 * 72), 'class': "lulu us", 'display': True},
+    "SQUARE7.5":      {'pointsize': (7.5 * 72, 7.5 * 72), 'class': "lulu", 'display': True},
+    "ROYAL":          {'pointsize': (6.139 * 72, 9.21 * 72), 'class': "lulu us", 'display': True},
+    "CROWNQUARTO":    {'pointsize': (7.444 * 72, 9.681 * 72), 'class': "lulu us", 'display': True},
+    "SQUARE8.5":      {'pointsize': (8.5 * 72, 8.5 * 72), 'class': "lulu", 'display': True},
+    "US5.5x8.5":      {'pointsize': (5.5 * 72, 8.5 * 72), 'class': "us", 'display': True},
+    "US5x8":          {'pointsize': (5 * 72, 8 * 72), 'class': "us", 'display': True},
+    "US7x10":         {'pointsize': (7 * 72, 10 * 72), 'class': "us", 'display': True},
 
-    "A5":             {'pointsize': (148 * MM_2_POINT, 210 * MM_2_POINT), 'class': "lulu iso"},
-    "A4":             {'pointsize': (210 * MM_2_POINT, 297 * MM_2_POINT), 'class': "lulu iso"},
-    "A3 (NZ Tabloid)": {'pointsize': (297 * MM_2_POINT, 420 * MM_2_POINT), 'class': 'iso newspaper'},
-    "A2 (NZ Broadsheet)": {'pointsize': (420 * MM_2_POINT, 594 * MM_2_POINT), 'class': 'iso newspaper'},
-    "A1":             {'pointsize': (594 * MM_2_POINT, 841 * MM_2_POINT), 'class': 'iso'},
-    "B5":             {'pointsize': (176 * MM_2_POINT, 250 * MM_2_POINT), 'class': 'iso'},
-    "B4":             {'pointsize': (250 * MM_2_POINT, 353 * MM_2_POINT), 'class': 'iso'},
-    "B3":             {'pointsize': (353 * MM_2_POINT, 500 * MM_2_POINT), 'class': 'iso'},
-    "B2":             {'pointsize': (500 * MM_2_POINT, 707 * MM_2_POINT), 'class': 'iso'},
-    "B1":             {'pointsize': (707 * MM_2_POINT, 1000 * MM_2_POINT), 'class': 'iso'},
+    "A5":             {'pointsize': (148 * MM_2_POINT, 210 * MM_2_POINT), 'class': "lulu iso",
+                       'display': True},
+    "A4":             {'pointsize': (210 * MM_2_POINT, 297 * MM_2_POINT), 'class': "lulu iso",
+                       'display': True},
+    "A3 (NZ Tabloid)": {'pointsize': (297 * MM_2_POINT, 420 * MM_2_POINT), 'class': 'iso newspaper',
+                        'display': True},
+    "A2 (NZ Broadsheet)": {'pointsize': (420 * MM_2_POINT, 594 * MM_2_POINT), 'class': 'iso newspaper',
+                           'display': True},
+    "A1":             {'pointsize': (594 * MM_2_POINT, 841 * MM_2_POINT), 'class': 'iso', 'display': True},
+    "B5":             {'pointsize': (176 * MM_2_POINT, 250 * MM_2_POINT), 'class': 'iso', 'display': True},
+    "B4":             {'pointsize': (250 * MM_2_POINT, 353 * MM_2_POINT), 'class': 'iso', 'display': True},
+    "B3":             {'pointsize': (353 * MM_2_POINT, 500 * MM_2_POINT), 'class': 'iso', 'display': True},
+    "B2":             {'pointsize': (500 * MM_2_POINT, 707 * MM_2_POINT), 'class': 'iso', 'display': True},
+    "B1":             {'pointsize': (707 * MM_2_POINT, 1000 * MM_2_POINT), 'class': 'iso', 'display': True},
 
-    "UK Tabloid":     {'pointsize': (11 * INCH_2_POINT, 17 * INCH_2_POINT), 'class': 'newspaper'},
-    "UK Broadsheet":  {'pointsize': (18 * INCH_2_POINT, 24 * INCH_2_POINT), 'class': 'newspaper'},
-    "US Broadsheet":  {'pointsize': (15 * INCH_2_POINT, 22.75 * INCH_2_POINT), 'class': 'newspaper us'},
-    "Berliner"     :  {'pointsize': (315 * MM_2_POINT, 470 * MM_2_POINT), 'class': 'newspaper'},
-    "Foolscap (F4)":  {'pointsize': (210 * MM_2_POINT, 330 * MM_2_POINT)},
+    "UK Tabloid":     {'pointsize': (11 * INCH_2_POINT, 17 * INCH_2_POINT), 'class': 'newspaper',
+                       'display': True},
+    "UK Broadsheet":  {'pointsize': (18 * INCH_2_POINT, 24 * INCH_2_POINT), 'class': 'newspaper',
+                       'display': True},
+    "US Broadsheet":  {'pointsize': (15 * INCH_2_POINT, 22.75 * INCH_2_POINT), 'class': 'newspaper us',
+                       'display': True},
+    "Berliner"     :  {'pointsize': (315 * MM_2_POINT, 470 * MM_2_POINT), 'class': 'newspaper',
+                       'display': True},
+    "Foolscap (F4)":  {'pointsize': (210 * MM_2_POINT, 330 * MM_2_POINT), 'display': True},
 
-    "Oamaru Broadsheet":{'pointsize': (382 * MM_2_POINT, 540 * MM_2_POINT), 'class': 'newspaper'},
-    "Oamaru Tabloid": {'pointsize': (265 * MM_2_POINT, 380 * MM_2_POINT), 'class': 'newspaper'},
+    "Oamaru Broadsheet":{'pointsize': (382 * MM_2_POINT, 540 * MM_2_POINT), 'class': 'newspaper',
+                         'display': True},
+    "Oamaru Tabloid": {'pointsize': (265 * MM_2_POINT, 380 * MM_2_POINT), 'class': 'newspaper',
+                       'display': True},
 
     #ODT printable 380x560
     #Aucklander 360x260
     #Dominion 376x540
 
-    "custom":         {'class': "custom"},
+    "custom":         {'class': "custom", 'display': True},
 }
 
 MIN_COLUMN_WIDTH = (110 * MM_2_POINT)

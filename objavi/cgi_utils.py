@@ -74,7 +74,7 @@ def get_size_list():
         return (0, name, klass, name) # presumably 'custom'
 
     return [x[1:] for x in sorted(calc_size(k, v.get('pointsize'), v.get('class', ''))
-                                  for k, v in config.PAGE_SIZE_DATA.iteritems())
+                                  for k, v in config.PAGE_SIZE_DATA.iteritems() if v.get('display'))
             ]
 
 def url2path(url):
