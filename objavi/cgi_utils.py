@@ -45,7 +45,7 @@ def parse_args(arg_validators):
                 log("argument '%s' is not valid ('%s')" % (key, value))
                 continue
             data[key] = value
-    log("effective query is:" data)
+    log("effective query is:", data)
     return data
 
 def super_bleach(dirty_name):
