@@ -229,7 +229,7 @@ SERVER_DEFAULTS = {
         'css-openoffice': '/static/fr.flossmanuals.net-openoffice.css',
         'lang': 'fr',
         'dir': 'LTR',
-        'toc-encoding': 'iso-8859-1',
+        'toc-encoding': None,
         'display': True,
         'interface': 'TWiki',
         'toc_header': 'Table of Contents',
