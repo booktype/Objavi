@@ -88,6 +88,7 @@ pre, code, tt {
 pre {
   max-width:700px;
   overflow: hidden;
+  white-space: pre-wrap;
 }
 
 img {

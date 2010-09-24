@@ -61,6 +61,7 @@ pre, code, tt {
 pre {
   max-width:640px;
   overflow: hidden;
+  white-space: pre-wrap;
 }
 
 img {

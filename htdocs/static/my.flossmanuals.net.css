@@ -112,6 +112,7 @@ td.section {
 pre {
   max-width:98%;
   overflow: hidden;
+  white-space: pre-wrap;
 }
 
 img {
