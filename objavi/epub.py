@@ -89,6 +89,7 @@ class Epub(object):
           <other HTML files for the remaining chapters>
 
     """
+    source_id = None
     def load(self, src):
         # Zip is a variable format, and zipfile is limited.  If that
         # becomes a problem we will have to ise an `unzip` subprocess,
@@ -105,6 +106,9 @@ class Epub(object):
         self.names = self.zip.namelist()
         self.info = self.zip.infolist()
         self.origin = src
+
+    def register_source_id(self, src_id):
+        self.source_id = src_id
 
     def gettree(self, name=None, id=None, parse=etree.parse):
         """get an XML tree from the given zip filename or manifest ID"""
@@ -295,6 +299,9 @@ class Epub(object):
         primary_id = self.metadata[DC].get('identifier', [[None]])[0][0]
         if primary_id is None:
             primary_id = "%s-%s" % (zfn, time.strftime('%Y.%m.%d-%H.%M.%S'))
+            src_id = None
+        else:
+            src_id = self.source_id
         log(primary_id)
 
         spine = []
@@ -383,6 +390,14 @@ class Epub(object):
             metadata[FM]['book'][''] = [''.join(x for x in primary_id if x.isalnum())]
         if not metadata[FM]['server']:
             metadata[FM]['server'][''] = [config.DEFAULT_BOOKI_SERVER]
+        if src_id is not None:
+            #duplicate the main ID as a branded ID for the epub provided
+            #(as dictated by espri.cgi)
+            ids = metadata[DC]['identifier']
+            if ids.get(src_id) is None:
+                ids[src_id] = [primary_id]
+
+
 
         log(metadata)
 

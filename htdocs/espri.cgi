@@ -72,7 +72,7 @@ def async_callback(callback_url, **kwargs):
     os._exit(0)
 
 
-def espri(epuburl, bookid):
+def espri(epuburl, bookid, src_id=None):
     """Make a bookizip from the epub at <epuburl> and save it as
     <bookid>.zip."""
     log("starting espri", epuburl, bookid)
@@ -81,6 +81,9 @@ def espri(epuburl, bookid):
     f.close()
     e = epub.Epub()
     e.load(s)
+    if src_id is not None:
+        #so that booki knows where the book came from, so e.g. archive.org can find it again
+        e.register_source_id(src_id)
     e.parse_meta()
     e.parse_opf()
     e.parse_ncx()
@@ -91,7 +94,7 @@ def ia_espri(bookid):
     """Import an Internet Archive epub given an archive id"""
     epuburl = IA_EPUB_URL % (bookid, bookid)
     log(epuburl)
-    espri(epuburl, bookid)
+    espri(epuburl, bookid, src_id='archive.org')
     return '%s.zip' % bookid
 
 def inet_espri(epuburl):
@@ -101,7 +104,7 @@ def inet_espri(epuburl):
     if filename.lower().endswith('-epub'):
         filename = filename[:-5]
     bookid = '%s-%s' % (filename, time.strftime('%F_%T'))
-    espri(epuburl, bookid)
+    espri(epuburl, bookid, src_id='URI')
     return '%s.zip' % bookid
 
 
@@ -145,7 +148,7 @@ def wikibooks_espri(wiki_url):
             raise TimeoutError('Wikibooks took too long (over %s seconds)' % WIKIBOOKS_TIMEOUT)
         raise
 
-    espri(epub_url, bookid)
+    espri(epub_url, bookid, src_id='wikibooks')
     return '%s.zip' % bookid
 
 
