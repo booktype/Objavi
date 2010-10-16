@@ -252,7 +252,9 @@ class Context(object):
             content = ''
 
         if self.method == 'sync':
-            print 'Content-type: %s\n\n%s' %(self.mimetype, content)
+            print 'Content-type: %s' % (self.mimetype,)
+            if content:
+                print '\n%s' % (content,)
         else:
             output_blob_and_shut_up(content, self.mimetype)
             log(sys.stdout, sys.stderr, sys.stdin)
