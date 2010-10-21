@@ -72,6 +72,7 @@ ARG_VALIDATORS = {
     "booki-group": is_utf8,
     "booki-user": is_utf8,
     "page-numbers": config.BOILERPLATE_HTML.__contains__,
+    "embed-fonts": u"yes".__eq__,
 }
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
@@ -377,6 +378,10 @@ def mode_book(args):
             book.make_simple_pdf(context.mode)
         if "rotate" in args:
             book.rotate180()
+
+        if args.get('embed-fonts'):
+            log("embedding fonts!")
+            book.embed_fonts()
 
         book.publish_pdf()
         context.finish(book)

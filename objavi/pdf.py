@@ -387,3 +387,26 @@ def parse_outline(pdf, level_threshold, debug_filename=None):
         pass
 
     return contents, page_count
+
+def embed_all_fonts(pdf_file):
+    tmp_file = pdf_file + '.pre-embed.pdf'
+    os.rename(pdf_file, tmp_file)
+    cmd = ['gs', '-q',                  # no messages to stdout
+           '-dSAFER',                   # read-only
+           '-dNOPLATFONTS',             # no platform fonts
+           '-dNOPAUSE',                 # don't prompt user
+           '-dBATCH',                   # ? undocumented
+           '-sDEVICE=pdfwrite',
+           #'-sPAPERSIZE=letter',
+           '-dCompatibilityLevel=1.4',  # pdf v4
+           '-dPDFSETTINGS=/printer',    # "printer optimised" pdf
+           '-dMaxSubsetPct=100',        # Always use a subset font
+           '-dSubsetFonts=false',       # never use a subset font (overrides above)
+           '-dEmbedAllFonts=true',      # As it says
+           #'-sOutputFile=-',           # write to stdout
+           '-sOutputFile=%s' %(pdf_file), # write to file
+           #could also use -dPDFX to make PDF/X3
+           #'-f',                        # ?
+           '--',
+           ] + [tmp_file]
+    run(cmd)

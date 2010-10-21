@@ -475,7 +475,7 @@ DEFAULT_CGI_DESTINATION = 'html'
 
 
 FORM_INPUTS = (
-    # input, name, input type, contents key, CSS classes, extra text
+    # input, name, input type, contents key/input value, CSS classes, extra text
     ("server", "FLOSS Manuals server", "select", "server_options", "", ""),
     ("book", "Manual", "input[type=text]", "book_options", "", ""),
     ("title", "Book title", "input[type=text]", None, "", "leave blank for default"),
@@ -516,6 +516,7 @@ FORM_INPUTS = (
     ("booki-user", "Booki user", "input[type=text]", None, "advanced booki", "Pretend the book belongs to this Booki user"),
     #("destination", "Use cached data", "input[type=text]", None, "advanced", ""),
     ("page-numbers", "Page numbering style", "select", "page_numbers", "advanced", 'if in doubt, choose "auto"'),
+    ("embed-fonts", "Embed all fonts", "input[type=checkbox]", 'yes', "advanced", 'PDFs: force embedding of Adobe fonts (probably unnecessary)'),
 )
 
 FORM_ELEMENT_TYPES = {

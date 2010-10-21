@@ -44,7 +44,8 @@ from lxml import etree
 from objavi import config, epub_utils
 from objavi.book_utils import log, run, make_book_name, guess_lang, guess_text_dir
 from objavi.book_utils import ObjaviError, log_types, guess_page_number_style, get_number_localiser
-from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf, parse_outline, parse_extracted_outline
+from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf
+from objavi.pdf import parse_outline, parse_extracted_outline, embed_all_fonts
 from objavi.epub import add_guts, _find_tag
 from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree, utf8_html_parser
 from objavi.cgi_utils import url2path, path2url, try_to_kill
@@ -633,6 +634,15 @@ class Book(object):
         os.rename(self.pdf_file, unrotated)
         os.rename(rotated, self.pdf_file)
         self.notify_watcher()
+
+    def embed_fonts(self, pdf=None):
+        """Embed default Adobe fonts in the PDF.  Some printers and
+        prepress people like this."""
+        if pdf is None:
+            pdf = self.pdf_file
+        embed_all_fonts(pdf)
+        self.notify_watcher()
+
 
     def publish_pdf(self):
         """Move the finished PDF to its final resting place"""
