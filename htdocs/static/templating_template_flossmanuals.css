@@ -279,3 +279,14 @@ body kbd, body tt, body code {
 p {
   margin-top: 1em;
 }
+
+a.download-link-goes-here {
+  font-weight: bold;
+  border: 1px;
+  position: absolute;
+  top:12px;
+  left:95px;
+  color:#ff7f00;
+  font-size: smaller;
+  text-decoration: none;
+}

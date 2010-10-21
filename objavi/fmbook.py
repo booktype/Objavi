@@ -497,7 +497,6 @@ class Book(object):
         #go in every page (i.e., into the template)
         menu = etree.Element('ul', Class=config.TEMPLATING_MENU_ELEMENT)
         contents = etree.Element('div', Class=config.TEMPLATING_REPLACED_ELEMENT)
-
         booktitle = etree.Element('div', Class=config.TEMPLATING_BOOK_TITLE_ELEMENT)
         log(self.title)
         booktitle.text = self.title.decode('utf-8')
@@ -526,6 +525,14 @@ class Book(object):
             e.getparent().replace(e, copy.deepcopy(menu))
         for e in template_tree.iterdescendants(config.TEMPLATING_BOOK_TITLE_ELEMENT):
             e.getparent().replace(e, copy.deepcopy(booktitle))
+
+        if config.TAR_TEMPLATED_HTML:
+            tarurl = path2url(self.publish_file + '.tar.gz', full=True)
+            download_link = etree.Element('a', Class=config.TEMPLATING_DOWNLOAD_LINK_ELEMENT)
+            download_link.text = 'Download'
+            download_link.set('href', tarurl)
+            for e in template_tree.iterdescendants(config.TEMPLATING_DOWNLOAD_LINK_ELEMENT):
+                e.getparent().replace(e, copy.deepcopy(download_link))
 
         #function to template content and write to disk
         def save_content(content, title, filename):
