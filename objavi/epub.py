@@ -20,10 +20,7 @@ from objavi import config
 from booki.bookizip import BookiZip
 
 #XML namespaces.  The *NS varients are in {curly brackets} for clark's syntax
-XMLNS = '{http://www.w3.org/XML/1998/namespace}'
-DAISYNS = '{http://www.daisy.org/z3986/2005/ncx/}'
-OPFNS = '{http://www.idpf.org/2007/opf}'
-CONTAINERNS = '{urn:oasis:names:tc:opendocument:xmlns:container}'
+from constants import XMLNS, DAISYNS, OPFNS, CONTAINERNS
 
 MARKUP_TYPES = ('application/xhtml+xml', 'text/html', "application/x-dtbncx+xml")
 HTML_TYPES = ('application/xhtml+xml', 'text/html')

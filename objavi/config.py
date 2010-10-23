@@ -27,10 +27,11 @@ from os import environ as _environ
 #cgi scripts chdir here to escape htdocs
 BASEDIR = ".."
 
-#Not really configurable (72 pt per inch / 25.4 mm per inch)
-POINT_2_MM = 25.4 / 72.0
-MM_2_POINT = 72.0 / 25.4
-INCH_2_POINT = 72
+
+#XML namespace stuff and unit conversions
+from objavi.constants import DCNS, DC, FM, XHTMLNS, XHTML, WKTOCNS
+from objavi.constants import POINT_2_MM, MM_2_POINT, INCH_2_POINT
+from objavi.constants import BOOKIZIP_MIMETYPE
 
 KEEP_TEMP_FILES = True
 TMPDIR = 'htdocs/tmp'
@@ -114,8 +115,6 @@ DEFAULT_SERVER = 'en.flossmanuals.net'
 DEFAULT_BOOKI_SERVER = 'www.booki.cc'
 DEFAULT_SIZE = 'COMICBOOK'
 DEFAULT_ENGINE = 'webkit'
-
-BOOKIZIP_MIMETYPE = "application/x-booki+zip"
 
 RTL_SCRIPTS = ['persian', 'arabic', 'hebrew', 'urdu']
 
@@ -552,13 +551,6 @@ PROGRESS_POINTS = (
     (FINISHED_MESSAGE, "Finished!", PUBLIC_CGI_MODES),
 )
 
-#XML namespace stuff
-DCNS = "{http://purl.org/dc/elements/1.1/}"
-DC = "http://purl.org/dc/elements/1.1/"
-FM = "http://booki.cc/"
-XHTMLNS = '{http://www.w3.org/1999/xhtml}'
-XHTML = 'http://www.w3.org/1999/xhtml'
-WKTOCNS = "{http://code.google.com/p/wkhtmltopdf/outline}"
 
 S3_SECRET = '/home/douglas/s3.archive.org-secret'
 S3_ACCESSKEY = '/home/douglas/s3.archive.org-accesskey'
