@@ -51,7 +51,6 @@ from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree, utf8_ht
 from objavi.cgi_utils import url2path, path2url, try_to_kill
 from objavi.constants import DC, DCNS, FM
 
-#from iarchive import epub as ia_epub
 from booki.bookizip import get_metadata, add_metadata
 
 TMPDIR = os.path.abspath(config.TMPDIR)
