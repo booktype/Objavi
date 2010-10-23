@@ -50,7 +50,7 @@ from objavi.epub import add_guts, _find_tag
 from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree, utf8_html_parser
 from objavi.cgi_utils import url2path, path2url, try_to_kill
 
-from iarchive import epub as ia_epub
+#from iarchive import epub as ia_epub
 from booki.bookizip import get_metadata, add_metadata
 
 TMPDIR = os.path.abspath(config.TMPDIR)
@@ -937,12 +937,7 @@ class Book(object):
     def make_epub(self, use_cache=False):
         """Make an epub version of the book, using Mike McCabe's
         epub module for the Internet Archive."""
-        ebook = ia_epub.Book(self.publish_file, content_dir='')
-        def add_file(ID, filename, mediatype, content):
-            ebook.add_content({'media-type': mediatype.encode('utf-8'),
-                               'id': ID.encode('utf-8'),
-                               'href': filename.encode('utf-8'),
-                               }, content)
+        ebook = epub_utils.Epub(self.publish_file)
 
         toc = self.info['TOC']
 
@@ -960,7 +955,7 @@ class Book(object):
                                 use_cache=use_cache)
                 c.remove_bad_tags()
                 if fn[-5:] == '.html':
-                    fnbase = fn[:-5]
+                   fnbase = fn[:-5]
                 else:
                     fnbase = fn
                 fnx = fnbase + '.xhtml'
@@ -970,7 +965,7 @@ class Book(object):
                                        compressed_size=self.store.getinfo(fn).compress_size)
 
                 #add the first one as if it is the whole thing (as it often is)
-                add_file(ID, fnx, mediatype, fragments[0])
+                ebook.add_file(ID, fnx, mediatype, fragments[0])
                 filemap[fn] = fnx
                 if len(fragments) > 1:
                     spine_ids = [ID]
@@ -981,30 +976,33 @@ class Book(object):
                         # file happens to have this name. Ignore for now
                         _id = '%s_SONY_WORKAROUND_%s' % (ID, i)
                         spine_ids.append(_id)
-                        add_file(_id,
-                                 '%s_SONY_WORKAROUND_%s.xhtml' % (fnbase, i),
-                                 mediatype, fragments[i])
+                        ebook.add_file(_id,
+                                       '%s_SONY_WORKAROUND_%s.xhtml' % (fnbase, i),
+                                       mediatype, fragments[i])
 
             else:
-                add_file(ID, fn, mediatype, content)
+                ebook.add_file(ID, fn, mediatype, content)
 
         #toc
-        ncx = epub_utils.make_ncx(toc, self.metadata, filemap)
-        ebook.add(ebook.content_dir + 'toc.ncx', ncx)
+        ids = get_metadata(self.metadata, 'identifier')
+        if not ids: #workaround for one-time broken booki
+            ids = [time.strftime('http://booki.cc/UNKNOWN/%Y.%m.%d-%H.%M.%S')]
+        book_id = ids[0]
+        ebook.add_ncx(toc, filemap, book_id, self.title)
 
         #spine
         for ID in self.spine:
             if ID in spinemap:
                 for x in spinemap[ID]:
-                    ebook.add_spine_item({'idref': x})
+                    ebook.add_spine_item(x)
             else:
-                ebook.add_spine_item({'idref': ID})
+                ebook.add_spine_item(ID)
 
         #metadata -- no use of attributes (yet)
         # and fm: metadata disappears for now
         DCNS = config.DCNS
         DC = config.DC
-        meta_info_items = []
+        meta_info = []
         log(pformat(self.metadata))
         for ns in [DC]:
             for keyword, schemes in self.metadata[ns].items():
@@ -1012,37 +1010,27 @@ class Book(object):
                     keyword = '{%s}%s' % (ns, keyword)
                 for scheme, values in schemes.items():
                     for value in values:
-                        item = {
-                            'item': keyword,
-                            'text': value,
-                            }
+                        attrs = {}
                         if scheme:
                             if keyword in (DCNS + 'creator', DCNS + 'contributor'):
-                                item['atts'] = {'role': scheme}
+                                attrs['role'] = scheme
                             else:
-                                item['atts'] = {'scheme': scheme}
-                        meta_info_items.append(item)
+                                attrs['scheme'] = scheme
+                        meta_info.append((keyword, value, attrs))
 
         has_authors = 'creator' in self.metadata[DC]
         if not has_authors and config.CLAIM_UNAUTHORED:
             authors = []
             for x in self.metadata[DC]['creator'].values():
                 authors.extend(x)
+            meta_info.append((DCNS + 'creator', 'The Contributors', {}))
+            meta_info.append((DCNS + 'rights',
+                              'This book is free. Copyright %s' % (', '.join(authors)),
+                              {}))
 
-            meta_info_items.append({'item': DCNS + 'creator',
-                                    'text': 'The Contributors'})
-
-            meta_info_items.append({'item': DCNS + 'rights',
-                                    'text': 'This book is free. Copyright %s' % (', '.join(authors))}
-                                   )
-        log(meta_info_items)
-        tree_str = ia_epub.make_opf(meta_info_items,
-                                    ebook.manifest_items,
-                                    ebook.spine_items,
-                                    ebook.guide_items,
-                                    ebook.cover_id)
-        ebook.add(ebook.content_dir + 'content.opf', tree_str)
-        ebook.z.close()
+        log(meta_info)
+        ebook.write_opf(meta_info)
+        ebook.finish()
         self.notify_watcher()
 
 
