@@ -15,7 +15,8 @@ from lxml import etree
 
 from objavi.xhtml_utils import split_tree, utf8_html_parser
 from objavi.book_utils import log
-from objavi.config import DC, XHTML, XHTMLNS, FM, MARKER_CLASS_INFO, MARKER_CLASS_SPLIT
+from objavi.config import MARKER_CLASS_INFO, MARKER_CLASS_SPLIT
+from objavi.constants import DC, XHTML, XHTMLNS, FM
 from objavi import config
 from booki.bookizip import BookiZip
 

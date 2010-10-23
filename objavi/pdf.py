@@ -27,7 +27,7 @@ import urllib
 from objavi import config
 from objavi.book_utils import log, run
 from objavi.cgi_utils import path2url
-from config import POINT_2_MM
+from constants import POINT_2_MM
 
 PDFNUP = 'bin/pdfnup'
 

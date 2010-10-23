@@ -49,6 +49,7 @@ from objavi.pdf import parse_outline, parse_extracted_outline, embed_all_fonts
 from objavi.epub import add_guts, _find_tag
 from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree, utf8_html_parser
 from objavi.cgi_utils import url2path, path2url, try_to_kill
+from objavi.constants import DC, DCNS, FM
 
 #from iarchive import epub as ia_epub
 from booki.bookizip import get_metadata, add_metadata
@@ -227,11 +228,11 @@ class Book(object):
         #Patch in the extra metadata. (lang and dir may be set from config)
         #these should be read from zip -- so should go into zip?
         for var, key, scheme, ns in (
-            (isbn, 'id', 'ISBN', config.DC),
-            (license, 'rights', 'License', config.DC),
-            (title, 'title', '', config.DC),
-            (self.lang, 'language', '', config.DC),
-            (self.dir, 'dir', '', config.FM),
+            (isbn, 'id', 'ISBN', DC),
+            (license, 'rights', 'License', DC),
+            (title, 'title', '', DC),
+            (self.lang, 'language', '', DC),
+            (self.dir, 'dir', '', FM),
             ):
             if var is not None:
                 current = get_metadata(self.metadata, key, ns=ns, scheme=scheme)
@@ -1000,8 +1001,6 @@ class Book(object):
 
         #metadata -- no use of attributes (yet)
         # and fm: metadata disappears for now
-        DCNS = config.DCNS
-        DC = config.DC
         meta_info = []
         log(pformat(self.metadata))
         for ns in [DC]:
