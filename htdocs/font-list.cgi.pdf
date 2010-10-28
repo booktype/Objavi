@@ -99,14 +99,17 @@ if not os.path.exists(pdfname):
     html = font_html(fonts, example_template, dir)
     font_pdf(html, pdfname)
 
+    # rewrite the font-list html include
+    # this will be done redundantly for each script type
     include_name = os.path.join(config.CACHE_DIR, 'font-list.inc')
     html_font_list(fonts, include_name)
 
 
 
-print "Content-type: application/pdf\n"
 f = open(pdfname)
-print f.read()
+s = f.read()
 f.close()
+print "Content-type: application/pdf\nContent-length: %s\n" %(len(s),)
+print s
 sys.exit()
 
