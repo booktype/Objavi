@@ -75,20 +75,22 @@ f = open(this_file)
 h.update(f.read())
 f.close()
 
-#XXX should also include the script example include in the hash
-
 form = cgi.FieldStorage()
 script = form.getfirst('script')
 if script not in (x for x in os.listdir(config.FONT_EXAMPLE_SCRIPT_DIR) if x.isalnum()):
     script = 'latin'
 
+f = open(os.path.join(config.FONT_EXAMPLE_SCRIPT_DIR, script))
+example_template = f.read()
+f.close()
+
+#also hash the script example include
+h.update(example_template)
+
 pdfname = os.path.join(config.CACHE_DIR, 'font-list-%s-%s.pdf' %(script, h.hexdigest()))
 
 if not os.path.exists(pdfname):
     #So this particular font list has not been made before
-    f = open(os.path.join(config.FONT_EXAMPLE_SCRIPT_DIR, script))
-    example_template = f.read()
-    f.close()
     dir = 'LTR'
     if script in config.RTL_SCRIPTS:
         dir = 'RTL'
