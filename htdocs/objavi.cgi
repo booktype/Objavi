@@ -150,9 +150,12 @@ def mode_form(args):
     f = open(config.FORM_TEMPLATE)
     template = f.read()
     f.close()
-    f = open(config.FONT_LIST_INCLUDE)
-    font_list = [x.strip() for x in f if x.strip()]
-    f.close()
+    try:
+        f = open(config.FONT_LIST_INCLUDE)
+        font_list = [x.strip() for x in f if x.strip()]
+        f.close()
+    except IOError, e:
+        font_list = ['<i>Font lists not yet generated</i>']
     server = args.get('server', config.DEFAULT_SERVER)
     book = args.get('book')
     size = args.get('booksize', config.DEFAULT_SIZE)
