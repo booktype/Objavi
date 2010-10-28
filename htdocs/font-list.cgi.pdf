@@ -25,7 +25,9 @@ os.chdir('..')
 sys.path.insert(0, os.path.abspath('.'))
 
 from objavi import config
-from objavi.book_utils import log
+from objavi.book_utils import log, init_log
+init_log('fontlist')
+
 import tempfile, re
 import cgi
 import hashlib

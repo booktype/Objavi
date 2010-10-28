@@ -28,15 +28,15 @@ from subprocess import Popen, PIPE
 from objavi import config
 
 #general, non-cgi functions
-def init_log():
+def init_log(logname='objavi'):
     """Try to redirect stderr to the log file.  If it doesn't work,
     leave stderr as it is."""
     if config.REDIRECT_LOG:
-        logfile = os.path.join(config.LOGDIR, 'objavi.log')
+        logfile = os.path.join(config.LOGDIR, logname + '.log')
         try:
             size = os.stat(logfile).st_size
             if size > config.LOG_ROTATE_SIZE:
-                oldlog = os.path.join(config.LOGDIR, time.strftime('objavi-%Y-%m-%d+%H-%M-%S.log'))
+                oldlog = os.path.join(config.LOGDIR, time.strftime(logname + '-%Y-%m-%d+%H-%M-%S.log'))
                 f = open(logfile, 'a')
                 print >> f, "CLOSING LOG at size %s, renaming to %s" % (size, oldlog)
                 f.close()
