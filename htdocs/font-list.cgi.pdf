@@ -20,6 +20,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os, sys
+this_file = os.path.abspath(__file__)
 os.chdir('..')
 sys.path.insert(0, os.path.abspath('.'))
 
@@ -70,7 +71,7 @@ fonts = get_font_list()
 h = hashlib.sha1(str(fonts))
 
 #Any change to this file will effectively clear the cache.
-f = open(__file__)
+f = open(this_file)
 h.update(f.read())
 f.close()
 
