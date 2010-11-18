@@ -34,46 +34,10 @@ from objavi import config
 from objavi import twiki_wrapper, booki_wrapper
 from objavi.book_utils import init_log, log, make_book_name
 from objavi.cgi_utils import parse_args, optionise, listify, get_server_list
-from objavi.cgi_utils import is_utf8, isfloat, isfloat_or_auto, is_isbn, is_url
 from objavi.cgi_utils import output_blob_and_exit, output_blob_and_shut_up, output_and_exit
 from objavi.cgi_utils import get_size_list, get_default_css, font_links, set_memory_limit
 
 
-# ARG_VALIDATORS is a mapping between the expected cgi arguments and
-# functions to validate their values. (None means no validation).
-ARG_VALIDATORS = {
-    "book": re.compile(r'^([\w-]+/?)*[\w-]+$').match, # can be: BlahBlah/Blah_Blah
-    "css": is_utf8, # an url, empty (for default), or css content
-    "title": lambda x: len(x) < 999 and is_utf8(x),
-    "isbn": is_isbn,
-    "license": config.LICENSES.__contains__,
-    "server": config.SERVER_DEFAULTS.__contains__,
-    "engine": config.ENGINES.__contains__,
-    "booksize": config.PAGE_SIZE_DATA.__contains__,
-    "page_width": isfloat,
-    "page_height": isfloat,
-    "gutter": isfloat_or_auto,
-    "top_margin": isfloat_or_auto,
-    "side_margin": isfloat_or_auto,
-    "bottom_margin": isfloat_or_auto,
-    "columns": isfloat_or_auto,
-    "column_margin": isfloat_or_auto,
-    "cgi-context": lambda x: x.lower() in '1true0false',
-    "mode": config.CGI_MODES.__contains__,
-    "pdftype": lambda x: config.CGI_MODES.get(x, [False])[0], #for css mode
-    "rotate": u"yes".__eq__,
-    "grey_scale": u"yes".__eq__,
-    "destination": config.CGI_DESTINATIONS.__contains__,
-    "toc_header": is_utf8,
-    "max-age": isfloat,
-    "method": config.CGI_METHODS.__contains__,
-    "callback": is_url,
-    "html_template": is_utf8,
-    "booki-group": is_utf8,
-    "booki-user": is_utf8,
-    "page-numbers": config.BOILERPLATE_HTML.__contains__,
-    "embed-fonts": u"yes".__eq__,
-}
 
 __doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
 
@@ -178,13 +142,14 @@ def mode_form(args):
     }
 
     form = []
-    for id, title, type, source, classes, epilogue in config.FORM_INPUTS:
+    for id, title, type, source, classes, epilogue, validator in config.FORM_INPUTS:
         val = d.get(source, '')
-        e = config.FORM_ELEMENT_TYPES[type] % locals()
-        form.append('\n<div id="%(id)s_div" class="form-item %(classes)s">\n'
-                    '<div class="input_title">%(title)s</div>\n'
-                    '<div class="input_contents"> %(e)s %(epilogue)s\n</div>'
-                    '</div>\n' % locals())
+        if type is not None:
+            e = config.FORM_ELEMENT_TYPES[type] % locals()
+            form.append('\n<div id="%(id)s_div" class="form-item %(classes)s">\n'
+                        '<div class="input_title">%(title)s</div>\n'
+                        '<div class="input_contents"> %(e)s %(epilogue)s\n</div>'
+                        '</div>\n' % locals())
 
     if True:
         _valid_inputs = set(ARG_VALIDATORS)
