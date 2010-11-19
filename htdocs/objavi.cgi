@@ -41,8 +41,6 @@ from objavi.cgi_utils import get_size_list, get_default_css, font_links, set_mem
 from objavi.form_config import CGI_MODES, CGI_DESTINATIONS
 from objavi.form_config import FORM_INPUTS, FORM_ELEMENT_TYPES, PROGRESS_POINTS
 
-__doc__ += '\nValid arguments are: %s.\n' % ', '.join(x[0] for x in FORM_INPUTS)
-
 
 def get_page_settings(args):
     """Find the size and any optional layout settings.
@@ -431,13 +429,6 @@ def main():
     mode = args.get('mode')
     if mode is None and 'book' in args:
         mode = 'book'
-
-    global CGI_CONTEXT
-    CGI_CONTEXT = 'SERVER_NAME' in os.environ or args.get('cgi-context', 'no').lower() in '1true'
-
-    if not args and not CGI_CONTEXT:
-        print __doc__
-        sys.exit()
 
     output_function = globals().get('mode_%s' % mode, mode_form)
     output_function(args)
