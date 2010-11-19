@@ -119,7 +119,7 @@ def font_links():
 
 ## Helper functions for parse_args
 
-def isfloat(s):
+def is_float(s):
     #spaces?, digits!, dot?, digits?, spaces?
     #return re.compile(r'^\s*[+-]?\d+\.?\d*\s*$').match
     try:
@@ -128,8 +128,8 @@ def isfloat(s):
     except ValueError:
         return False
 
-def isfloat_or_auto(s):
-    return isfloat(s) or s.lower() in ('', 'auto')
+def is_float_or_auto(s):
+    return is_float(s) or s.lower() in ('', 'auto')
 
 def is_isbn(s):
     # 10 or 13 digits with any number of hyphens, perhaps with check-digit missing
@@ -158,7 +158,8 @@ def is_utf8(s):
     except UnicodeDecodeError:
         return False
 
-
+def never_ok(s):
+    return False
 
 ## Formatting of lists
 
