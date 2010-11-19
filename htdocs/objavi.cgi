@@ -421,8 +421,12 @@ def mode_templated_html(args):
 def mode_templated_html_zip(args):
     pass
 
+
+
 def main():
-    set_memory_limit(config.OBJAVI_CGI_MEMORY_LIMIT)
+    if config.OBJAVI_CGI_MEMORY_LIMIT:
+        set_memory_limit(config.OBJAVI_CGI_MEMORY_LIMIT)
+
     args = parse_args(dict((x[0], (x[6], x[7])) for x in FORM_INPUTS))
     mode = args.get('mode')
     if mode is None and 'book' in args:
