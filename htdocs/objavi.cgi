@@ -38,11 +38,10 @@ from objavi.cgi_utils import parse_args, optionise, listify, get_server_list
 from objavi.cgi_utils import output_blob_and_exit, output_blob_and_shut_up, output_and_exit
 from objavi.cgi_utils import get_size_list, get_default_css, font_links, set_memory_limit
 
-from objavi.form_config import CGI_MODES, CGI_DESTINATIONS, DEFAULT_CGI_DESTINATION
-from objavi.form_config import FORM_INPUTS, FORM_ELEMENT_TYPES, ARG_VALIDATORS, PROGRESS_POINTS
+from objavi.form_config import CGI_MODES, CGI_DESTINATIONS
+from objavi.form_config import FORM_INPUTS, FORM_ELEMENT_TYPES, PROGRESS_POINTS
 
-
-__doc__ += '\nValid arguments are: %s.\n' % ', '.join(ARG_VALIDATORS.keys())
+__doc__ += '\nValid arguments are: %s.\n' % ', '.join(x[0] for x in FORM_INPUTS)
 
 
 def get_page_settings(args):
@@ -76,7 +75,7 @@ def get_page_settings(args):
 
     # now if args['size'] is not 'custom', the width and height found
     # above are ignored.
-    size = args.get('booksize', config.DEFAULT_SIZE)
+    size = args.get('booksize')
     settings.update(config.PAGE_SIZE_DATA[size])
 
     #if args['mode'] is 'newspaper', then the number of columns is
@@ -93,13 +92,13 @@ def get_page_settings(args):
         del settings['page_width']
         del settings['page_height']
 
-    settings['engine'] = args.get('engine', config.DEFAULT_ENGINE)
+    settings['engine'] = args.get('engine')
     return settings
 
 @output_and_exit
 def mode_booklist(args):
     #XXX need to include booki servers
-    server = args.get('server', config.DEFAULT_SERVER)
+    server = args.get('server')
     if config.SERVER_DEFAULTS[server]['interface'] == 'Booki':
         books = booki_wrapper.get_book_list(server)
     else:
@@ -109,7 +108,7 @@ def mode_booklist(args):
 @output_and_exit
 def mode_css(args):
     #XX sending as text/html, but it doesn't really matter
-    return get_default_css(args.get('server', config.DEFAULT_SERVER), args.get('pdftype', 'book'))
+    return get_default_css(args.get('server'), args.get('pdftype'))
 
 
 @output_and_exit
@@ -123,10 +122,10 @@ def mode_form(args):
         f.close()
     except IOError, e:
         font_list = ['<i>Font lists not yet generated</i>']
-    server = args.get('server', config.DEFAULT_SERVER)
+    server = args.get('server')
     book = args.get('book')
-    size = args.get('booksize', config.DEFAULT_SIZE)
-    engine = args.get('engine', config.DEFAULT_ENGINE)
+    size = args.get('booksize')
+    engine = args.get('engine')
     d = {
         'server_options': optionise(get_server_list(), default=server),
         'book_options': '',
@@ -145,7 +144,7 @@ def mode_form(args):
     }
 
     form = []
-    for id, title, type, source, classes, epilogue, validator in FORM_INPUTS:
+    for id, title, type, source, classes, epilogue, validator, default in FORM_INPUTS:
         val = d.get(source, '')
         if type is not None:
             e = FORM_ELEMENT_TYPES[type] % locals()
@@ -155,7 +154,7 @@ def mode_form(args):
                         '</div>\n' % locals())
 
     if True:
-        _valid_inputs = set(ARG_VALIDATORS)
+        _valid_inputs = set(x[0] for x in FORM_INPUTS)
         _form_inputs = set(x[0] for x in FORM_INPUTS if x[2] != 'ul')
         log("valid but not used inputs: %s" % (_valid_inputs - _form_inputs))
         log("invalid form inputs: %s" % (_form_inputs - _valid_inputs))
@@ -182,12 +181,12 @@ class Context(object):
     pollfile = None
     def __init__(self, args):
         self.bookid = args.get('book')
-        self.server = args.get('server', config.DEFAULT_SERVER)
-        self.mode = args.get('mode', 'book')
+        self.server = args.get('server')
+        self.mode = args.get('mode', 'book') #XXX default should be configured?
         extension = CGI_MODES.get(self.mode)[1]
         self.bookname = make_book_name(self.bookid, self.server, extension)
-        self.destination = args.get('destination', DEFAULT_CGI_DESTINATION)
-        self.callback = args.get('callback', None)
+        self.destination = args.get('destination')
+        self.callback = args.get('callback')
         self.method = args.get('method', CGI_DESTINATIONS[self.destination]['default'])
         self.template, self.mimetype = CGI_DESTINATIONS[self.destination][self.method]
         if HTTP_HOST:
@@ -331,7 +330,7 @@ def mode_book(args):
               page_settings=page_settings,
               watchers=context.get_watchers(), isbn=args.get('isbn'),
               license=args.get('license'), title=args.get('title'),
-              max_age=float(args.get('max-age', -1)),
+              max_age=float(args.get('max-age')),
               page_number_style=args.get('page-numbers'),
               ) as book:
 
@@ -369,7 +368,7 @@ def mode_openoffice(args):
     with Book(context.bookid, context.server, context.bookname,
               watchers=context.get_watchers(), isbn=args.get('isbn'),
               license=args.get('license'), title=args.get('title'),
-              max_age=float(args.get('max-age', -1)),
+              max_age=float(args.get('max-age')),
               page_number_style=args.get('page-numbers'),
               ) as book:
 
@@ -387,7 +386,7 @@ def mode_epub(args):
 
     with Book(context.bookid, context.server, context.bookname,
               watchers=context.get_watchers(), title=args.get('title'),
-              max_age=float(args.get('max-age', -1)),
+              max_age=float(args.get('max-age')),
               page_number_style=args.get('page-numbers'),
               ) as book:
 
@@ -401,7 +400,7 @@ def mode_bookizip(args):
 
     with Book(context.bookid, context.server, context.bookname,
               watchers=context.get_watchers(), title=args.get('title'),
-              max_age=float(args.get('max-age', -1)),
+              max_age=float(args.get('max-age')),
               page_number_style=args.get('page-numbers'),
               ) as book:
         book.publish_bookizip()
@@ -414,7 +413,7 @@ def mode_templated_html(args):
     log(template)
     with Book(context.bookid, context.server, context.bookname,
               watchers=context.get_watchers(), title=args.get('title'),
-              max_age=float(args.get('max-age', -1))) as book:
+              max_age=float(args.get('max-age'))) as book:
 
         book.make_templated_html(template=template)
         context.finish(book)
@@ -424,7 +423,7 @@ def mode_templated_html_zip(args):
 
 def main():
     set_memory_limit(config.OBJAVI_CGI_MEMORY_LIMIT)
-    args = parse_args(ARG_VALIDATORS)
+    args = parse_args(dict((x[0], (x[6], x[7])) for x in FORM_INPUTS))
     mode = args.get('mode')
     if mode is None and 'book' in args:
         mode = 'book'

@@ -25,6 +25,9 @@ from objavi.cgi_utils import is_utf8, is_float, is_float_or_auto, is_isbn, is_ur
 
 import re
 
+DEFAULT_CGI_DESTINATION = 'html'
+
+
 CGI_MODES = { # arguments are: (publication, extension, mimetype)
     'book': (True, '.pdf', "application/pdf"),
     'newspaper': (True, '.pdf', "application/pdf"),
@@ -69,126 +72,125 @@ CGI_DESTINATIONS = {
                 },
 }
 
-DEFAULT_CGI_DESTINATION = 'html'
+DEFAULT_PDF_TYPE = 'book'
+DEFAULT_MAX_AGE = -1 #negative number means server default
 
 FORM_INPUTS = (
-    # input, name, input type, contents key/input value, CSS classes, extra text, validator
+    # input, name, input type, contents key/input value, CSS classes, extra text, validator, default
     ("server", "FLOSS Manuals server", "select", "server_options", "", "",
-     config.SERVER_DEFAULTS.__contains__,
+     config.SERVER_DEFAULTS.__contains__, config.DEFAULT_SERVER,
      ),
+    # book name can be: BlahBlah/Blah_Blah
     ("book", "Manual", "input[type=text]", "book_options", "", "",
-     re.compile(r'^([\w-]+/?)*[\w-]+$').match, # can be: BlahBlah/Blah_Blah
+     re.compile(r'^([\w-]+/?)*[\w-]+$').match, None,
      ),
     ("title", "Book title", "input[type=text]", None, "", "leave blank for default",
-     lambda x: len(x) < 999 and is_utf8(x),
+     lambda x: len(x) < 999 and is_utf8(x), None,
      ),
-    ("mode", "Document type", "select", "pdf_types", "openoffice", "", CGI_MODES.__contains__,
+    ("mode", "Document type", "select", "pdf_types", "openoffice", "",
+     CGI_MODES.__contains__, None,
      ),
 
     ("booksize", "Page size", "select", "size_options", "",
      '(Size compatibility: <span class="lulu">Lulu</span>, <span class="newspaper">newspapers</span>, <span class="iso">ISO standards</span>, <span class="us">common in USA</span>)',
-     config.PAGE_SIZE_DATA.__contains__,
+     config.PAGE_SIZE_DATA.__contains__, config.DEFAULT_SIZE,
      ),
     ("page_width", "Page width", "input[type=text]", None, "booksize numeric-field", "mm",
-     is_float,
+     is_float, None,
      ),
     ("page_height", "Page height", "input[type=text]", None, "booksize numeric-field", "mm",
-     is_float,
+     is_float, None,
      ),
     ("license", "License", "select", "licenses", "advanced", "",
-     config.LICENSES.__contains__,
+     config.LICENSES.__contains__, None,
      ),
     ("toc_header", "Table of Contents header", "input[type=text]", None, "advanced", "",
-     is_utf8,
+     is_utf8, None,
      ),
     ("isbn", "ISBN", "input[type=text]", None, "advanced", "(13 digits)",
-     is_isbn,
+     is_isbn, None,
      ),
     ("top_margin", "Top margin", "input[type=text]", None, "advanced margins numeric-field", "mm",
-     is_float_or_auto,
+     is_float_or_auto, None,
      ),
     ("side_margin", "Side margin", "input[type=text]", None, "advanced margins numeric-field", "mm",
-     is_float_or_auto,
+     is_float_or_auto, None,
      ),
     ("bottom_margin", "Bottom margin", "input[type=text]", None, "advanced margins numeric-field", "mm",
-     is_float_or_auto,
+     is_float_or_auto, None,
      ),
     ("gutter", "Gutter", "input[type=text]", None, "advanced margins numeric-field", "mm",
-     is_float_or_auto,
+     is_float_or_auto, None,
      ),
 
     ("columns", "Columns", "input[type=text]", None, "advanced columns numeric-field", "",
-     is_float_or_auto,
+     is_float_or_auto, None,
      ),
     ("column_margin", "Column margin", "input[type=text]", None, "advanced columns numeric-field", "mm",
-     is_float_or_auto,
+     is_float_or_auto, None,
      ),
 
     ("grey_scale", "Grey-scale", "input[type=checkbox]", 'yes', "advanced", "(for black and white printing)",
-     u"yes".__eq__,
+     u"yes".__eq__, None,
      ),
 
     ("css-url", "CSS URL", "input[type=text][disabled]", "css_url", "advanced css-url openoffice", "",
-     never_ok
+     never_ok, None,
      ),
     ("font_list", "Available fonts", "ul", "font_list", "advanced css-custom openoffice", "",
-     never_ok
+     never_ok, None,
      ),
     ("font_links", "Font examples", "ul", "font_links", "advanced css-custom openoffice", "",
-     never_ok
+     never_ok, None,
      ),
     ("css", "CSS", "textarea", "css", "advanced css-custom openoffice", "",
-     is_utf8
+     is_utf8, None,
      ),
 
     ("rotate", "Rotate pages for binding", "input[type=checkbox]", 'yes', "advanced",
      "(for RTL books on LTR printing presses, and vice versa).",
-     u"yes".__eq__,
+     u"yes".__eq__, None,
      ),
     ("html_template", "HTML Template", "textarea", None, "advanced html-template",
      'for "templated html" output',
-     is_utf8,
+     is_utf8, None,
      ),
     ("max-age", "Use cached data", "input[type=text]", None, "advanced numeric-field",
      "(younger than this many minutes).",
-     is_float
+     is_float, DEFAULT_MAX_AGE,
      ),
     ("booki-group", "Booki group", "input[type=text]", None, "advanced booki",
      "Pretend the book belongs to this Booki group",
-     is_utf8
+     is_utf8, None,
      ),
     ("booki-user", "Booki user", "input[type=text]", None, "advanced booki",
      "Pretend the book belongs to this Booki user",
-     is_utf8
+     is_utf8, None,
      ),
     ("page-numbers", "Page numbering style", "select", "page_numbers", "advanced",
      'if in doubt, choose "auto"',
-     config.BOILERPLATE_HTML.__contains__,
+     config.BOILERPLATE_HTML.__contains__, None,
      ),
     ("embed-fonts", "Embed all fonts", "input[type=checkbox]", 'yes', "advanced",
      'PDFs: force embedding of Adobe fonts (probably unnecessary)',
-     u"yes".__eq__,
+     u"yes".__eq__, None,
      ),
 
-    ("pdf_type", "", None, '', "", '',
-     lambda x: CGI_MODES.get(x, [False])[0], #for css mode
+    ("pdf_type", "", None, '', "", '',             #for css mode
+     lambda x: CGI_MODES.get(x, [False])[0], DEFAULT_PDF_TYPE,
      ),
     ("method", '', None, '', "", '',
-     CGI_METHODS.__contains__,
+     CGI_METHODS.__contains__, None,
      ),
     ("callback", '', None, '', "", '',
-     is_url,
+     is_url, None,
      ),
-    ("engine", "", None, "", "", "", config.ENGINES.__contains__,
+    ("engine", "", None, "", "", "", config.ENGINES.__contains__, config.DEFAULT_ENGINE,
      ),
     ("destination", "", None, None, "", "",
-    CGI_DESTINATIONS.__contains__,
+    CGI_DESTINATIONS.__contains__, DEFAULT_CGI_DESTINATION,
      ),
 )
-
-# ARG_VALIDATORS is a mapping between the expected cgi arguments and
-# functions to validate their values. (None means no validation).
-ARG_VALIDATORS = dict((x[0], x[6]) for x in FORM_INPUTS)
 
 
 FORM_ELEMENT_TYPES = {

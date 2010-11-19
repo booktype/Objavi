@@ -30,6 +30,11 @@ def parse_args(arg_validators):
     """Read and validate CGI or commandline arguments, putting the
     good ones into the returned dictionary.  Command line arguments
     should be in the form --title='A Book'.
+
+    arg_validators is a dictionary mapping keys to either 1) functions
+    that validate their values; or 2) tuples of such functions and
+    default values.  The default value will itself be validated and
+    used in the case that no relevant argument is given.
     """
     query = cgi.FieldStorage()
     options, args = gnu_getopt(sys.argv[1:], '', [x + '=' for x in arg_validators])
@@ -38,7 +43,11 @@ def parse_args(arg_validators):
     log(query, debug='STARTUP')
     data = {}
     for key, validator in arg_validators.items():
-        value = query.getfirst(key, options.get('--' + key, None))
+        if isinstance(validator, tuple):
+            validator, default = validator
+        else:
+            default = None
+        value = query.getfirst(key, options.get('--' + key, default))
         log('%s: %s' % (key, value), debug='STARTUP')
         if value is not None:
             if validator is not None and not validator(value):
