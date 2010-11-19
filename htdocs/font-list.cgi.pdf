@@ -80,7 +80,9 @@ def font_pdf_multipage(pdfname, fonts, example_template, dir):
         i += FONTS_PER_PAGE
 
     concat_pdfs(pdfname, *pages)
-
+    for x in pages:
+        os.remove(x)
+    os.rmdir(tmpdir)
 
 def html_font_list(fonts, name):
     f = open(name, 'w')
