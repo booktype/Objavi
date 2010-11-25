@@ -421,23 +421,6 @@ LICENSES = {
 
 DEFAULT_LICENSE = 'GPLv2+'
 
-CGI_MODES = { # arguments are: (publication, extension, mimetype)
-    'book': (True, '.pdf', "application/pdf"),
-    'newspaper': (True, '.pdf', "application/pdf"),
-    'web': (True, '.pdf', "application/pdf"),
-    #XX stop openoffice for now: it doesn't work anyway
-    #'openoffice': (True, '.odt', "application/vnd.oasis.opendocument.text"),
-    'booklist': (False, None, None),
-    'css': (False, None, None),
-    'form': (False, None, None),
-    'epub': (True, '.epub', "application/epub+zip"),
-    'bookizip': (True, '.zip', BOOKIZIP_MIMETYPE),
-    'templated_html':  (True, '', 'text/html'),
-#    'templated_html_zip':  (True, '.zip', 'application/zip'),
-}
-
-PUBLIC_CGI_MODES = tuple(k for k, v in CGI_MODES.items() if v[0])
-
 FORM_TEMPLATE = 'templates/form.html'
 PROGRESS_ASYNC_TEMPLATE = 'templates/progress-async.html'
 PROGRESS_TEMPLATE = 'templates/progress.html'
@@ -445,111 +428,7 @@ ASYNC_TEMPLATE = 'templates/async.txt'
 ARCHIVE_TEMPLATE = 'templates/archive.txt'
 NOWHERE_TEMPLATE = 'templates/nowhere.txt'
 
-CGI_METHODS = ('sync', 'async', 'poll')
-
-#used by objavi-async
-CGI_DESTINATIONS = {
-    'archive.org': {'sync': (ARCHIVE_TEMPLATE, 'text/plain; charset=utf-8'),
-                    'async': (ARCHIVE_TEMPLATE, 'text/plain; charset=utf-8'),
-                    'poll': (None, None),
-                    'default': 'sync',
-                    },
-    'download': {'sync': (None, None),
-                 'async': (ASYNC_TEMPLATE, 'text/plain; charset=utf-8'),
-                 'poll': (None, None),
-                 'default': 'sync',
-                 },
-    'html': {'sync': (PROGRESS_TEMPLATE, 'text/html; charset=utf-8'),
-             'async': (ASYNC_TEMPLATE, 'text/plain; charset=utf-8'),
-             'poll': (PROGRESS_ASYNC_TEMPLATE, 'text/html; charset=utf-8'),
-             'default': 'sync',
-             },
-    'nowhere': {'sync': (NOWHERE_TEMPLATE, 'text/plain; charset=utf-8'),
-                'async': (NOWHERE_TEMPLATE, 'text/plain; charset=utf-8'),
-                'poll': (ASYNC_TEMPLATE, 'text/plain; charset=utf-8'),
-                'default': 'sync',
-                },
-}
-
-DEFAULT_CGI_DESTINATION = 'html'
-
-
-FORM_INPUTS = (
-    # input, name, input type, contents key/input value, CSS classes, extra text
-    ("server", "FLOSS Manuals server", "select", "server_options", "", ""),
-    ("book", "Manual", "input[type=text]", "book_options", "", ""),
-    ("title", "Book title", "input[type=text]", None, "", "leave blank for default"),
-    ("mode", "Document type", "select", "pdf_types", "openoffice", ""),
-
-    ("booksize", "Page size", "select", "size_options", "", '(Size compatibility: <span class="lulu">Lulu</span>, <span class="newspaper">newspapers</span>, <span class="iso">ISO standards</span>, <span class="us">common in USA</span>)'),
-    ("page_width", "Page width", "input[type=text]", None, "booksize numeric-field", "mm"),
-    ("page_height", "Page height", "input[type=text]", None, "booksize numeric-field", "mm"),
-
-    ("license", "License", "select", "licenses", "advanced", ""),
-    ("toc_header", "Table of Contents header", "input[type=text]", None, "advanced", ""),
-    ("isbn", "ISBN", "input[type=text]", None, "advanced", "(13 digits)"),
-
-    ("top_margin", "Top margin", "input[type=text]", None, "advanced margins numeric-field", "mm"),
-    ("side_margin", "Side margin", "input[type=text]", None, "advanced margins numeric-field", "mm"),
-    ("bottom_margin", "Bottom margin", "input[type=text]", None, "advanced margins numeric-field", "mm"),
-    ("gutter", "Gutter", "input[type=text]", None, "advanced margins numeric-field", "mm"),
-
-    ("columns", "Columns", "input[type=text]", None, "advanced columns numeric-field", ""),
-    ("column_margin", "Column margin", "input[type=text]", None, "advanced columns numeric-field", "mm"),
-
-    ("grey_scale", "Grey-scale", "input[type=checkbox]", 'yes', "advanced", "(for black and white printing)"),
-
-    #("css_customise", "Customise CSS", "input[type=checkbox]", None, "advanced", "Enter a URL or "),
-    ("css-url", "CSS URL", "input[type=text][disabled]", "css_url", "advanced css-url openoffice", ""),
-    ("font_list", "Available fonts", "ul", "font_list", "advanced css-custom openoffice", ""),
-    ("font_links", "Font examples", "ul", "font_links", "advanced css-custom openoffice", ""),
-    ("css", "CSS", "textarea", "css", "advanced css-custom openoffice", ""),
-
-    ("rotate", "Rotate pages for binding", "input[type=checkbox]", 'yes', "advanced", "(for RTL books on LTR printing presses, and vice versa)."),
-
-    ("html_template", "HTML Template", "textarea", None, "advanced html-template", 'for "templated html" output'),
-
-    #("engine", "Layout engine", "select", "engines", "advanced", ""),
-    #("header", "Header Text", "input[type=text]", None, "advanced", ""),
-    ("max-age", "Use cached data", "input[type=text]", None, "advanced numeric-field", "(younger than this many minutes)."),
-    ("booki-group", "Booki group", "input[type=text]", None, "advanced booki", "Pretend the book belongs to this Booki group"),
-    ("booki-user", "Booki user", "input[type=text]", None, "advanced booki", "Pretend the book belongs to this Booki user"),
-    #("destination", "Use cached data", "input[type=text]", None, "advanced", ""),
-    ("page-numbers", "Page numbering style", "select", "page_numbers", "advanced", 'if in doubt, choose "auto"'),
-    ("embed-fonts", "Embed all fonts", "input[type=checkbox]", 'yes', "advanced", 'PDFs: force embedding of Adobe fonts (probably unnecessary)'),
-)
-
-FORM_ELEMENT_TYPES = {
-    'input[type=text]' : '<input type="text" id="%(id)s" name="%(id)s" value="%(val)s" />',
-    'input[type=text][disabled]' : '<input type="text" disabled="disabled" id="%(id)s" name="%(id)s" value="%(val)s" />',
-    'input[type=checkbox]' : '<input type="checkbox" id="%(id)s" name="%(id)s" value="%(val)s" />',
-    'textarea' : '<textarea id="%(id)s" name="%(id)s">%(val)s</textarea>',
-    'select': '<select id="%(id)s" name="%(id)s">%(val)s</select>',
-    'ul': '<ul id="%(id)s">%(val)s</ul>',
-}
-
 FINISHED_MESSAGE = 'FINISHED'
-
-PROGRESS_POINTS = (
-    ("start", "wake up", PUBLIC_CGI_MODES),
-    ("fetch_zip", "Load data", PUBLIC_CGI_MODES),
-    ("__init__", "Initialise the book", PUBLIC_CGI_MODES),
-    ("load_book", "Fetch the book", ('book', 'newspaper', 'web', 'openoffice')),
-    ("add_css", "Add css", ('book', 'newspaper', 'web', 'openoffice')),
-    ("add_section_titles", "Add section titles", ('book', 'newspaper', 'web', 'openoffice')),
-    ("make_epub", "Make the epub file", ('epub',)),
-    ("make_oo_doc", "Make the OpenOffice document", ('openoffice',)),
-    ("generate_pdf", "Generate the main pdf", ('book', 'newspaper', 'web')),
-    ("extract_pdf_outline", "Find page numbers", ('book',)),
-    ("reshape_pdf", "Add gutters", ('book', 'newspaper',)),
-    ("make_contents", "Calculate Table of Contents", ('book',)),
-    ("make_preamble_pdf", "Generate preamble pdf", ('book',)),
-    ('make_end_matter_pdf', "Generate end matter pdf", ('book',)),
-    ("concatenated_pdfs", "concatenate the pdfs", ('book',)),
-    ("make_templated_html", "Make templated HTML", ('templated_html',)),
-    #("publish_pdf", "Publish the pdf", ('book', 'newspaper', 'web')),
-    (FINISHED_MESSAGE, "Finished!", PUBLIC_CGI_MODES),
-)
 
 
 S3_SECRET = '/home/douglas/s3.archive.org-secret'
