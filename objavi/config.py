@@ -125,8 +125,6 @@ USE_CACHED_IMAGES = False
 #too (i.e. when they are garbage collected).
 TRY_BOOK_CLEANUP_ON_DEL = False
 
-LOCALHOST = 'localhost'
-
 LANGUAGE_CSS = {
     'en': {None: '/static/en.flossmanuals.net.css',
            'web': '/static/en.flossmanuals.net-web.css',
@@ -183,18 +181,6 @@ SERVER_DEFAULTS = {
         'toc-encoding': None,
         'display': False,
         'interface': 'Archive',
-        'toc_header': 'Table of Contents',
-        },
-    LOCALHOST: {
-        'css-book': '/static/en.flossmanuals.net.css',
-        'css-web': '/static/en.flossmanuals.net-web.css',
-        'css-newspaper': '/static/en.flossmanuals.net-newspaper.css',
-        'css-openoffice': '/static/en.flossmanuals.net-openoffice.css',
-        'lang': 'en',
-        'dir': 'LTR',
-        'toc-encoding': 'iso-8859-1',
-        'display': False,
-        'interface': 'local',
         'toc_header': 'Table of Contents',
         },
     'en.flossmanuals.net': {

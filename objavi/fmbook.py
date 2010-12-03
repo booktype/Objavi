@@ -199,10 +199,6 @@ class Book(object):
         self.spine = self.info['spine']
         self.manifest = self.info['manifest']
 
-        if server == config.LOCALHOST: # [DEPRECATED]
-            server = get_metadata(self.metadata, 'server', ns=config.FM, default=[server])[0]
-            book = get_metadata(self.metadata, 'book', ns=config.FM, default=[book])[0]
-
         log(pformat(self.metadata))
         self.lang = get_metadata(self.metadata, 'language', default=[None])[0]
         if not self.lang:
