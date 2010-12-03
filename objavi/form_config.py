@@ -21,7 +21,8 @@
 """This module contains form definition and validation data."""
 import config
 import cgi_utils
-from objavi.cgi_utils import is_utf8, is_float, is_float_or_auto, is_isbn, is_url, never_ok
+from objavi.cgi_utils import is_utf8, is_float, is_float_or_auto
+from objavi.cgi_utils import is_int_or_auto, is_isbn, is_url, never_ok
 
 import re
 
