@@ -740,6 +740,8 @@ class Book(object):
             os.mkdir(self.filepath('static'))
 
         for name in static_files:
+            if isinstance(name, unicode):
+                name = name.encode('utf8')
             s = self.store.read(name)
             f = open(self.filepath(name), 'w')
             f.write(s)
