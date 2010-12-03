@@ -735,7 +735,7 @@ class Book(object):
     def unpack_static(self):
         """Extract static files from the zip for the html to refer to."""
         static_files = [x['url'] for x in self.manifest.values()
-                        if x['url'].startswith('static')]
+                        if x['url'].startswith('static/')]
         if static_files:
             os.mkdir(self.filepath('static'))
 
