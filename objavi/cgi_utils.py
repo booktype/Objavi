@@ -24,8 +24,6 @@ from getopt import gnu_getopt
 from objavi.book_utils import log
 from objavi import config
 
-SERVER_NAME = os.environ.get('SERVER_NAME', 'localhost')
-
 def parse_args(arg_validators):
     """Read and validate CGI or commandline arguments, putting the
     good ones into the returned dictionary.  Command line arguments
@@ -91,6 +89,8 @@ def url2path(url):
     return config.HTDOCS + '/' + url.lstrip('/')
 
 _htdocs = os.path.abspath(config.HTDOCS)
+SERVER_NAME = os.environ.get('SERVER_NAME', 'localhost')
+
 def path2url(path, default='/missing_path?%(path)s', full=False):
     """convert local file paths to htdocs-relative addresses.  If the
     file is not in the web tree, return default"""
