@@ -124,7 +124,7 @@ FORM_INPUTS = (
      ),
 
     ("columns", "Columns", "input[type=text]", None, "advanced columns numeric-field", "",
-     is_float_or_auto, None,
+     is_int_or_auto, None,
      ),
     ("column_margin", "Column margin", "input[type=text]", None, "advanced columns numeric-field", "mm",
      is_float_or_auto, None,

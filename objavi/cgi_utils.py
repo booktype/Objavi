@@ -137,8 +137,18 @@ def is_float(s):
     except ValueError:
         return False
 
+def is_int(s):
+    try:
+        int(s)
+        return True
+    except ValueError:
+        return False
+
 def is_float_or_auto(s):
     return is_float(s) or s.lower() in ('', 'auto')
+
+def is_int_or_auto(s):
+    return is_int(s) or s.lower() in ('', 'auto')
 
 def is_isbn(s):
     # 10 or 13 digits with any number of hyphens, perhaps with check-digit missing

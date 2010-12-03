@@ -55,7 +55,8 @@ class PageSettings(object):
 
         self.columns = kwargs.get('columns', 1)
         if self.columns == 'auto': #default for newspapers is to work out columns
-            self.columns = int(self.width // config.MIN_COLUMN_WIDTH)
+            self.columns = self.width // config.MIN_COLUMN_WIDTH
+        self.columns = int(self.columns)
 
         self.column_margin = kwargs.get('column_margin',
                                         default_margin * 2 / (5.0 + self.columns))
