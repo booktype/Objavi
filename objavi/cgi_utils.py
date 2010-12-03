@@ -39,7 +39,7 @@ def parse_args(arg_validators):
     query = cgi.FieldStorage()
     options, args = gnu_getopt(sys.argv[1:], '', [x + '=' for x in arg_validators])
     options = dict(options)
-    log("Starting request for %s", os.environ.get('REQUEST_URI'))
+    log("Starting request for %s" % (os.environ.get('REQUEST_URI'),))
     log(query, debug='STARTUP')
     data = {}
     for key, validator in arg_validators.items():
