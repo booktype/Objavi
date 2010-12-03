@@ -40,8 +40,14 @@ def make_booki_package(server, bookid, use_cache=False):
     If cache is true, images that have been fetched on previous runs
     will be reused.
     """
-    book = TWikiBook(bookid, server)
-    return book.make_bookizip(use_cache=use_cache)
+    try:
+        book = TWikiBook(bookid, server)
+        bz = book.make_bookizip(use_cache=use_cache)
+    except HTTPError, e:
+        print "Status: 404 Not Found\n\n"
+        print e
+        sys.exit()
+    return bz
 
 
 # ARG_VALIDATORS is a mapping between the expected cgi arguments and
