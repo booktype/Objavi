@@ -82,7 +82,7 @@ FORM_INPUTS = (
      ),
     # book name can be: BlahBlah/Blah_Blah
     ("book", "Manual", "input[type=text]", "book_options", "", "",
-     re.compile(r'^([\w-]+/?)*[\w-]+$').match, None,
+     lambda x: len(x) < 999 and is_utf8(x), None,
      ),
     ("title", "Book title", "input[type=text]", None, "", "leave blank for default",
      lambda x: len(x) < 999 and is_utf8(x), None,
