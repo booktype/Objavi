@@ -950,6 +950,8 @@ class Book(object):
             details = self.manifest[ID]
             #log(ID, pformat(details))
             fn, mediatype = details['url'], details['mimetype']
+            if isinstance(fn, unicode):
+                fn = fn.encode('utf-8')
             content = self.store.read(fn)
             if mediatype == 'text/html':
                 #convert to application/xhtml+xml, and perhaps split
