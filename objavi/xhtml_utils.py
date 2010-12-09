@@ -160,6 +160,13 @@ class BaseChapter(object):
         #        log('found bad tag %s' % e.tag)
         self.cleaner(self.tree)
 
+        #FM booki has books with title tags in body. remove those, because
+        #they cause problems for some epub readers.
+        for body in self.tree.iter('body'):
+            for e in body.iterdescendants('title'):
+                e.getparent().remove(e)
+                break #there should only be one
+            break
 
     def fix_bad_structure(self):
         """Attempt to match booki chapter conventions.  This doesn't
