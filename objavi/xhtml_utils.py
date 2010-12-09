@@ -16,7 +16,7 @@ from objavi.book_utils import log
 
 ADJUST_HEADING_WEIGHT = False
 
-OK_TAGS = set([
+OK_TAGS = frozenset([
     "body", "head", "html", "title", "abbr", "acronym", "address",
     "blockquote", "br", "cite", "code", "dfn", "div", "em", "h1", "h2",
     "h3", "h4", "h5", "h6", "kbd", "p", "pre", "q", "samp", "span",
