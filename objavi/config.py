@@ -468,6 +468,9 @@ LOCALISED_DIGITS = {
 PAGE_NUMBER_OPTIONS = BOILERPLATE_HTML.keys() + ['auto']
 DEFAULT_PAGE_NUMBER_OPTION = 'auto'
 
+#these elements get wrapped in divs with the following element, and
+#the div is given 'page-break-inside: avoid' CSS (workaround webkit bug)
+NO_BREAK_AFTER_TAGS = ('h2', 'h3', 'h4')
 
 if __name__ == '__main__':
     print ', '.join(x for x in globals().keys() if not x.startswith('_'))

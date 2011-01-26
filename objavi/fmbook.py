@@ -725,20 +725,21 @@ class Book(object):
                                                   id=fragment)
                         body.insert(0, marker)
                 point['html_id'] = fragment
-
-
-            for tag in ('h2', 'h3', 'h4'):
-                for e in body.iterdescendants(tag):
-                    follower = e.getnext()
-                    log(e, follower)
-                    if follower is not None: #and in whitelist? e.g. ['p']
-                        wrapper = body.makeelement('div', Class='objavi-no-page-break')
-                        e.addprevious(wrapper)
-                        wrapper.append(e) #append() removes existing copy.
-                        wrapper.append(follower)
             add_guts(root, doc)
-
         return doc
+
+    def fake_no_break_after(self, tags=config.NO_BREAK_AFTER_TAGS):
+        """Workaround lack of page-break-after:avoid support by wrapping
+        headings and their following elements in divs."""
+        for tag in tags:
+            for e in self.tree.iter(tag):
+                follower = e.getnext()
+                log(e, follower)
+                if follower is not None: #and in whitelist? e.g. ['p']
+                    wrapper = e.makeelement('div', Class='objavi-no-page-break')
+                    e.addprevious(wrapper)
+                    wrapper.append(e) #append() removes existing copy.
+                    wrapper.append(follower)
 
     def unpack_static(self):
         """Extract static files from the zip for the html to refer to."""
@@ -763,7 +764,7 @@ class Book(object):
         self.unpack_static()
         self.tree = self.concat_html()
         self.save_tempfile('raw.html', etree.tostring(self.tree, method='html'))
-
+        self.fake_no_break_after()
         self.headings = [x for x in self.tree.iter('h1')]
         if self.headings:
             self.headings[0].set('class', "first-heading")
