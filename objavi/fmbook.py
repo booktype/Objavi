@@ -682,13 +682,8 @@ class Book(object):
         doc = lxml.html.document_fromstring('<html dir="%s"><body dir="%s"></body></html>'
                                             % (self.dir, self.dir))
         tocmap = filename_toc_map(self.toc)
-#aco hack
-        from copy import deepcopy, copy
-
         for ID in self.spine:
             details = self.manifest[ID]
-            #log(ID, pformat(details))
-            # ACO MIJENJAO
             try:
                 root = self.get_tree_by_id(ID).getroot()
             except Exception, e:
@@ -731,33 +726,17 @@ class Book(object):
                         body.insert(0, marker)
                 point['html_id'] = fragment
 
-	    #Acos hack
-            # i can haz some patches!
-            # this is a small dirty patch added by aco. fixes page wrap issue.
-            # this should be done in proper way
-            _root = etree.Element("html")
-            _body = etree.SubElement(_root, "body")
-            lst = list(body)
-            lst_n = 0
 
-            while lst_n < len(lst):
-                elem = lst[lst_n]
-
-                if elem.tag in ['h2', 'h3', 'h4']:
-                    newelem = etree.Element("div")
-                    newelem.set("id", "keeptogether")
-                    #newelem.set("style", "border: 1px solid yellow")
-                    newelem.append(deepcopy(lst[lst_n]))
-                    if len(lst) > lst_n+1:
-                        newelem.append(deepcopy(lst[lst_n+1]))
-                    _body.append(newelem)
-                    lst_n += 2
-                else:
-                    _body.append(deepcopy(lst[lst_n]))
-                    lst_n += 1
-                #end hack
-
-            add_guts(_root, doc)
+            for tag in ('h2', 'h3', 'h4'):
+                for e in body.iterdescendants(tag):
+                    follower = e.getnext()
+                    log(e, follower)
+                    if follower is not None: #and in whitelist? e.g. ['p']
+                        wrapper = body.makeelement('div', Class='objavi-no-page-break')
+                        e.addprevious(wrapper)
+                        wrapper.append(e) #append() removes existing copy.
+                        wrapper.append(follower)
+            add_guts(root, doc)
 
         return doc
 

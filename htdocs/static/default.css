@@ -182,3 +182,6 @@ unless explicitly overridden.*/
 
 div#keeptogether {page-break-inside:avoid;}
 
+.objavi-no-page-break {
+  page-break-inside: avoid;
+}
