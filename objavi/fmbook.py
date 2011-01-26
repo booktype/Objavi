@@ -764,7 +764,6 @@ class Book(object):
         self.unpack_static()
         self.tree = self.concat_html()
         self.save_tempfile('raw.html', etree.tostring(self.tree, method='html'))
-        self.fake_no_break_after()
         self.headings = [x for x in self.tree.iter('h1')]
         if self.headings:
             self.headings[0].set('class', "first-heading")

@@ -176,6 +176,10 @@ FORM_INPUTS = (
      'PDFs: force embedding of Adobe fonts (probably unnecessary)',
      u"yes".__eq__, None,
      ),
+    ("allow-breaks", "no page break control",
+     "input[type=checkbox]", 'yes', "advanced", "Let page breaks occur immediately after headings",
+     u"yes".__eq__, None,
+     ),
 
     ("pdf_type", "", None, '', "", '',             #for css mode
      lambda x: CGI_MODES.get(x, [False])[0], DEFAULT_PDF_TYPE,

@@ -337,6 +337,9 @@ def mode_book(args):
         if 'toc_header' in args:
             book.toc_header = args['toc_header']
         book.load_book()
+        if 'allow-breaks' not in args:
+            book.fake_no_break_after()
+
         book.add_css(args.get('css'), context.mode)
         book.add_section_titles()
 
