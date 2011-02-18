@@ -77,10 +77,7 @@ def _add_initial_number(e, n, localiser=str):
     if e.text is not None:
         initial.tail += e.text
     e.text = ''
-	#adam hack
-    #initial.text = localiser(n)
     initial.text = "%s." % localiser(n)
-    #initial.text = "\<div id='chapter-number'\>%s.\</div\>" % localiser(n)
 
 def expand_toc(toc, depth=1, index=0):
     """Reformat toc slightly for convenience"""
