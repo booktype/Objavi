@@ -14,7 +14,8 @@ div, p, ul, pre, h1, h2 {
 }
 
 img {
-  max-width: 500px;
+  max-width: 600px;
+  height: auto;
 }
 /*end widths */
 
@@ -77,8 +78,7 @@ h2 {
   font-size:15pt;
 }
 
-/*try to avoid a page break between an h2 and a p */
-
+/*try to avoid a page break between an h2 and a p XXX: doesn't work */
 h2 + p {
   page-break-before: avoid;
 }
@@ -147,10 +147,6 @@ pre, code, tt {
 pre {
   overflow: hidden;
   white-space: pre-wrap;
-}
-
-img {
-  height: auto;
 }
 
 
