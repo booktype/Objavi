@@ -24,6 +24,7 @@ os.chdir('..')
 sys.path.insert(0, os.path.abspath('.'))
 
 import re, traceback
+from urllib2 import HTTPError
 #from pprint import pformat
 
 from objavi.twiki_wrapper import TWikiBook, get_book_list
