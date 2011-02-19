@@ -3,9 +3,19 @@ body {
   background: #fff;
   color: #000;
   font-size:12pt;
+  max-width: 700px;
 }
 
+/*Page widths */
+/* just in case body max-width doesn't work */
+div, p, ul, pre, h1, h2 {
+  max-width: 700px;
 }
+
+img {
+  max-width: 500px;
+}
+/*end widths */
 
 .objavi-chapter{
   color: #000;
@@ -86,7 +96,6 @@ h1.frontpage{
   font-size: 20pt;
   text-align: center;
   page-break-before: avoid;
-  max-width: 700pt;
   font-weight: normal;
 }
 
@@ -135,13 +144,11 @@ pre, code, tt {
 }
 
 pre {
-  max-width:700px;
   overflow: hidden;
   white-space: pre-wrap;
 }
 
 img {
-  max-width: 500px;
   height: auto;
 }
 
