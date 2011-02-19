@@ -4,8 +4,8 @@ import os, sys, time, re
 import tempfile
 
 from objavi import config
-from objavi.book_utils import log, guess_lang, guess_text_dir, make_book_name, decode_html_entities
-from urllib2 import urlopen
+from objavi.book_utils import log, guess_lang, guess_text_dir, make_book_name, decode_html_entities, url_fetch
+from urllib2 import urlopen, HTTPError
 from urlparse import urlsplit
 from booki.bookizip import add_metadata, BookiZip
 
@@ -47,9 +47,7 @@ def get_book_list(server):
     #url = 'http://%s/bin/view/TWiki/WebLeftBarWebsList?skin=text' % server
     #XXX should use lxml
     log('getting booklist: %s' % url)
-    f = urlopen(url)
-    s = f.read()
-    f.close()
+    s = url_fetch(url)
     items = sorted(x for x in re.findall(r'/bin/view/([\w/]+)/WebHome', s)
                    if x not in config.IGNORABLE_TWIKI_BOOKS)
     if config.BOOK_LIST_CACHE:
@@ -259,9 +257,7 @@ class TWikiBook(object):
     def get_chapter_html(self, chapter, wrapped=False):
         url = config.CHAPTER_URL % (self.server, self.book, chapter)
         log('getting chapter: %s' % url)
-        f = urlopen(url)
-        html = f.read()
-        f.close()
+        html = url_fetch(url)
         if wrapped:
             html = CHAPTER_TEMPLATE % {
                 'title': '%s: %s' % (self.book, chapter),

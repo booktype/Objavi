@@ -42,7 +42,7 @@ import lxml.html
 from lxml import etree
 
 from objavi import config, epub_utils
-from objavi.book_utils import log, run, make_book_name, guess_lang, guess_text_dir
+from objavi.book_utils import log, run, make_book_name, guess_lang, guess_text_dir, url_fetch
 from objavi.book_utils import ObjaviError, log_types, guess_page_number_style, get_number_localiser
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf
 from objavi.pdf import parse_outline, parse_extracted_outline, embed_all_fonts
@@ -1284,9 +1284,7 @@ def fetch_zip(server, book, save=False, max_age=-1, filename=None):
             return blob_and_name
 
     log('fetching zip from %s'% url)
-    f = urlopen(url)
-    blob = f.read()
-    f.close()
+    blob = url_fetch(url)
     if save:
         if filename is None:
             filename = '%s/%s' % (config.BOOKI_BOOK_DIR,

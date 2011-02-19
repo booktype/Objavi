@@ -23,6 +23,7 @@ import os, sys
 import shutil
 import time, re
 from subprocess import Popen, PIPE
+from urllib2 import urlopen, HTTPError
 
 #from objavi.fmbook import log
 from objavi import config
@@ -178,3 +179,15 @@ def decode_html_entities(text):
             log("ignoring bad entity %s" % entity)
         return entity
     return re.sub("&#?[0-9a-fA-F]+;", fixup, text).encode('utf-8')
+
+def url_fetch(url, suppress_error=False):
+    try:
+        f = urlopen(url)
+        s = f.read()
+        f.close()
+        return s
+    except HTTPError, e:
+        log("HTTPError '%s' trying to fetch '%s'" % (e, url))
+        if not suppress_error:
+            raise
+    #returns None is error is suppressed

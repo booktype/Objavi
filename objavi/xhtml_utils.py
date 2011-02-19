@@ -8,11 +8,10 @@ import os
 import re
 
 from urlparse import urlsplit
-from urllib2 import urlopen, HTTPError
 
 from objavi.constants import XHTMLNS, XHTML
 from objavi.config import IMG_CACHE, MARKER_CLASS_SPLIT, MARKER_CLASS_INFO
-from objavi.book_utils import log
+from objavi.book_utils import log, url_fetch, HTTPError
 
 ADJUST_HEADING_WEIGHT = False
 
@@ -90,9 +89,7 @@ class ImageCache(object):
             return target
 
         try:
-            f = urlopen(url)
-            data = f.read()
-            f.close()
+            data = url_fetch(url)
         except HTTPError, e:
             # if it is missing, assume it will be missing every time
             # after, otherwise, you can get into endless waiting
