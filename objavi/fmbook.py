@@ -47,7 +47,8 @@ from objavi.book_utils import ObjaviError, log_types, guess_page_number_style, g
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf
 from objavi.pdf import parse_outline, parse_extracted_outline, embed_all_fonts
 from objavi.epub import add_guts, _find_tag
-from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree, utf8_html_parser
+from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree
+from objavi.xhtml_utils import utf8_html_parser, localise_local_links
 from objavi.cgi_utils import url2path, path2url, try_to_kill
 from objavi.constants import DC, DCNS, FM
 
@@ -722,6 +723,7 @@ class Book(object):
                                                   id=fragment)
                         body.insert(0, marker)
                 point['html_id'] = fragment
+            localise_local_links(root, ID[6:])
             add_guts(root, doc)
         return doc
 

@@ -356,3 +356,55 @@ def split_tree(tree):
     return chapters
 
 
+def localise_local_links(doc, old_filename=''):
+    """Xinha produces document local links (e.g., for footnotes) in
+    the form 'filename#local_anchor', which are broken if the filename
+    changes.  In practice the filename changes at least twice during
+    processing -- once from 'filename' to 'filename.html', when Booki
+    makes the bookizip, and again to 'body.html' when all the chapters
+    get concatenated.
+
+    Additionally, Xinha will reuse the same IDs in each chapter, so
+    when the chapters are all concatenated the IDs are no longer
+    unique and the links won't work properly.
+
+    This function will replace links in the form 'filename#id' with
+    '#filename_id', and change the target IDs according.  It avoids
+    altering the ID of elements that aren't locally linked, as these
+    might be used for CSS or external links.
+    """
+    old_prefix = (old_filename + '#').encode('utf-8')
+    targets = []
+    transformed_ids = {}
+
+    #loop 1: find links and shortlist elements with ID
+    for e in doc.iter():
+        if e.tag == 'a':
+            href = e.get('href')
+            if href and href.startswith(old_prefix):
+                old_id = href[len(old_prefix):]
+                new_id = '%s_%s' % (old_filename, old_id)
+                e.set('href', '#' + new_id)
+                transformed_ids[old_id] = new_id
+            name = e.get('name')
+            if name:
+                targets.append(e)
+                continue
+        ID = e.get('id')
+        if ID is not None:
+            targets.append(e)
+
+    log("transforming these IDs in chapter %s: %s" % (old_filename, transformed_ids))
+
+    for e in targets:
+        old_id = e.get('id')
+        if old_id is None and e.tag == 'a':
+            old_id = e.get('name')
+        if old_id is None:
+            continue
+        if old_id in transformed_ids:
+            new_id = transformed_ids[old_id]
+            e.set('id', new_id)
+            if e.tag == 'a':
+                e.set('name', new_id)
+
