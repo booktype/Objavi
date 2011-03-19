@@ -145,8 +145,20 @@ SERVER_DEFAULTS = {
         'toc-encoding': None,
         'display': True,
         'interface': 'Booki',
-        'toc_header': 'Table of Contents',
-        },
+        'toc_header': 'Table of Contents'
+      },
+      'fi-new.flossmanuals.net/kirjoita': {
+        'css-book': '/static/en.flossmanuals.net.css',
+        'css-web': '/static/en.flossmanuals.net-web.css',
+        'css-newspaper': '/static/en.flossmanuals.net-newspaper.css',
+        'css-openoffice': '/static/en.flossmanuals.net-openoffice.css',
+        'lang': 'en',
+        'dir': 'LTR',
+        'toc-encoding': None,
+        'display': True,
+        'interface': 'Booki',
+        'toc_header': 'Table of Contents'
+       },
     'www.booki.cc': {
         'css-book': '/static/en.flossmanuals.net.css',
         'css-web': '/static/en.flossmanuals.net-web.css',
