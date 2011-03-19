@@ -14,8 +14,10 @@ div, p, ul, pre, h1, h2 {
 }
 
 img {
-  max-width: 600px;
+  max-width: 100%;
   height: auto;
+  overflow:hidden;
+
 }
 /*end widths */
 
@@ -64,7 +66,7 @@ body .objavi-subsection:first-child{
 h1 {
   page-break-before: always;
   background: white;
-  font-weight:normal;
+  font-weight:normal !important;
 }
 
 /*h1.first-heading {
@@ -74,7 +76,7 @@ h1 {
 
 h2 {
   margin-bottom:-10pt;
-  font-weight:normal;
+  font-weight:normal ! important;
   font-size:15pt;
 }
 
@@ -84,6 +86,19 @@ h2 + p {
 }
 
 h2 + img {
+  page-break-before: avoid;
+}
+
+h2 + table {
+  page-break-before: avoid;
+}
+
+h2 + ul {
+  page-break-before: avoid;
+}
+
+
+h2 + ol {
   page-break-before: avoid;
 }
 
@@ -135,7 +150,7 @@ td.section {
 /* End TOC **************************/
 
 
-p, ul, ol {
+p, li {
   page-break-inside: avoid;
 }
 
@@ -195,6 +210,9 @@ unless explicitly overridden.*/
 }
 */
 
+a {
+  word-wrap: break-word;
+}
 
 .objavi-no-page-break {
   page-break-inside: avoid;
