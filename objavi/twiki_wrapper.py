@@ -315,7 +315,7 @@ class TWikiBook(object):
                 rightsholders = []
                 while True:
                     e = e.getnext()
-                    if not e.tail or e.tag != 'br':
+                    if e is None or not e.tail or e.tag != 'br':
                         break
                     #log(e.tail)
                     if e.tail.startswith(u'\u00a9'): # \u00a9 == copyright symbol
