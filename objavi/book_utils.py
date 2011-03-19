@@ -24,6 +24,7 @@ import shutil
 import time, re
 from subprocess import Popen, PIPE
 from urllib2 import urlopen, HTTPError
+import htmlentitydefs
 
 #from objavi.fmbook import log
 from objavi import config
@@ -175,10 +176,12 @@ def decode_html_entities(text):
                 return unichr(int(entity[3:-1], 16))
             elif entity[:2] == "&#":
                 return unichr(int(entity[2:-1]))
-        except ValueError:
+            else:
+                return unichr(htmlentitydefs.name2codepoint[entity[1:-1]])
+        except (ValueError, KeyError):
             log("ignoring bad entity %s" % entity)
-        return entity
-    return re.sub("&#?[0-9a-fA-F]+;", fixup, text).encode('utf-8')
+            return entity
+    return re.sub("&#x[0-9a-fA-F]+;|&#[0-9]+;|&[0-9a-zA-Z]+;", fixup, text).encode('utf-8')
 
 def url_fetch(url, suppress_error=False):
     try:
