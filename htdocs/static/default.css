@@ -13,6 +13,11 @@ div, p, ul, pre, h1, h2 {
   overflow: hidden;
 }
 
+table, tbody, tr, td {
+  max-width: 700px;
+  overflow: hidden;
+}
+
 img {
   max-width: 100%;
   height: auto;

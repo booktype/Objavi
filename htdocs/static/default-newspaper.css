@@ -1,54 +1,110 @@
 body {
-  font-family: 'Gillius ADF';
+  font-family: "fontin sans";
   background: #fff;
   color: #000;
-}
-
-#book-title {
-  font-size: 64pt;
-  page-break-before: avoid;
-  margin-bottom: 12em;  
+  font-size:12pt;
   max-width: 700px;
 }
 
-.unseen{
+/*Page widths */
+/* just in case body max-width doesn't work */
+div, p, ul, pre, h1, h2 {
+  max-width: 700px;
+  overflow: hidden;
+}
+
+table, tbody, tr, td {
+  max-width: 700px  !important;
+  overflow: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  overflow:hidden;
+
+}
+/*end widths */
+
+.objavi-chapter{
+  color: #000;
   display: none;
 }
 
-.chapter{
-  color: #000;
+a {
+  text-decoration:none;
+  color:#000;
 }
 
 h1 .initial{
   color: #000;
-  font-size: 2em;
+  display:none;
 }
 
-.subsection{
+.objavi-subsection{
   display: block;
+/*  page-break-before: always;*/
+/*  page-break-after: always;*/
   text-transform: uppercase;
   font-size: 20pt;
 }
 
-
-.subsection .initial {
-  font-size: 1em;
-  color: #000;
+body .objavi-subsection:first-child{
+  page-break-before: avoid;
 }
 
-.subsection-heading{
-  font-size: 36pt;
-  font-weight: bold;
+
+.objavi-subsection .initial {
+  font-size: 1em;
+  color: #000;
+  display:none;
+}
+
+.objavi-subsection-heading {
+  font-size: 20pt;
+  text-align: center;
+  line-height: 300px;
+  font-weight: normal;
 }
 
 
 h1 {
-  text-transform: uppercase;
-  margin: 1em 0 1em 0;  
+  /*page-break-before: always;*/
+  background: white;
+  font-weight:normal !important;
 }
 
+/*h1.first-heading {
+  page-break-before: avoid;
+}*/
+
+
 h2 {
-  text-transform: uppercase;
+  margin-bottom:-10pt;
+  font-weight:normal ! important;
+  font-size:15pt;
+}
+
+/*try to avoid a page break between an h2 and a p XXX: doesn't work */
+h2 + p {
+  page-break-before: avoid;
+}
+
+h2 + img {
+  page-break-before: avoid;
+}
+
+h2 + table {
+  page-break-before: avoid;
+}
+
+h2 + ul {
+  page-break-before: avoid;
+}
+
+
+h2 + ol {
+  page-break-before: avoid;
 }
 
 table {
@@ -56,34 +112,120 @@ table {
 }
 
 h1.frontpage{
-  font-size: 64pt;
+  /*page-break-after:always;*/
+  margin-top:70%;
+  font-size: 20pt;
   text-align: center;
-  max-width: 700px;
+  page-break-before: avoid;
+  font-weight: normal;
 }
 
 div.copyright{
   padding: 1em;
-  margin: 2em 0 2em 0;
+}
+/* TOC ******************************/
+table {
+  float: none;
 }
 
-p, ul, ol {
+table.toc {
+  font-size: 1.1em;
+  width: 95%;
+}
+
+table.toc td{
+  vertical-align:top
+  padding-left: 0.5em;
+}
+
+td.chapter {
+  padding: 0 0.5em;
+  text-align: right;
+}
+
+table.toc td.pagenumber {
+  text-align: right;
+  vertical-align:bottom;
+}
+
+td.section {
+  padding-top: 1.1em;
+  font-weight: bold;
+}
+/* End TOC **************************/
+
+
+p, li {
   page-break-inside: avoid;
 }
 
 pre, code, tt {
   font-family: "Inconsolata", "Courier New", monospace;
-  font-size: 0.8em;
+  /*font-size: 0.8em;*/
 }
 
 pre {
-  max-width:700px;
   overflow: hidden;
   white-space: pre-wrap;
 }
 
-img {
-  max-width: 700px;
-  height: auto;
+
+h1, h2, h3, h4, h5, h6{
+  page-break-after: avoid;
+  page-break-inside: avoid;
 }
 
+
+.page-break{
+  page-break-before: always;
+  height: 7em;
+  display: block;
+}
+
+
+.glossary hr{
+  display: none;
+}
+
+/* page number styles -- these are the defaults, and will persist
+unless explicitly overridden.*/
+
+#right-footer {
+  text-align: right;
+}
+
+#left-footer {
+  text-align: left;
+}
+
+/* page number examples: */
+/*
+#right-footer .page:before{
+  content: " FLOSS Manuals ";
+  font-size: 85%;
+}
+
+#left-footer .page:after{
+  content: " FLOSS Manuals ";
+  font-size: 85%;
+}
+
+.page-footer {
+  color: red;
+}
+*/
+
+a {
+  max-width: 700px;
+  word-wrap: break-word;
+}
+
+.objavi-no-page-break {
+  page-break-inside: avoid;
+}
+
+
+.unseen{
+  display: none;
+}
 
