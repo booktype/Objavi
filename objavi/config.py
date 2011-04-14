@@ -326,10 +326,10 @@ PAGE_EXTREMA = {
     'page_height': (1, 1414, MM_2_POINT),
     'gutter': (-1000, 1000, MM_2_POINT),
     'top_margin': (0, 1500, MM_2_POINT),
-    'side_margin': (0, 1500, MM_2_POINT),
+    'side_margin': (-500, 1500, MM_2_POINT),
     'bottom_margin': (0, 1500, MM_2_POINT),
     "columns": (1, 12, 1),
-    "column_margin": (0, 1000, MM_2_POINT),
+    "column_margin": (-1000, 1000, MM_2_POINT),
 }
 
 PAGE_SIZE_DATA = {
