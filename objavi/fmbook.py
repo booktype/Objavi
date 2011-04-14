@@ -733,7 +733,7 @@ class Book(object):
         for tag in tags:
             for e in self.tree.iter(tag):
                 follower = e.getnext()
-                log(e, follower)
+                #log(e, follower)
                 if follower is not None: #and in whitelist? e.g. ['p']
                     wrapper = e.makeelement('div', Class='objavi-no-page-break')
                     e.addprevious(wrapper)
