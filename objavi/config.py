@@ -69,7 +69,7 @@ BOOKLAND = 'bookland/bookland'
 PDFEDIT_MAX_PAGES = 20
 
 #maximum memory for objavi.cgi
-OBJAVI_CGI_MEMORY_LIMIT = 600 * 1024 * 1024
+OBJAVI_CGI_MEMORY_LIMIT = 1600 * 1024 * 1024
 
 #keep book lists around for this time without refetching
 BOOK_LIST_CACHE = 3600 * 2

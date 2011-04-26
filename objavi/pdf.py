@@ -127,6 +127,7 @@ class PageSettings(object):
                 '-d', '100',
                 #'--zoom', '1.2',
                 '--encoding', 'UTF-8',
+                '--javascript-delay', '2000',
                 ] +
                page_num_args +
                outline_args +
