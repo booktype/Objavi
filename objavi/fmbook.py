@@ -255,6 +255,7 @@ class Book(object):
         self.pdf_file = self.filepath('final.pdf')
         self.body_odt_file = self.filepath('body.odt')
         self.outline_file = self.filepath('outline.txt')
+        self.cover_pdf_file = self.filepath('cover.pdf')
 
         self.publish_file = os.path.abspath(os.path.join(config.PUBLISH_DIR, bookname))
 
@@ -472,6 +473,16 @@ class Book(object):
                     self.isbn_pdf_file)
 
         self.notify_watcher('concatenated_pdfs')
+
+    def make_cover_pdf(self, api_key, booksize):
+        n_pages = count_pdf_pages(self.publish_file)
+
+        (_w, _h, spine_width) = self.maker.calculate_cover_size(api_key, booksize, n_pages)
+
+        self.maker.make_cover_pdf(self.cover_pdf_file, spine_width)
+
+    def upload_to_lulu(self, api_key, user, password, booksize, project, title):
+        self.maker.upload_to_lulu(api_key, user, password, self.cover_pdf_file, self.publish_file, booksize, project, title)
 
     def make_templated_html(self, template=None, zip=False, index=config.TEMPLATING_INDEX_FIRST):
         """Make a templated html version of the book."""

@@ -34,6 +34,7 @@ from objavi import config
 
 from objavi import twiki_wrapper, booki_wrapper
 from objavi.book_utils import init_log, log, make_book_name
+from objavi.book_utils import url_fetch, HTTPError
 from objavi.cgi_utils import parse_args, optionise, listify, get_server_list
 from objavi.cgi_utils import output_blob_and_exit, output_blob_and_shut_up, output_and_exit
 from objavi.cgi_utils import get_size_list, get_default_css, font_links, set_memory_limit
@@ -41,6 +42,7 @@ from objavi.cgi_utils import get_size_list, get_default_css, font_links, set_mem
 from objavi.form_config import CGI_MODES, CGI_DESTINATIONS
 from objavi.form_config import FORM_INPUTS, FORM_ELEMENT_TYPES, PROGRESS_POINTS
 
+from objavi.pdf import resize_pdf, count_pdf_pages
 
 def get_page_settings(args):
     """Find the size and any optional layout settings.
@@ -355,6 +357,24 @@ def mode_book(args):
             book.embed_fonts()
 
         book.publish_pdf()
+
+        if context.mode == 'book':
+            if args.get('to_lulu') and args.get('lulu_api_key') and args.get('lulu_user') and args.get('lulu_password'):
+                if args.get('cover_url'):
+                    pdfbody = url_fetch(args.get('cover_url'))
+                    with file(book.cover_pdf_file, "wb") as pdffile:
+                        pdffile.write(pdfbody)
+
+                    n_pages = count_pdf_pages(book.publish_file)
+
+                    (w, h, spine_width) = book.maker.calculate_cover_size(args.get("lulu_api_key"), args.get("booksize"), n_pages)
+
+                    resize_pdf(book.cover_pdf_file, 2*w+spine_width, h)
+                else:
+                    book.make_cover_pdf(args['lulu_api_key'], args.get('booksize'))
+                
+                book.upload_to_lulu(args['lulu_api_key'], args['lulu_user'], args['lulu_password'], args.get('booksize'), args.get('lulu_project'), args.get('title'))
+
         context.finish(book)
 
 #These ones are similar enough to be handled by the one function
