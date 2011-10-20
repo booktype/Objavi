@@ -196,6 +196,18 @@ SERVER_DEFAULTS = {
         'interface': 'Booki',
         'toc_header': 'Table of Contents',
         },
+    'sd-14919.dedibox.fr/ecrire': {
+        'css-book': '/static/fr.flossmanuals.net.css',
+        'css-web': '/static/fr.flossmanuals.net-web.css',
+        'css-newspaper': '/static/fr.flossmanuals.net-newspaper.css',
+        'css-openoffice': '/static/fr.flossmanuals.net-openoffice.css',
+        'lang': 'fr',
+        'dir': 'LTR',
+        'toc-encoding': None,
+        'display': True,
+        'interface': 'Booki',
+        'toc_header': 'Table of Contents',
+        },
     'archive.org': {
         'css-book': '/static/en.flossmanuals.net.css',
         'css-web': '/static/en.flossmanuals.net-web.css',
