@@ -49,7 +49,7 @@ BOOKI_BOOK_URL = '/booki-books'
 BOOKI_SHARED_DIRECTORY = 'htdocs/shared'
 BOOKI_SHARED_LONELY_USER_PREFIX = 'lonely-user-'
 
-WKHTMLTOPDF = '/usr/local/bin/wkhtmltopdf-static'
+WKHTMLTOPDF = 'wkhtmltopdf'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
 
 #use hacked version of wkhtmltopdf that writes outline to a file
@@ -104,14 +104,15 @@ POLL_NOTIFY_PATH = 'htdocs/progress/%s.txt'
 #POLL_NOTIFY_URL = 'http://%(HTTP_HOST)s/progress/%(bookname)s.txt'
 
 ZIP_URLS = {
-    'TWiki':   'http://%(HTTP_HOST)s/booki-twiki-gateway.cgi?server=%(server)s&book=%(book)s&mode=zip',
+    #'TWiki':   'http://%(HTTP_HOST)s/booki-twiki-gateway.cgi?server=%(server)s&book=%(book)s&mode=zip',
+    'TWiki':   'http://objavi.booki.cc/booki-twiki-gateway.cgi?server=%(server)s&book=%(book)s&mode=zip',
     'Booki':   'http://%(server)s/export/%(book)s/export',
     'Archive': 'http://%(HTTP_HOST)s/espri.cgi?mode=zip&book=%(book)s',
 }
 
 DEFAULT_DIR = 'LTR'
 
-DEFAULT_SERVER = 'en.flossmanuals.net'
+DEFAULT_SERVER = 'www.booki.cc'
 DEFAULT_BOOKI_SERVER = 'www.booki.cc'
 DEFAULT_SIZE = 'COMICBOOK'
 DEFAULT_ENGINE = 'webkit'
@@ -441,8 +442,8 @@ NOWHERE_TEMPLATE = 'templates/nowhere.txt'
 FINISHED_MESSAGE = 'FINISHED'
 
 
-S3_SECRET = '/home/douglas/s3.archive.org-secret'
-S3_ACCESSKEY = '/home/douglas/s3.archive.org-accesskey'
+S3_SECRET = '/home/luka/s3.archive.org-secret'
+S3_ACCESSKEY = '/home/luka/s3.archive.org-accesskey'
 
 #When it is necessary to creat a navpoint ID, use this string.
 NAVPOINT_ID_TEMPLATE = 'chapter%s'

@@ -32,6 +32,7 @@ from objavi.cgi_utils import parse_args, optionise, output_blob_and_exit
 from objavi.book_utils import shift_file, log
 from objavi import config
 
+log("twiki gateway")
 
 def make_booki_package(server, bookid, use_cache=False):
     """Extract all chapters from the specified book, as well as
