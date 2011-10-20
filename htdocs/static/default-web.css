@@ -26,7 +26,7 @@ h1 .initial{
   font-size: 2em;
 }
 
-body .subsection:first-child{
+body .objavi-subsection:first-child{
   page-break-before: avoid;
 }
 
@@ -36,19 +36,19 @@ h1 {
    background: white;
  }
  
-.subsection{
+.objavi-subsection{
   display: block;
   text-transform: uppercase;
   font-size: 20pt;
   page-break-before: always;
 }
 
-.subsection .initial {
+.objavi-subsection .initial {
   font-size: 1em;
   color: #000;
 }
 
-.subsection-heading{
+.objavi-subsection-heading{
   font-size: 36pt;
   font-weight: bold;
 }
