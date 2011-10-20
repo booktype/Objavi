@@ -29,7 +29,7 @@ class Oo(object):
         """Start up an open office and connect to it."""
         accept_string = "socket,host=localhost,port=2002;urp;StarOffice.ComponentContext"
 
-        self.ooffice = subprocess.Popen(["ooffice", "-nologo", "-nodefault",
+        self.soffice = subprocess.Popen(["soffice", "-nologo", "-nodefault",
                                          "-norestore", "-nofirststartwizard",
                                          "-headless", "-invisible", "-nolockcheck",
                                          "-accept=%s" % accept_string])
@@ -103,13 +103,13 @@ class Oo(object):
         self.desktop.dispose()
         self.context.dispose()
         for x in range(10):
-            os.kill(self.ooffice.pid, 15)
+            os.kill(self.soffice.pid, 15)
             time.sleep(0.25)
-            if self.ooffice.poll():
+            if self.soffice.poll():
                 break
             print >> sys.stderr, '*',
         else:
-            os.kill(self.ooffice.pid, 9)
+            os.kill(self.soffice.pid, 9)
 
 
 def set_env(workdir):
