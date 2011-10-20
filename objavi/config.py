@@ -33,6 +33,10 @@ from objavi.constants import DCNS, DC, FM, XHTMLNS, XHTML, WKTOCNS
 from objavi.constants import POINT_2_MM, MM_2_POINT, INCH_2_POINT
 from objavi.constants import BOOKIZIP_MIMETYPE
 
+LULU_API_KEY = "" # optional, needed for lulu.com integration
+LULU_USER = "" # optional, needed for lulu.com integration
+LULU_PASSWORD = "" # optional, needed for lulu.com integration
+
 KEEP_TEMP_FILES = True
 TMPDIR = 'htdocs/tmp'
 
@@ -370,6 +374,7 @@ PAGE_SIZE_DATA = {
     "CROWNQUARTO":    {'pointsize': (7.444 * 72, 9.681 * 72), 'class': "lulu us", 'display': True},
     "SQUARE8.5":      {'pointsize': (8.5 * 72, 8.5 * 72), 'class': "lulu", 'display': True},
     "US5.5x8.5":      {'pointsize': (5.5 * 72, 8.5 * 72), 'class': "us", 'display': True},
+    "DIGEST":         {'pointsize': (5.5 * 72, 8.5 * 72), 'class': "us lulu", 'display': True},
     "US5x8":          {'pointsize': (5 * 72, 8 * 72), 'class': "us", 'display': True},
     "US7x10":         {'pointsize': (7 * 72, 10 * 72), 'class': "us", 'display': True},
 

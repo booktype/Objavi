@@ -252,6 +252,28 @@ class PageSettings(object):
         log('ran:\n%s | %s' % (' '.join(cmd1), ' '.join(cmd2)))
         log("return: %s and %s \nstdout:%s \nstderr:%s" % (p1.poll(), p2.poll(), out, err))
 
+    def calculate_cover_size(self, api_key, booksize, page_count):
+        import lulu
+        return lulu.calculate_cover_size(api_key, booksize, page_count)
+
+    def make_cover_pdf(self, pdf, spine_width):
+        width = self.width * POINT_2_MM
+        height = self.height * POINT_2_MM
+        spine_width = spine_width * POINT_2_MM
+
+        # XXX for now makes a blank cover
+        cmd = [config.WKHTMLTOPDF,
+               "-q",
+               "--page-width", str(2 * width + spine_width),
+               "--page-height", str(height),
+               "--load-error-handling", "ignore",
+               "/dev/zero", pdf
+               ]
+        run(cmd)
+
+    def upload_to_lulu(self, api_key, user, password, cover, contents, booksize, project, title):
+        import lulu
+        lulu.create_project(api_key, user, password, cover, contents, booksize, project, title)
 
 def count_pdf_pages(pdf):
     """How many pages in the PDF?"""
@@ -412,3 +434,18 @@ def embed_all_fonts(pdf_file):
            '--',
            ] + [tmp_file]
     run(cmd)
+
+def resize_pdf(pdf, width, height):
+    ops = ["resize"]
+
+    cmd = ["pdfedit",
+           "-s", "wk_objavi.qs",
+           'filename=%s' % pdf,
+           'output_filename=%s' % pdf,
+           'operation=%s' % ','.join(ops),
+           'width=%s' % width,
+           'height=%s' % height,
+    ]
+
+    run(cmd)
+    

@@ -78,7 +78,13 @@ DEFAULT_MAX_AGE = -1 #negative number means server default
 
 FORM_INPUTS = (
     # input, name, input type, contents key/input value, CSS classes, extra text, validator, default
-    ("server", "FLOSS Manuals server", "select", "server_options", "", "",
+("lulu_api_key", "Lulu.com API key", "input[type=text]", None, "", "", lambda x: len(x) < 999 and is_utf8(x), config.LULU_API_KEY),
+("lulu_user", "Lulu.com user", "input[type=text]", None, "", "", lambda x: len(x) < 999 and is_utf8(x), config.LULU_USER),
+("lulu_password", "Lulu.com password", "input[type=text]", None, "", "", lambda x: len(x) < 999 and is_utf8(x), config.LULU_PASSWORD),
+("lulu_project", "Lulu.com project number", "input[type=text]", None, "", "", lambda x: len(x) < 999 and is_utf8(x), None),
+("cover_url", "URL for cover PDF", "input[type=text]", None, "", "", lambda x: len(x) < 999 and is_utf8(x), None),
+("to_lulu", "Send to lulu.com", "input[type=checkbox]", 'yes', "", '', u"yes".__eq__, None),
+("server", "FLOSS Manuals server", "select", "server_options", "", "",
      config.SERVER_DEFAULTS.__contains__, config.DEFAULT_SERVER,
      ),
     # book name can be: BlahBlah/Blah_Blah
