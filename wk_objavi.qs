@@ -64,8 +64,9 @@ const OPERATIONS = {
     page_numbers: 16,
     index: 32,
     even_pages: 64,
+    scale: 128,
 
-    dummy: 128,
+    dummy: 256,
     all: 0xffff
 };
 
@@ -151,6 +152,12 @@ function onConsoleStart() {
 
     if (doing_op('adjust_for_direction')){
         adjust_for_direction(pdf, options.offset, options.dir);
+    }
+
+    if (doing_op('scale')) {
+	process_pdf(pdf, scale_page, {width: options.width,
+				      height: options.height,
+                                      flip: 0})
     }
 
     if (doing_op('resize')){

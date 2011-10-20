@@ -45,6 +45,18 @@ function transform_page(page, offset){
     page.setTransformMatrix([1, 0, 0, 1, offset, 0]);
 }
 
+function scale_page(page, data) {
+    var box = page.mediabox();
+    var width0 = box[2]-box[0];
+    var height0 = box[3]-box[1];
+    var scale_x = data.width / width0;
+    var scale_y = data.height / height0;
+    var tx = (width0 - data.width)/2;
+    var ty = (height0 - data.height)/2;
+
+    page.setTransformMatrix([scale_x,0,0,scale_y,tx,ty]);
+}
+
 function rotate_page180(page){
     /* From the PDF reference:
      *
