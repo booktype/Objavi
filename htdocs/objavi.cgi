@@ -373,7 +373,14 @@ def mode_book(args):
                 else:
                     book.make_cover_pdf(args['lulu_api_key'], args.get('booksize'))
                 
-                book.upload_to_lulu(args['lulu_api_key'], args['lulu_user'], args['lulu_password'], args.get('booksize'), args.get('lulu_project'), args.get('title'))
+                metadata = {}
+                for key in "copyright_year copyright_citation description authors isbn".split():
+                    metadata[key] = args.get(key)
+
+                for key in "license access allow_ratings color drm paper_type binding_type language keywords currency_code download_price print_price".split():
+                    metadata[key] = args.get("lulu_"+key)
+
+                book.upload_to_lulu(args['lulu_api_key'], args['lulu_user'], args['lulu_password'], args.get('booksize'), args.get('lulu_project'), args.get('title'), metadata)
 
         context.finish(book)
 

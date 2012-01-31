@@ -70,7 +70,7 @@ def create_cover_pdf(width, height, spine_width, outputname):
     ]
     run(cmd)
 
-def create_project(api_key, user, password, cover, contents, booksize, projectid, title):
+def create_project(api_key, user, password, cover, contents, booksize, projectid, title, metadata={}):
 
     paperType = "regular"
     if booksize == "DIGEST":
@@ -99,30 +99,42 @@ def create_project(api_key, user, password, cover, contents, booksize, projectid
     proj = project.Project()
     proj.set("project_type", "softcover")
     proj.set("allow_ratings", True)
+
     proj.set("bibliography", project.Bibliography())
     proj.get("bibliography").set("title",  title)
-    proj.get("bibliography").set("authors", [ {"first_name": "The", "last_name":  "Authors"}, ])
+    authors = metadata['authors']
+    if authors:
+        authordata = [{'last_name': name} for name in authors.split(",")]
+        proj.get("bibliography").set("authors", authordata)
     proj.get("bibliography").set("category",  7)
-    proj.get("bibliography").set("description",  "A manual")
-    proj.get("bibliography").set("keywords",  [ "Free Software", "Open Source", "manual" ])
-    proj.get("bibliography").set("license",  "GNU General Public License")
-    proj.get("bibliography").set("copyright_year",  2011)
-    proj.get("bibliography").set("copyright_citation",  "by The Authors")
+
+    keywords = metadata['keywords']
+    if keywords:
+        proj.get("bibliography").set("keywords", keywords.split(","))
+
+    for key in "description license copyright_year copyright_citation language".split():
+        if metadata[key] is not None:
+            proj.get("bibliography").set(key, metadata[key])
+
     proj.get("bibliography").set("publisher",  "FLOSS Manuals")
-    proj.get("bibliography").set("edition",  "First")
-    proj.get("bibliography").set("language",  "EN")
+#    proj.get("bibliography").set("edition",  "First")
     proj.get("bibliography").set("country_code",  "US")
+
     proj.set("physical_attributes", project.PhysicalAttributes())
-    proj.get("physical_attributes").set("binding_type", "perfect")
     proj.get("physical_attributes").set("trim_size", booksize)
-    proj.get("physical_attributes").set("paper_type", paperType)
-    proj.get("physical_attributes").set("color", False)
-    proj.set("access", "public") # private, direct, public
+
+    for key in "color binding_type paper_type".split():
+        if metadata[key] is not None:
+            proj.get("physical_attributes").set(key, metadata[key])
+
+    proj.set("access", metadata["access"]) # private, direct, public
     proj.set("pricing", [ 
-            project.Pricing({"product": "download", "currency_code": "EUR", "total_price": "00.00"}),
-            project.Pricing({"product": "print", "currency_code": "EUR", "total_price": "5.00"}),
+            project.Pricing({"product": "download", "currency_code": metadata["currency_code"], "total_price": metadata["download_price"]}),
+            project.Pricing({"product": "print", "currency_code": metadata["currency_code"], "total_price": metadata["print_price"]}),
         ])
     proj.set("file_info", project.FileInfo({ "contents": [ contents_fd ], "cover": [ cover_fd ] }))
+
+    print proj
 
     if not projectid:
         log("creating the lulu.com project")
