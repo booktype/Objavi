@@ -100,6 +100,8 @@ FORM_INPUTS = (
 ("lulu_print_price", "Print price for lulu.com", "input[type=text]", None, "", "", lambda x: len(x) < 999 and is_utf8(x), None),
 ("description", "Description", "input[type=text]", None, "", "", lambda x: len(x) < 999 and is_utf8(x), None),
 ("authors", "Authors", "input[type=text]", None, "", "", lambda x: len(x) < 999 and is_utf8(x), None),
+("output_profile", "Output profile for Calibre", "input[type=text]", None, "", "", lambda x: len(x) < 999 and is_utf8(x), None),
+("output_format", "Output format for Calibre", "input[type=text]", None, "", "", lambda x: len(x) < 7 and is_utf8(x) and "/" not in x and "." not in x, "mobi"),
 ("server", "FLOSS Manuals server", "select", "server_options", "", "",
      config.SERVER_DEFAULTS.__contains__, config.DEFAULT_SERVER,
      ),

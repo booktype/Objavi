@@ -1057,6 +1057,11 @@ class Book(object):
         ebook.finish()
         self.notify_watcher()
 
+    def convert_with_calibre(self, output_profile, output_format="mobi"):
+        run(["ebook-convert",
+             self.publish_file, self.publish_file+"."+output_format,
+             "--output-profile", output_profile])
+        self.publish_file = self.publish_file+"."+output_format
 
     def publish_s3(self):
         """Push the book's epub to archive.org, using S3."""
