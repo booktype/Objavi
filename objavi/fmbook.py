@@ -958,10 +958,13 @@ class Book(object):
         return template % d
 
 
-    def make_epub(self, use_cache=False):
+    def make_epub(self, use_cache=False, css=None):
         """Make an epub version of the book, using Mike McCabe's
         epub module for the Internet Archive."""
         ebook = epub_utils.Epub(self.publish_file)
+
+        if css:
+            ebook.add_file("css", "objavi.css", "text/css", css)
 
         toc = self.info['TOC']
 
@@ -980,6 +983,18 @@ class Book(object):
                 c = EpubChapter(self.server, self.book, ID, content,
                                 use_cache=use_cache)
                 c.remove_bad_tags()
+
+                if css:
+                    for child in c.tree:
+                        if child.tag == 'head':
+                            head = child
+                            break
+                    else:
+                        head = c.tree.makeelement('head')
+                        c.tree.insert(0, head)
+
+                    link = etree.SubElement(head, 'link', rel='stylesheet', type='text/css', href="objavi.css")
+
                 if fn[-5:] == '.html':
                    fnbase = fn[:-5]
                 else:
@@ -987,6 +1002,7 @@ class Book(object):
                 fnx = fnbase + '.xhtml'
                 mediatype = 'application/xhtml+xml'
 
+                # XXX will the fragments get the link to the css?
                 fragments = split_html(c.as_xhtml(),
                                        compressed_size=self.store.getinfo(fn).compress_size)
 

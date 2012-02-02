@@ -418,7 +418,7 @@ def mode_epub(args):
               page_number_style=args.get('page-numbers'),
               ) as book:
 
-        book.make_epub(use_cache=config.USE_CACHED_IMAGES)
+        book.make_epub(use_cache=config.USE_CACHED_IMAGES, css=args.get('css'))
         if args.get('output_profile'):
             book.convert_with_calibre(args.get('output_profile'), args.get('output_format'))
 
