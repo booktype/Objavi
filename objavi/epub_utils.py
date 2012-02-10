@@ -111,6 +111,7 @@ class Epub(object):
         self.write_blob(CONTAINER_PATH, CONTAINER_XML)
         self.manifest = {}
         self.spine = []
+        self.guide = []
 
     def write_blob(self, path, blob, compression=ZIP_DEFLATED, mode=0644):
         """Add something to the zip without adding to manifest"""
@@ -120,13 +121,15 @@ class Epub(object):
         zinfo.date_time = self.now
         self.zipfile.writestr(zinfo, blob)
 
-    def add_file(self, ID, filename, mediatype, content):
+    def add_file(self, ID, filename, mediatype, content, properties=None):
         filename = filename.encode('utf-8')
         self.write_blob(filename, content)
         self.manifest[ID] = {'media-type': mediatype.encode('utf-8'),
                            'id': ID.encode('utf-8'),
                            'href': filename,
                            }
+        if properties:
+            self.manifest[ID]['properties'] = properties.encode('utf-8')
 
     def add_ncx(self, toc, filemap, ID, title):
         ncx = make_ncx(toc, filemap, ID, title)
@@ -137,6 +140,10 @@ class Epub(object):
         if linear is not None:
             info['linear'] = linear
         self.spine.append(info)
+
+    def add_guide_item(self, type, title, href):
+        info = dict(type=type, title=title, href=href)
+        self.guide.append(info)
 
     def write_opf(self, meta_info, primary_id=None):
         if primary_id is None:
@@ -165,6 +172,10 @@ class Epub(object):
         spine = etree.SubElement(root, 'spine', {'toc': self.ncx_id})
         for item in self.spine:
             etree.SubElement(spine, 'itemref', item)
+
+        guide = etree.SubElement(root, 'guide', {})
+        for item in self.guide:
+            etree.SubElement(guide, 'reference', item)
 
         tree_str = etree.tostring(root, pretty_print=True, encoding='utf-8')
         self.write_blob('content.opf', tree_str)

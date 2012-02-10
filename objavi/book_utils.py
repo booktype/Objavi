@@ -194,3 +194,15 @@ def url_fetch(url, suppress_error=False):
         if not suppress_error:
             raise
     #returns None is error is suppressed
+
+def url_fetch2(url, suppress_error=False):
+    try:
+        f = urlopen(url)
+        s = f.read()
+        f.close()
+        return (s, f.info()['Content-type'])
+    except HTTPError, e:
+        log("HTTPError '%s' trying to fetch '%s'" % (e, url))
+        if not suppress_error:
+            raise
+    #returns None is error is suppressed

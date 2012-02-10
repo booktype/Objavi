@@ -32,6 +32,7 @@ import zipfile
 import traceback
 from string import ascii_letters
 from pprint import pformat
+import mimetypes
 
 try:
     import json
@@ -42,7 +43,7 @@ import lxml.html
 from lxml import etree
 
 from objavi import config, epub_utils
-from objavi.book_utils import log, run, make_book_name, guess_lang, guess_text_dir, url_fetch
+from objavi.book_utils import log, run, make_book_name, guess_lang, guess_text_dir, url_fetch, url_fetch2
 from objavi.book_utils import ObjaviError, log_types, guess_page_number_style, get_number_localiser
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf
 from objavi.pdf import parse_outline, parse_extracted_outline, embed_all_fonts
@@ -256,7 +257,7 @@ class Book(object):
         self.body_odt_file = self.filepath('body.odt')
         self.outline_file = self.filepath('outline.txt')
         self.cover_pdf_file = self.filepath('cover.pdf')
-
+        self.epub_cover = None
         self.publish_file = os.path.abspath(os.path.join(config.PUBLISH_DIR, bookname))
 
         if page_settings is not None:
@@ -958,13 +959,35 @@ class Book(object):
         return template % d
 
 
-    def make_epub(self, use_cache=False, css=None):
+    def make_epub(self, use_cache=False, css=None, cover_url=None):
         """Make an epub version of the book, using Mike McCabe's
         epub module for the Internet Archive."""
         ebook = epub_utils.Epub(self.publish_file)
 
         if css:
             ebook.add_file("css", "objavi.css", "text/css", css)
+
+        cover, cover_type, cover_ext = None, None, None
+        if cover_url:
+            cover, cover_type = url_fetch2(cover_url)
+            cover_ext = mimetypes.guess_extension(cover_type)
+            self.epub_cover = self.save_tempfile("cover"+cover_ext, cover)
+            ebook.add_file("cover-image", "cover"+cover_ext, cover_type, cover, "cover-image")
+
+            cover_html = """
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Cover</title>
+<style type="text/css"> img { max-width: 100%%; } </style>
+</head>
+<body>
+<div id="cover-image">
+<img src="%s" alt="Cover image"/>
+</div>
+</body>
+</html>""" % ("cover" + cover_ext)
+            ebook.add_file("cover", "cover.xhtml", "application/xhtml+xml", cover_html)
 
         toc = self.info['TOC']
 
@@ -1033,12 +1056,18 @@ class Book(object):
         ebook.add_ncx(toc, filemap, book_id, self.title)
 
         #spine
+        if cover:
+            ebook.add_spine_item("cover", linear="no")
         for ID in self.spine:
             if ID in spinemap:
                 for x in spinemap[ID]:
                     ebook.add_spine_item(x)
             else:
                 ebook.add_spine_item(ID)
+
+        # guide
+        if cover:
+            ebook.add_guide_item("cover", "Cover", "cover.xhtml")
 
         #metadata -- no use of attributes (yet)
         # and fm: metadata disappears for now
@@ -1068,16 +1097,27 @@ class Book(object):
                               'This book is free. Copyright %s' % (', '.join(authors)),
                               {}))
 
+        if cover:
+            meta_info.append(("meta", None, dict(name="cover", content="cover-image")))
+
         log(meta_info)
         ebook.write_opf(meta_info)
         ebook.finish()
         self.notify_watcher()
 
     def convert_with_calibre(self, output_profile, output_format="mobi"):
+        tmp_target = self.publish_file+"."+output_format
+        args = []
+        if output_profile:
+            args += ["--output-profile", output_profile]
+        if self.epub_cover:
+            args += ["--cover", self.epub_cover]
         run(["ebook-convert",
-             self.publish_file, self.publish_file+"."+output_format,
-             "--output-profile", output_profile])
-        self.publish_file = self.publish_file+"."+output_format
+             self.publish_file, tmp_target] 
+            + args)
+        self.publish_file = self.publish_file.rsplit(".", 1)[0]+"."+output_format
+        os.rename(tmp_target, self.publish_file)
+
 
     def publish_s3(self):
         """Push the book's epub to archive.org, using S3."""
