@@ -32,19 +32,27 @@ class Oo(object):
         self.soffice = subprocess.Popen(["soffice", "-nologo", "-nodefault",
                                          "-norestore", "-nofirststartwizard",
                                          "-headless", "-invisible", "-nolockcheck",
-                                         "-accept=%s" % accept_string])
+                                         "-accept=%s" % accept_string], 
+                                        env=dict(HOME=os.environ['HOME'], 
+                                                 PATH=os.environ['PATH']), 
+                                        close_fds=True)
 
-        for i in range(10):
+        for i in range(20):
             time.sleep(0.5)
             try:
                 local = uno.getComponentContext()
                 self.resolver = local.ServiceManager.createInstanceWithContext("com.sun.star.bridge.UnoUrlResolver", local)
                 self.context = self.resolver.resolve("uno:" + accept_string)
                 self.desktop = self.unobject("com.sun.star.frame.Desktop", self.context)
-                return
-
+                break
             except NoConnectException:
                 print >> sys.stderr, '.',
+        else:
+            print >> sys.stderr, "Failed to connect soffice"
+            self.resolver = None
+            self.context = None
+            self.desktop = None
+
 
     def unobject(self, klass, context=None):
         """get an instance of the class named by <klass>.  It will
@@ -100,16 +108,24 @@ class Oo(object):
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        self.desktop.dispose()
-        self.context.dispose()
-        for x in range(10):
-            os.kill(self.soffice.pid, 15)
-            time.sleep(0.25)
-            if self.soffice.poll():
-                break
-            print >> sys.stderr, '*',
+        if self.desktop:
+            self.desktop.dispose()
+        if self.context:
+            self.context.dispose()
+        if self.soffice.poll() is not None:
+            print >> sys.stderr, "soffice exit with return code %s" % self.soffice.returncode
         else:
-            os.kill(self.soffice.pid, 9)
+            print >> sys.stderr, "sending SIGTERM to soffice"
+            for x in range(10):
+                os.kill(self.soffice.pid, 15)
+                time.sleep(0.25)
+                if self.soffice.poll() is not None:
+                    print >> sys.stderr, "soffice exit with return code %s" % self.soffice.returncode
+                    break
+                print >> sys.stderr, '*',
+            else:
+                print >> sys.stderr, "sending SIGKILL to soffice"
+                os.kill(self.soffice.pid, 9)
 
 
 def set_env(workdir):
