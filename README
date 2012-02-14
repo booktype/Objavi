@@ -15,8 +15,8 @@ and could not produce other output.  Objavi 2 was originally written
 just to provide fully internationalised PDFs, but it has since been
 adapted to produce other formats.
 
-Objavi 2 is free software, distributed under the version 2 or greater
-of the GNU General Public License.  The source can be viewed at
+Objavi 2 is free software, distributed under the version 3 or greater
+of the GNU Affero General Public License.  The source can be viewed at
 
  http://booki-dev.flossmanuals.net/git?p=objavi2.git
  (or, alternatively, http://repo.or.cz/w/objavi2.git)
