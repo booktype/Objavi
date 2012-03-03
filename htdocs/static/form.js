@@ -110,6 +110,8 @@ function onload(){
         $("#toggle-advanced").click(toggle_advanced);
     }
 
+    $("#to_lulu").change(function() { $(".lulucom").toggle(); });
+
     $("#booksize").change(toggle_custom_size);
     toggle_custom_size();
 
@@ -144,5 +146,10 @@ function onload(){
 $(".advanced").load(function(event){
                         event.target.addClass("gone");
                     });
+
+$(".lulucom").load(function(event) {
+    $(event.target).hide();
+});
+$(function() { $(".lulucom").hide(); });
 
 $(onload);
