@@ -79,7 +79,7 @@ DEFAULT_MAX_AGE = -1 #negative number means server default
 FORM_INPUTS = (
     # input, name, input type, contents key/input value, CSS classes, extra text, validator, default
     ("server", "FLOSS Manuals server", "select", "server_options", "", "",
-     config.SERVER_DEFAULTS.__contains__, config.DEFAULT_SERVER,
+     lambda x: len(x) < 999 and is_utf8(x), config.DEFAULT_SERVER,
      ),
     # book name can be: BlahBlah/Blah_Blah
     ("book", "Manual", "input[type=text]", "book_options", "", "",

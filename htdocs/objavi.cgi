@@ -455,13 +455,21 @@ def mode_templated_html(args):
 def mode_templated_html_zip(args):
     pass
 
-
+def handle_server_wildcards(servername):
+    if not servername in config.SERVER_DEFAULTS:
+        import fnmatch
+        for server in config.SERVER_DEFAULTS:
+            # if server is a pattern that matches servername:
+            if fnmatch.fnmatch(servername, server):
+                config.SERVER_DEFAULTS[servername] = config.SERVER_DEFAULTS[server]
+                break
 
 def main():
     if config.OBJAVI_CGI_MEMORY_LIMIT:
         set_memory_limit(config.OBJAVI_CGI_MEMORY_LIMIT)
 
     args = parse_args(dict((x[0], (x[6], x[7])) for x in FORM_INPUTS))
+    handle_server_wildcards(args.get('server'))
     mode = args.get('mode')
     if mode is None and 'book' in args:
         mode = 'book'
