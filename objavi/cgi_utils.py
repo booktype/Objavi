@@ -90,6 +90,7 @@ def url2path(url):
 
 _htdocs = os.path.abspath(config.HTDOCS)
 SERVER_NAME = os.environ.get('SERVER_NAME', 'localhost')
+SERVER_PORT = os.environ.get('SERVER_PORT', '80')
 
 def path2url(path, default='/missing_path?%(path)s', full=False):
     """convert local file paths to htdocs-relative addresses.  If the
@@ -102,7 +103,7 @@ def path2url(path, default='/missing_path?%(path)s', full=False):
     else:
         path = default % {'path': urllib.quote(path)}
     if full:
-        return 'http://%s%s' % (SERVER_NAME, path)
+        return 'http://%s:%s%s' % (SERVER_NAME, SERVER_PORT, path)
     return path
 
 
