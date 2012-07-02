@@ -27,7 +27,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 
 
-run("libobjavi.qs");
+run(settings.expand("${OBJAVI_PROJECT_DIR}/scripts/libobjavi.qs"));
 
 run( "pdfoperator.qs" ); // pdfedit stdlib, from /usr/share/pdfedit
 

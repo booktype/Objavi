@@ -23,6 +23,7 @@ from __future__ import with_statement
 
 import os, sys
 os.chdir('..')
+os.putenv("OBJAVI_PROJECT_DIR", os.getcwd())
 sys.path.insert(0, os.path.abspath('./lib'))
 
 import re, time

@@ -218,7 +218,7 @@ class PageSettings(object):
         if not ops:
             return
 
-        cmd = ['pdfedit', '-s', 'wk_objavi.qs',
+        cmd = ['pdfedit', '-s', 'scripts/wk_objavi.qs',
                'dir=%s' % dir,
                'filename=%s' % pdf,
                'output_filename=%s' % pdf,
@@ -439,7 +439,7 @@ def resize_pdf(pdf, width, height):
     ops = ["resize"]
 
     cmd = ["pdfedit",
-           "-s", "wk_objavi.qs",
+           "-s", "scripts/wk_objavi.qs",
            'filename=%s' % pdf,
            'output_filename=%s' % pdf,
            'operation=%s' % ','.join(ops),
