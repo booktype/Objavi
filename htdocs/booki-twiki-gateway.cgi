@@ -21,7 +21,7 @@
 
 import os, sys
 os.chdir('..')
-sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('./lib'))
 
 import re, traceback
 from urllib2 import HTTPError

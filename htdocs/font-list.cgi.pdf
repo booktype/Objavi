@@ -22,7 +22,7 @@
 import os, sys
 this_file = os.path.abspath(__file__)
 os.chdir('..')
-sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('./lib'))
 
 from objavi import config
 from objavi.book_utils import log, init_log
