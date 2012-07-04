@@ -21,7 +21,7 @@ import cgi, re
 import urllib
 from getopt import gnu_getopt
 
-from objavi.book_utils import log
+from objavi.book_utils import log, get_server_defaults
 from objavi import config
 
 def parse_args(arg_validators):
@@ -110,7 +110,7 @@ def path2url(path, default='/missing_path?%(path)s', full=False):
 def get_default_css(server=config.DEFAULT_SERVER, mode='book'):
     """Get the default CSS text for the selected server"""
     log(server)
-    cssfile = url2path(config.SERVER_DEFAULTS[server]['css-%s' % mode])
+    cssfile = url2path(get_server_defaults(server)['css-%s' % mode])
     log(cssfile)
     f = open(cssfile)
     s = f.read()

@@ -36,6 +36,7 @@ from objavi import config
 from objavi import twiki_wrapper, booki_wrapper
 from objavi.book_utils import init_log, log, make_book_name
 from objavi.book_utils import url_fetch, HTTPError
+from objavi.book_utils import get_server_defaults
 from objavi.cgi_utils import parse_args, optionise, listify, get_server_list
 from objavi.cgi_utils import output_blob_and_exit, output_blob_and_shut_up, output_and_exit
 from objavi.cgi_utils import get_size_list, get_default_css, font_links, set_memory_limit
@@ -100,7 +101,7 @@ def get_page_settings(args):
 def mode_booklist(args):
     #XXX need to include booki servers
     server = args.get('server')
-    if config.SERVER_DEFAULTS[server]['interface'] == 'Booki':
+    if get_server_defaults(server).get('interface') == 'Booki':
         books = booki_wrapper.get_book_list(server)
     else:
         books = twiki_wrapper.get_book_list(server)
@@ -456,21 +457,13 @@ def mode_templated_html(args):
 def mode_templated_html_zip(args):
     pass
 
-def handle_server_wildcards(servername):
-    if not servername in config.SERVER_DEFAULTS:
-        import fnmatch
-        for server in config.SERVER_DEFAULTS:
-            # if server is a pattern that matches servername:
-            if fnmatch.fnmatch(servername, server):
-                config.SERVER_DEFAULTS[servername] = config.SERVER_DEFAULTS[server]
-                break
 
 def main():
     if config.OBJAVI_CGI_MEMORY_LIMIT:
         set_memory_limit(config.OBJAVI_CGI_MEMORY_LIMIT)
 
     args = parse_args(dict((x[0], (x[6], x[7])) for x in FORM_INPUTS))
-    handle_server_wildcards(args.get('server'))
+
     mode = args.get('mode')
     if mode is None and 'book' in args:
         mode = 'book'

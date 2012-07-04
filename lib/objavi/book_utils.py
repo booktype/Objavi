@@ -22,6 +22,7 @@ General utility functions.
 import os, sys
 import shutil
 import time, re
+import fnmatch
 from subprocess import Popen, PIPE
 from urllib2 import urlopen, HTTPError
 import htmlentitydefs
@@ -80,6 +81,19 @@ def log_types(*args, **kwargs):
                 s = '<UNPRINTABLE!>'
         log("%s: %s" % (type(a), s[:size]))
 
+
+def get_server_defaults(server):
+    """Returns the defaults dictionary for the specified server.
+    """
+    defaults = config.SERVER_DEFAULTS.get(server)
+    if defaults:
+        # found verbatim
+        return defaults
+    for pattern, defaults in config.SERVER_DEFAULTS.iteritems():
+        if fnmatch.fnmatch(server, pattern):
+            return defaults
+
+
 def make_book_name(book, server, suffix='.pdf', timestamp=None):
     lang = guess_lang(server, book)
     book = ''.join(x for x in book if x.isalnum())
@@ -92,16 +106,13 @@ def make_book_name(book, server, suffix='.pdf', timestamp=None):
 def guess_lang(server, book):
     if server is None:
         server = config.DEFAULT_SERVER
-    lang = config.SERVER_DEFAULTS[server].get('lang')
+    lang = get_server_defaults(server).get('lang')
     if lang is None and '_' in book:
         lang = book[book.rindex('_') + 1:]
     return lang
 
 def guess_text_dir(server, book):
-    try:
-        dir = config.SERVER_DEFAULTS[server]['dir']
-    except KeyError:
-        dir = None
+    dir = get_server_defaults(server).get('dir')
     if dir not in ('LTR', 'RTL'):
         log("server %s, book %s: no specified dir (%s)" %(server, book, dir))
         lang = guess_lang(server, book)

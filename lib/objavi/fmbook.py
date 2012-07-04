@@ -45,6 +45,7 @@ from lxml import etree
 from objavi import config, epub_utils
 from objavi.book_utils import log, run, make_book_name, guess_lang, guess_text_dir, url_fetch, url_fetch2
 from objavi.book_utils import ObjaviError, log_types, guess_page_number_style, get_number_localiser
+from objavi.book_utils import get_server_defaults
 from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf
 from objavi.pdf import parse_outline, parse_extracted_outline, embed_all_fonts
 from objavi.epub import add_guts, _find_tag
@@ -209,7 +210,7 @@ class Book(object):
 
         self.toc_header = get_metadata(self.metadata, 'toc_header', ns=config.FM, default=[None])[0]
         if not self.toc_header:
-            self.toc_header = config.SERVER_DEFAULTS[server]['toc_header']
+            self.toc_header = get_server_defaults(server)['toc_header']
         if isinstance(self.toc_header, unicode):
             self.toc_header = self.toc_header.encode('utf-8')
 
@@ -880,7 +881,7 @@ class Book(object):
         log("css is %r" % css)
         htmltree = self.tree
         if css is None or not css.strip():
-            css_default = config.SERVER_DEFAULTS[self.server]['css-%s' % mode]
+            css_default = get_server_defaults(self.server)['css-%s' % mode]
             if css_default is None:
                 #guess from language -- this should come first
                 css_modes = config.LANGUAGE_CSS.get(self.lang,
@@ -1342,7 +1343,7 @@ def _read_cached_zip(server, book, max_age):
 
 
 def fetch_zip(server, book, save=False, max_age=-1, filename=None):
-    interface = config.SERVER_DEFAULTS[server].get('interface', 'Booki')
+    interface = get_server_defaults(server).get('interface', 'Booki')
     try:
         url = config.ZIP_URLS[interface] % {'HTTP_HOST': HTTP_HOST,
                                             'server': server, 'book':book}
