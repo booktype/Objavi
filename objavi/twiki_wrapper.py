@@ -5,6 +5,7 @@ import tempfile
 
 from objavi import config
 from objavi.book_utils import log, guess_lang, guess_text_dir, make_book_name, decode_html_entities, url_fetch
+from objavi.book_utils import get_server_defaults
 from urllib2 import urlopen, HTTPError
 from urlparse import urlsplit
 from booki.bookizip import add_metadata, BookiZip
@@ -64,7 +65,7 @@ def toc_iterator(server, book):
     url = config.TOC_URL % (server, book)
     log('getting TOC: %s' % url)
     f = urlopen(url)
-    encoding = config.SERVER_DEFAULTS[server]['toc-encoding']
+    encoding = get_server_defaults(server)['toc-encoding']
     while True:
         try:
             if encoding is not None:
@@ -291,7 +292,7 @@ class TWikiBook(object):
             tree = lxml.html.document_fromstring(credits_html, parser=utf8_html_parser)
         except UnicodeDecodeError, e:
             log("book isn't unicode! (%s)" %(e,))
-            encoding = config.SERVER_DEFAULTS[self.server]['toc-encoding']
+            encoding = get_server_defaults(self.server)['toc-encoding']
             parser = lxml.html.HTMLParser(encoding=encoding)
             tree = lxml.html.document_fromstring(credits_html, parser=parser)
 

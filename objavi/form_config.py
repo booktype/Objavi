@@ -23,6 +23,7 @@ import config
 import cgi_utils
 from objavi.cgi_utils import is_utf8, is_float, is_float_or_auto
 from objavi.cgi_utils import is_int_or_auto, is_isbn, is_url, never_ok
+from objavi.book_utils import get_server_defaults
 
 import re
 
@@ -79,7 +80,7 @@ DEFAULT_MAX_AGE = -1 #negative number means server default
 FORM_INPUTS = (
     # input, name, input type, contents key/input value, CSS classes, extra text, validator, default
     ("server", "FLOSS Manuals server", "select", "server_options", "", "",
-     lambda x: len(x) < 999 and is_utf8(x), config.DEFAULT_SERVER,
+     lambda x: get_server_defaults(x) is not None, config.DEFAULT_SERVER,
      ),
     # book name can be: BlahBlah/Blah_Blah
     ("book", "Manual", "input[type=text]", "book_options", "", "",
