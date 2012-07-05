@@ -110,7 +110,7 @@ def mode_booklist(args):
 @output_and_exit
 def mode_css(args):
     #XX sending as text/html, but it doesn't really matter
-    return get_default_css(args.get('server'), args.get('pdftype'))
+    return get_default_css(args.get('server'), args.get('pdf_type'))
 
 
 @output_and_exit
