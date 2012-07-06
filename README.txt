@@ -13,6 +13,9 @@ The development of Objavi was supported by Internews.  It was
 extended to produce EPUB documents with support from the Internet
 Archive.
 
+Currently Objavi is part of the Booktype project which is being developed
+by the Sourcefabric organization (www.sourcefabric.org).
+
 
 Installation
 ------------
@@ -20,13 +23,33 @@ Installation
 See the INSTALL.txt file for installation instructions.
 
 
+More Info
+---------
+
+Objavi is part of the Booktype project, so they shared support and
+development forums.
+
+Wiki
+https://wiki.sourcefabric.org/display/Booktype/Booktype
+
+Support forum
+http://forum.sourcefabric.org/categories/booktype-support
+
+Development forum
+http://forum.sourcefabric.org/categories/booktype-development
+
+Bug tracker
+http://dev.sourcefabric.org/browse/OB
+
+
+
 The objavi process
 ------------------
 
-Objavi2 starts with a "booki-zip", as defined in the file
-"doc/booki-zip-standard.txt".  This might be sourced from a Booki
-instance, or from Twiki via the booki-twiki-gateway script, or perhaps
-form an epub imported via Espri.
+Objavi starts with a "booki-zip", as defined in the file
+"doc/booki-zip-standard.txt".  This might be sourced from a Booktype
+instance, or from TWiki via the booki-twiki-gateway script, or perhaps
+form an EPUB imported via Espri.
 
 PDF Output
 ~~~~~~~~~~
@@ -64,4 +87,4 @@ instance controlled by pyuno.
 EPUB output
 ~~~~~~~~~~~
 The html in the booki-zip is manipulated into xhtml using lxml, and
-the structural information and metadata is converted into epub form.
+the structural information and metadata is converted into EPUB form.
