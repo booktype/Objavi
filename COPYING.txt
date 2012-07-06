@@ -1,0 +1,34 @@
+Legal Issues Regarding Objavi
+=============================
+
+Objavi is free software, distributed under the version 3 or greater
+of the GNU Affero General Public License.  The text of the GNU Affero
+General Public License is available in the doc/LICENSE-AGPL.txt file
+inside Objavi's source tree and also online at:
+
+  http://www.gnu.org/licenses/agpl-3.0.html
+
+Objavi also contains third-party tools and libraries that are copyright
+of their respectful owners:
+
+  - wikibooks2epub
+
+    Copyright Jan Gerber, licensed under the GPLv3 (not GPLv2 or later,
+    see file doc/LICENSE-GPL3.txt for full text of the license).
+    Objavi does not directly link to any of wikibooks2epub's files.
+
+  - bookland
+
+    Copyright Judah Milgram, licensed under the GPLv2 (see file
+    doc/LICENSE-GPL2.txt for full text of the license).
+
+  * pdfnup
+
+    Copyright David Firth, licensed under the GPLv2.
+
+
+The Objavi source code can be obtained from:
+
+  https://github.com/sourcefabric/Objavi.git
+
+which also contains instructions for cloning the git repository.

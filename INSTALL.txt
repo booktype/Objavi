@@ -1,0 +1,73 @@
+
+Installing Objavi	
+-----------------
+
+
+0. Fetch the tarball or clone the git repositiory with
+
+   git clone git://github.com/sourcefabric/Objavi.git
+
+This has probably already been done because that's how you found this file.
+
+
+1. Install dependencies.
+
+- lxml
+- pdftk
+- pdfedit
+- pdflatex
+- xvfb
+- fontconfig
+- ttf-???     -- you'll need some fonts
+- psutils
+- poppler-utils or xpdf-utils
+- httpd       -- apache2 is easiest because a config file is included
+- wkhtmltopdf -- version 0.11.0_rc1 or newer, download from http://code.google.com/p/wkhtmltopdf/
+
+To make ODF documents, you need a whole lot of OpenOffice 3 or LibreOffice 3.
+The following packages and their dependencies might be sufficient, though
+you might also need to install a Java runtime:
+
+- openoffice.org-common
+- openoffice.org-core
+- openoffice.org-filter-binfilter
+- openoffice.org-gcj
+- openoffice.org-writer
+- python-uno
+
+
+2. Make sure the following files are executable (and no others):
+
+- htdocs/*.cgi
+- htdocs/font-list.cgi.pdf
+- bin/html2odt
+- bin/pdfnup
+
+
+3. Make sure the following directories exist and are writable by
+   the www-data group (or whoever is your webserver user):
+
+- htdocs/books
+- htdocs/booki-books
+- htdocs/tmp
+- cache
+- log
+
+The "setup.sh" file shows a way of doing this.
+
+
+4. Configure your webserver.  For apache 2.2 you can use the following steps:
+
+  4.1. Copy example site configuration file doc/deployment/example-apache.conf
+       to /etc/apache2/sites-available/objavi
+
+  4.2. Edit the site configuration file and replace each occurrence
+       of "/var/www/objavi/" with the location of your Objavi installation.
+       Adjust other parameters as you see fit.
+
+  4.3. Execute the following command as super-user:
+
+       a2ensite objavi
+
+  4.4. Restart or reload the webserver.
+
