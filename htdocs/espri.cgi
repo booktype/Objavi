@@ -111,7 +111,7 @@ def inet_espri(epuburl):
 
 TIMEOUT_CMD = 'timeout'
 WIKIBOOKS_TIMEOUT = '600'
-WIKIBOOKS_CMD = 'wikibooks2epub'
+WIKIBOOKS_CMD = 'bin/wikibooks2epub'
 WIKIBOOKS_CACHE = 'cache/wikibooks'
 
 class TimeoutError(Exception):

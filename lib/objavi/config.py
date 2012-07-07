@@ -66,7 +66,7 @@ HTML2ODT = 'bin/html2odt'
 CGITB_DOMAINS = False
 
 #bookland is used to make isbn barcodes
-BOOKLAND = 'bookland/bookland'
+BOOKLAND = 'bin/bookland'
 
 # how many pages to number in one pdfedit process (which has
 # exponential memory leak)
