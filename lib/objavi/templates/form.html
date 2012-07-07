@@ -1,0 +1,36 @@
+{% load form_filters %}
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  
+  <head>
+    <title>OBJAVI</title>
+    <meta name="robots" content="noindex" />
+    <link rel="stylesheet" href="{{STATIC_URL}}/objavi.css" type="text/css" media="screen" />
+    <script src="{{STATIC_URL}}/jquery.js" type="text/javascript"></script>
+    <script src="{{STATIC_URL}}/form.js" type="text/javascript"></script>
+  </head>
+
+  <body>
+
+    <form action="" method="POST" id="obform" name="obform">
+    <div id="main">
+      {% for id, title, type, source, classes, epilogue, validator, default in FORM_INPUTS %}
+      <div id="{{id}}_div" class="form-item {{classes}}">
+	<div class="input_title">{{title}}</div>
+	<div class="input_contents">
+	  {{ form|get_widget:id }}
+	  {% autoescape off %}
+	  {{ epilogue }}
+	  {% endautoescape %}
+	</div>
+      </div>
+      {% endfor %}
+      <p>
+	<button id="submit">OBJAVI!</button>
+      </p>
+    </div>
+    </form>
+
+  </body>
+
+</html>
