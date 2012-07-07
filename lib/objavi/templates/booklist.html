@@ -1,0 +1,3 @@
+{% for book, name in books %}
+<option value="{{book}}" {% if book == default %} selected="selected" {% endif %}>{{name}}</option>
+{% endfor %}

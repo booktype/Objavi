@@ -33,7 +33,9 @@ urlpatterns = patterns(
     #url(r'^admin/', include(admin.site.urls)),
                        
     # front page                       
-    url(r'^$', "objavi.views.default"),
+    url(r'^$',                "objavi.views.default"),
+    url(r'^css$',             "objavi.views.mode_css"),
+    url(r'^booklist$',        "objavi.views.mode_booklist"),
     )
 
 
