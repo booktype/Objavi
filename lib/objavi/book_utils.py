@@ -267,5 +267,5 @@ def get_page_settings(args):
         del settings['page_width']
         del settings['page_height']
 
-    settings['engine'] = args.get('engine')
+    settings['engine'] = args.get('engine', config.DEFAULT_ENGINE)
     return settings

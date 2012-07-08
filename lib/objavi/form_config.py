@@ -219,7 +219,7 @@ FORM_INPUTS = (
      ),
     ("page-numbers", "Page numbering style", "select", "page_numbers", "advanced",
      'if in doubt, choose "auto"',
-     config.BOILERPLATE_HTML.__contains__, None,
+     config.PAGE_NUMBER_OPTIONS.__contains__, config.DEFAULT_PAGE_NUMBER_OPTION,
      ),
     ("embed-fonts", "Embed all fonts", "input[type=checkbox]", 'yes', "advanced",
      'PDFs: force embedding of Adobe fonts (probably unnecessary)',
