@@ -163,6 +163,45 @@ def mode_book(request):
     return HttpResponse(context.bookurl)
 
 
+def mode_openoffice(request):
+    args = parse_request(request)
+    context = ObjaviRequest(args)
+
+    with make_book(context, args) as book:
+        book.spawn_x()
+        book.load_book()
+        book.add_css(args.get('css'), 'openoffice')
+        book.add_section_titles()
+        book.make_oo_doc()
+        context.finish(book)
+
+    return HttpResponse(context.bookurl)
+
+
+def mode_bookizip(request):
+    args = parse_request(request)
+    context = ObjaviRequest(args)
+
+    with make_book(context, args) as book:
+        book.publish_bookizip()
+        context.finish(book)
+
+    return HttpResponse(context.bookurl)
+
+
+def mode_templated_html(request):
+    args = parse_request(request)
+    context = ObjaviRequest(args)
+
+    template = args.get('html_template')
+
+    with make_book(context, args) as book:
+        book.make_templated_html(template = template)
+        context.finish(book)
+
+    return HttpResponse(context.bookurl)
+
+
 def mode_booklist(request):
     server    = request.REQUEST.get("server", config.DEFAULT_SERVER)
     book      = request.REQUEST.get("book")
@@ -208,5 +247,11 @@ def default(request):
 
     if mode in ("book", "newspaper", "web"):
         return mode_book(request)
+    elif mode == "openoffice":
+        return mode_openoffice(request)
+    elif mode == "bookizip":
+        return mode_bookizip(request)
+    elif mode == "templated_html":
+        return mode_templated_html(request)
     else:
         return mode_form(request)
