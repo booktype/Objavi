@@ -29,8 +29,6 @@ from objavi.book_utils import log, run
 from objavi.cgi_utils import path2url
 from constants import POINT_2_MM
 
-PDFNUP = 'bin/pdfnup'
-
 
 class PageSettings(object):
     """Calculates and wraps commands for the generation and processing
@@ -184,7 +182,7 @@ class PageSettings(object):
             else:
                 extra_pages = 0
 
-            cmd = [PDFNUP,
+            cmd = [config.PDFNUP,
                    '--nup', '%sx1' % int(self.columns),
                    #'--paper', papersize.lower() + 'paper',
                    '--outfile', pdf,

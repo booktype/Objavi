@@ -20,53 +20,67 @@
 
 """This module contains constant values used to produce books.
 """
-from os import environ as _environ
 #XXX eventually, read in a real config file.
 #XXX Some of these values should be editable via an admin cgi script
 
-#cgi scripts chdir here to escape htdocs
-BASEDIR = ".."
+import os
 
+
+SERVER_NAME    = os.environ.get('SERVER_NAME', 'localhost')
+SERVER_PORT    = os.environ.get('SERVER_PORT', '80')
+DOCUMENT_ROOT  = os.environ.get('DOCUMENT_ROOT', os.path.abspath("htdocs"))
+PROJECT_ROOT   = os.path.abspath(DOCUMENT_ROOT + "/..")
+PROJECT_BINDIR = '%s/bin' % PROJECT_ROOT
 
 #XML namespace stuff and unit conversions
 from objavi.constants import DCNS, DC, FM, XHTMLNS, XHTML, WKTOCNS
 from objavi.constants import POINT_2_MM, MM_2_POINT, INCH_2_POINT
 from objavi.constants import BOOKIZIP_MIMETYPE
 
-LULU_API_KEY = "" # optional, needed for lulu.com integration
-LULU_USER = "" # optional, needed for lulu.com integration
-LULU_PASSWORD = "" # optional, needed for lulu.com integration
+LULU_API_KEY  = ""  # optional, needed for lulu.com integration
+LULU_USER     = ""  # optional, needed for lulu.com integration
+LULU_PASSWORD = ""  # optional, needed for lulu.com integration
 
 KEEP_TEMP_FILES = True
-TMPDIR = 'htdocs/tmp'
+TMPDIR = '%s/tmp' % DOCUMENT_ROOT
 
-LOGDIR = 'log'
+LOGDIR = '%s/log' % PROJECT_ROOT
 REDIRECT_LOG = True
 LOG_ROTATE_SIZE = 1000000
 
-SHOW_BOOKI_SERVERS = bool(_environ.get("SHOW_BOOKI_SERVERS", False))
+SHOW_BOOKI_SERVERS = bool(os.environ.get("SHOW_BOOKI_SERVERS", False))
 
-HTDOCS = 'htdocs'
-BOOKI_BOOK_DIR = 'htdocs/booki-books'
-BOOKI_BOOK_URL = '/booki-books'
+BOOKI_BOOK_DIR = '%s/booki-books' % DOCUMENT_ROOT
+BOOKI_BOOK_URL = 'http://%s:%s/booki-books' % (SERVER_NAME, SERVER_PORT)
 
-BOOKI_SHARED_DIRECTORY = 'htdocs/shared'
+BOOKI_SHARED_DIRECTORY = '%s/shared' % DOCUMENT_ROOT
 BOOKI_SHARED_LONELY_USER_PREFIX = 'lonely-user-'
+
+##
+# external programs
+#
+
+TIMEOUT_CMD = 'timeout'
+WIKIBOOKS_TIMEOUT = '600'
+WIKIBOOKS_CACHE = '%s/cache/wikibooks' % PROJECT_ROOT
+WIKIBOOKS_CMD = '%s/wikibooks2epub' % PROJECT_BINDIR
+
+PDFNUP   = '%s/pdfnup'   % PROJECT_BINDIR
+HTML2ODT = '%s/html2odt' % PROJECT_BINDIR
+BOOKLAND = '%s/bookland' % PROJECT_BINDIR
 
 WKHTMLTOPDF = 'wkhtmltopdf'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
+
 
 #use hacked version of wkhtmltopdf that writes outline to a file
 USE_DUMP_OUTLINE = True
 CONTENTS_DEPTH = 1
 
-HTML2ODT = 'bin/html2odt'
-
 #CGITB_DOMAINS = ('203.97.236.46', '202.78.240.7')
 CGITB_DOMAINS = False
 
 #bookland is used to make isbn barcodes
-BOOKLAND = 'bin/bookland'
 
 # how many pages to number in one pdfedit process (which has
 # exponential memory leak)
@@ -77,15 +91,15 @@ OBJAVI_CGI_MEMORY_LIMIT = 1600 * 1024 * 1024
 
 #keep book lists around for this time without refetching
 BOOK_LIST_CACHE = 3600 * 2
-CACHE_DIR = 'cache'
+CACHE_DIR = '%s/cache' % PROJECT_ROOT
 
 #for twiki import
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
 
-PUBLISH_DIR = 'htdocs/books'
+PUBLISH_DIR = '%s/books' % DOCUMENT_ROOT
 
-HTML_PUBLISH_DIR = 'htdocs/published'
+HTML_PUBLISH_DIR = '%s/published' % DOCUMENT_ROOT
 TEMPLATING_REPLACED_ELEMENT = 'content-goes-here'
 TEMPLATING_MENU_ELEMENT = 'menu-goes-here'
 TEMPLATING_BOOK_TITLE_ELEMENT = 'book-title-goes-here'
@@ -108,10 +122,9 @@ POLL_NOTIFY_PATH = 'htdocs/progress/%s.txt'
 #POLL_NOTIFY_URL = 'http://%(HTTP_HOST)s/progress/%(bookname)s.txt'
 
 ZIP_URLS = {
-    #'TWiki':   'http://%(HTTP_HOST)s/booki-twiki-gateway.cgi?server=%(server)s&book=%(book)s&mode=zip',
     'TWiki':   'http://objavi.booki.cc/booki-twiki-gateway.cgi?server=%(server)s&book=%(book)s&mode=zip',
     'Booki':   'http://%(server)s/export/%(book)s/export',
-    'Archive': 'http://%(HTTP_HOST)s/espri.cgi?mode=zip&book=%(book)s',
+    'Archive': 'http://%(SERVER_NAME)s:%(SERVER_PORT)s/espri.cgi?mode=zip&book=%(book)s',
 }
 
 DEFAULT_DIR = 'LTR'
@@ -425,9 +438,9 @@ ENGINES = {
 INSIDE_FRONT_COVER_TEMPLATE = 'templates/inside-front-cover.%s.html'
 END_MATTER_TEMPLATE = 'templates/end_matter.%s.html'
 
-FONT_LIST_INCLUDE = 'cache/font-list.inc'
-FONT_LIST_URL = '/font-list.cgi.pdf'
-FONT_EXAMPLE_SCRIPT_DIR = 'templates/font-list'
+FONT_LIST_INCLUDE = '%s/font-list.inc' % CACHE_DIR
+FONT_LIST_URL = 'http://%s:%s/font-list.cgi.pdf' % (SERVER_NAME, SERVER_PORT)
+FONT_EXAMPLE_SCRIPT_DIR = '%s/templates/font-list' % PROJECT_ROOT
 
 # for the license field, with a view to making it a drop down.
 LICENSES = {
@@ -467,7 +480,7 @@ NAVPOINT_ID_TEMPLATE = 'chapter%s'
 
 CLAIM_UNAUTHORED = False
 
-IMG_CACHE = 'cache/images/'
+IMG_CACHE = '%s/cache/images/' % PROJECT_ROOT
 
 USE_IMG_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
 USE_ZIP_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']

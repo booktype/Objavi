@@ -109,20 +109,16 @@ def inet_espri(epuburl):
     return '%s.zip' % bookid
 
 
-TIMEOUT_CMD = 'timeout'
-WIKIBOOKS_TIMEOUT = '600'
-WIKIBOOKS_CMD = 'bin/wikibooks2epub'
-WIKIBOOKS_CACHE = 'cache/wikibooks'
-
 class TimeoutError(Exception):
     pass
+
 
 def wikibooks_espri(wiki_url):
     """Wikibooks import using the wikibooks2epub script by Jan Gerber
     to first convert the wikibook to an epub, which can then be turned
     into a bookizip via the espri function.
     """
-    os.environ['oxCACHE'] = os.path.abspath(WIKIBOOKS_CACHE)
+    os.environ['oxCACHE'] = os.path.abspath(config.WIKIBOOKS_CACHE)
     os.environ['LANG'] = 'en_NZ.UTF-8'
     tainted_name = unquote(os.path.basename(urlsplit(wiki_url).path))
     bookid = "%s-%s" % (super_bleach(tainted_name),
@@ -133,8 +129,8 @@ def wikibooks_espri(wiki_url):
     epub_url = path2url(epub_file, full=True)
 
     #the wikibooks importer is a separate process, so run that, then collect the epub.
-    cmd = [TIMEOUT_CMD, WIKIBOOKS_TIMEOUT,
-           WIKIBOOKS_CMD,
+    cmd = [config.TIMEOUT_CMD, config.WIKIBOOKS_TIMEOUT,
+           config.WIKIBOOKS_CMD,
            '-i', wiki_url,
            '-o', epub_file
            ]

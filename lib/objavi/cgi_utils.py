@@ -86,11 +86,8 @@ def get_size_list():
 
 def url2path(url):
     """convert htdocs-relative addresses to local file paths"""
-    return config.HTDOCS + '/' + url.lstrip('/')
+    return config.DOCUMENT_ROOT + '/' + url.lstrip('/')
 
-_htdocs = os.path.abspath(config.HTDOCS)
-SERVER_NAME = os.environ.get('SERVER_NAME', 'localhost')
-SERVER_PORT = os.environ.get('SERVER_PORT', '80')
 
 def path2url(path, default='/missing_path?%(path)s', full=False):
     """convert local file paths to htdocs-relative addresses.  If the
@@ -98,13 +95,14 @@ def path2url(path, default='/missing_path?%(path)s', full=False):
     if path.startswith('file:///'):
         path = path[7:]
     path = os.path.abspath(path)
-    if path.startswith(_htdocs):
-        path = path[len(_htdocs):]
+    if path.startswith(config.DOCUMENT_ROOT):
+        path = path[len(config.DOCUMENT_ROOT):]
     else:
         path = default % {'path': urllib.quote(path)}
     if full:
-        return 'http://%s:%s%s' % (SERVER_NAME, SERVER_PORT, path)
-    return path
+        return 'http://%s:%s%s' % (config.SERVER_NAME, config.SERVER_PORT, path)
+    else:
+        return path
 
 
 def get_default_css(server=config.DEFAULT_SERVER, mode='book'):

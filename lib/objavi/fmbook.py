@@ -56,9 +56,7 @@ from objavi.constants import DC, DCNS, FM
 
 from booki.bookizip import get_metadata, add_metadata
 
-TMPDIR = os.path.abspath(config.TMPDIR)
-DOC_ROOT = os.environ.get('DOCUMENT_ROOT', config.HTDOCS)
-HTTP_HOST = os.environ.get('HTTP_HOST', '')
+
 
 def find_archive_urls(bookid, bookname):
     s3url = 'http://s3.us.archive.org/booki-%s/%s' % (bookid, bookname)
@@ -244,7 +242,7 @@ class Book(object):
         self.toc = self.info['TOC']
         expand_toc(self.toc)
 
-        self.workdir = tempfile.mkdtemp(prefix=bookname, dir=TMPDIR)
+        self.workdir = tempfile.mkdtemp(prefix=bookname, dir=os.path.abspath(config.TMPDIR))
         os.chmod(self.workdir, 0755)
 
         self.body_html_file = self.filepath('body.html')
@@ -1315,7 +1313,7 @@ class Book(object):
 
 
 def use_cache():
-    return (os.environ.get('HTTP_HOST') in config.USE_ZIP_CACHE_ALWAYS_HOSTS)
+    return (config.SERVER_NAME in config.USE_ZIP_CACHE_ALWAYS_HOSTS)
 
 def _read_cached_zip(server, book, max_age):
     #find a recent zip if possible
@@ -1345,7 +1343,8 @@ def _read_cached_zip(server, book, max_age):
 def fetch_zip(server, book, save=False, max_age=-1, filename=None):
     interface = get_server_defaults(server).get('interface', 'Booki')
     try:
-        url = config.ZIP_URLS[interface] % {'HTTP_HOST': HTTP_HOST,
+        url = config.ZIP_URLS[interface] % {'SERVER_NAME': config.SERVER_NAME,
+                                            'SERVER_PORT': config.SERVER_PORT,
                                             'server': server, 'book':book}
     except KeyError:
         raise NotImplementedError("Can't handle '%s' interface" % interface)

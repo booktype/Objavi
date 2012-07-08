@@ -30,7 +30,7 @@ import re, time
 #import traceback
 from pprint import pformat
 
-from objavi.fmbook import Book, HTTP_HOST, find_archive_urls
+from objavi.fmbook import Book, find_archive_urls
 from objavi import config
 
 from objavi import twiki_wrapper, booki_wrapper
@@ -142,10 +142,7 @@ class Context(object):
         self.callback = args.get('callback')
         self.method = args.get('method', CGI_DESTINATIONS[self.destination]['default'])
         self.template, self.mimetype = CGI_DESTINATIONS[self.destination][self.method]
-        if HTTP_HOST:
-            self.bookurl = "http://%s/books/%s" % (HTTP_HOST, self.bookname,)
-        else:
-            self.bookurl = "books/%s" % (self.bookname,)
+        self.bookurl = "http://%s:%s/books/%s" % (config.SERVER_NAME, config.SERVER_PORT, self.bookname,)
 
         if args.get('output_format') and args.get('output_profile'):
             self.bookurl = self.bookurl.rsplit(".", 1)[0]+"."+args.get('output_format')
