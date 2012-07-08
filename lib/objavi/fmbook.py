@@ -212,7 +212,7 @@ class Book(object):
         if isinstance(self.toc_header, unicode):
             self.toc_header = self.toc_header.encode('utf-8')
 
-        self.dir = str(get_metadata(self.metadata, 'dir', ns=config.FM, default=[None])[0])
+        self.dir = get_metadata(self.metadata, 'dir', ns=config.FM, default=[None])[0]
         if not self.dir:
             self.dir = guess_text_dir(server, book)
 
