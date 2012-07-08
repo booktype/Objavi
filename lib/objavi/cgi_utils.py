@@ -100,7 +100,7 @@ def path2url(path, default='/missing_path?%(path)s', full=False):
     else:
         path = default % {'path': urllib.quote(path)}
     if full:
-        return 'http://%s:%s%s' % (config.SERVER_NAME, config.SERVER_PORT, path)
+        return '%s/%s' % (config.OBJAVI_URL, path)
     else:
         return path
 

@@ -772,7 +772,6 @@ class Book(object):
         self.notify_watcher()
 
     def load_book(self):
-        """"""
         #XXX concatenate the HTML to match how TWiki version worked.
         # This is perhaps foolishly early -- throwing away useful boundaries.
         self.unpack_static()
@@ -1343,8 +1342,7 @@ def _read_cached_zip(server, book, max_age):
 def fetch_zip(server, book, save=False, max_age=-1, filename=None):
     interface = get_server_defaults(server).get('interface', 'Booki')
     try:
-        url = config.ZIP_URLS[interface] % {'SERVER_NAME': config.SERVER_NAME,
-                                            'SERVER_PORT': config.SERVER_PORT,
+        url = config.ZIP_URLS[interface] % {'OBJAVI_URL': config.OBJAVI_URL,
                                             'server': server, 'book':book}
     except KeyError:
         raise NotImplementedError("Can't handle '%s' interface" % interface)

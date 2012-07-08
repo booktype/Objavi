@@ -26,11 +26,26 @@
 import os
 
 
-SERVER_NAME    = os.environ.get('SERVER_NAME', 'localhost')
-SERVER_PORT    = os.environ.get('SERVER_PORT', '80')
-DOCUMENT_ROOT  = os.environ.get('DOCUMENT_ROOT', os.path.abspath("htdocs"))
-PROJECT_ROOT   = os.path.abspath(DOCUMENT_ROOT + "/..")
-PROJECT_BINDIR = '%s/bin' % PROJECT_ROOT
+def dirname(path, rep=0):
+    path = os.path.dirname(path)
+    if rep > 0:
+        return dirname(path, rep - 1)
+    else:
+        return path
+
+
+SERVER_NAME   = os.environ.get('SERVER_NAME', 'localhost')
+SERVER_PORT   = os.environ.get('SERVER_PORT', '80')
+OBJAVI_URL    = "http://%s:%s" % (SERVER_NAME, SERVER_PORT)
+
+OBJAVI_SOURCE_DIR = os.path.abspath(dirname(__file__, 2))
+
+OBJAVI_DIR    = os.path.abspath(OBJAVI_SOURCE_DIR)
+DOCUMENT_ROOT = os.path.join(OBJAVI_DIR, "htdocs")
+
+TOOL_DIR   = '%s/bin'     % OBJAVI_SOURCE_DIR
+SCRIPT_DIR = '%s/scripts' % OBJAVI_SOURCE_DIR
+
 
 #XML namespace stuff and unit conversions
 from objavi.constants import DCNS, DC, FM, XHTMLNS, XHTML, WKTOCNS
@@ -44,7 +59,7 @@ LULU_PASSWORD = ""  # optional, needed for lulu.com integration
 KEEP_TEMP_FILES = True
 TMPDIR = '%s/tmp' % DOCUMENT_ROOT
 
-LOGDIR = '%s/log' % PROJECT_ROOT
+LOGDIR = '%s/log' % OBJAVI_DIR
 REDIRECT_LOG = True
 LOG_ROTATE_SIZE = 1000000
 
@@ -57,17 +72,17 @@ BOOKI_SHARED_DIRECTORY = '%s/shared' % DOCUMENT_ROOT
 BOOKI_SHARED_LONELY_USER_PREFIX = 'lonely-user-'
 
 ##
-# external programs
+# external tools
 #
 
 TIMEOUT_CMD = 'timeout'
 WIKIBOOKS_TIMEOUT = '600'
-WIKIBOOKS_CACHE = '%s/cache/wikibooks' % PROJECT_ROOT
-WIKIBOOKS_CMD = '%s/wikibooks2epub' % PROJECT_BINDIR
+WIKIBOOKS_CACHE = '%s/cache/wikibooks' % OBJAVI_DIR
+WIKIBOOKS_CMD = '%s/wikibooks2epub' % TOOL_DIR
 
-PDFNUP   = '%s/pdfnup'   % PROJECT_BINDIR
-HTML2ODT = '%s/html2odt' % PROJECT_BINDIR
-BOOKLAND = '%s/bookland' % PROJECT_BINDIR
+PDFNUP   = '%s/pdfnup'   % TOOL_DIR
+HTML2ODT = '%s/html2odt' % TOOL_DIR
+BOOKLAND = '%s/bookland' % TOOL_DIR
 
 WKHTMLTOPDF = 'wkhtmltopdf'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
@@ -91,7 +106,7 @@ OBJAVI_CGI_MEMORY_LIMIT = 1600 * 1024 * 1024
 
 #keep book lists around for this time without refetching
 BOOK_LIST_CACHE = 3600 * 2
-CACHE_DIR = '%s/cache' % PROJECT_ROOT
+CACHE_DIR = '%s/cache' % OBJAVI_DIR
 
 #for twiki import
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
@@ -124,7 +139,7 @@ POLL_NOTIFY_PATH = 'htdocs/progress/%s.txt'
 ZIP_URLS = {
     'TWiki':   'http://objavi.booki.cc/booki-twiki-gateway.cgi?server=%(server)s&book=%(book)s&mode=zip',
     'Booki':   'http://%(server)s/export/%(book)s/export',
-    'Archive': 'http://%(SERVER_NAME)s:%(SERVER_PORT)s/espri.cgi?mode=zip&book=%(book)s',
+    'Archive': '%(OBJAVI_URL)s/espri.cgi?mode=zip&book=%(book)s',
 }
 
 DEFAULT_DIR = 'LTR'
@@ -435,12 +450,12 @@ ENGINES = {
     #'gecko' : [],
 }
 
-INSIDE_FRONT_COVER_TEMPLATE = 'templates/inside-front-cover.%s.html'
-END_MATTER_TEMPLATE = 'templates/end_matter.%s.html'
+INSIDE_FRONT_COVER_TEMPLATE = OBJAVI_DIR + '/templates/inside-front-cover.%s.html'
+END_MATTER_TEMPLATE = OBJAVI_DIR + '/templates/end_matter.%s.html'
 
 FONT_LIST_INCLUDE = '%s/font-list.inc' % CACHE_DIR
 FONT_LIST_URL = 'http://%s:%s/font-list.cgi.pdf' % (SERVER_NAME, SERVER_PORT)
-FONT_EXAMPLE_SCRIPT_DIR = '%s/templates/font-list' % PROJECT_ROOT
+FONT_EXAMPLE_SCRIPT_DIR = '%s/templates/font-list' % OBJAVI_DIR
 
 # for the license field, with a view to making it a drop down.
 LICENSES = {
@@ -480,7 +495,7 @@ NAVPOINT_ID_TEMPLATE = 'chapter%s'
 
 CLAIM_UNAUTHORED = False
 
-IMG_CACHE = '%s/cache/images/' % PROJECT_ROOT
+IMG_CACHE = '%s/cache/images/' % OBJAVI_DIR
 
 USE_IMG_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
 USE_ZIP_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
@@ -500,12 +515,12 @@ MARKER_CLASS_SPLIT = "espri-marker-name-clash-with-no-one--split"
 MARKER_CLASS_INFO = "espri-marker-name-clash-with-no-one--info"
 
 BOILERPLATE_HTML = { #(footer, header)
-    'LTR': ('htdocs/static/boilerplate/footer-LTR.html', None),
-    'RTL': ('htdocs/static/boilerplate/footer-RTL.html', None),
-    'fa': ('htdocs/static/boilerplate/footer-fa.html', None),
-    'ar': ('htdocs/static/boilerplate/footer-ar.html', None),
-    'my': ('htdocs/static/boilerplate/footer-my.html', None),
-    'hi': ('htdocs/static/boilerplate/footer-hi.html', None),
+    'LTR': ('%s/static/boilerplate/footer-LTR.html' % DOCUMENT_ROOT, None),
+    'RTL': ('%s/static/boilerplate/footer-RTL.html' % DOCUMENT_ROOT, None),
+    'fa':  ('%s/static/boilerplate/footer-fa.html'  % DOCUMENT_ROOT, None),
+    'ar':  ('%s/static/boilerplate/footer-ar.html'  % DOCUMENT_ROOT, None),
+    'my':  ('%s/static/boilerplate/footer-my.html'  % DOCUMENT_ROOT, None),
+    'hi':  ('%s/static/boilerplate/footer-hi.html'  % DOCUMENT_ROOT, None),
     'none': (None, None),
 }
 
