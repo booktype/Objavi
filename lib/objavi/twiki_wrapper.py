@@ -133,7 +133,7 @@ class TWikiBook(object):
         self.bookname = bookname
         self.book = book
         self.server = server
-        self.workdir = tempfile.mkdtemp(prefix=bookname, dir=config.TMPDIR)
+        self.workdir = tempfile.mkdtemp(prefix=bookname, dir=os.path.join(config.DATA_ROOT, "tmp"))
         os.chmod(self.workdir, 0755)
         #probable text direction
         self.dir = guess_text_dir(self.server, self.book)

@@ -33,10 +33,10 @@ from constants import POINT_2_MM
 class PageSettings(object):
     """Calculates and wraps commands for the generation and processing
     of PDFs"""
-    def __init__(self, tmpdir, pointsize, **kwargs):
+    def __init__(self, workdir, pointsize, **kwargs):
         # the formulas for default gutters, margins and column margins
         # are quite ad-hoc and certainly improvable.
-        self.tmpdir = tmpdir
+        self.workdir = workdir # must be relative to DATA_ROOT
         self.width, self.height = pointsize
         self.grey_scale = 'grey_scale' in kwargs
 
@@ -80,20 +80,26 @@ class PageSettings(object):
 
     def get_boilerplate(self, requested):
         """Return (footer url, header url)"""
-        footer_tmpl, header_tmpl = config.BOILERPLATE_HTML.get(requested,
-                                                               config.DEFAULT_BOILERPLATE_HTML)
+        footer_tmpl, header_tmpl = config.BOILERPLATE_HTML.get(requested, config.DEFAULT_BOILERPLATE_HTML)
         html = []
-        for fn in (footer_tmpl, header_tmpl):
-            if fn is not None:
-                f = open(fn)
-                s = f.read()
+        for templ_path in (footer_tmpl, header_tmpl):
+            if templ_path is not None:
+                f = open(os.path.join(config.TEMPLATE_ROOT, templ_path))
+                template_text = f.read()
                 f.close()
+
                 #XXX can manipulate footer here, for CSS etc
-                fn2 = os.path.join(self.tmpdir, os.path.basename(fn))
-                f = open(fn2, 'w')
-                f.write(s)
+
+                out_path = os.path.join(self.workdir, os.path.basename(templ_path))
+                f = open(out_path, 'w')
+                f.write(template_text)
                 f.close()
-                html.append(path2url(fn2, full=True))
+
+                # path to output file relative to DATA_ROOT
+                assert out_path.startswith(config.DATA_ROOT)
+                relpath = out_path[len(config.DATA_ROOT):]
+
+                html.append("%s/%s" % (config.DATA_URL, relpath))
             else:
                 html.append(None)
 
@@ -156,7 +162,7 @@ class PageSettings(object):
                 for k in ('width', 'side_margin', 'gutter', 'column_margin', 'columns', 'height'):
                     log("self.%s: %r" % (k, getattr(self, k)))
 
-            columnmaker = PageSettings(self.tmpdir, (page_width, self.height),
+            columnmaker = PageSettings(self.workdir, (page_width, self.height),
                                        gutter=0, top_margin=self.top_margin,
                                        side_margin=side_margin,
                                        bottom_margin=self.bottom_margin,

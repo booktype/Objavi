@@ -42,9 +42,13 @@ OBJAVI_SOURCE_DIR = os.path.abspath(dirname(__file__, 2))
 
 OBJAVI_DIR    = os.path.abspath(OBJAVI_SOURCE_DIR)
 DOCUMENT_ROOT = os.path.join(OBJAVI_DIR, "htdocs")
+TEMPLATE_ROOT = os.path.join(OBJAVI_DIR, "templates")
 
 TOOL_DIR   = '%s/bin'     % OBJAVI_SOURCE_DIR
 SCRIPT_DIR = '%s/scripts' % OBJAVI_SOURCE_DIR
+
+DATA_ROOT = DOCUMENT_ROOT
+DATA_URL  = OBJAVI_URL
 
 
 #XML namespace stuff and unit conversions
@@ -514,13 +518,16 @@ EPUB_FILE_SIZE_MAX = 200000
 MARKER_CLASS_SPLIT = "espri-marker-name-clash-with-no-one--split"
 MARKER_CLASS_INFO = "espri-marker-name-clash-with-no-one--info"
 
+# For each text direction, footer and header boilerplate.
+# Paths relative to TEMPLATE_ROOT.
+#
 BOILERPLATE_HTML = { #(footer, header)
-    'LTR': ('%s/static/boilerplate/footer-LTR.html' % DOCUMENT_ROOT, None),
-    'RTL': ('%s/static/boilerplate/footer-RTL.html' % DOCUMENT_ROOT, None),
-    'fa':  ('%s/static/boilerplate/footer-fa.html'  % DOCUMENT_ROOT, None),
-    'ar':  ('%s/static/boilerplate/footer-ar.html'  % DOCUMENT_ROOT, None),
-    'my':  ('%s/static/boilerplate/footer-my.html'  % DOCUMENT_ROOT, None),
-    'hi':  ('%s/static/boilerplate/footer-hi.html'  % DOCUMENT_ROOT, None),
+    'LTR': ('boilerplate/footer-LTR.html', None),
+    'RTL': ('boilerplate/footer-RTL.html', None),
+    'fa':  ('boilerplate/footer-fa.html', None),
+    'ar':  ('boilerplate/footer-ar.html', None),
+    'my':  ('boilerplate/footer-my.html', None),
+    'hi':  ('boilerplate/footer-hi.html', None),
     'none': (None, None),
 }
 

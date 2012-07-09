@@ -51,7 +51,7 @@ from objavi.pdf import parse_outline, parse_extracted_outline, embed_all_fonts
 from objavi.epub import add_guts, _find_tag
 from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree
 from objavi.xhtml_utils import utf8_html_parser, localise_local_links
-from objavi.cgi_utils import url2path, path2url, try_to_kill
+from objavi.cgi_utils import path2url, try_to_kill
 from objavi.constants import DC, DCNS, FM
 
 from booki.bookizip import get_metadata, add_metadata
@@ -242,7 +242,8 @@ class Book(object):
         self.toc = self.info['TOC']
         expand_toc(self.toc)
 
-        self.workdir = tempfile.mkdtemp(prefix=bookname, dir=os.path.abspath(config.TMPDIR))
+        # working directory somewhere inside DATA_ROOT
+        self.workdir = tempfile.mkdtemp(prefix=bookname, dir=os.path.join(config.DATA_ROOT, "tmp"))
         os.chmod(self.workdir, 0755)
 
         self.body_html_file = self.filepath('body.html')

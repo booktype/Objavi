@@ -123,7 +123,7 @@ def wikibooks_espri(wiki_url):
     tainted_name = unquote(os.path.basename(urlsplit(wiki_url).path))
     bookid = "%s-%s" % (super_bleach(tainted_name),
                         time.strftime('%Y.%m.%d-%H.%M.%S'))
-    workdir = tempfile.mkdtemp(prefix=bookid, dir=config.TMPDIR)
+    workdir = tempfile.mkdtemp(prefix=bookid, dir=os.path.join(config.DATA_ROOT, "tmp"))
     os.chmod(workdir, 0755)
     epub_file = os.path.join(workdir, bookid + '.epub')
     epub_url = path2url(epub_file, full=True)
