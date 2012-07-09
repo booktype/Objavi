@@ -61,7 +61,7 @@ LULU_USER     = ""  # optional, needed for lulu.com integration
 LULU_PASSWORD = ""  # optional, needed for lulu.com integration
 
 KEEP_TEMP_FILES = True
-TMPDIR = '%s/tmp' % DOCUMENT_ROOT
+TMP_DIR = "/tmp"
 
 LOGDIR = '%s/log' % OBJAVI_DIR
 REDIRECT_LOG = True

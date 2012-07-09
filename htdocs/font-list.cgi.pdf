@@ -55,7 +55,7 @@ def font_html(fonts, example_template, dir="LTR"):
     return '\n'.join(html)
 
 def font_pdf(html, pdfname):
-    fh, htmlname = tempfile.mkstemp(suffix='.html', dir=config.TMPDIR)
+    fh, htmlname = tempfile.mkstemp(suffix='.html', dir=config.TMP_DIR)
     os.write(fh, html)
     os.close(fh)
     cmd = [#'xvfb-run',
