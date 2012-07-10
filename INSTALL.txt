@@ -47,9 +47,10 @@ you might also need to install a Java runtime:
 3. Make sure the following directories exist and are writable by
    the www-data group (or whoever is your webserver user):
 
-- htdocs/books
-- htdocs/booki-books
-- htdocs/tmp
+- htdocs/data/books
+- htdocs/data/booki-books
+- htdocs/data/shared
+- htdocs/data/tmp
 - cache
 - log
 

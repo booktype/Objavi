@@ -42,7 +42,7 @@ OBJAVI_SOURCE_DIR = os.path.abspath(dirname(__file__, 2))
 
 OBJAVI_DIR    = os.path.abspath(OBJAVI_SOURCE_DIR)
 DOCUMENT_ROOT = os.path.join(OBJAVI_DIR, "htdocs")
-TEMPLATE_ROOT = os.path.join(OBJAVI_DIR, "templates")
+TEMPLATE_ROOT = os.path.join(OBJAVI_SOURCE_DIR, "templates")
 
 TOOL_DIR   = os.path.join(OBJAVI_SOURCE_DIR, "bin")
 SCRIPT_DIR = os.path.join(OBJAVI_SOURCE_DIR, "scripts")
@@ -50,8 +50,10 @@ SCRIPT_DIR = os.path.join(OBJAVI_SOURCE_DIR, "scripts")
 STATIC_ROOT = os.path.join(DOCUMENT_ROOT, "static")
 STATIC_URL  = "%s/%s" % (OBJAVI_URL, "static")
 
-DATA_ROOT = DOCUMENT_ROOT
-DATA_URL  = OBJAVI_URL
+DATA_ROOT = os.path.join(DOCUMENT_ROOT, "data")
+DATA_URL  = "%s/%s" % (OBJAVI_URL, "data")
+
+CACHE_DIR = os.path.join(OBJAVI_DIR, "cache")
 
 
 #XML namespace stuff and unit conversions
@@ -72,11 +74,17 @@ LOG_ROTATE_SIZE = 1000000
 
 SHOW_BOOKI_SERVERS = bool(os.environ.get("SHOW_BOOKI_SERVERS", False))
 
-BOOKI_BOOK_DIR = '%s/booki-books' % DOCUMENT_ROOT
-BOOKI_BOOK_URL = 'http://%s:%s/booki-books' % (SERVER_NAME, SERVER_PORT)
+BOOKI_BOOK_DIR = '%s/booki-books' % DATA_ROOT
+BOOKI_BOOK_URL = '%s/booki-books' % DATA_URL
 
-BOOKI_SHARED_DIRECTORY = '%s/shared' % DOCUMENT_ROOT
+PUBLISH_DIR = '%s/books' % DATA_ROOT
+PUBLISH_URL = '%s/books' % DATA_URL
+
+HTML_PUBLISH_DIR = '%s/published' % DATA_ROOT
+
+BOOKI_SHARED_DIRECTORY = '%s/shared' % DATA_ROOT
 BOOKI_SHARED_LONELY_USER_PREFIX = 'lonely-user-'
+
 
 ##
 # external tools
@@ -84,7 +92,7 @@ BOOKI_SHARED_LONELY_USER_PREFIX = 'lonely-user-'
 
 TIMEOUT_CMD = 'timeout'
 WIKIBOOKS_TIMEOUT = '600'
-WIKIBOOKS_CACHE = '%s/cache/wikibooks' % OBJAVI_DIR
+WIKIBOOKS_CACHE = '%s/wikibooks' % CACHE_DIR
 WIKIBOOKS_CMD = '%s/wikibooks2epub' % TOOL_DIR
 
 PDFNUP   = '%s/pdfnup'   % TOOL_DIR
@@ -113,15 +121,11 @@ OBJAVI_CGI_MEMORY_LIMIT = 1600 * 1024 * 1024
 
 #keep book lists around for this time without refetching
 BOOK_LIST_CACHE = 3600 * 2
-CACHE_DIR = '%s/cache' % OBJAVI_DIR
 
 #for twiki import
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
 
-PUBLISH_DIR = '%s/books' % DOCUMENT_ROOT
-
-HTML_PUBLISH_DIR = '%s/published' % DOCUMENT_ROOT
 TEMPLATING_REPLACED_ELEMENT = 'content-goes-here'
 TEMPLATING_MENU_ELEMENT = 'menu-goes-here'
 TEMPLATING_BOOK_TITLE_ELEMENT = 'book-title-goes-here'
@@ -506,7 +510,7 @@ NAVPOINT_ID_TEMPLATE = 'chapter%s'
 
 CLAIM_UNAUTHORED = False
 
-IMG_CACHE = '%s/cache/images/' % OBJAVI_DIR
+IMG_CACHE = '%s/images/' % CACHE_DIR
 
 USE_IMG_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
 USE_ZIP_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']

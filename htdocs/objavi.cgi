@@ -142,7 +142,7 @@ class Context(object):
         self.callback = args.get('callback')
         self.method = args.get('method', CGI_DESTINATIONS[self.destination]['default'])
         self.template, self.mimetype = CGI_DESTINATIONS[self.destination][self.method]
-        self.bookurl = "http://%s:%s/books/%s" % (config.SERVER_NAME, config.SERVER_PORT, self.bookname,)
+        self.bookurl = "%s/%s" % (config.PUBLISH_URL, self.bookname,)
 
         if args.get('output_format') and args.get('output_profile'):
             self.bookurl = self.bookurl.rsplit(".", 1)[0]+"."+args.get('output_format')

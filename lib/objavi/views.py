@@ -42,7 +42,7 @@ class ObjaviRequest(object):
         self.callback = args.get('callback')
         self.method = args.get('method', form_config.CGI_DESTINATIONS[self.destination]['default'])
         self.template, self.mimetype = form_config.CGI_DESTINATIONS[self.destination][self.method]
-        self.bookurl = "%s/books/%s" % (config.OBJAVI_URL, self.bookname,)
+        self.bookurl = "%s/%s" % (config.PUBLISH_URL, self.bookname,)
 
         if args.get('output_format') and args.get('output_profile'):
             self.bookurl = self.bookurl.rsplit(".", 1)[0]+"."+args.get('output_format')
