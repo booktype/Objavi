@@ -95,11 +95,7 @@ class PageSettings(object):
                 f.write(template_text)
                 f.close()
 
-                # path to output file relative to DATA_ROOT
-                assert out_path.startswith(config.DATA_ROOT)
-                relpath = out_path[len(config.DATA_ROOT):]
-
-                html.append("%s/%s" % (config.DATA_URL, relpath))
+                html.append(path2url(out_path))
             else:
                 html.append(None)
 
@@ -144,7 +140,7 @@ class PageSettings(object):
 
     def make_raw_pdf(self, html, pdf, outline=False, outline_file=None, page_num=None):
         if self.columns == 1:
-            html_url = path2url(html, full=True)
+            html_url = path2url(html)
             func = getattr(self, '_%s_command' % self.engine)
             cmd = func(html_url, pdf, outline=outline, outline_file=outline_file, page_num=page_num)
             run(cmd)

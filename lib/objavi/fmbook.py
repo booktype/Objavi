@@ -536,7 +536,7 @@ class Book(object):
             e.getparent().replace(e, copy.deepcopy(booktitle))
 
         if config.TAR_TEMPLATED_HTML:
-            tarurl = path2url(self.publish_file + '.tar.gz', full=True)
+            tarurl = path2url(self.publish_file + '.tar.gz')
             download_link = etree.Element('a', Class=config.TEMPLATING_DOWNLOAD_LINK_ELEMENT)
             download_link.text = 'Download'
             download_link.set('href', tarurl)
@@ -885,9 +885,9 @@ class Book(object):
                 css_modes = config.LANGUAGE_CSS.get(self.lang,
                                                     config.LANGUAGE_CSS['en'])
                 css_default = css_modes.get(mode, css_modes[None])
-            url = css_default
+            url = "%s/%s" % (config.STATIC_URL, css_default)
         elif not re.match(r'^http://\S+$', css):
-            url = path2url(self.save_tempfile('objavi.css', css), full=True)
+            url = path2url(self.save_tempfile('objavi.css', css))
         else:
             url = css
 

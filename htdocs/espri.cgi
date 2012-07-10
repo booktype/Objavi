@@ -126,7 +126,7 @@ def wikibooks_espri(wiki_url):
     workdir = tempfile.mkdtemp(prefix=bookid, dir=os.path.join(config.DATA_ROOT, "tmp"))
     os.chmod(workdir, 0755)
     epub_file = os.path.join(workdir, bookid + '.epub')
-    epub_url = path2url(epub_file, full=True)
+    epub_url = path2url(epub_file)
 
     #the wikibooks importer is a separate process, so run that, then collect the epub.
     cmd = [config.TIMEOUT_CMD, config.WIKIBOOKS_TIMEOUT,

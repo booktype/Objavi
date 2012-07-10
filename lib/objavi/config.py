@@ -44,8 +44,11 @@ OBJAVI_DIR    = os.path.abspath(OBJAVI_SOURCE_DIR)
 DOCUMENT_ROOT = os.path.join(OBJAVI_DIR, "htdocs")
 TEMPLATE_ROOT = os.path.join(OBJAVI_DIR, "templates")
 
-TOOL_DIR   = '%s/bin'     % OBJAVI_SOURCE_DIR
-SCRIPT_DIR = '%s/scripts' % OBJAVI_SOURCE_DIR
+TOOL_DIR   = os.path.join(OBJAVI_SOURCE_DIR, "bin")
+SCRIPT_DIR = os.path.join(OBJAVI_SOURCE_DIR, "scripts")
+
+STATIC_ROOT = os.path.join(DOCUMENT_ROOT, "static")
+STATIC_URL  = "%s/%s" % (OBJAVI_URL, "static")
 
 DATA_ROOT = DOCUMENT_ROOT
 DATA_URL  = OBJAVI_URL
@@ -162,21 +165,25 @@ USE_CACHED_IMAGES = False
 #too (i.e. when they are garbage collected).
 TRY_BOOK_CLEANUP_ON_DEL = False
 
+##
+# Note: all CSS files are relative to STATIC_ROOT
+#
+
 LANGUAGE_CSS = {
-    'en': {None: '/static/en.flossmanuals.net.css',
-           'web': '/static/en.flossmanuals.net-web.css',
-           'newspaper': '/static/en.flossmanuals.net-newspaper.css',
-           'openoffice': '/static/en.flossmanuals.net-openoffice.css',
+    'en': {None: 'en.flossmanuals.net.css',
+           'web': 'en.flossmanuals.net-web.css',
+           'newspaper': 'en.flossmanuals.net-newspaper.css',
+           'openoffice': 'en.flossmanuals.net-openoffice.css',
            },
-    'my': {None: '/static/my.flossmanuals.net.css',}
+    'my': {None: 'my.flossmanuals.net.css',}
 }
 
 SERVER_DEFAULTS = {
     'booki.flossmanuals.net': {
-        'css-book': '/static/en.flossmanuals.net.css',
-        'css-web': '/static/en.flossmanuals.net-web.css',
-        'css-newspaper': '/static/en.flossmanuals.net-newspaper.css',
-        'css-openoffice': '/static/en.flossmanuals.net-openoffice.css',
+        'css-book': 'en.flossmanuals.net.css',
+        'css-web': 'en.flossmanuals.net-web.css',
+        'css-newspaper': 'en.flossmanuals.net-newspaper.css',
+        'css-openoffice': 'en.flossmanuals.net-openoffice.css',
         'lang': 'en',
         'dir': 'LTR',
         'toc-encoding': None,
@@ -185,10 +192,10 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents'
       },
       'fi-new.flossmanuals.net/kirjoita': {
-        'css-book': '/static/en.flossmanuals.net.css',
-        'css-web': '/static/en.flossmanuals.net-web.css',
-        'css-newspaper': '/static/en.flossmanuals.net-newspaper.css',
-        'css-openoffice': '/static/en.flossmanuals.net-openoffice.css',
+        'css-book': 'en.flossmanuals.net.css',
+        'css-web': 'en.flossmanuals.net-web.css',
+        'css-newspaper': 'en.flossmanuals.net-newspaper.css',
+        'css-openoffice': 'en.flossmanuals.net-openoffice.css',
         'lang': 'en',
         'dir': 'LTR',
         'toc-encoding': None,
@@ -197,10 +204,10 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents'
        },
     'www.booki.cc': {
-        'css-book': '/static/en.flossmanuals.net.css',
-        'css-web': '/static/en.flossmanuals.net-web.css',
-        'css-newspaper': '/static/en.flossmanuals.net-newspaper.css',
-        'css-openoffice': '/static/en.flossmanuals.net-openoffice.css',
+        'css-book': 'en.flossmanuals.net.css',
+        'css-web': 'en.flossmanuals.net-web.css',
+        'css-newspaper': 'en.flossmanuals.net-newspaper.css',
+        'css-openoffice': 'en.flossmanuals.net-openoffice.css',
         'lang': 'en',
         'dir': 'LTR',
         'toc-encoding': None,
@@ -209,10 +216,10 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents',
         },
     'translate-new.flossmanuals.net': {
-        'css-book': '/static/en.flossmanuals.net.css',
-        'css-web': '/static/en.flossmanuals.net-web.css',
-        'css-newspaper': '/static/en.flossmanuals.net-newspaper.css',
-        'css-openoffice': '/static/en.flossmanuals.net-openoffice.css',
+        'css-book': 'en.flossmanuals.net.css',
+        'css-web': 'en.flossmanuals.net-web.css',
+        'css-newspaper': 'en.flossmanuals.net-newspaper.css',
+        'css-openoffice': 'en.flossmanuals.net-openoffice.css',
         'lang': 'en',
         'dir': 'LTR',
         'toc-encoding': None,
@@ -221,10 +228,10 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents',
         },
     'booki.halo.gen.nz': {
-        'css-book': '/static/en.flossmanuals.net.css',
-        'css-web': '/static/en.flossmanuals.net-web.css',
-        'css-newspaper': '/static/en.flossmanuals.net-newspaper.css',
-        'css-openoffice': '/static/en.flossmanuals.net-openoffice.css',
+        'css-book': 'en.flossmanuals.net.css',
+        'css-web': 'en.flossmanuals.net-web.css',
+        'css-newspaper': 'en.flossmanuals.net-newspaper.css',
+        'css-openoffice': 'en.flossmanuals.net-openoffice.css',
         'lang': 'en',
         'dir': 'LTR',
         'toc-encoding': None,
@@ -233,10 +240,10 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents',
         },
     'sd-14919.dedibox.fr/ecrire': {
-        'css-book': '/static/fr.flossmanuals.net.css',
-        'css-web': '/static/fr.flossmanuals.net-web.css',
-        'css-newspaper': '/static/fr.flossmanuals.net-newspaper.css',
-        'css-openoffice': '/static/fr.flossmanuals.net-openoffice.css',
+        'css-book': 'fr.flossmanuals.net.css',
+        'css-web': 'fr.flossmanuals.net-web.css',
+        'css-newspaper': 'fr.flossmanuals.net-newspaper.css',
+        'css-openoffice': 'fr.flossmanuals.net-openoffice.css',
         'lang': 'fr',
         'dir': 'LTR',
         'toc-encoding': None,
@@ -245,10 +252,10 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents',
         },
     'archive.org': {
-        'css-book': '/static/en.flossmanuals.net.css',
-        'css-web': '/static/en.flossmanuals.net-web.css',
-        'css-newspaper': '/static/en.flossmanuals.net-newspaper.css',
-        'css-openoffice': '/static/en.flossmanuals.net-openoffice.css',
+        'css-book': 'en.flossmanuals.net.css',
+        'css-web': 'en.flossmanuals.net-web.css',
+        'css-newspaper': 'en.flossmanuals.net-newspaper.css',
+        'css-openoffice': 'en.flossmanuals.net-openoffice.css',
         'lang': 'en',
         'dir': 'LTR',
         'toc-encoding': None,
@@ -257,10 +264,10 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents',
         },
     'en.flossmanuals.net': {
-        'css-book': '/static/en.flossmanuals.net.css',
-        'css-web': '/static/en.flossmanuals.net-web.css',
-        'css-newspaper': '/static/en.flossmanuals.net-newspaper.css',
-        'css-openoffice': '/static/en.flossmanuals.net-openoffice.css',
+        'css-book': 'en.flossmanuals.net.css',
+        'css-web': 'en.flossmanuals.net-web.css',
+        'css-newspaper': 'en.flossmanuals.net-newspaper.css',
+        'css-openoffice': 'en.flossmanuals.net-openoffice.css',
         'lang': 'en',
         'dir': 'LTR',
         'toc-encoding': None,
@@ -269,10 +276,10 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents',
         },
     'fi.flossmanuals.net': {
-        'css-book': '/static/en.flossmanuals.net.css',
-        'css-web': '/static/en.flossmanuals.net-web.css',
-        'css-newspaper': '/static/en.flossmanuals.net-newspaper.css',
-        'css-openoffice': '/static/en.flossmanuals.net-openoffice.css',
+        'css-book': 'en.flossmanuals.net.css',
+        'css-web': 'en.flossmanuals.net-web.css',
+        'css-newspaper': 'en.flossmanuals.net-newspaper.css',
+        'css-openoffice': 'en.flossmanuals.net-openoffice.css',
         'lang': 'fi',
         'dir': 'LTR',
         'toc-encoding': None,
@@ -281,11 +288,11 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents',
         },
     'fr.flossmanuals.net': {
-        'css-book': '/static/fr.flossmanuals.net.css',
-        'css-web': '/static/fr.flossmanuals.net-web.css',
-        'css-newspaper': '/static/fr.flossmanuals.net-newspaper.css',
-        'css': '/static/fr.flossmanuals.net.css',
-        'css-openoffice': '/static/fr.flossmanuals.net-openoffice.css',
+        'css-book': 'fr.flossmanuals.net.css',
+        'css-web': 'fr.flossmanuals.net-web.css',
+        'css-newspaper': 'fr.flossmanuals.net-newspaper.css',
+        'css': 'fr.flossmanuals.net.css',
+        'css-openoffice': 'fr.flossmanuals.net-openoffice.css',
         'lang': 'fr',
         'dir': 'LTR',
         'toc-encoding': None,
@@ -294,11 +301,11 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents',
         },
     'translate.flossmanuals.net': {
-        'css-book': None, #'/static/translate.flossmanuals.net.css',
-        'css-web': None, #'/static/translate.flossmanuals.net-web.css',
-        'css-newspaper': None, #'/static/translate.flossmanuals.net-newspaper.css',
-        'css': None, #'/static/translate.flossmanuals.net.css',
-        'css-openoffice': None, #'/static/translate.flossmanuals.net-openoffice.css',
+        'css-book': None, #'translate.flossmanuals.net.css',
+        'css-web': None, #'translate.flossmanuals.net-web.css',
+        'css-newspaper': None, #'translate.flossmanuals.net-newspaper.css',
+        'css': None, #'translate.flossmanuals.net.css',
+        'css-openoffice': None, #'translate.flossmanuals.net-openoffice.css',
         'lang': None,
         'dir': 'auto',
         'toc-encoding': 'iso-8859-1',
@@ -307,11 +314,11 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents',
         },
     'nl.flossmanuals.net': {
-        'css-book': '/static/nl.flossmanuals.net.css',
-        'css-web': '/static/nl.flossmanuals.net-web.css',
-        'css-newspaper': '/static/nl.flossmanuals.net-newspaper.css',
-        'css': '/static/nl.flossmanuals.net.css',
-        'css-openoffice': '/static/nl.flossmanuals.net-openoffice.css',
+        'css-book': 'nl.flossmanuals.net.css',
+        'css-web': 'nl.flossmanuals.net-web.css',
+        'css-newspaper': 'nl.flossmanuals.net-newspaper.css',
+        'css': 'nl.flossmanuals.net.css',
+        'css-openoffice': 'nl.flossmanuals.net-openoffice.css',
         'lang': 'nl',
         'dir': 'LTR',
         'toc-encoding': 'iso-8859-1',
@@ -320,11 +327,11 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents',
         },
     'bn.flossmanuals.net': {
-        'css-book': '/static/bn.flossmanuals.net.css',
-        'css-web': '/static/bn.flossmanuals.net-web.css',
-        'css-newspaper': '/static/bn.flossmanuals.net-newspaper.css',
-        'css': '/static/bn.flossmanuals.net.css',
-        'css-openoffice': '/static/bn.flossmanuals.net-openoffice.css',
+        'css-book': 'bn.flossmanuals.net.css',
+        'css-web': 'bn.flossmanuals.net-web.css',
+        'css-newspaper': 'bn.flossmanuals.net-newspaper.css',
+        'css': 'bn.flossmanuals.net.css',
+        'css-openoffice': 'bn.flossmanuals.net-openoffice.css',
         'lang': 'bn',
         'dir': 'LTR',
         'toc-encoding': 'iso-8859-1',
@@ -333,11 +340,11 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents',
         },
     'fa.flossmanuals.net': {
-        'css-book': '/static/fa.flossmanuals.net.css',
-        'css-web': '/static/fa.flossmanuals.net-web.css',
-        'css-newspaper': '/static/fa.flossmanuals.net-newspaper.css',
-        'css': '/static/fa.flossmanuals.net.css',
-        'css-openoffice': '/static/fa.flossmanuals.net-openoffice.css',
+        'css-book': 'fa.flossmanuals.net.css',
+        'css-web': 'fa.flossmanuals.net-web.css',
+        'css-newspaper': 'fa.flossmanuals.net-newspaper.css',
+        'css': 'fa.flossmanuals.net.css',
+        'css-openoffice': 'fa.flossmanuals.net-openoffice.css',
         'lang': 'fa',
         'dir': 'RTL',
         'toc-encoding': 'iso-8859-1',

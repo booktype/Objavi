@@ -84,36 +84,32 @@ def get_size_list():
                                   for k, v in config.PAGE_SIZE_DATA.iteritems() if v.get('display'))
             ]
 
-def url2path(url):
-    """convert htdocs-relative addresses to local file paths"""
-    return config.DOCUMENT_ROOT + '/' + url.lstrip('/')
+def path2url(path, default='/missing_path?%(path)s'):
+    """Converts absolute local file paths to absolute URL addresses.
 
-
-def path2url(path, default='/missing_path?%(path)s', full=False):
-    """convert local file paths to htdocs-relative addresses.  If the
-    file is not in the web tree, return default"""
+    If the specified path is not absolute, throws an exception.
+    If the file is not in the web tree, returns default.
+    """
     if path.startswith('file:///'):
         path = path[7:]
-    path = os.path.abspath(path)
-    if path.startswith(config.DOCUMENT_ROOT):
-        path = path[len(config.DOCUMENT_ROOT):]
+
+    if not os.path.isabs(path):
+        raise RuntimeError("specified path must be absolute")
+
+    if path.startswith(config.STATIC_ROOT):
+        return "%s/%s" % (config.STATIC_URL, path[len(config.STATIC_ROOT):])
+    elif path.startswith(config.DATA_ROOT):
+        return "%s/%s" % (config.DATA_URL, path[len(config.DATA_ROOT):])
     else:
         path = default % {'path': urllib.quote(path)}
-    if full:
         return '%s/%s' % (config.OBJAVI_URL, path)
-    else:
-        return path
 
 
 def get_default_css(server=config.DEFAULT_SERVER, mode='book'):
     """Get the default CSS text for the selected server"""
-    log(server)
-    cssfile = url2path(get_server_defaults(server)['css-%s' % mode])
-    log(cssfile)
-    f = open(cssfile)
-    s = f.read()
-    f.close()
-    return s
+    css_file_path = os.path.join(config.STATIC_ROOT, get_server_defaults(server)['css-%s' % mode])
+    return open(css_file_path, "r").read()
+
 
 def font_links():
     """Links to various example pdfs."""
