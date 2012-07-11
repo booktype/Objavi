@@ -110,8 +110,6 @@ CONTENTS_DEPTH = 1
 #CGITB_DOMAINS = ('203.97.236.46', '202.78.240.7')
 CGITB_DOMAINS = False
 
-#bookland is used to make isbn barcodes
-
 # how many pages to number in one pdfedit process (which has
 # exponential memory leak)
 PDFEDIT_MAX_PAGES = 20
@@ -126,22 +124,21 @@ BOOK_LIST_CACHE = 3600 * 2
 TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
 CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
 
+# templated html
+#
 TEMPLATING_REPLACED_ELEMENT = 'content-goes-here'
 TEMPLATING_MENU_ELEMENT = 'menu-goes-here'
 TEMPLATING_BOOK_TITLE_ELEMENT = 'book-title-goes-here'
 TEMPLATING_CHAPTER_TITLE_ELEMENT = 'chapter-title-goes-here'
 TEMPLATING_DOWNLOAD_LINK_ELEMENT = 'download-link-goes-here'
 TEMPLATING_CONTENTS_ID = 'main-content'
-#TEMPLATING_DEFAULT_TEMPLATE = 'templates/templating_template.html'
-TEMPLATING_DEFAULT_TEMPLATE = 'templates/templating_template_flossmanuals.html'
-
+TEMPLATING_DEFAULT_TEMPLATE = os.path.join(OBJAVI_SOURCE_DIR, 'templates/templating_template_flossmanuals.html')
 TEMPLATING_INDEX_FIRST = 'first'
 TEMPLATING_INDEX_CONTENTS = 'contents'
 TEMPLATING_INDEX_MODES = {  # contents file, first file
     TEMPLATING_INDEX_FIRST: ('contents.html', 'index.html'),
     TEMPLATING_INDEX_CONTENTS: ('index.html', None),
 }
-
 TAR_TEMPLATED_HTML = True
 
 POLL_NOTIFY_PATH = 'htdocs/progress/%s.txt'
@@ -465,12 +462,12 @@ ENGINES = {
     #'gecko' : [],
 }
 
-INSIDE_FRONT_COVER_TEMPLATE = OBJAVI_DIR + '/templates/inside-front-cover.%s.html'
-END_MATTER_TEMPLATE = OBJAVI_DIR + '/templates/end_matter.%s.html'
+INSIDE_FRONT_COVER_TEMPLATE = os.path.join(OBJAVI_SOURCE_DIR, 'templates/inside-front-cover.%s.html')
+END_MATTER_TEMPLATE = os.path.join(OBJAVI_SOURCE_DIR, 'templates/end_matter.%s.html')
 
 FONT_LIST_INCLUDE = '%s/font-list.inc' % CACHE_DIR
-FONT_LIST_URL = 'http://%s:%s/font-list.cgi.pdf' % (SERVER_NAME, SERVER_PORT)
-FONT_EXAMPLE_SCRIPT_DIR = '%s/templates/font-list' % OBJAVI_DIR
+FONT_LIST_URL = '%s/font-list.cgi.pdf' % OBJAVI_URL
+FONT_EXAMPLE_SCRIPT_DIR = '%s/templates/font-list' % OBJAVI_SOURCE_DIR
 
 # for the license field, with a view to making it a drop down.
 LICENSES = {
@@ -492,12 +489,12 @@ LICENSES = {
 
 DEFAULT_LICENSE = 'GPLv2+'
 
-FORM_TEMPLATE = 'templates/form.html'
-PROGRESS_ASYNC_TEMPLATE = 'templates/progress-async.html'
-PROGRESS_TEMPLATE = 'templates/progress.html'
-ASYNC_TEMPLATE = 'templates/async.txt'
-ARCHIVE_TEMPLATE = 'templates/archive.txt'
-NOWHERE_TEMPLATE = 'templates/nowhere.txt'
+FORM_TEMPLATE           = os.path.join(OBJAVI_SOURCE_DIR, 'templates/form.html')
+PROGRESS_ASYNC_TEMPLATE = os.path.join(OBJAVI_SOURCE_DIR, 'templates/progress-async.html')
+PROGRESS_TEMPLATE       = os.path.join(OBJAVI_SOURCE_DIR, 'templates/progress.html')
+ASYNC_TEMPLATE          = os.path.join(OBJAVI_SOURCE_DIR, 'templates/async.txt')
+ARCHIVE_TEMPLATE        = os.path.join(OBJAVI_SOURCE_DIR, 'templates/archive.txt')
+NOWHERE_TEMPLATE        = os.path.join(OBJAVI_SOURCE_DIR, 'templates/nowhere.txt')
 
 FINISHED_MESSAGE = 'FINISHED'
 
