@@ -209,8 +209,6 @@ class Book(object):
         self.toc_header = get_metadata(self.metadata, 'toc_header', ns=config.FM, default=[None])[0]
         if not self.toc_header:
             self.toc_header = get_server_defaults(server)['toc_header']
-        if isinstance(self.toc_header, unicode):
-            self.toc_header = self.toc_header.encode('utf-8')
 
         self.dir = get_metadata(self.metadata, 'dir', ns=config.FM, default=[None])[0]
         if not self.dir:
@@ -271,8 +269,6 @@ class Book(object):
                 self.title = titles[0]
             else:
                 self.title = 'A Book About ' + self.book
-        if isinstance(self.title, unicode):
-            self.title = self.title.encode('utf-8')
 
         self.notify_watcher()
 
@@ -825,8 +821,6 @@ class Book(object):
                 chapter += 1
 
         doc = header + '\n'.join(contents) + footer
-        if isinstance(doc, unicode):
-            doc = doc.encode('utf-8')
         self.notify_watcher()
         return doc
 
