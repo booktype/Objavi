@@ -41,16 +41,15 @@ OBJAVI_URL    = "http://%s:%s" % (SERVER_NAME, SERVER_PORT)
 OBJAVI_SOURCE_DIR = os.path.abspath(dirname(__file__, 2))
 
 OBJAVI_DIR    = os.path.abspath(OBJAVI_SOURCE_DIR)
-DOCUMENT_ROOT = os.path.join(OBJAVI_DIR, "htdocs")
 TEMPLATE_ROOT = os.path.join(OBJAVI_SOURCE_DIR, "templates")
 
 TOOL_DIR   = os.path.join(OBJAVI_SOURCE_DIR, "bin")
 SCRIPT_DIR = os.path.join(OBJAVI_SOURCE_DIR, "scripts")
 
-STATIC_ROOT = os.path.join(DOCUMENT_ROOT, "static")
+STATIC_ROOT = os.path.join(OBJAVI_DIR, "static")
 STATIC_URL  = "%s/%s" % (OBJAVI_URL, "static")
 
-DATA_ROOT = os.path.join(DOCUMENT_ROOT, "data")
+DATA_ROOT = os.path.join(OBJAVI_DIR, "data")
 DATA_URL  = "%s/%s" % (OBJAVI_URL, "data")
 
 CACHE_DIR = os.path.join(OBJAVI_DIR, "cache")
