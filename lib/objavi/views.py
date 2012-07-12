@@ -205,6 +205,28 @@ def mode_templated_html(request):
     return HttpResponse(context.bookurl)
 
 
+def mode_epub(request):
+    args = parse_request(request)
+    context = ObjaviRequest(args)
+
+    epub_args = {
+        "use_cache"  : config.USE_CACHED_IMAGES,
+        "css"        : args.get("css"),
+        "cover_url"  : args.get("cover_url"),
+        }
+
+    output_format  = args.get("output_format")
+    output_profile = args.get("output_profile")
+
+    with make_book(context, args) as book:
+        book.make_epub(**epub_args)
+        if output_format and output_profile:
+            book.convert_with_calibre(output_profile, output_format)
+        context.finish(book)
+
+    return HttpResponse(context.bookurl)
+
+
 def mode_booklist(request):
     server    = request.REQUEST.get("server", config.DEFAULT_SERVER)
     book      = request.REQUEST.get("book")
@@ -259,5 +281,7 @@ def default(request):
         return mode_bookizip(request)
     elif mode == "templated_html":
         return mode_templated_html(request)
+    elif mode == "epub":
+        return mode_epub(request)
     else:
         return mode_form(request)
