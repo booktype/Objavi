@@ -33,27 +33,53 @@ def dirname(path, rep=0):
     else:
         return path
 
+def try_import(name):
+    path = name.split(".")
+    try:
+        return __import__(name = path[-1], fromlist = path[0:-1])
+    except ImportError:
+        return None
+
+
+# Module containing Django project settings, or None if not running as a Django application.
+settings = try_import(os.getenv("DJANGO_SETTINGS_MODULE", "settings"))
+
+# Location of the Objavi source tree.
+OBJAVI_SOURCE_DIR = os.path.abspath(dirname(__file__, 2))
+
+# Location of the Objavi site.
+#
+if settings:
+    OBJAVI_DIR = os.path.abspath(dirname(settings.__file__))
+else:
+    OBJAVI_DIR = OBJAVI_SOURCE_DIR
 
 SERVER_NAME   = os.environ.get('SERVER_NAME', 'localhost')
 SERVER_PORT   = os.environ.get('SERVER_PORT', '80')
 OBJAVI_URL    = "http://%s:%s" % (SERVER_NAME, SERVER_PORT)
 
-OBJAVI_SOURCE_DIR = os.path.abspath(dirname(__file__, 2))
+if settings:
+    STATIC_ROOT = settings.STATIC_ROOT
+    STATIC_URL  = settings.STATIC_URL
+    DATA_ROOT   = settings.DATA_ROOT
+    DATA_URL    = settings.DATA_URL
+else:
+    STATIC_ROOT = os.path.join(OBJAVI_DIR, "static")
+    STATIC_URL  = "%s/%s" % (OBJAVI_URL, "static")
+    DATA_ROOT   = os.path.join(OBJAVI_DIR, "data")
+    DATA_URL    = "%s/%s" % (OBJAVI_URL, "data")
 
-OBJAVI_DIR    = os.path.abspath(OBJAVI_SOURCE_DIR)
+TOOL_DIR      = os.path.join(OBJAVI_SOURCE_DIR, "bin")
+SCRIPT_DIR    = os.path.join(OBJAVI_SOURCE_DIR, "scripts")
 TEMPLATE_ROOT = os.path.join(OBJAVI_SOURCE_DIR, "templates")
 
-TOOL_DIR   = os.path.join(OBJAVI_SOURCE_DIR, "bin")
-SCRIPT_DIR = os.path.join(OBJAVI_SOURCE_DIR, "scripts")
-
-STATIC_ROOT = os.path.join(OBJAVI_DIR, "static")
-STATIC_URL  = "%s/%s" % (OBJAVI_URL, "static")
-
-DATA_ROOT = os.path.join(OBJAVI_DIR, "data")
-DATA_URL  = "%s/%s" % (OBJAVI_URL, "data")
-
 CACHE_DIR = os.path.join(OBJAVI_DIR, "cache")
+LOG_DIR   = os.path.join(OBJAVI_DIR, 'log')
+TMP_DIR   = "/tmp"
 
+KEEP_TEMP_FILES = True
+REDIRECT_LOG    = True
+LOG_ROTATE_SIZE = 1000000
 
 #XML namespace stuff and unit conversions
 from objavi.constants import DCNS, DC, FM, XHTMLNS, XHTML, WKTOCNS
@@ -63,13 +89,6 @@ from objavi.constants import BOOKIZIP_MIMETYPE
 LULU_API_KEY  = ""  # optional, needed for lulu.com integration
 LULU_USER     = ""  # optional, needed for lulu.com integration
 LULU_PASSWORD = ""  # optional, needed for lulu.com integration
-
-KEEP_TEMP_FILES = True
-TMP_DIR = "/tmp"
-
-LOGDIR = '%s/log' % OBJAVI_DIR
-REDIRECT_LOG = True
-LOG_ROTATE_SIZE = 1000000
 
 SHOW_BOOKI_SERVERS = bool(os.environ.get("SHOW_BOOKI_SERVERS", False))
 
@@ -146,7 +165,7 @@ POLL_NOTIFY_PATH = 'htdocs/progress/%s.txt'
 ZIP_URLS = {
     'TWiki':   'http://objavi.booki.cc/booki-twiki-gateway.cgi?server=%(server)s&book=%(book)s&mode=zip',
     'Booki':   'http://%(server)s/export/%(book)s/export',
-    'Archive': '%(OBJAVI_URL)s/espri.cgi?mode=zip&book=%(book)s',
+    'Archive':  OBJAVI_URL + '/espri.cgi?mode=zip&book=%(book)s',
 }
 
 DEFAULT_DIR = 'LTR'
@@ -464,9 +483,9 @@ ENGINES = {
 INSIDE_FRONT_COVER_TEMPLATE = os.path.join(OBJAVI_SOURCE_DIR, 'templates/inside-front-cover.%s.html')
 END_MATTER_TEMPLATE = os.path.join(OBJAVI_SOURCE_DIR, 'templates/end_matter.%s.html')
 
-FONT_LIST_INCLUDE = '%s/font-list.inc' % CACHE_DIR
 FONT_LIST_URL = '%s/font-list.cgi.pdf' % OBJAVI_URL
-FONT_EXAMPLE_SCRIPT_DIR = '%s/templates/font-list' % OBJAVI_SOURCE_DIR
+FONT_LIST_INCLUDE = os.path.join(CACHE_DIR, 'font-list.inc')
+FONT_EXAMPLE_SCRIPT_DIR = os.path.join(OBJAVI_SOURCE_DIR, 'templates/font-list')
 
 # for the license field, with a view to making it a drop down.
 LICENSES = {

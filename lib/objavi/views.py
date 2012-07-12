@@ -52,7 +52,7 @@ class ObjaviRequest(object):
         self.booki_user = args.get('booki_user')
 
     def finish(self, book):
-        book.publish_shared(self.booki_group, self.booki_user)
+        #book.publish_shared(self.booki_group, self.booki_user)
         if self.destination == 'archive.org':
             book.publish_s3()
 
@@ -221,7 +221,7 @@ def mode_css(request):
     server = request.REQUEST.get("server", config.DEFAULT_SERVER)
     mode   = request.REQUEST.get("pdf_type", form_config.DEFAULT_PDF_TYPE)
     path   = book_utils.get_server_defaults(server)['css-%s' % mode]
-    return HttpResponseRedirect(path)
+    return HttpResponseRedirect("%s/%s" % (config.STATIC_URL, path))
 
 
 def mode_form(request):

@@ -1337,8 +1337,7 @@ def _read_cached_zip(server, book, max_age):
 def fetch_zip(server, book, save=False, max_age=-1, filename=None):
     interface = get_server_defaults(server).get('interface', 'Booki')
     try:
-        url = config.ZIP_URLS[interface] % {'OBJAVI_URL': config.OBJAVI_URL,
-                                            'server': server, 'book':book}
+        url = config.ZIP_URLS[interface] % { 'server' : server, 'book' : book }
     except KeyError:
         raise NotImplementedError("Can't handle '%s' interface" % interface)
 
