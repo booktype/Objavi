@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Objavi.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+
 from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
@@ -24,6 +26,7 @@ import form_config
 import config
 import fmbook
 import book_utils
+import cgi_utils
 import booki_wrapper
 import twiki_wrapper
 import settings
@@ -221,13 +224,16 @@ def mode_css(request):
     server = request.REQUEST.get("server", config.DEFAULT_SERVER)
     mode   = request.REQUEST.get("pdf_type", form_config.DEFAULT_PDF_TYPE)
     path   = book_utils.get_server_defaults(server)['css-%s' % mode]
-    return HttpResponseRedirect("%s/%s" % (config.STATIC_URL, path))
+    path   = os.path.join(config.STATIC_ROOT, path)
+    return HttpResponse(file(path, "r").read())
 
 
 def mode_form(request):
     context = {
         "FORM_INPUTS" : form_config.FORM_INPUTS,
-        "form" : forms.ObjaviForm(auto_id='%s'),
+        "form"        : forms.ObjaviForm(auto_id='%s'),
+        "font_list"   : cgi_utils.font_list(),
+        "font_links"  : cgi_utils.font_links(),
         }
     return render_to_response("form.html", context, context_instance=RequestContext(request))
 

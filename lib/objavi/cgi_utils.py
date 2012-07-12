@@ -121,6 +121,20 @@ def font_links():
         links.append('<a href="%s?script=%s">%s</a>' % (config.FONT_LIST_URL, script, script))
     return links
 
+
+def font_list():
+    try:
+        font_list_file = open(config.FONT_LIST_INCLUDE, "r")
+    except IOError:
+        return ['<i>Font lists not yet generated</i>']
+    list = []
+    for line in font_list_file:
+        line = line.strip()
+        if line:
+            list.append(line)
+    return list
+
+
 ## Helper functions for parse_args
 
 def is_float(s):

@@ -98,10 +98,8 @@ class ObjaviForm(forms.Form):
     columns             = forms.CharField(required = False)
     column_margin       = forms.CharField(required = False)
     grey_scale          = forms.BooleanField(required = False)
-    #css_url             = forms.CharField() # css-url
-    #font_list           = forms.CharField() # list
-    #font_links          = forms.CharField() # list
-    #css                 = forms.CharField(widget = forms.Textarea)
+    css_url             = forms.CharField(required = False)
+    css                 = forms.CharField(widget = forms.Textarea, required = False)
     rotate              = forms.BooleanField(required = False)
     html_template       = forms.CharField(widget = forms.Textarea, required = False)
     max_age             = forms.FloatField(required = False)

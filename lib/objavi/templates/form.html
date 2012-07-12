@@ -18,7 +18,26 @@
       <div id="{{id}}_div" class="form-item {{classes}}">
 	<div class="input_title">{{title}}</div>
 	<div class="input_contents">
+	  {% if id == "font_list" %}
+	  <ul id="font_list">
+	    {% for font in font_list %}
+	    <li>{{font}}</li>
+	    {% endfor %}
+	  </ul>
+	  {% endif %}
+
+	  {% if id == "font_links" %}
+	  <ul id="font_links">
+	    {% autoescape off %}
+	    {% for link in font_links %}
+	    <li>{{link}}</li>
+	    {% endfor %}
+	    {% endautoescape %}
+	  </ul>
+	  {% endif %}
+
 	  {{ form|get_widget:id }}
+
 	  {% autoescape off %}
 	  {{ epilogue }}
 	  {% endautoescape %}
