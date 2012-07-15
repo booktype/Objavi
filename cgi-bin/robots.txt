@@ -4,7 +4,7 @@ Disallow: /books/
 User-agent: *
 Disallow: /tmp
 Disallow: /booki-books
-Disallow: /bin   
+Disallow: /bin
 # some robots think it is an FM twiki site with /bin/view etc
 
 

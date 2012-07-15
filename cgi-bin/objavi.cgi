@@ -423,6 +423,6 @@ if __name__ == '__main__':
     if config.CGITB_DOMAINS and os.environ.get('REMOTE_ADDR') in config.CGITB_DOMAINS:
         import cgitb
         cgitb.enable()
-    init_log()
+    init_log("objavi-cgi")
     main()
 

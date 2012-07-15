@@ -38,8 +38,8 @@ you might also need to install a Java runtime:
 
 2. Make sure the following files are executable (and no others):
 
-- htdocs/*.cgi
-- htdocs/font-list.cgi.pdf
+- cgi-bin/*.cgi
+- cgi-bin/font-list.cgi.pdf
 - bin/html2odt
 - bin/pdfnup
 
@@ -52,22 +52,29 @@ you might also need to install a Java runtime:
 - data/shared
 - data/tmp
 - cache
-- log
+- logs
 
 The "setup.sh" file shows a way of doing this.
 
 
-4. Configure your webserver.  For apache 2.2 you can use the following steps:
+4. Configure your webserver.  For Apache 2 you can use the following steps:
 
   4.1. Copy example site configuration file doc/deployment/example-apache.conf
        to /etc/apache2/sites-available/objavi
 
-  4.2. Edit the site configuration file and replace each occurrence
-       of "/var/www/objavi/" with the location of your Objavi installation.
+  4.2. Copy example WSGI configuration script doc/deployment/example-objavi.wsgi
+       to objavi.wsgi
+
+  4.3. Copy example Django configuration module doc/deployment/example-settings.py
+       to settings.py
+
+  4.4. Edit the site configuration file, the WSGI configuration script and the
+       Django configuration module, replacing each occurrence of "/var/www/objavi/"
+       with the location of your Objavi installation.
        Adjust other parameters as you see fit.
 
-  4.3. Execute the following command as super-user:
+  4.5. Execute the following command as super-user:
 
        a2ensite objavi
 
-  4.4. Restart or reload the webserver.
+  4.5. Restart or reload the webserver.

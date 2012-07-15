@@ -74,7 +74,7 @@ SCRIPT_DIR    = os.path.join(OBJAVI_SOURCE_DIR, "scripts")
 TEMPLATE_ROOT = os.path.join(OBJAVI_SOURCE_DIR, "templates")
 
 CACHE_DIR = os.path.join(OBJAVI_DIR, "cache")
-LOG_DIR   = os.path.join(OBJAVI_DIR, 'log')
+LOG_DIR   = os.path.join(OBJAVI_DIR, 'logs')
 TMP_DIR   = "/tmp"
 
 KEEP_TEMP_FILES = True
