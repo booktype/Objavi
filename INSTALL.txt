@@ -71,4 +71,3 @@ The "setup.sh" file shows a way of doing this.
        a2ensite objavi
 
   4.4. Restart or reload the webserver.
-
