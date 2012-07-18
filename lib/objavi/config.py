@@ -483,7 +483,7 @@ ENGINES = {
 INSIDE_FRONT_COVER_TEMPLATE = os.path.join(OBJAVI_SOURCE_DIR, 'templates/inside-front-cover.%s.html')
 END_MATTER_TEMPLATE = os.path.join(OBJAVI_SOURCE_DIR, 'templates/end_matter.%s.html')
 
-FONT_LIST_URL = '%s/font-list.cgi.pdf' % OBJAVI_URL
+FONT_LIST_URL = '%s/cgi-bin/font-list.cgi.pdf' % OBJAVI_URL
 FONT_LIST_INCLUDE = os.path.join(CACHE_DIR, 'font-list.inc')
 FONT_EXAMPLE_SCRIPT_DIR = os.path.join(OBJAVI_SOURCE_DIR, 'templates/font-list')
 
