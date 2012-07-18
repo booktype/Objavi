@@ -86,7 +86,7 @@ function load_css(){
     var textarea = $('#css');
 
     //Try to get CSS to suit current mode
-    $.get("?server=" + server + "&mode=css&pdftype=" + $("#mode").val(),
+    $.get("?server=" + server + "&mode=css&pdf_type=" + $("#mode").val(),
           undefined, function(data){textarea.val(data);}
     );
 }
