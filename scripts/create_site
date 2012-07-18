@@ -1,0 +1,318 @@
+#!/usr/bin/env python
+#
+# This file is part of Objavi.
+# Copyright (c) 2012 Borko Jandras <borko.jandras@sourcefabric.org>
+#
+# Objavi is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Objavi is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with Objavi.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+import os
+import sys
+import optparse
+
+
+class MajorError(Exception):
+    def __init__(self, description = ''):
+        self.description = description
+
+    def __str__(self):
+        return repr(self.description)
+
+class InstallError(MajorError):
+    pass
+
+
+def dirname(path, rep=0):
+    path = os.path.dirname(path)
+    if rep > 0:
+        return dirname(path, rep - 1)
+    else:
+        return path
+
+
+
+verbose = 0
+
+def log(msg):
+    if verbose:
+        print msg,
+
+def logln(msg):
+    if verbose:
+        print msg
+
+
+def check_python_version():
+    """Check what version of Python user has."""
+
+    major, minor = sys.version_info[:2]
+
+    if major == 2:
+        if minor < 5:
+            raise MajorError("This version of Python is too old for Objavi.")
+        elif minor < 7:
+            logln("Recommend upgrading your Python installation to Python 2.7 or newer.")
+    elif major == 3:
+        raise MajorError("Objavi can not work with Python 3.")
+    else:
+        raise MajorError("This version of Python is too old for Objavi.")
+
+
+def check_django_version():
+    """Check what version of Django user has."""
+
+    log("+ Trying to import Django... ")
+
+    try:
+        import django
+    except ImportError:
+        raise InstallError()
+    else:
+        logln("[OK]")
+
+    major, minor = django.VERSION[:2]
+
+    if major == 1:
+        if minor < 2:
+            raise MajorError("This version of Django is too old for Objavi.")
+
+
+def check_module_available(module_name):
+    log("+ Trying to import %s... " % module_name)
+
+    try:
+        __import__(module_name)
+    except ImportError:
+        raise InstallError()
+    else:
+        logln("[OK]")
+
+
+def check_versions():
+    check_python_version()
+    check_django_version()
+
+    CHECK_MODULES = ("lxml", "booki", "objavi")
+    for module_name in CHECK_MODULES:
+        check_module_available(module_name)
+
+
+def create_destination(destination):
+    if not os.path.exists(destination):
+        try:
+            os.mkdir(destination)
+        except OSError:
+            raise MajorError("Unable to create directory %s!\nMake sure you have proper permissions." % destination)
+
+    if not os.access(destination, os.W_OK):
+        raise MajorError("Unable to write in %s!\nMake sure you have proper permissions." % destination)
+
+    CHECK_FILES = (
+        "__init__.py",
+        "settings.py",
+        "objavi.wsgi",
+        "apache.conf",
+        "environment.sh",
+        )
+
+    for file_name in CHECK_FILES:
+        file_path = os.path.join(destination, file_name)
+        if os.path.exists(file_path):
+            raise MajorError("Destination directory already contains file %s! Will not overwrite.\nChoose another destination directory or manualy fix the issue." % file_path)
+
+
+def make_directory_structure(destination):
+    def mkdir(dir_name):
+        path = os.path.join(destination, dir_name)
+        log("+ Creating directory '%s'... " % dir_name)
+        if os.path.exists(path):
+            logln("[EXISTS]")
+        else:
+            os.mkdir(path)
+            logln("[OK]")
+    try:
+        for d in ['static', 'templates', 'lib', 'locale', 'logs', 'cache', 'data']:
+            mkdir(d)
+        for d in ['books', 'booki-books', 'shared', 'tmp']:
+            mkdir('data/%s' % d)
+    except OSError:
+        raise InstallError()
+
+
+def create_file(destination, file_name, file_text, args):
+    log("+ Creating file %s... " % file_name)
+    try:
+        f = open(os.path.join(destination, file_name), 'wt')
+        f.write(file_text % args)
+        f.close()
+    except OSError:
+        raise InstallError()
+    else:
+        logln("[OK]")
+
+
+def get_project_name(destination):
+    dirs = [n for n in os.path.abspath(destination).split(os.sep) if n.strip() != '']
+    return dirs[-1]
+
+
+def get_source_path():
+    import objavi
+    return dirname(os.path.abspath(objavi.__file__), 2)
+
+
+def create_environment_sh(destination):
+    file_text = """\
+export DJANGO_SETTINGS_MODULE=%(project_name)s.settings
+
+# Add Objavi to PATH.
+# If your libraries are in non standard place, you should add path to them here.
+PYTHONPATH=$PYTHONPATH:%(parent_path)s:%(destination)s/lib:%(source_path)s/lib
+
+# Add Django to PATH
+# If your libraries/apps are in non standard place, you should add path to them here.
+# e.g.
+#    PATH=$PATH:/usr/src/Django-1.3/django/bin
+
+export PYTHONPATH PATH
+"""
+    file_name = "environment.sh"
+    args = {
+        "project_name" : get_project_name(destination),
+        "parent_path"  : dirname(destination),
+        "destination"  : destination,
+        "source_path"  : get_source_path(),
+    }
+    return create_file(destination, file_name, file_text, args)
+
+
+def create_wsgi(destination):
+    file_text = """\
+import os, sys
+
+sys.path.insert(0, '%(parent_path)s')
+sys.path.insert(1, '%(destination)s/lib')
+sys.path.insert(2, '%(source_path)s/lib')
+
+os.environ['DJANGO_SETTINGS_MODULE'] = '%(project_name)s.settings'
+
+def application(environ, start_response):
+	os.environ["SERVER_NAME"] = environ["SERVER_NAME"]
+	os.environ["SERVER_PORT"] = environ["SERVER_PORT"]
+	import django.core.handlers.wsgi
+	app = django.core.handlers.wsgi.WSGIHandler()
+	return app(environ, start_response)
+"""
+    file_name = "objavi.wsgi"
+    args = {
+        "project_name" : get_project_name(destination),
+        "parent_path"  : dirname(destination),
+        "destination"  : destination,
+        "source_path"  : get_source_path(),
+    }
+    return create_file(destination, file_name, file_text, args)
+
+
+def create_apache_conf(destination):
+    file_text = """\
+<VirtualHost *:80>
+	ServerAdmin webmaster@localhost  # change this
+	ServerName localhost:80          # change this
+
+	SetEnv LC_TIME "en_GB.UTF-8"
+	SetEnv LANG "en_GB.UTF-8"
+
+	RLimitMem 800000000
+
+	WSGIScriptAlias /         %(destination)s/objavi.wsgi
+	ScriptAlias     /cgi-bin  %(source_path)s/cgi-bin
+	Alias           /static   %(destination)s/static
+	Alias           /data     %(destination)s/data
+
+	<Location "/">
+		Allow from all
+		Options FollowSymLinks
+	</Location>
+
+	<Directory "%(destination)s/static">
+		Options Indexes FollowSymLinks MultiViews
+		AllowOverride None
+		Order allow,deny
+		allow from all
+	</Directory>
+
+	<Directory "%(destination)s/data">
+		Options Indexes FollowSymLinks MultiViews
+		AllowOverride None
+		Order allow,deny
+		allow from all
+	</Directory>
+
+        ErrorLog  ${APACHE_LOG_DIR}/objavi-error.log
+        CustomLog ${APACHE_LOG_DIR}/objavi-access.log combined
+        LogLevel  warn
+</VirtualHost>
+"""
+    file_name = "apache.conf"
+    args = {
+        "destination"  : destination,
+        "source_path"  : get_source_path(),
+    }
+    return create_file(destination, file_name, file_text, args)
+
+
+def main():
+    usage = """\
+usage: %prog [options] install_path\n  e.g. create_site /var/www/objavi/  \
+"""
+
+    parser = optparse.OptionParser(usage)
+    parser.add_option("-q", "--quiet", action="store_const", const=0, dest="verbose")
+    parser.add_option("-v", "--verbose", action="store_const", const=1, dest="verbose")
+    parser.add_option("--check-versions", action="store_true", dest="check_versions")
+
+    (options, args) = parser.parse_args()
+
+    if len(args) != 1:
+        parser.error("incorrect number of arguments")
+
+    global verbose
+    verbose = options.verbose
+
+    this_file_path = os.path.abspath(sys.argv[0])
+    source_directory = dirname(this_file_path, 1)
+
+    sys.path.insert(0, os.path.join(source_directory, "lib"))
+
+    if options.check_versions:
+        check_versions()
+
+    project_destination = os.path.abspath(args[0])
+
+    create_destination(project_destination)
+    make_directory_structure(project_destination)
+    create_environment_sh(project_destination)
+    create_wsgi(project_destination)
+    create_apache_conf(project_destination)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except InstallError:
+        logln("[ERROR]")
+        sys.exit(-1)
+    except MajorError, e:
+        logln(e.description)
+        sys.exit(-1)

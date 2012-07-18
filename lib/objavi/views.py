@@ -29,7 +29,6 @@ import book_utils
 import cgi_utils
 import booki_wrapper
 import twiki_wrapper
-import settings
 
 from objavi.pdf import resize_pdf, count_pdf_pages
 
