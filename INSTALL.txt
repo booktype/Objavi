@@ -62,8 +62,8 @@ The "setup.sh" file shows a way of doing this.
   4.1. Copy example site configuration file doc/deployment/example-apache.conf
        to /etc/apache2/sites-available/objavi
 
-  4.2. Copy example WSGI configuration script doc/deployment/example-objavi.wsgi
-       to objavi.wsgi
+  4.2. Copy example WSGI configuration script doc/deployment/example-wsgi.py
+       to wsgi.py
 
   4.3. Copy example Django configuration module doc/deployment/example-settings.py
        to settings.py

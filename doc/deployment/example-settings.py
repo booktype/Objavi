@@ -18,8 +18,8 @@ MANAGERS = ADMINS
 
 DEFAULT_NOTIFICATION_FILTER = u"#* !* ~* \u212c*"
 
-OBJAVI_SOURCE_DIR = '/var/www/objavi'
-OBJAVI_DIR  = '/var/www/objavi'
+OBJAVI_SOURCE_DIR = '##SOURCE_PATH##'
+OBJAVI_DIR  = '##DESTINATION##'
 OBJAVI_URL  = ''
 
 
@@ -42,12 +42,12 @@ ADMIN_MEDIA_PREFIX = '%s/media/' % OBJAVI_URL
 
 # database
 #
-DATABASE_ENGINE = 'sqlite3'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = ''             # Or path to database file if using sqlite3.
-DATABASE_USER = ''             # Not used with sqlite3.
-DATABASE_PASSWORD = ''         # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
+DATABASE_ENGINE = 'sqlite3' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
+DATABASE_NAME = ''          # Or path to database file if using sqlite3.
+DATABASE_USER = ''          # Not used with sqlite3.
+DATABASE_PASSWORD = ''      # Not used with sqlite3.
+DATABASE_HOST = ''          # Set to empty string for localhost. Not used with sqlite3.
+DATABASE_PORT = ''          # Set to empty string for default. Not used with sqlite3.
 
 
 ##

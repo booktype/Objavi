@@ -121,7 +121,7 @@ def create_destination(destination):
     CHECK_FILES = (
         "__init__.py",
         "settings.py",
-        "objavi.wsgi",
+        "wsgi.py",
         "apache.conf",
         "environment.sh",
         )
@@ -129,7 +129,7 @@ def create_destination(destination):
     for file_name in CHECK_FILES:
         file_path = os.path.join(destination, file_name)
         if os.path.exists(file_path):
-            raise MajorError("Destination directory already contains file %s! Will not overwrite.\nChoose another destination directory or manualy fix the issue." % file_path)
+            raise MajorError("Destination directory already contains file %s! Will not overwrite.\nChoose another destination directory or manualy fix this issue." % file_path)
 
 
 def make_directory_structure(destination):
@@ -150,11 +150,14 @@ def make_directory_structure(destination):
         raise InstallError()
 
 
-def create_file(destination, file_name, file_text, args):
+def create_file(destination, file_name, file_text, args = {}):
+    if args:
+        file_text = file_text % args
+
     log("+ Creating file %s... " % file_name)
     try:
         f = open(os.path.join(destination, file_name), 'wt')
-        f.write(file_text % args)
+        f.write(file_text)
         f.close()
     except OSError:
         raise InstallError()
@@ -174,16 +177,25 @@ def get_source_path():
 
 def create_environment_sh(destination):
     file_text = """\
+# Shell environment setup script for Objavi.
+#
+# Source this script from your interactive shell if you want to run Objavi
+# from a command line, for example when using Django's built-in webserver.
+#
+
+# Name of the Django settings module (in Python syntax).
 export DJANGO_SETTINGS_MODULE=%(project_name)s.settings
 
-# Add Objavi to PATH.
-# If your libraries are in non standard place, you should add path to them here.
+# Add Objavi libraries to PYTHONPATH.
 PYTHONPATH=$PYTHONPATH:%(parent_path)s:%(destination)s/lib:%(source_path)s/lib
 
-# Add Django to PATH
-# If your libraries/apps are in non standard place, you should add path to them here.
-# e.g.
-#    PATH=$PATH:/usr/src/Django-1.3/django/bin
+# If you are using some Python libraries which are not installed to a standard
+# location, add path to them here, e.g.
+#PYTHONPATH=$PYTHONPATH:/usr/local/share/somelib
+
+# If you are using programs and/or shared libraries which are not installed to
+# a standard location, add path to them here, e.g.
+#PATH=$PATH:/usr/src/Django-1.3/django/bin
 
 export PYTHONPATH PATH
 """
@@ -199,22 +211,39 @@ export PYTHONPATH PATH
 
 def create_wsgi(destination):
     file_text = """\
-import os, sys
+# WSGI script for Objavi.
+#
+# This file is referenced from the Apache site configuration file by the
+# WSGIScriptAlias directive (from the mod_wsgi module).
+#
 
+import os, sys
+import django.core.handlers.wsgi
+
+# Name of the Django settings module (in Python syntax).
+os.environ['DJANGO_SETTINGS_MODULE'] = '%(project_name)s.settings'
+
+# Add Objavi libraries to PYTHONPATH.
+#
 sys.path.insert(0, '%(parent_path)s')
 sys.path.insert(1, '%(destination)s/lib')
 sys.path.insert(2, '%(source_path)s/lib')
 
-os.environ['DJANGO_SETTINGS_MODULE'] = '%(project_name)s.settings'
+# If you are using some Python libraries which are not installed to a standard
+# location, add path to them here, e.g.
+#sys.path.append("/usr/local/share/somelib")
 
+# The application object.
+#
 def application(environ, start_response):
-	os.environ["SERVER_NAME"] = environ["SERVER_NAME"]
-	os.environ["SERVER_PORT"] = environ["SERVER_PORT"]
-	import django.core.handlers.wsgi
-	app = django.core.handlers.wsgi.WSGIHandler()
-	return app(environ, start_response)
+    # transfer SERVER_NAME and SERVER_PORT to process environment
+    os.environ["SERVER_NAME"] = environ["SERVER_NAME"]
+    os.environ["SERVER_PORT"] = environ["SERVER_PORT"]
+    # run the WSGI handler
+    app = django.core.handlers.wsgi.WSGIHandler()
+    return app(environ, start_response)
 """
-    file_name = "objavi.wsgi"
+    file_name = "wsgi.py"
     args = {
         "project_name" : get_project_name(destination),
         "parent_path"  : dirname(destination),
@@ -226,6 +255,21 @@ def application(environ, start_response):
 
 def create_apache_conf(destination):
     file_text = """\
+# Example Apache site configuration for Objavi.
+#
+# Edit this file to your liking, then copy it to the Apache's available sites
+# directory, e.g. /etc/apache2/sites-available/objavi.
+#
+# Alternatively, you can use the Apache's Include directive to include the
+# content of this file inside an existing configuration file, for example
+# in /etc/apache2/sites-available/objavi:
+#   Include %(destination)s/%(file_name)s
+#
+# Don't forget to enable this site afterwards:
+#   a2ensite objavi
+#   service apache2 reload
+#
+
 <VirtualHost *:80>
 	ServerAdmin webmaster@localhost  # change this
 	ServerName localhost:80          # change this
@@ -235,7 +279,7 @@ def create_apache_conf(destination):
 
 	RLimitMem 800000000
 
-	WSGIScriptAlias /         %(destination)s/objavi.wsgi
+	WSGIScriptAlias /         %(destination)s/wsgi.py
 	ScriptAlias     /cgi-bin  %(source_path)s/cgi-bin
 	Alias           /static   %(destination)s/static
 	Alias           /data     %(destination)s/data
@@ -268,8 +312,99 @@ def create_apache_conf(destination):
     args = {
         "destination"  : destination,
         "source_path"  : get_source_path(),
+        "file_name"    : file_name,
     }
     return create_file(destination, file_name, file_text, args)
+
+
+def create_settings(destination):
+    source_path = get_source_path()
+
+    file_text = ""
+
+    try:
+        file_text = open('%s/doc/deployment/example-settings.py' % source_path, 'r').read()
+    except IOError:
+        raise MajorError("[ERROR] Can't read example-settings.py file.")
+
+    args = {
+        "destination" : destination,
+        "source_path" : source_path,
+        }
+
+    def set_var(text, name, value):
+        return text.replace('##%s##' % name.upper(), value)
+
+    for key, val in args.items():
+        file_text = set_var(file_text, key, val)
+
+    file_name = "settings.py"
+
+    create_file(destination, file_name, file_text)
+    create_file(destination, "__init__.py", "")
+
+
+def create_postinstall(destination):
+    file_text = """\
+
+An Objavi project has been successfully created in:
+   
+    %(destination)s
+
+The following files and directories have been generated:
+
+    apache.conf      --  Apache site confguration file
+    environment.sh   --  shell environment setup script
+    settings.py      --  Django settings module
+    wsgi.py          --  WSGI script for Apache
+    static           --  static web files (HTML, CSS, javascript)
+    templates        --  local template files
+    locale           --  local translation files
+    lib              --  local Python libraries
+    logs             --  log files
+    cache            --  temporary cache files
+    data             --  created data files
+
+Check each configuration file for additional customisation.
+
+Make sure that logs, cache and data directories and their subdirectories
+are writable by whichever user (or group) your HTTP server is running as,
+for example by running the following commands as super-user:
+
+    chgrp -R www-data logs cache data
+    chmod -R g+w logs cache data
+
+For instructions on how to run your newly-created Objavi site using the
+Apache web server, see the apache.conf file.
+
+To complete the installation, change the current directory to the directory
+containing this file, then issue the following commands:
+
+    source environment.sh
+    django-admin collectstatic
+
+"""
+    file_name = "POST_INSTALL.txt"
+    args = {
+        "destination" : destination,
+        }
+    create_file(destination, file_name, file_text, args)
+
+
+def show_after(destination):
+    message = """\
+
+An Objavi project has been successfully created in:
+   
+    %(destination)s
+
+A file named POST_INSTALL.txt has been created there.  Please read it for
+post installation instructions.  It is very important!
+"""
+    args = {
+        "destination" : destination,
+        }
+    logln(message % args)
 
 
 def main():
@@ -305,6 +440,10 @@ usage: %prog [options] install_path\n  e.g. create_site /var/www/objavi/  \
     create_environment_sh(project_destination)
     create_wsgi(project_destination)
     create_apache_conf(project_destination)
+    create_settings(project_destination)
+    create_postinstall(project_destination)
+
+    show_after(project_destination)
 
 
 if __name__ == "__main__":
