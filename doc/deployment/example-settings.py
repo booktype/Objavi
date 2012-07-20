@@ -18,14 +18,19 @@ MANAGERS = ADMINS
 
 DEFAULT_NOTIFICATION_FILTER = u"#* !* ~* \u212c*"
 
-OBJAVI_SOURCE_DIR = '##SOURCE_PATH##'
-OBJAVI_DIR  = '##DESTINATION##'
-OBJAVI_URL  = ''
+SERVER_NAME = os.environ.get('SERVER_NAME', 'localhost')
+SERVER_PORT = os.environ.get('SERVER_PORT', '80')
 
 
 ##
 # directories
 #
+
+# Objavi
+#
+OBJAVI_URL  = "http://%s:%s" % (SERVER_NAME, SERVER_PORT)
+OBJAVI_DIR  = '##DESTINATION##'
+OBJAVI_SOURCE_DIR = '##SOURCE_PATH##'
 
 # static
 #
@@ -37,11 +42,11 @@ STATIC_URL  = '%s/static' % OBJAVI_URL
 DATA_ROOT = '%s/data' % OBJAVI_DIR
 DATA_URL  = '%s/data' % OBJAVI_URL
 
-ADMIN_MEDIA_PREFIX = '%s/media/' % OBJAVI_URL
 
-
-# database
+##
+# Database
 #
+
 DATABASE_ENGINE = 'sqlite3' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
 DATABASE_NAME = ''          # Or path to database file if using sqlite3.
 DATABASE_USER = ''          # Not used with sqlite3.
@@ -51,7 +56,7 @@ DATABASE_PORT = ''          # Set to empty string for default. Not used with sql
 
 
 ##
-# Django stuff
+# Django
 #
 
 AUTH_PROFILE_MODULE = 'account.UserProfile'
