@@ -25,6 +25,15 @@
 
 import os
 
+# Module containing Django project settings, or None if not running
+# as a Django application.
+#
+from django.conf import settings
+try:
+    settings.OBJAVI_DIR
+except:
+    settings = None
+
 
 def dirname(path, rep=0):
     path = os.path.dirname(path)
@@ -33,16 +42,6 @@ def dirname(path, rep=0):
     else:
         return path
 
-def try_import(name):
-    path = name.split(".")
-    try:
-        return __import__(name = path[-1], fromlist = path[0:-1])
-    except ImportError:
-        return None
-
-
-# Module containing Django project settings, or None if not running as a Django application.
-settings = try_import(os.getenv("DJANGO_SETTINGS_MODULE", "settings"))
 
 # Location of the Objavi source tree.
 OBJAVI_SOURCE_DIR = os.path.abspath(dirname(__file__, 2))
@@ -50,7 +49,7 @@ OBJAVI_SOURCE_DIR = os.path.abspath(dirname(__file__, 2))
 # Location of the Objavi site.
 #
 if settings:
-    OBJAVI_DIR = os.path.abspath(dirname(settings.__file__))
+    OBJAVI_DIR = settings.OBJAVI_DIR
 else:
     OBJAVI_DIR = OBJAVI_SOURCE_DIR
 
