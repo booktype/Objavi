@@ -1,80 +1,119 @@
 
-Installing Objavi	
------------------
+Installing Objavi
+=================
+
+This document describes how to install the Objavi service on a host running
+some version of the Linux operating system.
+
+Installation of Objavi is split into three steps: installing prerequisites,
+getting the Objavi source code and creating an Objavi site.
 
 
-0. Fetch the tarball or clone the git repositiory with
+Prerequisites
+-------------
+
+Objavi depends on a number of external tools and libraries for it's operation.
+Package names might vary depending on the operating system you are using.
+
+  - lxml
+
+    $ sudo apt-get install python-lxml
+
+  - psutils
+
+    $ sudo apt-get install psutils
+
+  - poppler-utils
+
+    $ sudo apt-get install poppler-utils
+
+  - pdftk
+
+    $ sudo apt-get install pdftk
+
+  - pdfedit
+
+    $ sudo apt-get install pdfedit
+
+  - pdflatex
+
+    $ sudo apt-get install texlive-latex-base
+
+  - Fontconfig
+
+    $ sudo apt-get install fontconfig
+
+  - Xvfb
+
+    $ sudo apt-get install xvfb
+
+  - Calibre, version 0.8.38 or newer
+
+    $ sudo apt-get install calibre
+
+  - Python-UNO bridge
+
+    $ sudo apt-get install python-uno
+
+  - wkhtmltopdf, version 0.11.0_rc1 or newer, download from http://code.google.com/p/wkhtmltopdf/
+
+    $ wget http://wkhtmltopdf.googlecode.com/files/wkhtmltopdf-0.11.0_rc1-static-i386.tar.bz2
+    $ bunzip2 -c wkhtmltopdf-0.11.0_rc1-static-i386.tar.bz2 | tar xf -
+    $ mv wkhtmltopdf-i386 /usr/local/bin/wkhtmltopdf
+
+  - Apache2 with mod_wsgi
+
+    $ sudo apt-get install apache2
+    $ sudo apt-get install libapache2-mod-wsgi
+
+To create ODF output, you also need a whole lot of OpenOffice 3 or LibreOffice 3.
+
+
+Getting Objavi
+--------------
+
+If you are reading this file chances are that you already have a copy of the
+Objavi source code.  If that is not the case the easiest way to obtain one is
+to clone the official Objavi git repository:
 
    git clone git://github.com/sourcefabric/Objavi.git
 
-This has probably already been done because that's how you found this file.
+After unpacking the sources go to the Objavi's top-level directory and make
+sure that the following files are executable:
+
+  bin/*
+  cgi-bin/*.cgi
+  cgi-bin/font-list.cgi.pdf
+
+Objavi also requires some sources from it's sister project Booktype.  If you
+don't already have Booktype sources on the system get them from the same place
+you got Objavi from:
+
+   git clone git://github.com/sourcefabric/Booktype.git
 
 
-1. Install dependencies.
+Creating a Site
+---------------
 
-- lxml
-- pdftk
-- pdfedit
-- pdflatex
-- xvfb
-- fontconfig
-- ttf-???     -- you'll need some fonts
-- psutils
-- poppler-utils or xpdf-utils
-- httpd       -- apache2 is easiest because a config file is included
-- wkhtmltopdf -- version 0.11.0_rc1 or newer, download from http://code.google.com/p/wkhtmltopdf/
+Once you have everything in place you are ready to create an Objavi site.
 
-To make ODF documents, you need a whole lot of OpenOffice 3 or LibreOffice 3.
-The following packages and their dependencies might be sufficient, though
-you might also need to install a Java runtime:
+The 'create_site' script located in the 'scripts' directory of the Objavi
+source tree does exactly that.  The script requires a destination directory
+where the site will be created.
 
-- openoffice.org-common
-- openoffice.org-core
-- openoffice.org-filter-binfilter
-- openoffice.org-gcj
-- openoffice.org-writer
-- python-uno
+The following command creates an Objavi installation inside /var/www/objavi:
 
+  ./scripts/create_site /var/www/objavi
 
-2. Make sure the following files are executable (and no others):
+Make sure you have the write permissions for the destination directory.
 
-- cgi-bin/*.cgi
-- cgi-bin/font-list.cgi.pdf
-- bin/html2odt
-- bin/pdfnup
+If you don't have Booktype installed globally on the system (i.e. somewhere
+in the PYTHONPATH) you will have to specify the path to Booktype's source
+directory when running the script, e.g.:
 
+  ./scripts/create_site --with-booktype=/usr/src/Booktype /var/www/objavi
 
-3. Make sure the following directories exist and are writable by
-   the www-data group (or whoever is your webserver user):
-
-- data/books
-- data/booki-books
-- data/shared
-- data/tmp
-- cache
-- logs
-
-The "setup.sh" file shows a way of doing this.
-
-
-4. Configure your webserver.  For Apache 2 you can use the following steps:
-
-  4.1. Copy example site configuration file doc/deployment/example-apache.conf
-       to /etc/apache2/sites-available/objavi
-
-  4.2. Copy example WSGI configuration script doc/deployment/example-wsgi.py
-       to wsgi.py
-
-  4.3. Copy example Django configuration module doc/deployment/example-settings.py
-       to settings.py
-
-  4.4. Edit the site configuration file, the WSGI configuration script and the
-       Django configuration module, replacing each occurrence of "/var/www/objavi/"
-       with the location of your Objavi installation.
-       Adjust other parameters as you see fit.
-
-  4.5. Execute the following command as super-user:
-
-       a2ensite objavi
-
-  4.5. Restart or reload the webserver.
+If the site was successfully created the script will notify you that a file
+named 'POST_INSTALL.txt' has been created there and that you should read it.
+To complete the installation simply follow the instructions found in the
+'POST_INSTALL.txt' file.

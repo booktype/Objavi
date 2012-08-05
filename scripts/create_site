@@ -150,6 +150,18 @@ def make_directory_structure(destination):
         raise InstallError()
 
 
+def create_booki_link(destination, booktype_path):
+    src_path = os.path.join(booktype_path, "lib", "booki")
+    dst_path = os.path.join(destination, "lib", "booki")
+    log("+ Creating link to %s..." % src_path)
+    try:
+        os.symlink(src_path, dst_path)
+    except OSError:
+        raise InstallError()
+    else:
+        logln("[OK]")
+
+
 def create_file(destination, file_name, file_text, args = {}):
     if args:
         file_text = file_text % args
@@ -271,9 +283,6 @@ def create_apache_conf(destination):
 #
 
 <VirtualHost *:80>
-	ServerAdmin webmaster@localhost  # change this
-	ServerName localhost:80          # change this
-
 	SetEnv LC_TIME "en_GB.UTF-8"
 	SetEnv LANG "en_GB.UTF-8"
 
@@ -344,7 +353,7 @@ def create_settings(destination):
     create_file(destination, "__init__.py", "")
 
 
-def create_postinstall(destination):
+def create_postinstall_txt(destination):
     file_text = """\
 
 An Objavi project has been successfully created in:
@@ -353,6 +362,8 @@ An Objavi project has been successfully created in:
 
 The following files and directories have been generated:
 
+    POST_INSTALL.txt --  this file
+    post_install.sh  --  performs final set-up steps
     apache.conf      --  Apache site confguration file
     environment.sh   --  shell environment setup script
     settings.py      --  Django settings module
@@ -367,24 +378,72 @@ The following files and directories have been generated:
 
 Check each configuration file for additional customisation.
 
-Make sure that logs, cache and data directories and their subdirectories
-are writable by whichever user (or group) your HTTP server is running as,
-for example by running the following commands as super-user:
+To complete the installation, change the current directory to the directory
+containing this file, then issue the following command as a super-user:
 
-    chgrp -R www-data logs cache data
-    chmod -R g+w logs cache data
+    bash post_install.sh
+
+If the post_install.sh script complains about www-data user not being known
+on the system, edit the script and replace www-data user with the name of the
+user that the web server is using.
 
 For instructions on how to run your newly-created Objavi site using the
 Apache web server, see the apache.conf file.
 
-To complete the installation, change the current directory to the directory
-containing this file, then issue the following commands:
-
-    source environment.sh
-    django-admin collectstatic
-
 """
     file_name = "POST_INSTALL.txt"
+    args = {
+        "destination" : destination,
+        }
+    create_file(destination, file_name, file_text, args)
+
+
+def create_postinstall_sh(destination):
+    file_text = """\
+#!/bin/bash
+
+www_data_user="www-data"  # edit this if necessary
+
+##############################################################################
+
+echo "Using '$www_data_user' as web server account."
+
+# www user's group name
+www_data_group=`id -gn $www_data_user 2>/dev/null`
+
+if ! test "$www_data_group"; then
+    echo "ERROR: the $www_data_user user is unknown on this system."
+    exit 1
+fi
+
+echo "Using '$www_data_group' as web server account group."
+
+destination="%(destination)s"
+
+if test "$PWD" != "$destination"; then
+    echo "ERROR: this script must be run in '$destination'"
+    exit 1
+fi
+
+if test $UID != 0; then
+    echo "ERROR: this script must be run as root"
+    exit 1
+fi
+
+# environment needed by django-admin
+source ./environment.sh
+
+# apply correct ownership and permissions
+#
+chgrp -R $www_data_group logs cache data static
+chmod -R g+rw logs cache data static
+
+# collect static files
+su -m -c "django-admin collectstatic --noinput --verbosity=0" $www_data_user
+
+echo "Done."
+"""
+    file_name = "post_install.sh"
     args = {
         "destination" : destination,
         }
@@ -404,7 +463,7 @@ post installation instructions.  It is very important!
     args = {
         "destination" : destination,
         }
-    logln(message % args)
+    print(message % args)
 
 
 def main():
@@ -413,9 +472,9 @@ usage: %prog [options] install_path\n  e.g. create_site /var/www/objavi/  \
 """
 
     parser = optparse.OptionParser(usage)
-    parser.add_option("-q", "--quiet", action="store_const", const=0, dest="verbose")
-    parser.add_option("-v", "--verbose", action="store_const", const=1, dest="verbose")
-    parser.add_option("--check-versions", action="store_true", dest="check_versions")
+    parser.add_option("-q", "--quiet", action="store_const", const=0, dest="verbose", help="don't print messages to stdout")
+    parser.add_option("--with-booktype", action="store", dest="booktype_path", help="path to Booktype sources")
+    parser.set_defaults(verbose=True)
 
     (options, args) = parser.parse_args()
 
@@ -430,18 +489,23 @@ usage: %prog [options] install_path\n  e.g. create_site /var/www/objavi/  \
 
     sys.path.insert(0, os.path.join(source_directory, "lib"))
 
-    if options.check_versions:
-        check_versions()
+    if options.booktype_path:
+        sys.path.append(os.path.join(options.booktype_path, "lib"))
+
+    check_versions()
 
     project_destination = os.path.abspath(args[0])
 
     create_destination(project_destination)
     make_directory_structure(project_destination)
+    if options.booktype_path:
+        create_booki_link(project_destination, options.booktype_path)
     create_environment_sh(project_destination)
     create_wsgi(project_destination)
     create_apache_conf(project_destination)
     create_settings(project_destination)
-    create_postinstall(project_destination)
+    create_postinstall_txt(project_destination)
+    create_postinstall_sh(project_destination)
 
     show_after(project_destination)
 
@@ -450,8 +514,8 @@ if __name__ == "__main__":
     try:
         main()
     except InstallError:
-        logln("[ERROR]")
+        print("[ERROR]")
         sys.exit(-1)
     except MajorError, e:
-        logln(e.description)
+        print("[ERROR] " + e.description)
         sys.exit(-1)
