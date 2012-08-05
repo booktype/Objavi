@@ -126,7 +126,7 @@ def font_list():
     try:
         font_list_file = open(config.FONT_LIST_INCLUDE, "r")
     except IOError:
-        return ['<i>Font lists not yet generated</i>']
+        return ['Font lists not yet generated']
     list = []
     for line in font_list_file:
         line = line.strip()
