@@ -55,6 +55,7 @@ class ObjaviRequest(object):
 
     def finish(self, book):
         #book.publish_shared(self.booki_group, self.booki_user)
+        self.publish_file = book.publish_file
         if self.destination == 'archive.org':
             book.publish_s3()
 
@@ -133,6 +134,18 @@ def make_book(context, args):
     return book
 
 
+def make_response(context):
+    if context.destination == "nowhere":
+        return HttpResponse(context.bookurl)
+    else:
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = "attachment; filename=%s" % context.bookname
+        with open(context.publish_file, "rb") as f:
+            response.write(f.read())
+        return response
+
+
+
 def mode_book(request):
     args = parse_request(request)
     context = ObjaviRequest(args)
@@ -162,7 +175,7 @@ def mode_book(request):
         book.publish_pdf()
         context.finish(book)
 
-    return HttpResponse(context.bookurl)
+    return make_response(context)
 
 
 def mode_openoffice(request):
@@ -177,7 +190,7 @@ def mode_openoffice(request):
         book.make_oo_doc()
         context.finish(book)
 
-    return HttpResponse(context.bookurl)
+    return make_response(context)
 
 
 def mode_bookizip(request):
@@ -188,7 +201,7 @@ def mode_bookizip(request):
         book.publish_bookizip()
         context.finish(book)
 
-    return HttpResponse(context.bookurl)
+    return make_response(context)
 
 
 def mode_templated_html(request):
@@ -201,7 +214,7 @@ def mode_templated_html(request):
         book.make_templated_html(template = template)
         context.finish(book)
 
-    return HttpResponse(context.bookurl)
+    return make_response(context)
 
 
 def mode_epub(request):
@@ -223,7 +236,7 @@ def mode_epub(request):
             book.convert_with_calibre(output_profile, output_format)
         context.finish(book)
 
-    return HttpResponse(context.bookurl)
+    return make_response(context)
 
 
 def mode_booklist(request):
