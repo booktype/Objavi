@@ -236,6 +236,7 @@ class Book(object):
 
         self.isbn = get_metadata(self.metadata, 'id', scheme='ISBN', default=[None])[0]
         self.license = get_metadata(self.metadata, 'rights', scheme='License', default=[None])[0]
+        self.creator = get_metadata(self.metadata, 'creator', scheme='', default=[""])[0]
 
         self.toc = self.info['TOC']
         expand_toc(self.toc)
@@ -685,12 +686,27 @@ class Book(object):
         #'url': ''}
         if self.dir is None:
             self.dir = config.DEFAULT_DIR
-        doc = lxml.html.document_fromstring("""<html dir="%s" lang="en">
+        params = {
+            "dir"       : self.dir,
+            "title"     : self.title,
+            "license"   : self.license,
+            "copyright" : self.creator,
+            }
+        doc = lxml.html.document_fromstring("""<html dir="%(dir)s" lang="en">
 <script type="text/javascript" src="http://www.flossmanuals.net/templates/prettify/src/prettify.js"></script>
 <link type="text/css" href="http://www.flossmanuals.net/templates/prettify/src/prettify.css" rel="Stylesheet" >
 <script src="http://www.flossmanuals.net/templates/Hyphenator/Hyphenator.js" type="text/javascript"></script><script src="http://www.flossmanuals.net/templates/Hyphenator/en_conf.js" type="text/javascript"></script>
-<body dir="%s" onload="prettyPrint()"></body>
-</html>""" % (self.dir, self.dir))
+<!-- Added by BookJS -->
+        <script src="jquery-1.7.2.min.js" type="text/javascript"></script>
+        <link href="book.css" rel="stylesheet" type="text/css" />
+        <script src="romanize.js" type="text/javascript"></script>
+        <script src="book.js" type="text/javascript"></script>
+<!-- End of Added by BookJS -->
+<title>%(title)s</title>
+<meta name="copyright" content="%(copyright)s" /> 
+<meta name="license" content="%(license)s" />
+<body dir="%(dir)s" onload="prettyPrint()"></body>
+</html>""" % params)
         tocmap = filename_toc_map(self.toc)
         for ID in self.spine:
             details = self.manifest[ID]
