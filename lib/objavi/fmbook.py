@@ -705,6 +705,7 @@ class Book(object):
 <title>%(title)s</title>
 <meta name="copyright" content="%(copyright)s" /> 
 <meta name="license" content="%(license)s" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <body dir="%(dir)s" onload="prettyPrint()"></body>
 </html>""" % params)
         tocmap = filename_toc_map(self.toc)
