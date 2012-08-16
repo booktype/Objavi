@@ -441,6 +441,9 @@ chmod -R g+rw logs cache data static
 # collect static files
 su -m -c "django-admin collectstatic --noinput --verbosity=0" $www_data_user
 
+# create initial database
+su -m -c "django-admin syncdb" $www_data_user
+
 echo "Done."
 """
     file_name = "post_install.sh"

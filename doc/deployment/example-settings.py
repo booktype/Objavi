@@ -23,7 +23,7 @@ SERVER_PORT = os.environ.get('SERVER_PORT', '80')
 
 
 ##
-# directories
+# Directories
 #
 
 # Objavi
@@ -45,14 +45,15 @@ DATA_URL  = '%s/data' % OBJAVI_URL
 
 ##
 # Database
+# https://docs.djangoproject.com/en/1.3/ref/settings/#databases
 #
 
-DATABASE_ENGINE = 'sqlite3' # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = ''          # Or path to database file if using sqlite3.
-DATABASE_USER = ''          # Not used with sqlite3.
-DATABASE_PASSWORD = ''      # Not used with sqlite3.
-DATABASE_HOST = ''          # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''          # Set to empty string for default. Not used with sqlite3.
+DATABASE_ENGINE = 'sqlite3'
+DATABASE_NAME = '%s/objavi.db' % OBJAVI_DIR
+DATABASE_USER = ''
+DATABASE_PASSWORD = ''
+DATABASE_HOST = ''
+DATABASE_PORT = ''
 
 
 ##
@@ -101,7 +102,6 @@ INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.staticfiles',
 

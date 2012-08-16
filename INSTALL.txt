@@ -55,7 +55,7 @@ Package names might vary depending on the operating system you are using.
 
     $ sudo apt-get install python-uno
 
-  - wkhtmltopdf, version 0.11.0_rc1 or newer, download from http://code.google.com/p/wkhtmltopdf/
+  - wkhtmltopdf, version 0.11.0_rc1, from http://code.google.com/p/wkhtmltopdf/
 
     $ wget http://wkhtmltopdf.googlecode.com/files/wkhtmltopdf-0.11.0_rc1-static-i386.tar.bz2
     $ bunzip2 -c wkhtmltopdf-0.11.0_rc1-static-i386.tar.bz2 | tar xf -
@@ -66,7 +66,11 @@ Package names might vary depending on the operating system you are using.
     $ sudo apt-get install apache2
     $ sudo apt-get install libapache2-mod-wsgi
 
-To create ODF output, you also need a whole lot of OpenOffice 3 or LibreOffice 3.
+  - Django
+
+    $ sudo apt-get install python-django
+
+To create ODF output, you also need a whole lot of OpenOffice or LibreOffice 3.
 
 
 Getting Objavi
@@ -76,7 +80,7 @@ If you are reading this file chances are that you already have a copy of the
 Objavi source code.  If that is not the case the easiest way to obtain one is
 to clone the official Objavi git repository:
 
-   git clone git://github.com/sourcefabric/Objavi.git
+  git clone git://github.com/sourcefabric/Objavi.git
 
 After unpacking the sources go to the Objavi's top-level directory and make
 sure that the following files are executable:
@@ -85,11 +89,11 @@ sure that the following files are executable:
   cgi-bin/*.cgi
   cgi-bin/font-list.cgi.pdf
 
-Objavi also requires some sources from it's sister project Booktype.  If you
+Objavi also requires some sources from its sister project Booktype.  If you
 don't already have Booktype sources on the system get them from the same place
 you got Objavi from:
 
-   git clone git://github.com/sourcefabric/Booktype.git
+  git clone git://github.com/sourcefabric/Booktype.git
 
 
 Creating a Site
@@ -111,7 +115,7 @@ If you don't have Booktype installed globally on the system (i.e. somewhere
 in the PYTHONPATH) you will have to specify the path to Booktype's source
 directory when running the script, e.g.:
 
-  ./scripts/create_site --with-booktype=/usr/src/Booktype /var/www/objavi
+  ./scripts/create_site --with-booktype=/usr/local/src/Booktype /var/www/objavi
 
 If the site was successfully created the script will notify you that a file
 named 'POST_INSTALL.txt' has been created there and that you should read it.

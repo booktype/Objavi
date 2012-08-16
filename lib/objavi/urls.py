@@ -29,8 +29,8 @@ urlpatterns = patterns(
 
     # Django admin
     #
-    #(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-    #url(r'^admin/', include(admin.site.urls)),
+    (r'^admin/doc/', include('django.contrib.admindocs.urls')),
+    url(r'^admin/', include(admin.site.urls)),
                        
     # front page                       
     url(r'^$',                "objavi.views.default"),
