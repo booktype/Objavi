@@ -36,7 +36,7 @@ urlpatterns = patterns(
     url(r'^$',                "objavi.views.default"),
     url(r'^css$',             "objavi.views.fetch_css"),
     url(r'^booklist$',        "objavi.views.fetch_booklist"),
-    url(r'^fontlist$',        "objavi.fontlist.view_fontlist"),
+    url(r'^fontlist$',        "objavi.views.fetch_fontlist"),
     )
 
 

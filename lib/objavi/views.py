@@ -25,10 +25,24 @@ import tasks
 import forms
 import form_config
 import config
+import fontlist
 import book_utils
 import cgi_utils
 import booki_wrapper
 import twiki_wrapper
+
+
+def fetch_fontlist(request):
+    script = request.REQUEST.get("script", "latin")
+
+    response = HttpResponse(content_type = "application/pdf")
+    response["Content-Disposition"] = "attachment; filename=font-list.pdf"
+
+    pdfname = fontlist.create_fontlist(script)
+    with open(pdfname, "r") as f:
+        response.write(f.read())
+
+    return response
 
 
 def fetch_booklist(request):
@@ -96,4 +110,4 @@ def default(request):
         return show_form(request)
 
 
-__all__ = [fetch_booklist, fetch_css, default]
+__all__ = [fetch_fontlist, fetch_booklist, fetch_css, default]

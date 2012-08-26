@@ -20,117 +20,32 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import os, sys
-this_file = os.path.abspath(__file__)
 os.chdir('..')
 os.putenv("OBJAVI_PROJECT_DIR", os.getcwd())
 sys.path.insert(0, os.path.abspath('./lib'))
 
+from objavi import fontlist
 from objavi import config
-from objavi.book_utils import log, init_log
-from objavi.pdf import concat_pdfs
-init_log('fontlist')
 
-import tempfile, re
 import cgi
-import hashlib
-from subprocess import Popen, PIPE
-
-FONTS_PER_PAGE = 4
-
-def get_font_list():
-    p = Popen(['fc-list'], stdout=PIPE, stderr=PIPE)
-    out, err = p.communicate()
-    fonts = set(re.findall(r"^([^:,]+)", out.strip().replace('\-', '-'), re.M))
-    return sorted(fonts, key=str.lower)
 
 
-def font_html(fonts, example_template, dir="LTR"):
-    html = ['<html dir="%s"><meta http-equiv="content-type" content="text/html; charset=utf-8"> <style>'
-            '.font-name {background: #ffc; padding: 0.25em; font-family: "Dejavu Sans", sans-serif}'
-            ' div{padding:0.9em 0}'
-            '</style><body>' % dir]
-    for f in fonts:
-        html.append(example_template % {'font': f})
-    html.append('</body></html>')
-    return '\n'.join(html)
+def main():
+    form = cgi.FieldStorage()
+    script = form.getfirst('script')
+    if script not in (x for x in os.listdir(config.FONT_EXAMPLE_SCRIPT_DIR) if x.isalnum()):
+        script = 'latin'
 
-def font_pdf(html, pdfname):
-    fh, htmlname = tempfile.mkstemp(suffix='.html', dir=config.TMP_DIR)
-    os.write(fh, html)
-    os.close(fh)
-    cmd = [#'xvfb-run',
-           config.WKHTMLTOPDF, '-q',
-           '-s', 'A4',
-           htmlname, pdfname]
+    pdfname = fontlist.create_fontlist(script)
 
-    p = Popen(cmd, stdout=PIPE, stderr=PIPE)
-    r = p.communicate()
-    log(r)
-
-def font_pdf_multipage(pdfname, fonts, example_template, dir):
-    """Make a PDF one page at a time, so as not to use up all
-    the computer's memory when using non-latin scripts."""
-    pages = []
-    i = 0
-    tmpdir = tempfile.mkdtemp()
-    while i < len(fonts):
-        page_file = os.path.join(tmpdir, '%s.pdf' % (i / FONTS_PER_PAGE))
-        html = font_html(fonts[i: i + FONTS_PER_PAGE], example_template, dir)
-        font_pdf(html, page_file)
-        pages.append(page_file)
-        i += FONTS_PER_PAGE
-
-    concat_pdfs(pdfname, *pages)
-    for x in pages:
-        os.remove(x)
-    os.rmdir(tmpdir)
-
-def html_font_list(fonts, name):
-    f = open(name, 'w')
-    for x in fonts:
-        f.write(x + '\n')
+    f = open(pdfname)
+    s = f.read()
     f.close()
 
-#Instead of regenerating the pdf every time, which is expensive, keep
-#a cached version indexed by the font list and script version
-fonts = get_font_list()
-h = hashlib.sha1(str(fonts))
-
-#Any change to this file will effectively clear the cache.
-f = open(this_file)
-h.update(f.read())
-f.close()
-
-form = cgi.FieldStorage()
-script = form.getfirst('script')
-if script not in (x for x in os.listdir(config.FONT_EXAMPLE_SCRIPT_DIR) if x.isalnum()):
-    script = 'latin'
-
-f = open(os.path.join(config.FONT_EXAMPLE_SCRIPT_DIR, script))
-example_template = f.read()
-f.close()
-
-#also hash the script example include
-h.update(example_template)
-
-pdfname = os.path.join(config.CACHE_DIR, 'font-list-%s-%s.pdf' %(script, h.hexdigest()))
-
-if not os.path.exists(pdfname):
-    #So this particular font list has not been made before
-    dir = 'RTL' if script in config.RTL_SCRIPTS  else 'LTR'
-    font_pdf_multipage(pdfname, fonts, example_template, dir)
-
-    # rewrite the font-list html include
-    # this will be done redundantly for each script type
-    include_name = os.path.join(config.CACHE_DIR, 'font-list.inc')
-    html_font_list(fonts, include_name)
+    print "Content-type: application/pdf\nContent-length: %s\n" % (len(s),)
+    print s
 
 
-
-f = open(pdfname)
-s = f.read()
-f.close()
-print "Content-type: application/pdf\nContent-length: %s\n" %(len(s),)
-print s
-sys.exit()
-
+if __name__ == '__main__':
+    main()
+    sys.exit()

@@ -25,9 +25,6 @@ import hashlib
 import tempfile
 from subprocess import Popen, PIPE
 
-from django.conf import settings
-from django.http import HttpResponse
-
 
 FONTS_PER_PAGE = 4
 
@@ -124,14 +121,4 @@ def create_fontlist(script):
     return pdfname
 
 
-def view_fontlist(request):
-    script = request.REQUEST.get("script", "latin")
-    pdfname = create_fontlist(script)
-    f = open(pdfname)
-    s = f.read()
-    f.close()
-    response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = "attachment; filename=font-list.pdf"
-    response.write(s)
-    return response
-
+__all__ = [create_fontlist]
