@@ -16,7 +16,7 @@
 
 import os
 
-#import celery
+import celery
 
 from django.conf import settings
 from django.http import HttpResponse
@@ -68,7 +68,7 @@ def parse_request(request):
     #
     args = {}
     for input, _, _, _, _, _, _, default in form_config.FORM_INPUTS:
-        args[input] = request.REQUEST.get(input, default)
+        args[input] = request.get(input, default)
 
     # rename some arguments to a canonical form
     #
@@ -93,11 +93,11 @@ def parse_request(request):
     else:
         return None
 
-    destination = request.REQUEST.get("destination", form_config.DEFAULT_CGI_DESTINATION)
+    destination = request.get("destination", form_config.DEFAULT_CGI_DESTINATION)
     if destination in form_config.CGI_DESTINATIONS.keys():
         args["destination"] = destination
 
-    engine = request.REQUEST.get("engine", config.DEFAULT_ENGINE)
+    engine = request.get("engine", config.DEFAULT_ENGINE)
     if engine in config.ENGINES.keys():
         args["engine"] = engine
 
@@ -148,7 +148,7 @@ def make_response(context):
 def task(func):
     """Default decorator for all task functions.
     """
-    #@celery.task
+    @celery.task(name = func.__name__)
     def decorated_func(request, *args, **kwargs):
         return func(request, *args, **kwargs)
     return decorated_func

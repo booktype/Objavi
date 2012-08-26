@@ -5,7 +5,10 @@
 #
 
 import os, sys
+import djcelery
 import django.core.handlers.wsgi
+
+djcelery.setup_loader()
 
 # Name of the Django settings module (in Python syntax).
 os.environ['DJANGO_SETTINGS_MODULE'] = 'objavi.settings'

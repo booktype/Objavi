@@ -1,6 +1,9 @@
 
 import os
 import objavi
+import djcelery
+
+djcelery.setup_loader()
 
 
 # Django debug
@@ -57,6 +60,14 @@ DATABASE_PORT = ''
 
 
 ##
+# Celery
+#
+
+BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis'
+
+
+##
 # Django
 #
 
@@ -104,6 +115,8 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.admin',
     'django.contrib.staticfiles',
+
+    'djcelery',
 
     'objavi',
 )

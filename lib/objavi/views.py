@@ -77,16 +77,21 @@ def default(request):
     if book and not mode:
         mode = "book"
 
+    def call_task(task):
+        #result = task.delay(request.REQUEST)
+        #return result.get()
+        return task(request.REQUEST)
+
     if mode in ("book", "newspaper", "web"):
-        return tasks.render_book(request)
+        return call_task(tasks.render_book)
     elif mode == "openoffice":
-        return tasks.render_openoffice(request)
+        return call_task(tasks.render_openoffice)
     elif mode == "bookizip":
-        return tasks.render_bookizip(request)
+        return call_task(tasks.render_bookizip)
     elif mode == "templated_html":
-        return tasks.render_templated_html(request)
+        return call_task(tasks.render_templated_html)
     elif mode == "epub":
-        return tasks.render_epub(request)
+        return call_task(tasks.render_epub)
     else:
         return show_form(request)
 
