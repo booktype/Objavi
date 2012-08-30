@@ -118,7 +118,7 @@ INSTALLED_APPS = (
 
     'djcelery',
 
-    'objavi',
+    'objavi.classic',
 )
 
 

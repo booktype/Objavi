@@ -21,11 +21,12 @@ import celery
 from django.conf import settings
 from django.http import HttpResponse
 
+from objavi import form_config
+from objavi import config
+from objavi import fmbook
+from objavi import book_utils
+
 import forms
-import form_config
-import config
-import fmbook
-import book_utils
 
 
 class ObjaviRequest(object):

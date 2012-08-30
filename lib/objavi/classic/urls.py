@@ -15,26 +15,11 @@
 # along with Objavi.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls.defaults import *
-from django.conf import settings
-from django.views.generic.simple import direct_to_template
-from django.contrib.staticfiles.urls import staticfiles_urlpatterns
-from django.contrib import admin
-
-
-admin.autodiscover()
 
 
 urlpatterns = patterns('',
-
-    # Django admin
-    #
-    url(r'^admin/doc/',   include('django.contrib.admindocs.urls')),
-    url(r'^admin/',       include(admin.site.urls)),
-                       
-    # classic API
-    url(r'^',             include("objavi.classic.urls")),
-
+    url(r'^$',                "objavi.classic.views.default"),
+    url(r'^css$',             "objavi.classic.views.fetch_css"),
+    url(r'^booklist$',        "objavi.classic.views.fetch_booklist"),
+    url(r'^fontlist$',        "objavi.classic.views.fetch_fontlist"),
 )
-
-
-#urlpatterns += staticfiles_urlpatterns()

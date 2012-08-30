@@ -16,8 +16,8 @@
 
 from django import forms
 
-import config
-import form_config
+from objavi import config
+from objavi import form_config
 
 
 def get_size_list():
