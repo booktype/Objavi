@@ -93,9 +93,9 @@ def default(request):
         mode = "book"
 
     def call_task(task):
-        #result = task.delay(request.REQUEST)
-        #return result.get()
-        return task(request.REQUEST)
+        result = task.delay(request.REQUEST)
+        return result.get()
+        #return task(request.REQUEST)
 
     if mode in ("book", "newspaper", "web"):
         return call_task(tasks.render_book)

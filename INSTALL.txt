@@ -80,6 +80,10 @@ Package names might vary depending on the operating system you are using.
     $ sudo apt-get install python-dev
     $ sudo pip install django-celery
 
+  - Supervisor
+
+    $ sudo apt-get install supervisor
+
 To create ODF output, you also need a whole lot of OpenOffice or LibreOffice 3.
 
 

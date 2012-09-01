@@ -221,6 +221,41 @@ export PYTHONPATH PATH
     return create_file(destination, file_name, file_text, args)
 
 
+def create_manage_py(destination):
+    file_text = """\
+#!/usr/bin/env python
+
+import os, sys
+
+from django.core import management
+from django.core.management import execute_manager
+
+# Name of the Django settings module (in Python syntax).
+os.environ['DJANGO_SETTINGS_MODULE'] = '%(project_name)s.settings'
+
+# Add Objavi libraries to PYTHONPATH.
+#
+sys.path.insert(0, '%(parent_path)s')
+sys.path.insert(1, '%(destination)s/lib')
+sys.path.insert(2, '%(source_path)s/lib')
+
+# If you are using some Python libraries which are not installed to a standard
+# location, add path to them here, e.g.
+#sys.path.append("/usr/local/share/somelib")
+
+if __name__ == "__main__":
+    management.execute_from_command_line()
+"""
+    file_name = "manage.py"
+    args = {
+        "project_name" : get_project_name(destination),
+        "parent_path"  : dirname(destination),
+        "destination"  : destination,
+        "source_path"  : get_source_path(),
+    }
+    return create_file(destination, file_name, file_text, args)
+
+
 def create_wsgi(destination):
     file_text = """\
 # WSGI script for Objavi.
@@ -286,8 +321,6 @@ def create_apache_conf(destination):
 	SetEnv LC_TIME "en_GB.UTF-8"
 	SetEnv LANG "en_GB.UTF-8"
 
-	RLimitMem 800000000
-
 	WSGIScriptAlias /         %(destination)s/wsgi.py
 	ScriptAlias     /cgi-bin  %(source_path)s/cgi-bin
 	Alias           /static   %(destination)s/static
@@ -321,6 +354,35 @@ def create_apache_conf(destination):
     args = {
         "destination"  : destination,
         "source_path"  : get_source_path(),
+        "file_name"    : file_name,
+    }
+    return create_file(destination, file_name, file_text, args)
+
+
+def create_supervisor_conf(destination):
+    file_text = """\
+; Supervisor configuration for Objavi.
+;
+; Copy or link this file to Supervisor's configuration directory,
+; e.g. /etc/supervisor/conf.d/objavi.
+;
+; Don't forget to restart the Supervisor sevice to take effect:
+;   $ sudo killall -HUP supervisord
+;
+
+[program:objavi-celery-worker]
+directory       = %(destination)s
+command         = python manage.py celery worker --events
+user            = www-data
+stopwaitsecs    = 60
+
+[program:objavi-celery-camera]
+directory       = %(destination)s
+command         = python manage.py celery events --camera=djcelery.snapshot.Camera
+"""
+    file_name = "supervisor.conf"
+    args = {
+        "destination"  : destination,
         "file_name"    : file_name,
     }
     return create_file(destination, file_name, file_text, args)
@@ -365,7 +427,9 @@ The following files and directories have been generated:
     POST_INSTALL.txt --  this file
     post_install.sh  --  performs final set-up steps
     apache.conf      --  Apache site confguration file
+    supervisor.conf  --  Supervisor daemon configuration file
     environment.sh   --  shell environment setup script
+    manage.py        --  Django site management utility
     settings.py      --  Django settings module
     wsgi.py          --  WSGI script for Apache
     static           --  static web files (HTML, CSS, javascript)
@@ -376,7 +440,8 @@ The following files and directories have been generated:
     cache            --  temporary cache files
     data             --  created data files
 
-Check each configuration file for additional customisation.
+Check each configuration file for additional customisations and installation
+instructions.
 
 To complete the installation, change the current directory to the directory
 containing this file, then issue the following command as a super-user:
@@ -442,9 +507,29 @@ chmod -R g+rw logs cache data static
 su -m -c "django-admin collectstatic --noinput --verbosity=0" $www_data_user
 
 # create initial database
-su -m -c "django-admin syncdb" $www_data_user
+#
+django-admin syncdb
+if test -f objavi.db; then
+    chgrp $www_data_group objavi.db
+    chmod g+rw objavi.db
+fi
 
-echo "Done."
+# install Supervisor conf
+#
+echo -e "\nInstalling the Supervisor configuration file for Objavi..."
+if test -d "/etc/supervisor/conf.d"; then
+    echo -n "Copy Supervisor configuration file to /etc/supervisor/conf.d/objavi? (yes/no): "
+    read answer
+    if test $answer = "yes"; then
+        cp -v supervisor.conf /etc/supervisor/conf.d/objavi
+    else
+        echo "Make sure you install the Supervisor configuration file manually."
+    fi
+else
+   echo -e "The /etc/supervisor/conf.d directory is missing. Make sure you install\nthe Supervisor configuration file (supervisor.conf) manually."
+fi
+
+echo -e "\nDone."
 """
     file_name = "post_install.sh"
     args = {
@@ -504,8 +589,10 @@ usage: %prog [options] install_path\n  e.g. create_site /var/www/objavi/  \
     if options.booktype_path:
         create_booki_link(project_destination, options.booktype_path)
     create_environment_sh(project_destination)
+    create_manage_py(project_destination)
     create_wsgi(project_destination)
     create_apache_conf(project_destination)
+    create_supervisor_conf(project_destination)
     create_settings(project_destination)
     create_postinstall_txt(project_destination)
     create_postinstall_sh(project_destination)
