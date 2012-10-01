@@ -395,11 +395,14 @@ class Book(object):
 
         return number_of_pages
 
+    def make_body_html(self):
+        html_text = etree.tostring(self.tree, method="html", encoding="UTF-8")
+        save_data(self.body_html_file, html_text)
+
     def make_body_pdf(self):
         """Make a pdf of the HTML, using webkit"""
         #1. Save the html
-        html_text = etree.tostring(self.tree, method="html", encoding="UTF-8")
-        save_data(self.body_html_file, html_text)
+        self.make_body_html()
 
         #2. Make a pdf of it
         self.maker.make_raw_pdf(self.body_html_file, self.body_pdf_file, outline=True,
