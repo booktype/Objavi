@@ -16,21 +16,17 @@
 
 import os
 
+import celery
+
 from django.conf import settings
-from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
-from django.template import RequestContext
+from django.http import HttpResponse
+
+from objavi import form_config
+from objavi import config
+from objavi import fmbook
+from objavi import book_utils
 
 import forms
-import form_config
-import config
-import fmbook
-import book_utils
-import cgi_utils
-import booki_wrapper
-import twiki_wrapper
-
-from objavi.pdf import resize_pdf, count_pdf_pages
 
 
 class ObjaviRequest(object):
@@ -73,7 +69,7 @@ def parse_request(request):
     #
     args = {}
     for input, _, _, _, _, _, _, default in form_config.FORM_INPUTS:
-        args[input] = request.REQUEST.get(input, default)
+        args[input] = request.get(input, default)
 
     # rename some arguments to a canonical form
     #
@@ -98,11 +94,11 @@ def parse_request(request):
     else:
         return None
 
-    destination = request.REQUEST.get("destination", form_config.DEFAULT_CGI_DESTINATION)
+    destination = request.get("destination", form_config.DEFAULT_CGI_DESTINATION)
     if destination in form_config.CGI_DESTINATIONS.keys():
         args["destination"] = destination
 
-    engine = request.REQUEST.get("engine", config.DEFAULT_ENGINE)
+    engine = request.get("engine", config.DEFAULT_ENGINE)
     if engine in config.ENGINES.keys():
         args["engine"] = engine
 
@@ -146,7 +142,21 @@ def make_response(context):
 
 
 
-def mode_book(request):
+##
+# Task functions.
+#
+
+def task(func):
+    """Default decorator for all task functions.
+    """
+    @celery.task(name = func.__name__)
+    def decorated_func(request, *args, **kwargs):
+        return func(request, *args, **kwargs)
+    return decorated_func
+
+
+@task
+def render_book(request):
     args = parse_request(request)
     context = ObjaviRequest(args)
 
@@ -178,7 +188,8 @@ def mode_book(request):
     return make_response(context)
 
 
-def mode_openoffice(request):
+@task
+def render_openoffice(request):
     args = parse_request(request)
     context = ObjaviRequest(args)
 
@@ -193,7 +204,8 @@ def mode_openoffice(request):
     return make_response(context)
 
 
-def mode_bookizip(request):
+@task
+def render_bookizip(request):
     args = parse_request(request)
     context = ObjaviRequest(args)
 
@@ -204,7 +216,8 @@ def mode_bookizip(request):
     return make_response(context)
 
 
-def mode_templated_html(request):
+@task
+def render_templated_html(request):
     args = parse_request(request)
     context = ObjaviRequest(args)
 
@@ -217,7 +230,8 @@ def mode_templated_html(request):
     return make_response(context)
 
 
-def mode_epub(request):
+@task
+def render_epub(request):
     args = parse_request(request)
     context = ObjaviRequest(args)
 
@@ -239,61 +253,4 @@ def mode_epub(request):
     return make_response(context)
 
 
-def mode_booklist(request):
-    server    = request.REQUEST.get("server", config.DEFAULT_SERVER)
-    book      = request.REQUEST.get("book")
-    interface = request.REQUEST.get("interface", "Booki")
-    if interface == "Booki":
-        books = booki_wrapper.get_book_list(server)
-    else:
-        books = twiki_wrapper.get_book_list(server)
-    context = {
-        "books" : books,
-        "default" : book,
-        }
-    return render_to_response("booklist.html", context, context_instance=RequestContext(request))
-
-
-def mode_css(request):
-    server = request.REQUEST.get("server", config.DEFAULT_SERVER)
-    mode   = request.REQUEST.get("pdf_type", form_config.DEFAULT_PDF_TYPE)
-    path   = book_utils.get_server_defaults(server)['css-%s' % mode]
-    path   = os.path.join(config.STATIC_ROOT, path)
-    return HttpResponse(file(path, "r").read())
-
-
-def mode_form(request):
-    context = {
-        "FORM_INPUTS" : form_config.FORM_INPUTS,
-        "form"        : forms.ObjaviForm(auto_id='%s'),
-        "font_list"   : cgi_utils.font_list(),
-        "font_links"  : cgi_utils.font_links(),
-        }
-    return render_to_response("form.html", context, context_instance=RequestContext(request))
-
-
-def default(request):
-    mode = request.REQUEST.get("mode")
-
-    if mode == "css":
-        return mode_css(request)
-    elif mode == "booklist":
-        return mode_booklist(request)
-
-    book = request.REQUEST.get("book")
-
-    if book and not mode:
-        mode = "book"
-
-    if mode in ("book", "newspaper", "web"):
-        return mode_book(request)
-    elif mode == "openoffice":
-        return mode_openoffice(request)
-    elif mode == "bookizip":
-        return mode_bookizip(request)
-    elif mode == "templated_html":
-        return mode_templated_html(request)
-    elif mode == "epub":
-        return mode_epub(request)
-    else:
-        return mode_form(request)
+__all__ = [render_book, render_openoffice, render_bookizip, render_templated_html, render_epub]
