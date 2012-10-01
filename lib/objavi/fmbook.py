@@ -699,12 +699,6 @@ class Book(object):
 <script type="text/javascript" src="http://www.flossmanuals.net/templates/prettify/src/prettify.js"></script>
 <link type="text/css" href="http://www.flossmanuals.net/templates/prettify/src/prettify.css" rel="Stylesheet" >
 <script src="http://www.flossmanuals.net/templates/Hyphenator/Hyphenator.js" type="text/javascript"></script><script src="http://www.flossmanuals.net/templates/Hyphenator/en_conf.js" type="text/javascript"></script>
-<!-- Added by BookJS -->
-        <script src="jquery-1.7.2.min.js" type="text/javascript"></script>
-        <link href="book.css" rel="stylesheet" type="text/css" />
-        <script src="romanize.js" type="text/javascript"></script>
-        <script src="book.js" type="text/javascript"></script>
-<!-- End of Added by BookJS -->
 <title>%(title)s</title>
 <meta name="copyright" content="%(copyright)s" /> 
 <meta name="license" content="%(license)s" />

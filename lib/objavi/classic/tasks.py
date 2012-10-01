@@ -157,6 +157,29 @@ def task(func):
 
 
 @task
+def render_bookjs(request):
+    args = parse_request(request)
+    context = ObjaviRequest(args)
+
+    with make_book(context, args) as book:
+        book.spawn_x()
+        book.load_book()
+        book.make_body_html()
+
+        cmd = [
+            "renderer",
+            "-platform", "xcb",
+            "-output", book.pdf_file,
+            book.body_html_file]
+        book_utils.run(cmd)
+
+        book.publish_pdf()
+        context.finish(book)
+
+    return make_response(context)
+
+
+@task
 def render_book(request):
     args = parse_request(request)
     context = ObjaviRequest(args)
@@ -254,4 +277,4 @@ def render_epub(request):
     return make_response(context)
 
 
-__all__ = [render_book, render_openoffice, render_bookizip, render_templated_html, render_epub]
+__all__ = [render_bookjs, render_book, render_openoffice, render_bookizip, render_templated_html, render_epub]

@@ -31,6 +31,7 @@ DEFAULT_CGI_DESTINATION = 'html'
 
 
 CGI_MODES = { # arguments are: (publication, extension, mimetype)
+    'bookjs': (True, '.pdf', "application/pdf"),
     'book': (True, '.pdf', "application/pdf"),
     'newspaper': (True, '.pdf', "application/pdf"),
     'web': (True, '.pdf', "application/pdf"),
