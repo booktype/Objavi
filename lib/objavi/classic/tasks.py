@@ -134,7 +134,8 @@ def make_response(context):
     if context.destination == "nowhere":
         return HttpResponse(context.bookurl)
     else:
-        response = HttpResponse(content_type="application/pdf")
+        content_type = form_config.CGI_MODES.get(context.mode)[2]
+        response = HttpResponse(content_type = content_type)
         response["Content-Disposition"] = "attachment; filename=%s" % context.bookname
         with open(context.publish_file, "rb") as f:
             response.write(f.read())
