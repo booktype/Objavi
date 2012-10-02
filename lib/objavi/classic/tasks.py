@@ -19,12 +19,13 @@ import os
 import celery
 
 from django.conf import settings
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 
 from objavi import form_config
 from objavi import config
 from objavi import fmbook
 from objavi import book_utils
+from objavi import cgi_utils
 
 import forms
 
@@ -157,13 +158,15 @@ def task(func):
 
 
 @task
-def render_bookjs(request):
+def render_bookjs_pdf(request):
     args = parse_request(request)
     context = ObjaviRequest(args)
 
     with make_book(context, args) as book:
         book.spawn_x()
         book.load_book()
+
+        book.add_section_titles()
         book.make_body_html()
 
         cmd = [
@@ -177,6 +180,21 @@ def render_bookjs(request):
         context.finish(book)
 
     return make_response(context)
+
+
+@task
+def render_bookjs_html(request):
+    args = parse_request(request)
+    context = ObjaviRequest(args)
+
+    with make_book(context, args) as book:
+        book.load_book()
+        book.add_section_titles()
+        book.make_bookjs_html()
+        context.finish(book)
+
+    return HttpResponseRedirect(cgi_utils.path2url(book.publish_file))
+    #return make_response(context)
 
 
 @task
@@ -277,4 +295,9 @@ def render_epub(request):
     return make_response(context)
 
 
-__all__ = [render_bookjs, render_book, render_openoffice, render_bookizip, render_templated_html, render_epub]
+__all__ = (
+    render_bookjs_pdf, render_bookjs_html,
+    render_book, render_openoffice,
+    render_bookizip, render_templated_html,
+    render_epub
+)

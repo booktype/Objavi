@@ -485,6 +485,27 @@ class Book(object):
     def upload_to_lulu(self, api_key, user, password, booksize, project, title, metadata={}):
         self.maker.upload_to_lulu(api_key, user, password, self.cover_pdf_file, self.publish_file, booksize, project, title, metadata)
 
+    def make_bookjs_html(self):
+        css_path = os.path.join(config.STATIC_ROOT, "bookjs/book.css")
+        with file(css_path, 'r') as f:
+            self.add_css(f.read())
+
+        htmltree = self.tree
+        for child in htmltree:
+            if child.tag == "head":
+                head = child
+                break
+        else:
+            head = htmltree.makeelement("head")
+            htmltree.insert(0, head)
+
+        bookjs_url = config.STATIC_URL + "/bookjs"
+        etree.SubElement(head, "script", src = bookjs_url + "/book.js", type="text/javascript")
+        etree.SubElement(head, "script", src = bookjs_url + "/book-config.js", type="text/javascript")
+
+        self.make_body_html()
+        self.publish_file = self.body_html_file
+
     def make_templated_html(self, template=None, zip=False, index=config.TEMPLATING_INDEX_FIRST):
         """Make a templated html version of the book."""
         #set up the directory and static files
@@ -695,15 +716,15 @@ class Book(object):
             "license"   : self.license,
             "copyright" : self.creator,
             }
-        doc = lxml.html.document_fromstring("""<html dir="%(dir)s" lang="en">
-<script type="text/javascript" src="http://www.flossmanuals.net/templates/prettify/src/prettify.js"></script>
-<link type="text/css" href="http://www.flossmanuals.net/templates/prettify/src/prettify.css" rel="Stylesheet" >
-<script src="http://www.flossmanuals.net/templates/Hyphenator/Hyphenator.js" type="text/javascript"></script><script src="http://www.flossmanuals.net/templates/Hyphenator/en_conf.js" type="text/javascript"></script>
-<title>%(title)s</title>
-<meta name="copyright" content="%(copyright)s" /> 
-<meta name="license" content="%(license)s" />
-<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-<body dir="%(dir)s" onload="prettyPrint()"></body>
+        doc = lxml.html.document_fromstring("""
+<html dir="%(dir)s" lang="en">
+<head>
+  <title>%(title)s</title>
+  <meta name="copyright" content="%(copyright)s" /> 
+  <meta name="license" content="%(license)s" />
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+</head>
+<body dir="%(dir)s"></body>
 </html>""" % params)
         tocmap = filename_toc_map(self.toc)
         for ID in self.spine:
