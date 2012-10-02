@@ -21,10 +21,3 @@ pagination.frontmatterContents = '<div id="booktitle">Book title</div><div id="b
 pagination.autoStart = true;
 
 /* END CONFIG OPTIONS */
-
-document.addEventListener("DOMContentLoaded", function() { 
-    document.body.addEventListener('layoutFlowFinished', function() {
-        window.print();
-    });
-});
-

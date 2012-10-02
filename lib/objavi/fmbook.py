@@ -24,6 +24,7 @@ import os, sys
 import tempfile
 import re, time
 import random
+import shutil
 import copy
 from subprocess import Popen, check_call, PIPE
 from cStringIO import StringIO
@@ -485,8 +486,11 @@ class Book(object):
     def upload_to_lulu(self, api_key, user, password, booksize, project, title, metadata={}):
         self.maker.upload_to_lulu(api_key, user, password, self.cover_pdf_file, self.publish_file, booksize, project, title, metadata)
 
-    def make_bookjs_html(self):
-        css_path = os.path.join(config.STATIC_ROOT, "bookjs/book.css")
+
+    def make_bookjs_zip(self):
+        bookjs_dir = os.path.join(config.STATIC_ROOT, "bookjs")
+
+        css_path = os.path.join(bookjs_dir, "book.css")
         with file(css_path, 'r') as f:
             self.add_css(f.read())
 
@@ -499,12 +503,24 @@ class Book(object):
             head = htmltree.makeelement("head")
             htmltree.insert(0, head)
 
-        bookjs_url = config.STATIC_URL + "/bookjs"
-        etree.SubElement(head, "script", src = bookjs_url + "/book.js", type="text/javascript")
-        etree.SubElement(head, "script", src = bookjs_url + "/book-config.js", type="text/javascript")
+        shutil.copy(os.path.join(bookjs_dir, "book.js"), self.workdir)
+        shutil.copy(os.path.join(bookjs_dir, "book-config.js"), self.workdir)
+
+        etree.SubElement(head, "script", src="book.js", type="text/javascript")
+        etree.SubElement(head, "script", src="book-config.js", type="text/javascript")
 
         self.make_body_html()
-        self.publish_file = self.body_html_file
+        os.rename(self.body_html_file, self.filepath("index.html"))
+
+        with zipfile.ZipFile(self.publish_file, "w") as zip:
+            for file_name in ("book.js", "book-config.js", "objavi.css", "index.html"):
+                zip.write(self.filepath(file_name), file_name)
+            for root, dirs, files in os.walk(self.filepath("static")):
+                for file_name in files:
+                    file_path = os.path.join(root, file_name)
+                    file_name = file_path.replace(self.workdir, "", 1)
+                    zip.write(file_path, file_name)
+
 
     def make_templated_html(self, template=None, zip=False, index=config.TEMPLATING_INDEX_FIRST):
         """Make a templated html version of the book."""
