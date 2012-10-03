@@ -1,36 +1,6 @@
 
-body {
-   font-family: 'Gentium Book Basic', serif;
-}
-
 @page {
-    size: 148mm 210mm;
-    /*margin: 2in 2in 2in 2in;*/
-}
-
-img {
-    image-resolution: from-image;
-    max-height: 5.87in;
-    max-width: 4.00in;
-}
-
-.imagecaption {
-font-size: 9pt; 
-padding-left: .2in;
-line-height: 18px;
-text-align: justify;
-font-weight: normal;
-display:block;
-}
-
-sup  {
-font-size: 7pt; 
-line-height: 10px;
-}
-
-
-body {
-    background-color: #efefef;
+    size: auto; /*148mm 210mm;*/
 }
 
 .page {
@@ -43,9 +13,6 @@ body {
     margin-right: auto;
  
 }
-
-
-
 
 @media screen {
     .page {
@@ -60,19 +27,8 @@ body {
     width: 4.03in;
     position: absolute;
     bottom: .8in;
-    /*left: .8 in;*/
-   /*border: solid 1px #000;*/
+    /*border: solid 1px #000;*/
 }
-
-
-.page:nth-child(odd) .contents {
-    left: .9 in;
-}
-
-.page:nth-child(even) .contents {
-    left: .8 in;
-}
-
 
 .pagenumber {
     margin-top: .2in;
@@ -89,35 +45,42 @@ body {
     top: .4in;
     left: 0;
     right: 0;
-   font-size: 10pt; 
-
-
+    font-size: 10pt;
 }
-
 
 .header .initial {
     display: none;
 }
 
-
 .header .author {
-display: none;
+    display: none;
 }
+
 .header .comma {
-display: none;
+    display: none;
 }
 
 .header .subtitle {
-display: none;
+    display: none;
 }
 
 .header .punctuation {
-display: none;
+    display: none;
 }
 
 .header .image, .header .imagetitle {
-display: none;
+    display: none;
 }
+
+
+.page:nth-child(odd) .contents {
+    left: .9 in;
+}
+
+.page:nth-child(even) .contents {
+    left: .8 in;
+}
+
 .page:nth-child(odd) .pagenumber, .page:nth-child(odd) .header {
     margin-right: .9in;
     margin-left: 1.0in;
@@ -137,12 +100,7 @@ display: none;
 .page:nth-child(even) .header .chapter {
     display: none;
 }
-/*
-.chapter .page:first-child .pagenumber {
-    text-align: center;
-    margin-left: auto;
-    margin-right: auto;
-}*/
+
 
 .section .page:first-child .pagenumber, #frontmatter .page:first-child .pagenumber {
     display: none;
@@ -153,10 +111,6 @@ display: none;
 }
 
 
-
-
-
-
 #toc-title:before {
     content: "Contents";
 }
@@ -165,61 +119,54 @@ display: none;
     font-size: 22px;
     font-weight: normal;
     text-align: left;
-     padding-bottom:.3in;
+    padding-bottom:.3in;
 }
-
 
 .toc-entry {
-width: 4.0in;
-display:block;
-/*border: solid 1px #000;*/
- padding-bottom:.2in;
+    width: 4.0in;
+    display:block;
+    padding-bottom:.2in;
 }
 
-
 .toc-entry .initial {
-/*font-weight: normal;*/
-display: none;
+    display: none;
 }
 
 .toc-entry .title {
-font-weight: normal;
-width: 3.5in;
-font-size: 15px;
-padding-left: .1in;
-display:inline-block;
-/*border: solid 1px #000;*/
-
+    font-weight: normal;
+    width: 3.5in;
+    font-size: 15px;
+    padding-left: .1in;
+    display:inline-block;
+    /*border: solid 1px #000;*/
 }
 
 .toc-entry .subtitle {
-width: 3.5in;
-font-size: 15px;
-display:inline-block;
-
+    width: 3.5in;
+    font-size: 15px;
+    display:inline-block;
 }
 
 .toc-entry .author {
-width: 3.5in;
-font-weight: normal;
-font-size: 14px;
-margin-top: 6px;
-/*padding-left: .2in;*/
-display:inline-block;
-/*border: solid 1px #000;*/
-
+    width: 3.5in;
+    font-weight: normal;
+    font-size: 14px;
+    margin-top: 6px;
+    /*padding-left: .2in;*/
+    display: inline-block;
+    /*border: solid 1px #000;*/
 }
 
 .toc-entry .comma {
-display: none;
+    display: none;
 }
 
 .toc-entry .toc-pagenumber { 
-font-weight: normal;
-display:inline-block;
-vertical-align: text-bottom;
-font-size: 16px;
-float:right;
+    font-weight: normal;
+    display: inline-block;
+    vertical-align: text-bottom;
+    font-size: 16px;
+    float:right;
 }
 
 .toc-entry .image, toc-entry .imagetitle {
@@ -233,8 +180,8 @@ float:right;
 .toc-entry.section {
     font-weight: normal;
     font-size: 16px;
-    text-transform:uppercase;
-    padding-bottom:.1in;
+    text-transform: uppercase;
+    padding-bottom: .1in;
 }
 
 /*.toc-entry.pagenumber {
@@ -252,21 +199,21 @@ float:right;
     text-align: center;
 }
 
-#booksubtitle{
+#booksubtitle {
     font-size: 22px;
     margin-top:.2in;
     font-weight:normal;
     text-align: center;
 }
 
-#bookeditors{
+#bookeditors {
     padding-top: 1.5in;
     font-weight: normal;
     text-align: center;
     font-size: 15px;
 }
 
-#bookpress{
+#bookpress {
     padding-top: 1.8in;
     font-weight: normal;
     text-align: center;
@@ -274,11 +221,9 @@ float:right;
 }
 
 #copyrightpage {
-
     font-weight: normal;
     font-size: 11px;
     padding-top: .2in;
-
 }
 
 
@@ -290,93 +235,106 @@ float:right;
     -webkit-region-break-before: always;
 }
 
+
+.objavi-chapter .initial {
+    display: none;
+}
+
+.objavi-subsection {
+    display: none;
+}
+
 .objavi-subsection-heading {
-	line-height: 120px !important;
- /* work-around to make section title pages no longer than one page */
-     font-size: 22px;
+    line-height: 120px !important;
+    /* work-around to make section title pages no longer than one page */
+    font-size: 22px;
     font-weight: bold;
     text-align: left;
     display: none;
 }
 
-.objavi-chapter .initial {
-display: none;
+
+body {
+    font-family: 'Gentium Book Basic', serif;
+    background-color: #efefef;
 }
 
-.objavi-subsection{
-display: none;
+img {
+    image-resolution: from-image;
+    max-height: 5.87in;
+    max-width: 4.00in;
 }
 
-p { 
+.imagecaption {
+    font-size: 9pt; 
+    padding-left: .2in;
+    line-height: 18px;
+    text-align: justify;
+    font-weight: normal;
+    display:block;
+}
 
-font-size: 11pt; 
-line-height: 20px;
-text-align: justify;
+sup  {
+    font-size: 7pt; 
+    line-height: 10px;
+}
 
+p {
+    font-size: 11pt; 
+    line-height: 20px;
+    text-align: justify;
 }
 
 a { 
-
-color: #000;
-text-decoration: none
-
+    color: #000;
+    text-decoration: none
 }
 
 ol {
-
-font-size: 10pt; 
-line-height: 20px;
-text-align: justify;
+    font-size: 10pt; 
+    line-height: 20px;
+    text-align: justify;
 }
 
 h1 {
-font-size: 15pt; 
+    font-size: 15pt; 
 }
 
-h1 .initial{
-display: none;
+h1 .initial {
+    display: none;
 }
 
-h1 .subtitle{
-
+h1 .subtitle {
 }
 
-h1 .author{
-display: block;
-margin-top: .2in;
-font-weight: normal;
+h1 .author {
+    display: block;
+    margin-top: .2in;
+    font-weight: normal;
 }
 
-h1 .comma{
-display: none;
+h1 .comma {
+    display: none;
 }
 
 h2 {
-font-size: 13pt; 
+    font-size: 13pt; 
 }
 
 h3 {
-font-size: 13pt;
-font-weight: normal; 
-
+    font-size: 13pt;
+    font-weight: normal; 
 }
 
 h4 {
-font-size: 11pt; 
+    font-size: 11pt;
 }
 
 h5 {
-font-size: 10pt; 
-font-weight: normal;
-text-align: justify;
-line-height: 18px;
-padding-left: .4in;
-display: block;
+    font-size: 10pt; 
+    font-weight: normal;
+    text-align: justify;
+    line-height: 18px;
+    padding-left: .4in;
+    display: block;
 }
-
-
-
-
-
-
-
