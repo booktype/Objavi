@@ -25,7 +25,7 @@ from objavi import form_config
 from objavi import config
 from objavi import fmbook
 from objavi import book_utils
-from objavi import cgi_utils
+from objavi import bookjs
 
 import forms
 
@@ -169,12 +169,7 @@ def render_bookjs_pdf(request):
         book.add_section_titles()
         book.make_body_html()
 
-        cmd = [
-            "renderer",
-            "-platform", "xcb",
-            "-output", book.pdf_file,
-            book.body_html_file]
-        book_utils.run(cmd)
+        bookjs.render(book.body_html_file, book.pdf_file)
 
         book.publish_pdf()
         context.finish(book)
