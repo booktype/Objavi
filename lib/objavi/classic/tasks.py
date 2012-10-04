@@ -166,7 +166,7 @@ def render_bookjs_pdf(request):
         book.spawn_x()
         book.load_book()
 
-        custom_css  = bookjs.make_page_settings_css(book_utils.get_page_settings(args))
+        custom_css  = bookjs.make_page_settings_css(args)
         custom_css += "\n"
         custom_css += args.get("css", "")
 

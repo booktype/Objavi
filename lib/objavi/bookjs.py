@@ -25,5 +25,16 @@ def render(html_path, pdf_path, **kwargs):
     book_utils.run(cmd)
 
 
-def make_page_settings_css(page_settings):
-    return ""
+def make_page_settings_css(args):
+    page_settings = book_utils.get_page_settings(args)
+
+    css_text = ""
+
+    css_text += """
+.page {
+    width:  %spt;
+    height: %spt;
+}
+""" % page_settings["pointsize"]
+
+    return css_text
