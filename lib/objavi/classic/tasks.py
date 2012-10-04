@@ -166,10 +166,14 @@ def render_bookjs_pdf(request):
         book.spawn_x()
         book.load_book()
 
+        custom_css  = bookjs.make_page_settings_css(book_utils.get_page_settings(args))
+        custom_css += "\n"
+        custom_css += args.get("css", "")
+
         book.add_section_titles()
         book.make_body_html()
 
-        bookjs.render(book.body_html_file, book.pdf_file)
+        bookjs.render(book.body_html_file, book.pdf_file, custom_css=custom_css)
 
         book.publish_pdf()
         context.finish(book)
