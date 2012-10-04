@@ -103,7 +103,7 @@ def check_versions():
     check_python_version()
     check_django_version()
 
-    CHECK_MODULES = ("lxml", "booki", "objavi")
+    CHECK_MODULES = ("lxml", "redis", "djcelery", "booki", "objavi")
     for module_name in CHECK_MODULES:
         check_module_available(module_name)
 
@@ -121,8 +121,10 @@ def create_destination(destination):
     CHECK_FILES = (
         "__init__.py",
         "settings.py",
+        "manage.py",
         "wsgi.py",
         "apache.conf",
+        "supervisor.conf",
         "environment.sh",
         )
 
@@ -518,10 +520,10 @@ fi
 #
 echo -e "\nInstalling the Supervisor configuration file for Objavi..."
 if test -d "/etc/supervisor/conf.d"; then
-    echo -n "Copy Supervisor configuration file to /etc/supervisor/conf.d/objavi? (yes/no): "
+    echo -n "Copy Supervisor configuration file to /etc/supervisor/conf.d? (yes/no): "
     read answer
     if test $answer = "yes"; then
-        cp -v supervisor.conf /etc/supervisor/conf.d/objavi
+        cp -v supervisor.conf /etc/supervisor/conf.d/objavi.conf
     else
         echo "Make sure you install the Supervisor configuration file manually."
     fi
