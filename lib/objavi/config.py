@@ -171,7 +171,7 @@ DEFAULT_DIR = 'LTR'
 
 DEFAULT_SERVER = 'www.booki.cc'
 DEFAULT_BOOKI_SERVER = 'www.booki.cc'
-DEFAULT_SIZE = 'COMICBOOK'
+DEFAULT_SIZE = 'A5'
 DEFAULT_ENGINE = 'webkit'
 
 RTL_SCRIPTS = ['persian', 'arabic', 'hebrew', 'urdu']
