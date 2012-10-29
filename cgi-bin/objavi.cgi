@@ -150,6 +150,7 @@ class Context(object):
         self.details_url, self.s3url = find_archive_urls(self.bookid, self.bookname)
         self.booki_group = args.get('booki-group')
         self.booki_user = args.get('booki-user')
+        self.response = None
         self.start()
 
     def start(self):
@@ -178,7 +179,10 @@ class Context(object):
         if self.method == 'sync':
             print 'Content-type: %s' % (self.mimetype,)
             if content:
-                print '\n%s' % (content,)
+                if self.destination == 'nowhere':
+                    self.response = content
+                else:
+                    print '\n%s' % (content,)
         else:
             output_blob_and_shut_up(content, self.mimetype)
             log(sys.stdout, sys.stderr, sys.stdin)
@@ -191,6 +195,8 @@ class Context(object):
 
     def finish(self, book):
         """Print any final http content."""
+        if self.response:
+            print '\n%s' % (self.response, )
         book.publish_shared(self.booki_group, self.booki_user)
         if self.destination == 'archive.org':
             book.publish_s3()
