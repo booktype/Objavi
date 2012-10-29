@@ -29,6 +29,18 @@ from objavi import book_utils
 import forms
 
 
+class RequestError(Exception):
+    def __init__(self, errors):
+        self.errors = errors
+
+    def __str__(self):
+        lines = []
+        for param in self.errors:
+            msg = "%s: %s" % (param, ", ".join(self.errors[param]))
+            lines.append(msg)
+        return "; ".join(lines)
+
+
 class ObjaviRequest(object):
     def __init__(self, args):
         self.bookid = args.get('book')
@@ -92,7 +104,7 @@ def parse_request(request):
     if form.is_valid():
         args = form.cleaned_data
     else:
-        return None
+        raise RequestError(form.errors)
 
     destination = request.get("destination", form_config.DEFAULT_CGI_DESTINATION)
     if destination in form_config.CGI_DESTINATIONS.keys():
