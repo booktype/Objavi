@@ -109,5 +109,25 @@ class ObjaviForm(forms.Form):
     embed_fonts         = forms.BooleanField(required = False)
     allow_breaks        = forms.BooleanField(required = False)
 
+    def clean(self):
+        cleaned_data = self.cleaned_data
+
+        booksize    = cleaned_data["booksize"]
+        page_width  = cleaned_data["page_width"]
+        page_height = cleaned_data["page_height"]
+
+        if booksize == "custom":
+            msg = u"custom book size requires this parameter"
+
+            if not page_width:
+                self._errors["page_width"] = self.error_class([msg])
+                del self.cleaned_data["page_width"]
+
+            if not page_height:
+                self._errors["page_height"] = self.error_class([msg])
+                del self.cleaned_data["page_height"]
+
+        return cleaned_data
+
 
 __all__ = [ ObjaviForm ]
