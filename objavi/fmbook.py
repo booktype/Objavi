@@ -963,6 +963,7 @@ class Book(object):
     def make_epub(self, use_cache=False, css=None, cover_url=None):
         """Make an epub version of the book, using Mike McCabe's
         epub module for the Internet Archive."""
+
         ebook = epub_utils.Epub(self.publish_file)
 
         if css:
@@ -992,47 +993,61 @@ class Book(object):
 
         toc = self.info['TOC']
 
-        #manifest
-        filemap = {} #map html to corresponding xhtml
-        spinemap = {} #map IDs to multi-file chapters
+        filemap  = {}  # map html to corresponding xhtml
+        spinemap = {}  # map IDs to multi-file chapters
+
+        # manifest
+        #
         for ID in self.manifest:
             details = self.manifest[ID]
-            #log(ID, pformat(details))
-            fn, mediatype = details['url'], details['mimetype']
+
+            fn = details['url']
             if isinstance(fn, unicode):
                 fn = fn.encode('utf-8')
+
             content = self.store.read(fn)
-            if mediatype == 'text/html':
-                #convert to application/xhtml+xml, and perhaps split
-                c = EpubChapter(self.server, self.book, ID, content,
-                                use_cache=use_cache)
-                c.remove_bad_tags()
+
+            mimetype = details['mimetype']
+
+            if mimetype == 'text/html':
+                # convert to application/xhtml+xml, and perhaps split
+
+                chapter = EpubChapter(self.server, self.book, ID, content, use_cache=use_cache)
+                chapter.remove_bad_tags()
+
+                # find or create the 'head' node
+                #
+                for node in chapter.tree:
+                    if node.tag == 'head':
+                        head = node
+                        break
+                else:
+                    head = chapter.tree.makeelement('head')
+                    chapter.tree.insert(0, head)
+
+                # create title node
+                # TODO: populate
+                #
+                title = etree.SubElement(head, 'title')
 
                 if css:
-                    for child in c.tree:
-                        if child.tag == 'head':
-                            head = child
-                            break
-                    else:
-                        head = c.tree.makeelement('head')
-                        c.tree.insert(0, head)
-
+                    # add CSS link to the head node
                     link = etree.SubElement(head, 'link', rel='stylesheet', type='text/css', href="objavi.css")
 
                 if fn[-5:] == '.html':
-                   fnbase = fn[:-5]
+                    fnbase = fn[:-5]
                 else:
                     fnbase = fn
-                fnx = fnbase + '.xhtml'
                 mediatype = 'application/xhtml+xml'
 
                 # XXX will the fragments get the link to the css?
-                fragments = split_html(c.as_xhtml(),
-                                       compressed_size=self.store.getinfo(fn).compress_size)
+                fragments = split_html(chapter.as_xhtml(), compressed_size=self.store.getinfo(fn).compress_size)
 
-                #add the first one as if it is the whole thing (as it often is)
+                # add the first one as if it is the whole thing (as it often is)
+                fnx = fnbase + '.xhtml'
                 ebook.add_file(ID, fnx, mediatype, fragments[0])
                 filemap[fn] = fnx
+
                 if len(fragments) > 1:
                     spine_ids = [ID]
                     spinemap[ID] = spine_ids
@@ -1047,7 +1062,7 @@ class Book(object):
                                        mediatype, fragments[i])
 
             else:
-                ebook.add_file(ID, fn, mediatype, content)
+                ebook.add_file(ID, fn, mimetype, content)
 
         #toc
         ids = get_metadata(self.metadata, 'identifier')
