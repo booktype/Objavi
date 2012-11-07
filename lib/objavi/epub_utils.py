@@ -107,7 +107,7 @@ class Epub(object):
     def __init__(self, filename):
         self.now = time.gmtime()[:6] #(Y, m, d, H, M, S)
         self.zipfile = ZipFile(filename, 'w', ZIP_DEFLATED, allowZip64=True)
-        self.write_blob('mimetype', MEDIATYPES['booki'], ZIP_STORED)
+        self.write_blob('mimetype', MEDIATYPES['epub'], ZIP_STORED)
         self.write_blob(CONTAINER_PATH, CONTAINER_XML)
         self.manifest = {}
         self.spine = []
