@@ -30,34 +30,45 @@ BARE_NCX = ('<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" '
             '"http://www.daisy.org/z3986/2005/ncx-2005-1.dtd"> '
             '<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" />')
 
-def add_ncxtext(parent, tag, text):
-    """put text in a <text> subelement (as required by navLabel, navInfo)."""
-    el = etree.SubElement(parent, tag)
-    el2 = etree.SubElement(el, 'text')
-    el2.text = text
+
+class NcxState:
+    def __init__(self, filemap):
+        self.filemap   = filemap
+        self.counter   = 0
+        self.maxdepth  = 0
+        self.next_id   = 0
+
+    def make_src(self, url):
+        if self.filemap:
+            return self.filemap.get(url, url)
+        else:
+            return url
 
 
 def make_ncx(toc, filemap, ID, title):
-    log(filemap)
+    """Creates the EPUB NCX file."""
+
     tree = etree.parse(StringIO(BARE_NCX))
     root = tree.getroot()
     head = etree.SubElement(root, 'head')
     add_ncxtext(root, 'docTitle', title)
     navmap = etree.SubElement(root, 'navMap')
-    counter, maxdepth = 0, 0
+
+    state = NcxState(filemap)
     for subtoc in toc:
-        counter, maxdepth = write_navtree(navmap, subtoc, counter, 1, maxdepth, filemap)
+        write_navtree(navmap, subtoc, state, depth = 1)
 
     for name, content in (('dtb:uid', ID),
-                          ('dtb:depth', str(maxdepth)),
+                          ('dtb:depth', str(state.maxdepth)),
                           ('dtb:totalPageCount', '0'),
                           ('dtb:maxPageNumber', '0')
                           ):
         etree.SubElement(head, 'meta', name=name, content=content)
+
     return etree.tostring(tree, pretty_print=True, encoding='utf-8')
 
 
-def write_navtree(parent, subtoc, counter, depth, maxdepth, filemap):
+def write_navtree(parent, subtoc, state, depth):
     #subtoc has this structure:
     #{
     #  "title":    division title (optional),
@@ -66,38 +77,64 @@ def write_navtree(parent, subtoc, counter, depth, maxdepth, filemap):
     #  "role":     epub guide type (optional),
     #  "children": list of TOC structures (optional)
     #}
-    counter += 1
-    if depth > maxdepth:
-        maxdepth = depth
-
-    title = subtoc.get('title', '')
-    url = subtoc['url']
+    url      = subtoc.get('url')
+    title    = subtoc.get('title', '')
     children = subtoc.get('children', [])
 
-    if url is None and children:
+    if subtoc.get('type') == 'booki-section' and len(children) == 0:
+        # skip empty sections
+        return
+
+    if children:
+        first_child_url = children[0].get('url')
+    else:
+        first_child_url = None
+
+    if url is None:
         # if the section has no url, it begins with its first child
-        url = children[0]['url']
+        url = first_child_url
 
-    if filemap:
-        url = filemap.get(url, url)
+    state.counter += 1
+    if depth > state.maxdepth:
+        state.maxdepth = depth
 
-    navpoint = make_navpoint(parent, counter, title, url)
+    # create the navPoint for this node
+    navpoint = make_navpoint(parent, state, title, url)
+
+    if url == first_child_url:
+        # first child should start with the same navPoint
+        state.counter -= 1
+
+    # create navPoints for all children
+    #
     for point in children:
-        counter, maxdepth = write_navtree(navpoint, point, counter, depth + 1, maxdepth, filemap)
+        write_navtree(navpoint, point, state, depth + 1)
 
-    return counter, maxdepth
 
-def make_navpoint(parent, n, title, url):
+def make_navpoint(parent, state, title, url):
     """Make the actual navpoint node"""
-    log((parent, n, title, url))
+
     if url is None:
         url = ''
-    navpoint = etree.SubElement(parent, 'navPoint',
-                                id=(NAVPOINT_ID_TEMPLATE % (n - 1)),
-                                playOrder=str(n))
+
+    navpoint_id = NAVPOINT_ID_TEMPLATE % (state.next_id, )
+    content_src = state.make_src(url)
+    play_order  = str(state.counter)
+
+    state.next_id += 1
+
+    navpoint = etree.SubElement(parent, 'navPoint', id = navpoint_id, playOrder = play_order)
     add_ncxtext(navpoint, 'navLabel', title)
-    etree.SubElement(navpoint, 'content', src=url)
+    etree.SubElement(navpoint, 'content', src = content_src)
+
     return navpoint
+
+
+def add_ncxtext(parent, tag, text):
+    """put text in a <text> subelement (as required by navLabel, navInfo)."""
+    el = etree.SubElement(parent, tag)
+    el2 = etree.SubElement(el, 'text')
+    el2.text = text
 
 
 
