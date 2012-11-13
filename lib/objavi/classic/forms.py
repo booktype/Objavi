@@ -18,6 +18,7 @@ from django import forms
 
 from objavi import config
 from objavi import form_config
+from objavi import book_utils
 
 
 def get_size_list():
@@ -50,8 +51,24 @@ def get_page_number_choices():
     return [(k,k) for k in config.PAGE_NUMBER_OPTIONS]
 
 
+class ServerChoiceField(forms.ChoiceField):
+    def __init__(self, *args, **kwargs):
+        super(ServerChoiceField, self).__init__(
+            required = True,
+            choices = get_server_choices(),
+            initial = config.DEFAULT_SERVER, *args, **kwargs)
+
+    def valid_value(self, value):
+        if super(ServerChoiceField, self).valid_value(value):
+            return True
+        elif book_utils.get_server_defaults(value):
+            return True
+        else:
+            return False
+
+
 class ObjaviForm(forms.Form):
-    server              = forms.ChoiceField(choices = get_server_choices(), initial = config.DEFAULT_SERVER)
+    server              = ServerChoiceField()
     book                = forms.CharField(widget = forms.Select())
     title               = forms.CharField(required = False)
     mode                = forms.ChoiceField(choices = get_mode_choices(), initial = form_config.DEFAULT_PDF_TYPE)
