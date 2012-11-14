@@ -193,7 +193,7 @@ class Epub(object):
                              {'xmlns' : OPF,
                               'unique-identifier' : primary_id,
                               'version' : '2.0'},
-                             nsmap={'dc' : DC}
+                             nsmap = {'dc' : DC, 'opf' : OPF}
                              )
 
         metadata = etree.SubElement(root, 'metadata')

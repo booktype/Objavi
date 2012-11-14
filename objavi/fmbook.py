@@ -51,8 +51,8 @@ from objavi.pdf import parse_outline, parse_extracted_outline, embed_all_fonts
 from objavi.epub import add_guts, _find_tag
 from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree
 from objavi.xhtml_utils import utf8_html_parser, localise_local_links
-from objavi.cgi_utils import url2path, path2url, try_to_kill
-from objavi.constants import DC, DCNS, FM
+from objavi.cgi_utils import path2url, try_to_kill
+from objavi.constants import DC, DCNS, FM, OPF, OPFNS
 
 from booki.bookizip import get_metadata, add_metadata
 
@@ -1085,22 +1085,35 @@ class Book(object):
         if cover:
             ebook.add_guide_item("cover", "Cover", "cover.xhtml")
 
-        #metadata -- no use of attributes (yet)
-        # and fm: metadata disappears for now
-        meta_info = []
+        ###
+        # metadata
+        #
         log(pformat(self.metadata))
+
+        def convert_date(date_string):
+            """Converts bookizip date/time string to EPUB date string."""
+            try:
+                st = time.strptime(date_string, "%Y.%m.%d-%H.%M")
+                return time.strftime("%Y-%m-%d", st)
+            except ValueError:
+                # TODO: log warning
+                return date_string
+
+        meta_info = []
         for ns in [DC]:
             for keyword, schemes in self.metadata[ns].items():
                 if ns:
                     keyword = '{%s}%s' % (ns, keyword)
                 for scheme, values in schemes.items():
                     for value in values:
+                        if keyword == DCNS + 'date':
+                            value = convert_date(value)
                         attrs = {}
                         if scheme:
                             if keyword in (DCNS + 'creator', DCNS + 'contributor'):
-                                attrs['role'] = scheme
-                            else:
-                                attrs['scheme'] = scheme
+                                attrs[OPFNS + 'role'] = scheme
+                            elif keyword == DCNS + 'date':
+                                attrs[OPFNS + 'event'] = scheme
                         meta_info.append((keyword, value, attrs))
 
         has_authors = 'creator' in self.metadata[DC]
@@ -1120,6 +1133,7 @@ class Book(object):
         ebook.write_opf(meta_info)
         ebook.finish()
         self.notify_watcher()
+
 
     def convert_with_calibre(self, output_profile, output_format="mobi"):
         tmp_target = self.publish_file+"."+output_format
