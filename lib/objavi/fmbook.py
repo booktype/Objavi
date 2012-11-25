@@ -481,13 +481,18 @@ class Book(object):
     def upload_to_lulu(self, api_key, user, password, booksize, project, title, metadata={}):
         self.maker.upload_to_lulu(api_key, user, password, self.cover_pdf_file, self.publish_file, booksize, project, title, metadata)
 
-    def make_templated_html(self, template=None, zip=False, index=config.TEMPLATING_INDEX_FIRST):
+
+    def make_templated_html(self, template=None, index=config.TEMPLATING_INDEX_FIRST):
         """Make a templated html version of the book."""
         #set up the directory and static files
         self.unpack_static()
         destdir = self.filepath(os.path.basename(self.publish_file))
         os.mkdir(destdir)
-        os.rename(self.filepath('static'), os.path.join(destdir, 'static'))
+
+        src = self.filepath('static')
+        if os.path.exists(src):
+            dst = os.path.join(destdir, 'static')
+            os.rename(src, dst)
 
         if not template:
             template_tree = lxml.html.parse(config.TEMPLATING_DEFAULT_TEMPLATE, parser=utf8_html_parser).getroot()
@@ -589,14 +594,17 @@ class Book(object):
                 savename = filename
             save_content(body, title, savename)
             savename = None
+
         if config.TAR_TEMPLATED_HTML:
             tarname = self.filepath('html.tar.gz')
             workdir, tardir = os.path.split(destdir)
             #workdir == self.workdir, and tardir <Book>-<date>.tar.gz
             run(['tar', 'czf', tarname, '-C', workdir, tardir])
-            os.rename(tarname, self.publish_file + '.tar.gz')
-        log(destdir, self.publish_file)
-        os.rename(destdir, self.publish_file)
+            self.publish_file += '.tar.gz'
+            os.rename(tarname, self.publish_file)
+        else:
+            os.rename(destdir, self.publish_file)
+
         self.notify_watcher()
 
 
