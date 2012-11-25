@@ -1064,12 +1064,16 @@ class Book(object):
             else:
                 ebook.add_file(ID, fn, mimetype, content)
 
-        #toc
+        # TOC
+        #
         ids = get_metadata(self.metadata, 'identifier')
         if not ids: #workaround for one-time broken booki
             ids = [time.strftime('http://booki.cc/UNKNOWN/%Y.%m.%d-%H.%M.%S')]
         book_id = ids[0]
-        ebook.add_ncx(toc, filemap, book_id, self.title)
+        title = self.title
+        if not isinstance(title, unicode):
+            title = title.decode('utf-8')
+        ebook.add_ncx(toc, filemap, book_id, title)
 
         #spine
         if cover:
