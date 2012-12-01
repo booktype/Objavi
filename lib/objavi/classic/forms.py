@@ -147,4 +147,14 @@ class ObjaviForm(forms.Form):
         return cleaned_data
 
 
-__all__ = [ ObjaviForm ]
+ESPRI_SOURCES = (
+    ("url", "URI (of an epub"),
+    ("archive.org", "Internet Archive ID"),
+)
+
+class EspriForm(forms.Form):
+    book   = forms.CharField(required = True)
+    source = forms.ChoiceField(choices = ESPRI_SOURCES, initial = ESPRI_SOURCES[0][0], widget = forms.RadioSelect)
+
+
+__all__ = [ObjaviForm, EspriForm]
