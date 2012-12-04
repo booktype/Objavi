@@ -693,12 +693,7 @@ class Book(object):
         #'url': ''}
         if self.dir is None:
             self.dir = config.DEFAULT_DIR
-        doc = lxml.html.document_fromstring("""<html dir="%s" lang="en">
-<script type="text/javascript" src="http://www.flossmanuals.net/templates/prettify/src/prettify.js"></script>
-<link type="text/css" href="http://www.flossmanuals.net/templates/prettify/src/prettify.css" rel="Stylesheet" >
-<script src="http://www.flossmanuals.net/templates/Hyphenator/Hyphenator.js" type="text/javascript"></script><script src="http://www.flossmanuals.net/templates/Hyphenator/en_conf.js" type="text/javascript"></script>
-<body dir="%s" onload="prettyPrint()"></body>
-</html>""" % (self.dir, self.dir))
+        doc = lxml.html.document_fromstring("""<html dir="%s" lang="en"><body dir="%s"></body></html>""" % (self.dir, self.dir))
         tocmap = filename_toc_map(self.toc)
         for ID in self.spine:
             details = self.manifest[ID]
