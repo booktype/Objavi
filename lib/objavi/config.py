@@ -500,6 +500,7 @@ LICENSES = {
     'public domain': None,
     'MIT': 'http://www.opensource.org/licenses/mit-license.html',
     'Artistic': 'http://dev.perl.org/licenses/artistic.html',
+    'CC0'         : 'http://creativecommons.org/publicdomain/zero/1.0/legalcode.txt',
     'CC BY'       : 'http://creativecommons.org/licenses/by/3.0/legalcode.txt',
     'CC BY-SA'    : 'http://creativecommons.org/licenses/by-sa/3.0/legalcode.txt',
     'CC BY-ND'    : 'http://creativecommons.org/licenses/by-nd/3.0/legalcode.txt',
