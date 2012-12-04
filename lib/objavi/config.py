@@ -500,8 +500,12 @@ LICENSES = {
     'public domain': None,
     'MIT': 'http://www.opensource.org/licenses/mit-license.html',
     'Artistic': 'http://dev.perl.org/licenses/artistic.html',
-    'CC-BY': 'http://creativecommons.org/licenses/by/3.0/',
-    'CC-BY-SA': 'http://creativecommons.org/licenses/by-sa/3.0/',
+    'CC BY'       : 'http://creativecommons.org/licenses/by/3.0/legalcode.txt',
+    'CC BY-SA'    : 'http://creativecommons.org/licenses/by-sa/3.0/legalcode.txt',
+    'CC BY-ND'    : 'http://creativecommons.org/licenses/by-nd/3.0/legalcode.txt',
+    'CC BY-NC'    : 'http://creativecommons.org/licenses/by-nc/3.0/legalcode.txt',
+    'CC BY-NC-SA' : 'http://creativecommons.org/licenses/by-nc-sa/3.0/legalcode.txt',
+    'CC BY-NC-ND' : 'http://creativecommons.org/licenses/by-nc-nd/3.0/legalcode.txt',
 }
 
 DEFAULT_LICENSE = 'GPLv2+'
