@@ -201,8 +201,14 @@ def render_bookjs_zip(request):
 
     with make_book(context, args) as book:
         book.load_book()
+
+        custom_css  = bookjs.make_page_settings_css(args)
+        custom_css += "\n"
+        custom_css += args.get("css", "")
+
         book.add_section_titles()
-        book.make_bookjs_zip()
+        book.make_bookjs_zip(custom_css)
+
         context.finish(book)
 
     return make_response(context)

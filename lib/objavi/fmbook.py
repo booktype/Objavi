@@ -487,12 +487,8 @@ class Book(object):
         self.maker.upload_to_lulu(api_key, user, password, self.cover_pdf_file, self.publish_file, booksize, project, title, metadata)
 
 
-    def make_bookjs_zip(self):
+    def make_bookjs_zip(self, custom_css = ""):
         bookjs_dir = os.path.join(config.STATIC_ROOT, "bookjs")
-
-        css_path = os.path.join(bookjs_dir, "book.css")
-        with file(css_path, 'r') as f:
-            self.add_css(f.read())
 
         htmltree = self.tree
         for child in htmltree:
@@ -503,17 +499,24 @@ class Book(object):
             head = htmltree.makeelement("head")
             htmltree.insert(0, head)
 
-        shutil.copy(os.path.join(bookjs_dir, "book.js"), self.workdir)
+        shutil.copy(os.path.join(bookjs_dir, "book.css"), self.workdir)
+        shutil.copy(os.path.join(bookjs_dir, "book.js"),  self.workdir)
         shutil.copy(os.path.join(bookjs_dir, "book-config.js"), self.workdir)
+
+        objavi_css_path = os.path.join(self.workdir, "objavi.css")
+        with file(objavi_css_path, 'w') as f:
+            f.write(custom_css)
 
         etree.SubElement(head, "script", src="book.js", type="text/javascript")
         etree.SubElement(head, "script", src="book-config.js", type="text/javascript")
+        etree.SubElement(head, "link", href="book.css", rel="stylesheet", type="text/css")
+        etree.SubElement(head, "link", href="objavi.css", rel="stylesheet", type="text/css")
 
         self.make_body_html()
         os.rename(self.body_html_file, self.filepath("index.html"))
 
         with zipfile.ZipFile(self.publish_file, "w") as zip:
-            for file_name in ("book.js", "book-config.js", "objavi.css", "index.html"):
+            for file_name in ("book.js", "book-config.js", "book.css", "objavi.css", "index.html"):
                 zip.write(self.filepath(file_name), file_name)
             for root, dirs, files in os.walk(self.filepath("static")):
                 for file_name in files:
