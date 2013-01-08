@@ -115,4 +115,44 @@ def default(request):
         return show_form(request)
 
 
-__all__ = [fetch_fontlist, fetch_booklist, fetch_css, default]
+def espri(request):
+    if request.GET.get("mode", "html") != "html":
+        return tasks.ingress_epub(request.GET)
+
+    result = ""
+    if request.GET:
+        form = forms.EspriForm(request.GET)
+        if form.is_valid():
+            source = form.cleaned_data["source"]
+            book   = form.cleaned_data["book"]
+            result = run_espri(source, book)
+    else:
+        form = forms.EspriForm()
+    context = {
+        "form"     : form,
+        "booklink" : result,
+        }
+    return render_to_response("espri.html", context, context_instance = RequestContext(request))
+
+
+def run_espri(source, book):
+    from objavi import espri
+
+    if source == "url":
+        source_function = espri.inet_espri
+    elif source == "archive.org":
+        source_function = espri.ia_espri
+    else:
+        return None
+
+    try:
+        filename = source_function(book)
+        url = '%s/%s' % (config.BOOKI_BOOK_URL, filename)
+        book_link = '<p>Download <a href="%s">%s</a>.</p>' % (url, url)
+    except Exception, e:
+        book_link = '<p>Error: <b>%s</b> when trying to get <b>%s</b></p>' % (e, book)
+
+    return book_link
+
+
+__all__ = [fetch_fontlist, fetch_booklist, fetch_css, default, espri]

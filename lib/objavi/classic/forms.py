@@ -18,6 +18,7 @@ from django import forms
 
 from objavi import config
 from objavi import form_config
+from objavi import book_utils
 
 
 def get_size_list():
@@ -50,8 +51,32 @@ def get_page_number_choices():
     return [(k,k) for k in config.PAGE_NUMBER_OPTIONS]
 
 
+class BooleanField(forms.BooleanField):
+    def to_python(self, value):
+        if value in ("True", "yes", "on", "1"):
+            return True
+        else:
+            return False
+
+
+class ServerChoiceField(forms.ChoiceField):
+    def __init__(self, *args, **kwargs):
+        super(ServerChoiceField, self).__init__(
+            required = True,
+            choices = get_server_choices(),
+            initial = config.DEFAULT_SERVER, *args, **kwargs)
+
+    def valid_value(self, value):
+        if super(ServerChoiceField, self).valid_value(value):
+            return True
+        elif book_utils.get_server_defaults(value):
+            return True
+        else:
+            return False
+
+
 class ObjaviForm(forms.Form):
-    server              = forms.ChoiceField(choices = get_server_choices(), initial = config.DEFAULT_SERVER)
+    server              = ServerChoiceField()
     book                = forms.CharField(widget = forms.Select())
     title               = forms.CharField(required = False)
     mode                = forms.ChoiceField(choices = get_mode_choices(), initial = form_config.DEFAULT_PDF_TYPE)
@@ -64,7 +89,7 @@ class ObjaviForm(forms.Form):
 
     # lulucom
     #
-    to_lulu             = forms.BooleanField(required = False)
+    to_lulu             = BooleanField(required = False)
     lulu_api_key        = forms.CharField(required = False)
     lulu_user           = forms.CharField(required = False)
     lulu_password       = forms.CharField(required = False)
@@ -73,9 +98,9 @@ class ObjaviForm(forms.Form):
     copyright_citation  = forms.CharField(required = False)
     lulu_license        = forms.CharField(required = False)
     lulu_access         = forms.CharField(required = False)
-    lulu_allow_ratings  = forms.BooleanField(required = False)
-    lulu_color          = forms.BooleanField(required = False)
-    lulu_drm            = forms.BooleanField(required = False)
+    lulu_allow_ratings  = BooleanField(required = False)
+    lulu_color          = BooleanField(required = False)
+    lulu_drm            = BooleanField(required = False)
     lulu_paper_type     = forms.CharField(required = False)
     lulu_binding_type   = forms.CharField(required = False)
     lulu_language       = forms.CharField(required = False)
@@ -97,17 +122,47 @@ class ObjaviForm(forms.Form):
     gutter              = forms.CharField(required = False)
     columns             = forms.CharField(required = False)
     column_margin       = forms.CharField(required = False)
-    grey_scale          = forms.BooleanField(required = False)
+    grey_scale          = BooleanField(required = False)
     css_url             = forms.CharField(required = False)
     css                 = forms.CharField(widget = forms.Textarea, required = False)
-    rotate              = forms.BooleanField(required = False)
+    rotate              = BooleanField(required = False)
     html_template       = forms.CharField(widget = forms.Textarea, required = False)
     max_age             = forms.FloatField(required = False)
     booki_group         = forms.CharField(required = False)
     booki_user          = forms.CharField(required = False)
     page_numbers        = forms.ChoiceField(choices = get_page_number_choices(), initial = config.DEFAULT_PAGE_NUMBER_OPTION)
-    embed_fonts         = forms.BooleanField(required = False)
-    allow_breaks        = forms.BooleanField(required = False)
+    embed_fonts         = BooleanField(required = False)
+    allow_breaks        = BooleanField(required = False)
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+
+        booksize    = cleaned_data["booksize"]
+        page_width  = cleaned_data["page_width"]
+        page_height = cleaned_data["page_height"]
+
+        if booksize == "custom":
+            msg = u"custom book size requires this parameter"
+
+            if not page_width:
+                self._errors["page_width"] = self.error_class([msg])
+                del self.cleaned_data["page_width"]
+
+            if not page_height:
+                self._errors["page_height"] = self.error_class([msg])
+                del self.cleaned_data["page_height"]
+
+        return cleaned_data
 
 
-__all__ = [ ObjaviForm ]
+ESPRI_SOURCES = (
+    ("url", "URI (of an epub"),
+    ("archive.org", "Internet Archive ID"),
+)
+
+class EspriForm(forms.Form):
+    book   = forms.CharField(required = True)
+    source = forms.ChoiceField(choices = ESPRI_SOURCES, initial = ESPRI_SOURCES[0][0], widget = forms.RadioSelect)
+
+
+__all__ = [ObjaviForm, EspriForm]

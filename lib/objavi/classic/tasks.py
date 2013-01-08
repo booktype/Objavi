@@ -22,12 +22,25 @@ from django.conf import settings
 from django.http import HttpResponse
 
 from objavi import form_config
+from objavi import constants
 from objavi import config
 from objavi import fmbook
 from objavi import book_utils
 from objavi import bookjs
 
 import forms
+
+
+class RequestError(Exception):
+    def __init__(self, errors):
+        self.errors = errors
+
+    def __str__(self):
+        lines = []
+        for param in self.errors:
+            msg = "%s: %s" % (param, ", ".join(self.errors[param]))
+            lines.append(msg)
+        return "; ".join(lines)
 
 
 class ObjaviRequest(object):
@@ -93,7 +106,7 @@ def parse_request(request):
     if form.is_valid():
         args = form.cleaned_data
     else:
-        return None
+        raise RequestError(form.errors)
 
     destination = request.get("destination", form_config.DEFAULT_CGI_DESTINATION)
     if destination in form_config.CGI_DESTINATIONS.keys():
@@ -293,9 +306,40 @@ def render_epub(request):
     return make_response(context)
 
 
+@task
+def ingress_epub(request):
+    from objavi import espri
+
+    form = forms.EspriForm(request)
+
+    if form.is_valid():
+        source = form.cleaned_data["source"]
+        book   = form.cleaned_data["book"]
+    else:
+        raise RequestError(form.errors)
+
+    if source == "url":
+        source_function = espri.inet_espri
+    elif source == "archive.org":
+        source_function = espri.ia_espri
+    else:
+        raise AssertionError("unknown source identifier")
+
+    file_name = source_function(book)
+    file_path = os.path.join(config.BOOKI_BOOK_DIR, file_name)
+
+    response = HttpResponse(content_type = constants.BOOKIZIP_MIMETYPE)
+    response["Content-Disposition"] = "attachment; filename=%s" % (file_name, )
+
+    with open(file_path, "rb") as f:
+        response.write(f.read())
+
+    return response
+
+
 __all__ = (
     render_bookjs_pdf, render_bookjs_zip,
     render_book, render_openoffice,
     render_bookizip, render_templated_html,
-    render_epub
+    render_epub, ingress_epub,
 )

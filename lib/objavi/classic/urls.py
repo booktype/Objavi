@@ -22,4 +22,5 @@ urlpatterns = patterns('',
     url(r'^css$',             "objavi.classic.views.fetch_css"),
     url(r'^booklist$',        "objavi.classic.views.fetch_booklist"),
     url(r'^fontlist$',        "objavi.classic.views.fetch_fontlist"),
+    url(r'^espri$',           "objavi.classic.views.espri"),
 )

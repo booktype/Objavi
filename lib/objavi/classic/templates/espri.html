@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+  <head>
+    <title>Espri ePUB importer</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="{{STATIC_URL}}/images/favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="{{STATIC_URL}}/objavi.css" type="text/css" media="screen" />
+  </head>
+
+  <body>
+
+    <form action="" method="GET" id="obform" name="obform">
+    <div id="main">
+      <h1>Espri ePUB importer</h1>
+      <p>
+        Make a booki-book from an epub file.
+      </p>
+
+      {% autoescape off %}
+      {{ booklink }}
+      {% endautoescape %}
+
+      <div class="form-item">
+        <div class="input_title">Import source</div>
+        <div class="input_contents">
+          <ul class="radio-list">
+	    {{ form.source }}
+          </ul>
+        </div>
+	{{ form.source.errors }}
+      </div>
+
+      <div class="form-item">
+        <div class="input_title">Book</div>
+        <div class="input_contents">
+	  {{ form.book }}
+        </div>
+	{{ form.book.errors }}
+      </div>
+
+      <p>
+        <button id="submit">import</button>
+      </p>
+    </div>
+    </form>
+
+  </body>
+
+</html>

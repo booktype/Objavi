@@ -43,8 +43,7 @@ CGI_MODES = { # arguments are: (publication, extension, mimetype)
     'form': (False, None, None),
     'epub': (True, '.epub', "application/epub+zip"),
     'bookizip': (True, '.zip', config.BOOKIZIP_MIMETYPE),
-    'templated_html':  (True, '', 'text/html'),
-#    'templated_html_zip':  (True, '.zip', 'application/zip'),
+    'templated_html':  (True, '.tar.gz', 'application/x-gzip'),
 }
 
 PUBLIC_CGI_MODES = tuple(k for k, v in CGI_MODES.items() if v[0])

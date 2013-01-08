@@ -53,7 +53,7 @@ from objavi.epub import add_guts, _find_tag
 from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree
 from objavi.xhtml_utils import utf8_html_parser, localise_local_links
 from objavi.cgi_utils import path2url, try_to_kill
-from objavi.constants import DC, DCNS, FM
+from objavi.constants import DC, DCNS, FM, OPF, OPFNS
 
 from booki.bookizip import get_metadata, add_metadata
 
@@ -522,13 +522,17 @@ class Book(object):
                     zip.write(file_path, file_name)
 
 
-    def make_templated_html(self, template=None, zip=False, index=config.TEMPLATING_INDEX_FIRST):
+    def make_templated_html(self, template=None, index=config.TEMPLATING_INDEX_FIRST):
         """Make a templated html version of the book."""
         #set up the directory and static files
         self.unpack_static()
         destdir = self.filepath(os.path.basename(self.publish_file))
         os.mkdir(destdir)
-        os.rename(self.filepath('static'), os.path.join(destdir, 'static'))
+
+        src = self.filepath('static')
+        if os.path.exists(src):
+            dst = os.path.join(destdir, 'static')
+            os.rename(src, dst)
 
         if not template:
             template_tree = lxml.html.parse(config.TEMPLATING_DEFAULT_TEMPLATE, parser=utf8_html_parser).getroot()
@@ -630,14 +634,17 @@ class Book(object):
                 savename = filename
             save_content(body, title, savename)
             savename = None
+
         if config.TAR_TEMPLATED_HTML:
             tarname = self.filepath('html.tar.gz')
             workdir, tardir = os.path.split(destdir)
             #workdir == self.workdir, and tardir <Book>-<date>.tar.gz
             run(['tar', 'czf', tarname, '-C', workdir, tardir])
-            os.rename(tarname, self.publish_file + '.tar.gz')
-        log(destdir, self.publish_file)
-        os.rename(destdir, self.publish_file)
+            self.publish_file += '.tar.gz'
+            os.rename(tarname, self.publish_file)
+        else:
+            os.rename(destdir, self.publish_file)
+
         self.notify_watcher()
 
 
@@ -1006,6 +1013,7 @@ class Book(object):
     def make_epub(self, use_cache=False, css=None, cover_url=None):
         """Make an epub version of the book, using Mike McCabe's
         epub module for the Internet Archive."""
+
         ebook = epub_utils.Epub(self.publish_file)
 
         if css:
@@ -1035,47 +1043,61 @@ class Book(object):
 
         toc = self.info['TOC']
 
-        #manifest
-        filemap = {} #map html to corresponding xhtml
-        spinemap = {} #map IDs to multi-file chapters
+        filemap  = {}  # map html to corresponding xhtml
+        spinemap = {}  # map IDs to multi-file chapters
+
+        # manifest
+        #
         for ID in self.manifest:
             details = self.manifest[ID]
-            #log(ID, pformat(details))
-            fn, mediatype = details['url'], details['mimetype']
+
+            fn = details['url']
             if isinstance(fn, unicode):
                 fn = fn.encode('utf-8')
+
             content = self.store.read(fn)
-            if mediatype == 'text/html':
-                #convert to application/xhtml+xml, and perhaps split
-                c = EpubChapter(self.server, self.book, ID, content,
-                                use_cache=use_cache)
-                c.remove_bad_tags()
+
+            mimetype = details['mimetype']
+
+            if mimetype == 'text/html':
+                # convert to application/xhtml+xml, and perhaps split
+
+                chapter = EpubChapter(self.server, self.book, ID, content, use_cache=use_cache)
+                chapter.remove_bad_tags()
+
+                # find or create the 'head' node
+                #
+                for node in chapter.tree:
+                    if node.tag == 'head':
+                        head = node
+                        break
+                else:
+                    head = chapter.tree.makeelement('head')
+                    chapter.tree.insert(0, head)
+
+                # create title node
+                # TODO: populate
+                #
+                title = etree.SubElement(head, 'title')
 
                 if css:
-                    for child in c.tree:
-                        if child.tag == 'head':
-                            head = child
-                            break
-                    else:
-                        head = c.tree.makeelement('head')
-                        c.tree.insert(0, head)
-
+                    # add CSS link to the head node
                     link = etree.SubElement(head, 'link', rel='stylesheet', type='text/css', href="objavi.css")
 
                 if fn[-5:] == '.html':
-                   fnbase = fn[:-5]
+                    fnbase = fn[:-5]
                 else:
                     fnbase = fn
-                fnx = fnbase + '.xhtml'
                 mediatype = 'application/xhtml+xml'
 
                 # XXX will the fragments get the link to the css?
-                fragments = split_html(c.as_xhtml(),
-                                       compressed_size=self.store.getinfo(fn).compress_size)
+                fragments = split_html(chapter.as_xhtml(), compressed_size=self.store.getinfo(fn).compress_size)
 
-                #add the first one as if it is the whole thing (as it often is)
+                # add the first one as if it is the whole thing (as it often is)
+                fnx = fnbase + '.xhtml'
                 ebook.add_file(ID, fnx, mediatype, fragments[0])
                 filemap[fn] = fnx
+
                 if len(fragments) > 1:
                     spine_ids = [ID]
                     spinemap[ID] = spine_ids
@@ -1090,14 +1112,18 @@ class Book(object):
                                        mediatype, fragments[i])
 
             else:
-                ebook.add_file(ID, fn, mediatype, content)
+                ebook.add_file(ID, fn, mimetype, content)
 
-        #toc
+        # TOC
+        #
         ids = get_metadata(self.metadata, 'identifier')
         if not ids: #workaround for one-time broken booki
             ids = [time.strftime('http://booki.cc/UNKNOWN/%Y.%m.%d-%H.%M.%S')]
         book_id = ids[0]
-        ebook.add_ncx(toc, filemap, book_id, self.title)
+        title = self.title
+        if not isinstance(title, unicode):
+            title = title.decode('utf-8')
+        ebook.add_ncx(toc, filemap, book_id, title)
 
         #spine
         if cover:
@@ -1113,22 +1139,35 @@ class Book(object):
         if cover:
             ebook.add_guide_item("cover", "Cover", "cover.xhtml")
 
-        #metadata -- no use of attributes (yet)
-        # and fm: metadata disappears for now
-        meta_info = []
+        ###
+        # metadata
+        #
         log(pformat(self.metadata))
+
+        def convert_date(date_string):
+            """Converts bookizip date/time string to EPUB date string."""
+            try:
+                st = time.strptime(date_string, "%Y.%m.%d-%H.%M")
+                return time.strftime("%Y-%m-%d", st)
+            except ValueError:
+                # TODO: log warning
+                return date_string
+
+        meta_info = []
         for ns in [DC]:
             for keyword, schemes in self.metadata[ns].items():
                 if ns:
                     keyword = '{%s}%s' % (ns, keyword)
                 for scheme, values in schemes.items():
                     for value in values:
+                        if keyword == DCNS + 'date':
+                            value = convert_date(value)
                         attrs = {}
                         if scheme:
                             if keyword in (DCNS + 'creator', DCNS + 'contributor'):
-                                attrs['role'] = scheme
-                            else:
-                                attrs['scheme'] = scheme
+                                attrs[OPFNS + 'role'] = scheme
+                            elif keyword == DCNS + 'date':
+                                attrs[OPFNS + 'event'] = scheme
                         meta_info.append((keyword, value, attrs))
 
         has_authors = 'creator' in self.metadata[DC]
@@ -1148,6 +1187,7 @@ class Book(object):
         ebook.write_opf(meta_info)
         ebook.finish()
         self.notify_watcher()
+
 
     def convert_with_calibre(self, output_profile, output_format="mobi"):
         tmp_target = self.publish_file+"."+output_format
