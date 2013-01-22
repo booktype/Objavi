@@ -248,9 +248,13 @@ class EpubChapter(BaseChapter):
         self.book = book
         self.name = chapter_name
         self._loadtree(html)
+        self.prepare_for_epub()
 
     def prepare_for_epub(self):
-        """Shift all headings down 2 places."""
+        for img in self.tree.iter('img'):
+            if not img.get('alt'):
+                img.set('alt', '')
+
         if ADJUST_HEADING_WEIGHT:
             # a question to resolve:
             # is it better (quicker) to have multiple, filtered iterations
