@@ -97,11 +97,7 @@ to clone the official Objavi git repository:
   git clone git://github.com/sourcefabric/Objavi.git
 
 After unpacking the sources go to the Objavi's top-level directory and make
-sure that the following files are executable:
-
-  bin/*
-  cgi-bin/*.cgi
-  cgi-bin/font-list.cgi.pdf
+sure that all files in the "bin" directory are executable.
 
 Objavi also requires some sources from its sister project Booktype.  If you
 don't already have Booktype sources on the system get them from the same place
