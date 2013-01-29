@@ -73,6 +73,7 @@ CGI_DESTINATIONS = {
                 },
 }
 
+DEFAULT_MODE = 'book'
 DEFAULT_PDF_TYPE = 'book'
 DEFAULT_MAX_AGE = -1 #negative number means server default
 
@@ -89,7 +90,7 @@ FORM_INPUTS = (
      lambda x: len(x) < 999 and is_utf8(x), None,
      ),
     ("mode", "Document type", "select", "pdf_types", "openoffice", "",
-     CGI_MODES.__contains__, None,
+     CGI_MODES.__contains__, DEFAULT_MODE,
      ),
 
     ("booksize", "Page size", "select", "size_options", "",
@@ -151,7 +152,7 @@ FORM_INPUTS = (
     ("authors", "Authors", "input[type=text]", None, "lulucom", "", 
      lambda x: len(x) < 999 and is_utf8(x), None),
     ("license", "License", "select", "licenses", "advanced", "",
-     config.LICENSES.__contains__, None,
+     config.LICENSES.__contains__, config.DEFAULT_LICENSE,
      ),
     ("toc_header", "Table of Contents header", "input[type=text]", None, "advanced", "",
      is_utf8, None,
