@@ -33,6 +33,7 @@ import forms
 class RequestError(Exception):
     def __init__(self, errors):
         self.errors = errors
+        Exception.__init__(self, errors)
 
     def __str__(self):
         lines = []
