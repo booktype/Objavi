@@ -79,7 +79,7 @@ class ObjaviForm(forms.Form):
     server              = ServerChoiceField()
     book                = forms.CharField(widget = forms.Select())
     title               = forms.CharField(required = False)
-    mode                = forms.ChoiceField(choices = get_mode_choices(), initial = form_config.DEFAULT_PDF_TYPE)
+    mode                = forms.ChoiceField(choices = get_mode_choices(), initial = form_config.DEFAULT_MODE)
     booksize            = forms.ChoiceField(choices = get_booksize_choices(), initial = config.DEFAULT_SIZE)
     page_width          = forms.FloatField(required = False)
     page_height         = forms.FloatField(required = False)
