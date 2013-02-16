@@ -34,6 +34,7 @@ import forms
 class RequestError(Exception):
     def __init__(self, errors):
         self.errors = errors
+        Exception.__init__(self, errors)
 
     def __str__(self):
         lines = []
@@ -47,7 +48,7 @@ class ObjaviRequest(object):
     def __init__(self, args):
         self.bookid = args.get('book')
         self.server = args.get('server')
-        self.mode = args.get('mode', 'book') #XXX default should be configured?
+        self.mode = args.get('mode', form_config.DEFAULT_MODE)
         extension = form_config.CGI_MODES.get(self.mode)[1]
         self.bookname = book_utils.make_book_name(self.bookid, self.server, extension)
         self.destination = args.get('destination')
@@ -127,7 +128,7 @@ def make_book(context, args):
         "watchers"          : context.get_watchers(),
         "license"           : args.get("license"),
         "max_age"           : float(args.get("max_age")),
-        "page_number_style" : args.get("page-numbers"),
+        "page_number_style" : args.get("page_numbers"),
         }
 
     if args.get("isbn"):

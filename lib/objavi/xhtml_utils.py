@@ -27,6 +27,11 @@ OK_TAGS = frozenset([
     etree.Comment,
     ])
 
+EPUB_VALID_IMG_ATTRS = frozenset([
+    "alt", "class", "dir", "height", "id", "ismap", "longdesc",
+    "style", "title", "usemap", "width", "xml:lang", "src"
+])
+
 
 XHTML11_DOCTYPE = '''<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
     "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
@@ -36,6 +41,7 @@ XML_DEC = '<?xml version="1.0" encoding="UTF-8"?>\n'
 IMG_PREFIX = 'static/'
 
 utf8_html_parser = lxml.html.HTMLParser(encoding='utf-8')
+
 
 def empty_html_tree():
     return lxml.html.document_fromstring('<html><body></body></html>').getroottree()
@@ -248,9 +254,17 @@ class EpubChapter(BaseChapter):
         self.book = book
         self.name = chapter_name
         self._loadtree(html)
+        self.prepare_for_epub()
 
     def prepare_for_epub(self):
-        """Shift all headings down 2 places."""
+        for img in self.tree.iter('img'):
+            # remove attributes that are not allowed
+            for attr in frozenset(img.keys()) - EPUB_VALID_IMG_ATTRS:
+                del img.attrib[attr]
+            # make sure the alt attribute exists
+            if not img.get('alt'):
+                img.set('alt', '')
+
         if ADJUST_HEADING_WEIGHT:
             # a question to resolve:
             # is it better (quicker) to have multiple, filtered iterations

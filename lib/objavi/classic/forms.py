@@ -75,11 +75,26 @@ class ServerChoiceField(forms.ChoiceField):
             return False
 
 
+class LicenseChoiceField(forms.ChoiceField):
+    def __init__(self, *args, **kwargs):
+        super(LicenseChoiceField, self).__init__(
+            required = False,
+            choices = get_license_choices(),
+            initial = config.DEFAULT_LICENSE, *args, **kwargs)
+
+    def valid_value(self, value):
+        if super(LicenseChoiceField, self).valid_value(value):
+            return True
+        else:
+            # allow custom license values
+            return True
+
+
 class ObjaviForm(forms.Form):
     server              = ServerChoiceField()
     book                = forms.CharField(widget = forms.Select())
     title               = forms.CharField(required = False)
-    mode                = forms.ChoiceField(choices = get_mode_choices(), initial = form_config.DEFAULT_PDF_TYPE)
+    mode                = forms.ChoiceField(choices = get_mode_choices(), initial = form_config.DEFAULT_MODE)
     booksize            = forms.ChoiceField(choices = get_booksize_choices(), initial = config.DEFAULT_SIZE)
     page_width          = forms.FloatField(required = False)
     page_height         = forms.FloatField(required = False)
@@ -113,7 +128,7 @@ class ObjaviForm(forms.Form):
 
     # advanced
     #
-    license             = forms.ChoiceField(choices = get_license_choices(), initial = config.DEFAULT_LICENSE)
+    license             = LicenseChoiceField()
     toc_header          = forms.CharField(required = False)
     isbn                = forms.CharField(required = False)
     top_margin          = forms.CharField(required = False)

@@ -1348,6 +1348,9 @@ class Book(object):
             except OSError, e:
                 log(e)
 
+        del os.environ["XAUTHORITY"]
+        del os.environ["DISPLAY"]
+
         if random.random() < 0.1:
             # occasionally kill old xvfbs and soffices, if there are any.
             self.kill_old_processes()
