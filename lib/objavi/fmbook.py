@@ -478,10 +478,6 @@ class Book(object):
 
         self.maker.make_cover_pdf(self.cover_pdf_file, spine_width)
 
-    def upload_to_lulu(self, api_key, user, password, booksize, project, title, metadata={}):
-        self.maker.upload_to_lulu(api_key, user, password, self.cover_pdf_file, self.publish_file, booksize, project, title, metadata)
-
-
     def make_templated_html(self, template=None, index=config.TEMPLATING_INDEX_FIRST):
         """Make a templated html version of the book."""
         #set up the directory and static files

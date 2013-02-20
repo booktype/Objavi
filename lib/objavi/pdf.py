@@ -273,9 +273,6 @@ class PageSettings(object):
                ]
         run(cmd)
 
-    def upload_to_lulu(self, api_key, user, password, cover, contents, booksize, project, title, metadata={}):
-        import lulu
-        lulu.create_project(api_key, user, password, cover, contents, booksize, project, title, metadata)
 
 def count_pdf_pages(pdf):
     """How many pages in the PDF?"""

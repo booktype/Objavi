@@ -102,30 +102,6 @@ class ObjaviForm(forms.Form):
     output_profile      = forms.CharField(required = False)
     output_format       = forms.CharField(required = False)
 
-    # lulucom
-    #
-    to_lulu             = BooleanField(required = False)
-    lulu_api_key        = forms.CharField(required = False)
-    lulu_user           = forms.CharField(required = False)
-    lulu_password       = forms.CharField(required = False)
-    lulu_project        = forms.CharField(required = False)
-    copyright_year      = forms.CharField(required = False)
-    copyright_citation  = forms.CharField(required = False)
-    lulu_license        = forms.CharField(required = False)
-    lulu_access         = forms.CharField(required = False)
-    lulu_allow_ratings  = BooleanField(required = False)
-    lulu_color          = BooleanField(required = False)
-    lulu_drm            = BooleanField(required = False)
-    lulu_paper_type     = forms.CharField(required = False)
-    lulu_binding_type   = forms.CharField(required = False)
-    lulu_language       = forms.CharField(required = False)
-    lulu_keywords       = forms.CharField(required = False)
-    lulu_currency_code  = forms.CharField(required = False)
-    lulu_download_price = forms.CharField(required = False)
-    lulu_print_price    = forms.CharField(required = False)
-    description         = forms.CharField(required = False)
-    authors             = forms.CharField(required = False)
-
     # advanced
     #
     license             = LicenseChoiceField()
