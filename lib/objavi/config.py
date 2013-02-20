@@ -402,9 +402,6 @@ CLAIM_UNAUTHORED = False
 
 IMG_CACHE = '%s/images/' % CACHE_DIR
 
-USE_IMG_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
-USE_ZIP_CACHE_ALWAYS_HOSTS = ['objavi.halo.gen.nz']
-
 IGNORABLE_TWIKI_BOOKS = ('Main', 'TWiki', 'PR', 'Trash', 'Sandbox',
                          'Floss', 'Publish', 'Remix', 'Snippets')
 
