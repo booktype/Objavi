@@ -85,8 +85,6 @@ from objavi.constants import DCNS, DC, FM, XHTMLNS, XHTML, WKTOCNS
 from objavi.constants import POINT_2_MM, MM_2_POINT, INCH_2_POINT
 from objavi.constants import BOOKIZIP_MIMETYPE
 
-SHOW_BOOKI_SERVERS = bool(os.environ.get("SHOW_BOOKI_SERVERS", False))
-
 BOOKI_BOOK_DIR = '%s/booki-books' % DATA_ROOT
 BOOKI_BOOK_URL = '%s/booki-books' % DATA_URL
 
@@ -242,10 +240,6 @@ SERVER_DEFAULTS = {
         'toc_header': 'Table of Contents',
         },
 }
-
-#if 'www.booki.cc' in SERVER_DEFAULTS:
-#    SERVER_DEFAULTS['booki.cc'] = SERVER_DEFAULTS['www.booki.cc']
-
 
 LANGUAGE_DIR = {
     "ar": 'RTL',  # arabic (many variants)

@@ -202,38 +202,3 @@ FORM_INPUTS = (
     CGI_DESTINATIONS.__contains__, DEFAULT_CGI_DESTINATION,
      ),
 )
-
-
-FORM_ELEMENT_TYPES = {
-    'input[type=text]' : '<input type="text" id="%(id)s" name="%(id)s" value="%(val)s" />',
-    'input[type=text][disabled]' : '<input type="text" disabled="disabled" id="%(id)s" name="%(id)s" value="%(val)s" />',
-    'input[type=checkbox]' : '<input type="checkbox" id="%(id)s" name="%(id)s" value="%(val)s" />',
-    'textarea' : '<textarea id="%(id)s" name="%(id)s">%(val)s</textarea>',
-    'select': '<select id="%(id)s" name="%(id)s">%(val)s</select>',
-    'ul': '<ul id="%(id)s">%(val)s</ul>',
-    None: None, #don't display the form element
-}
-
-
-
-PROGRESS_POINTS = (
-    ("start", "wake up", PUBLIC_CGI_MODES),
-    ("fetch_zip", "Load data", PUBLIC_CGI_MODES),
-    ("__init__", "Initialise the book", PUBLIC_CGI_MODES),
-    ("load_book", "Fetch the book", ('book', 'newspaper', 'web', 'openoffice')),
-    ("add_css", "Add css", ('book', 'newspaper', 'web', 'openoffice')),
-    ("add_section_titles", "Add section titles", ('book', 'newspaper', 'web', 'openoffice')),
-    ("make_epub", "Make the epub file", ('epub',)),
-    ("make_oo_doc", "Make the OpenOffice document", ('openoffice',)),
-    ("generate_pdf", "Generate the main pdf", ('book', 'newspaper', 'web')),
-    ("extract_pdf_outline", "Find page numbers", ('book',)),
-    ("reshape_pdf", "Add gutters", ('book', 'newspaper',)),
-    ("make_contents", "Calculate Table of Contents", ('book',)),
-    ("make_preamble_pdf", "Generate preamble pdf", ('book',)),
-    ('make_end_matter_pdf', "Generate end matter pdf", ('book',)),
-    ("concatenated_pdfs", "concatenate the pdfs", ('book',)),
-    ("make_templated_html", "Make templated HTML", ('templated_html',)),
-    #("publish_pdf", "Publish the pdf", ('book', 'newspaper', 'web')),
-    (config.FINISHED_MESSAGE, "Finished!", PUBLIC_CGI_MODES),
-)
-
