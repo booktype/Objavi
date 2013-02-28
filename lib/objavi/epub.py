@@ -349,7 +349,6 @@ class Epub(object):
                 while deferred_urls:
                     tp = deferred_urls.pop()
                     tp['url'] = tocpoint['url']
-                    log('%r has deferred url: %r' % (tp['title'], tp['url']))
             else:
                 deferred_urls.append(tocpoint)
             if point['points']:
