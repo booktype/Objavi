@@ -36,22 +36,34 @@ def make_pagination_config(args):
     """
     page_settings = book_utils.get_page_settings(args)
 
+    # NOTE: size values from page settings are always in "points"
+
     page_size     = page_settings.get("pointsize", (420, 595))
-    top_margin    = page_settings.get("top_margin",    0.4 * 72)
-    bottom_margin = page_settings.get("bottom_margin", 0.4 * 72)
-    side_margin   = page_settings.get("side_margin",   0.8 * 72)
-    gutter        = page_settings.get("gutter",        1.0 * 72)
+    top_margin    = page_settings.get("top_margin",    0.8 * 72)
+    bottom_margin = page_settings.get("bottom_margin", 0.8 * 72)
+    side_margin   = page_settings.get("side_margin",   0.5 * 72)
+    gutter        = page_settings.get("gutter",        0.8 * 72)
 
     page_width, page_height = page_size
 
     def unit(x):
-        # convert from points (pt) to whatever is specified by lengthUnit
-        return x / 72.0
+        # Convert from points (pt) to whatever is specified by lengthUnit.
+        # Division by 0.75 is because of a bug currently present in the
+        # renderer using pt as device pixel instead of px.
+        return x / 72.0 / 0.75
 
-    text =  "lengthUnit:'in',"
-    text += "pageWidth:%f,pageHeight:%f," % (unit(page_width), unit(page_height))
-    text += "contentsTopMargin:%f,contentsBottomMargin:%f," % (unit(top_margin), unit(bottom_margin))
-    text += "outerMargin:%f,innerMargin:%f," % (unit(side_margin), unit(gutter))
+    config = {
+        "lengthUnit"  : "in",
+        "pageWidth"   : unit(page_width),
+        "pageHeight"  : unit(page_height),
+        "outerMargin" : unit(side_margin),
+        "innerMargin" : unit(gutter),
+        "contentsTopMargin"    : unit(top_margin),
+        "contentsBottomMargin" : unit(bottom_margin),
+    }
+
+    items = ["%s:%s" % (key,repr(val)) for key,val in config.items()]
+    text = ",".join(items)
 
     return text
 
