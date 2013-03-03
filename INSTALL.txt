@@ -115,9 +115,10 @@ The 'create_site' script located in the 'scripts' directory of the Objavi
 source tree does exactly that.  The script requires a destination directory
 where the site will be created.
 
-The following command creates an Objavi installation inside /var/www/objavi:
+The following command creates an Objavi installation inside
+the /var/www/objavi_site directory:
 
-  ./scripts/create_site /var/www/objavi
+  ./scripts/create_site /var/www/objavi_site
 
 Make sure you have the write permissions for the destination directory.
 
@@ -125,7 +126,7 @@ If you don't have Booktype installed globally on the system (i.e. somewhere
 in the PYTHONPATH) you will have to specify the path to Booktype's source
 directory when running the script, e.g.:
 
-  ./scripts/create_site --with-booktype=/usr/local/src/Booktype /var/www/objavi
+  ./scripts/create_site --with-booktype=/usr/local/src/Booktype /var/www/objavi_site
 
 If the site was successfully created the script will notify you that a file
 named 'POST_INSTALL.txt' has been created there and that you should read it.

@@ -483,9 +483,6 @@ class Book(object):
 
         self.maker.make_cover_pdf(self.cover_pdf_file, spine_width)
 
-    def upload_to_lulu(self, api_key, user, password, booksize, project, title, metadata={}):
-        self.maker.upload_to_lulu(api_key, user, password, self.cover_pdf_file, self.publish_file, booksize, project, title, metadata)
-
 
     def make_bookjs_zip(self, custom_css = ""):
         bookjs_dir = os.path.join(config.STATIC_ROOT, "bookjs")
@@ -1403,9 +1400,6 @@ class Book(object):
         self.notify_watcher()
 
 
-def use_cache():
-    return (config.SERVER_NAME in config.USE_ZIP_CACHE_ALWAYS_HOSTS)
-
 def _read_cached_zip(server, book, max_age):
     #find a recent zip if possible
     prefix = '%s/%s' % (config.BOOKI_BOOK_DIR, make_book_name(book, server, '').split('-20', 1)[0])
@@ -1438,14 +1432,8 @@ def fetch_zip(server, book, save=False, max_age=-1, filename=None):
     except KeyError:
         raise NotImplementedError("Can't handle '%s' interface" % interface)
 
-    if use_cache() and max_age < 0:
-        #default to 12 hours cache on objavi.halo.gen.nz
-        max_age = 12 * 60
-
-    if max_age:
-        log('WARNING: trying to use cached booki-zip',
-            'If you are debugging booki-zip creation, you will go CRAZY'
-            ' unless you switch this off')
+    if max_age > 0:
+        log('WARNING: trying to use cached booki-zip')
         blob_and_name = _read_cached_zip(server, book, max_age)
         if blob_and_name is not None:
             return blob_and_name
