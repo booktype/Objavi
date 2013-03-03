@@ -7,28 +7,31 @@ from objavi import book_utils
 def render(html_path, pdf_path, **kwargs):
     """Creates a book PDF from the provided HTML document.
     """
-
-    custom_css_file = tempfile.NamedTemporaryFile(prefix="renderer-", suffix=".css", delete=False)
-
-    if kwargs.has_key("custom_css"):
-        custom_css_file.write(kwargs.get("custom_css"))
-
-    custom_css_file.flush()
-
     program = "renderer"
 
     params = [
         "-platform", "xcb",
-        "-custom-css", custom_css_file.name,
         "-output", pdf_path,
     ]
 
     if kwargs.has_key("page_config"):
         params += ["-page-config", kwargs.get("page_config")]
 
+    custom_css_file = None
+    custom_css_text = kwargs.get("custom_css")
+    if custom_css_text:
+        custom_css_file = tempfile.NamedTemporaryFile(prefix="renderer-", suffix=".css", delete=True)
+        custom_css_file.write(custom_css_text)
+        custom_css_file.flush()
+        params += ["-custom-css", custom_css_file.name]
+
     cmd = [ program ] + params + [ html_path ]
 
-    book_utils.run(cmd)
+    try:
+        book_utils.run(cmd)
+    finally:
+        if custom_css_file:
+            custom_css_file.close()
 
 
 def make_pagination_config(args):
