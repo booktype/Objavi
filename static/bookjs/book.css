@@ -1,0 +1,363 @@
+
+@page {
+    size: auto;
+}
+
+
+/**
+ * book layout
+ */
+
+.page {
+    width:  5.83in;
+    height: 8.26in;
+    position: relative;
+    page-break-after: always;
+    background-color: #fff;
+    margin-left: auto;
+    margin-right: auto;
+ 
+}
+
+.contents {
+    height: 6.66in; /* page-height - top - bottom */
+    position: absolute;
+    top:    0.8in;  /* top-margin + header.height */
+    bottom: 0.8in;  /* bottom-margin + footer.height */
+}
+
+.pagenumber {
+    position: absolute;
+    bottom: 0.4in;  /* bottom-margin */
+    left:  0;
+    right: 0;
+}
+
+.header {
+    position: absolute;
+    top: 0.4in;     /* top-margin */
+    left:  0;
+    right: 0;
+}
+
+.page:nth-child(odd) .contents, .page:nth-child(odd) .pagenumber, .page:nth-child(odd) .header {
+    left:  1.0in;   /* gutter */
+    right: 0.8in;   /* side-margin */
+}
+
+.page:nth-child(even) .contents, .page:nth-child(even) .pagenumber, .page:nth-child(even) .header {
+    left:  0.8in;   /* side-margin */
+    right: 1.0in;   /* gutter */
+}
+
+img {
+    max-width:  4.00in;  /* contents-width  * <0,1] */
+    max-height: 5.87in;  /* contents-height * <0,1] */
+    image-resolution: from-image;
+}
+
+
+/**
+ * overall document styling
+ */
+
+body {
+    font-family: 'Gentium Book Basic', serif;
+}
+
+.imagecaption {
+    font-size: 9pt;
+    padding-left: 0.2in;
+    line-height: 18px;
+    text-align: justify;
+    font-weight: normal;
+    display: block;
+}
+
+sup  {
+    font-size: 7pt;
+    line-height: 10px;
+}
+
+p {
+    font-size: 11pt;
+    line-height: 20px;
+    text-align: justify;
+}
+
+a {
+    color: #000;
+    text-decoration: none
+}
+
+ol {
+    font-size: 10pt;
+    line-height: 20px;
+    text-align: justify;
+}
+
+h1 {
+    font-size: 15pt;
+}
+
+h1 .initial {
+    display: none;
+}
+
+h1 .subtitle {
+}
+
+h1 .author {
+    display: block;
+    margin-top: 0.2in;
+    font-weight: normal;
+}
+
+h1 .comma {
+    display: none;
+}
+
+h2 {
+    font-size: 13pt;
+}
+
+h3 {
+    font-size: 13pt;
+    font-weight: normal;
+}
+
+h4 {
+    font-size: 11pt;
+}
+
+h5 {
+    font-size: 10pt;
+    font-weight: normal;
+    text-align: justify;
+    line-height: 18px;
+    padding-left: .4in;
+    display: block;
+}
+
+
+/**
+ * header and footer styling
+ */
+
+.header {
+    font-size: 10pt;
+}
+
+.pagenumber {
+    font-size: 11pt;
+}
+
+.header .initial {
+    display: none;
+}
+
+.header .author {
+    display: none;
+}
+
+.header .comma {
+    display: none;
+}
+
+.header .subtitle {
+    display: none;
+}
+
+.header .punctuation {
+    display: none;
+}
+
+.header .image, .header .imagetitle {
+    display: none;
+}
+
+.page:nth-child(odd) .header .section {
+    display: none;
+}
+
+.page:nth-child(even) .header .chapter {
+    display: none;
+}
+
+.page:nth-child(odd) .pagenumber, .page:nth-child(odd) .header {
+    text-align: right;
+}
+
+.page:nth-child(even) .pagenumber, .page:nth-child(even) .header {
+    text-align: left;
+}
+
+.section .page:first-child .pagenumber, #frontmatter .page:first-child .pagenumber {
+    display: none;
+}
+
+.section .page:first-child .header, .chapter .page:first-child .header {
+    display: none;
+}
+
+
+/**
+ * TOC styling
+ */
+
+#toc-title:before {
+    content: "Contents";
+}
+
+#toc-title {
+    font-size: 22px;
+    font-weight: normal;
+    text-align: left;
+    padding-bottom: 0.3in;
+}
+
+.toc-entry {
+    width: 4.0in;
+    display:block;
+    padding-bottom: 0.2in;
+}
+
+.toc-entry .initial {
+    display: none;
+}
+
+.toc-entry .title {
+    font-weight: normal;
+    width: 3.5in;
+    font-size: 15px;
+    padding-left: 0.1in;
+    display: inline-block;
+}
+
+.toc-entry .subtitle {
+    width: 3.5in;
+    font-size: 15px;
+    display: inline-block;
+}
+
+.toc-entry .author {
+    width: 3.5in;
+    font-weight: normal;
+    font-size: 14px;
+    margin-top: 6px;
+    display: inline-block;
+}
+
+.toc-entry .comma {
+    display: none;
+}
+
+.toc-entry .toc-pagenumber { 
+    font-weight: normal;
+    display: inline-block;
+    vertical-align: text-bottom;
+    font-size: 16px;
+    float: right;
+}
+
+.toc-entry .image, toc-entry .imagetitle {
+    display: none;
+}
+
+.toc-entry.section .toc-pagenumber {
+    display: inline-block;
+}
+
+.toc-entry.section {
+    font-weight: normal;
+    font-size: 16px;
+    text-transform: uppercase;
+    padding-bottom: 0.1in;
+}
+
+/*.toc-entry.pagenumber {
+    font-weight: normal;
+    font-size: 16px;
+    vertical-align: text-top;
+    display: inline-block;
+}*/
+
+
+/**
+ * front matter styling
+ */
+
+#booktitle {
+    margin-top: 1.7in;
+    font-size: 28px;
+    font-weight: normal;
+    text-align: center;
+}
+
+#booksubtitle {
+    font-size: 22px;
+    margin-top: 0.2in;
+    font-weight: normal;
+    text-align: center;
+}
+
+#bookeditors {
+    padding-top: 1.5in;
+    font-weight: normal;
+    text-align: center;
+    font-size: 15px;
+}
+
+#bookpress {
+    padding-top: 1.8in;
+    font-weight: normal;
+    text-align: center;
+    font-size: 10px;
+}
+
+#copyrightpage {
+    font-weight: normal;
+    font-size: 11px;
+    padding-top: 0.2in;
+}
+
+
+/**
+ * misc.
+ */
+
+.pagebreak {
+    -webkit-region-break-after: always;
+}
+
+.pagebreakbefore {
+    -webkit-region-break-before: always;
+}
+
+.objavi-chapter .initial {
+    display: none;
+}
+
+.objavi-subsection {
+    display: none;
+}
+
+.objavi-subsection-heading {
+    line-height: 120px !important;
+    /* work-around to make section title pages no longer than one page */
+    font-size: 22px;
+    font-weight: bold;
+    text-align: left;
+    display: none;
+}
+
+@media screen {
+    .page {
+        border: solid 1px #000;
+        margin-bottom: .2in;
+    }
+
+    body {
+	background-color: #efefef;
+    }
+}

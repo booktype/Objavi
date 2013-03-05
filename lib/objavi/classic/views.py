@@ -99,6 +99,10 @@ def default(request):
 
     if mode in ("book", "newspaper", "web"):
         return call_task(tasks.render_book)
+    elif mode == "bookjs/pdf":
+        return call_task(tasks.render_bookjs_pdf)
+    elif mode == "bookjs/zip":
+        return call_task(tasks.render_bookjs_zip)
     elif mode == "openoffice":
         return call_task(tasks.render_openoffice)
     elif mode == "bookizip":

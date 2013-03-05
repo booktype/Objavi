@@ -24,6 +24,7 @@ import os, sys
 import tempfile
 import re, time
 import random
+import shutil
 import copy
 from subprocess import Popen, check_call, PIPE
 from cStringIO import StringIO
@@ -236,6 +237,7 @@ class Book(object):
 
         self.isbn = get_metadata(self.metadata, 'id', scheme='ISBN', default=[None])[0]
         self.license = get_metadata(self.metadata, 'rights', scheme='License', default=[None])[0]
+        self.creator = get_metadata(self.metadata, 'creator', scheme='', default=[""])[0]
 
         self.toc = self.info['TOC']
         expand_toc(self.toc)
@@ -394,11 +396,14 @@ class Book(object):
 
         return number_of_pages
 
+    def make_body_html(self):
+        html_text = etree.tostring(self.tree, method="html", encoding="UTF-8")
+        save_data(self.body_html_file, html_text)
+
     def make_body_pdf(self):
         """Make a pdf of the HTML, using webkit"""
         #1. Save the html
-        html_text = etree.tostring(self.tree, method="html", encoding="UTF-8")
-        save_data(self.body_html_file, html_text)
+        self.make_body_html()
 
         #2. Make a pdf of it
         self.maker.make_raw_pdf(self.body_html_file, self.body_pdf_file, outline=True,
@@ -477,6 +482,45 @@ class Book(object):
         (_w, _h, spine_width) = self.maker.calculate_cover_size(api_key, booksize, n_pages)
 
         self.maker.make_cover_pdf(self.cover_pdf_file, spine_width)
+
+
+    def make_bookjs_zip(self, custom_css = ""):
+        bookjs_dir = os.path.join(config.STATIC_ROOT, "bookjs")
+
+        htmltree = self.tree
+        for child in htmltree:
+            if child.tag == "head":
+                head = child
+                break
+        else:
+            head = htmltree.makeelement("head")
+            htmltree.insert(0, head)
+
+        shutil.copy(os.path.join(bookjs_dir, "book.css"), self.workdir)
+        shutil.copy(os.path.join(bookjs_dir, "book.js"),  self.workdir)
+        shutil.copy(os.path.join(bookjs_dir, "book-config.js"), self.workdir)
+
+        objavi_css_path = os.path.join(self.workdir, "objavi.css")
+        with file(objavi_css_path, 'w') as f:
+            f.write(custom_css)
+
+        etree.SubElement(head, "script", src="book.js", type="text/javascript")
+        etree.SubElement(head, "script", src="book-config.js", type="text/javascript")
+        etree.SubElement(head, "link", href="book.css", rel="stylesheet", type="text/css")
+        etree.SubElement(head, "link", href="objavi.css", rel="stylesheet", type="text/css")
+
+        self.make_body_html()
+        os.rename(self.body_html_file, self.filepath("index.html"))
+
+        with zipfile.ZipFile(self.publish_file, "w") as zip:
+            for file_name in ("book.js", "book-config.js", "book.css", "objavi.css", "index.html"):
+                zip.write(self.filepath(file_name), file_name)
+            for root, dirs, files in os.walk(self.filepath("static")):
+                for file_name in files:
+                    file_path = os.path.join(root, file_name)
+                    file_name = file_path.replace(self.workdir, "", 1)
+                    zip.write(file_path, file_name)
+
 
     def make_templated_html(self, template=None, index=config.TEMPLATING_INDEX_FIRST):
         """Make a templated html version of the book."""
@@ -689,7 +733,22 @@ class Book(object):
         #'url': ''}
         if self.dir is None:
             self.dir = config.DEFAULT_DIR
-        doc = lxml.html.document_fromstring("""<html dir="%s" lang="en"><body dir="%s"></body></html>""" % (self.dir, self.dir))
+        params = {
+            "dir"       : self.dir,
+            "title"     : self.title,
+            "license"   : self.license,
+            "copyright" : self.creator,
+            }
+        doc = lxml.html.document_fromstring("""
+<html dir="%(dir)s" lang="en">
+<head>
+  <title>%(title)s</title>
+  <meta name="copyright" content="%(copyright)s" /> 
+  <meta name="license" content="%(license)s" />
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+</head>
+<body dir="%(dir)s"></body>
+</html>""" % params)
         tocmap = filename_toc_map(self.toc)
         for ID in self.spine:
             details = self.manifest[ID]

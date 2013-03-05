@@ -26,6 +26,7 @@ from objavi import constants
 from objavi import config
 from objavi import fmbook
 from objavi import book_utils
+from objavi import bookjs
 
 import forms
 
@@ -148,7 +149,8 @@ def make_response(context):
     if context.destination == "nowhere":
         return HttpResponse(context.bookurl)
     else:
-        response = HttpResponse(content_type="application/pdf")
+        content_type = form_config.CGI_MODES.get(context.mode)[2]
+        response = HttpResponse(content_type = content_type)
         response["Content-Disposition"] = "attachment; filename=%s" % context.bookname
         with open(context.publish_file, "rb") as f:
             response.write(f.read())
@@ -167,6 +169,49 @@ def task(func):
     def decorated_func(request, *args, **kwargs):
         return func(request, *args, **kwargs)
     return decorated_func
+
+
+@task
+def render_bookjs_pdf(request):
+    args = parse_request(request)
+    context = ObjaviRequest(args)
+
+    with make_book(context, args) as book:
+        book.spawn_x()
+        book.load_book()
+
+        page_config = bookjs.make_pagination_config(args)
+        custom_css  = args.get("css", "")
+
+        book.add_section_titles()
+        book.make_body_html()
+
+        bookjs.render(book.body_html_file, book.pdf_file, custom_css=custom_css, page_config=page_config)
+
+        book.publish_pdf()
+        context.finish(book)
+
+    return make_response(context)
+
+
+@task
+def render_bookjs_zip(request):
+    args = parse_request(request)
+    context = ObjaviRequest(args)
+
+    with make_book(context, args) as book:
+        book.load_book()
+
+        custom_css  = bookjs.make_page_settings_css(args)
+        custom_css += "\n"
+        custom_css += args.get("css", "")
+
+        book.add_section_titles()
+        book.make_bookjs_zip(custom_css)
+
+        context.finish(book)
+
+    return make_response(context)
 
 
 @task
@@ -298,4 +343,9 @@ def ingress_epub(request):
     return response
 
 
-__all__ = [render_book, render_openoffice, render_bookizip, render_templated_html, render_epub, ingress_epub]
+__all__ = (
+    render_bookjs_pdf, render_bookjs_zip,
+    render_book, render_openoffice,
+    render_bookizip, render_templated_html,
+    render_epub, ingress_epub,
+)
