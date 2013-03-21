@@ -232,7 +232,7 @@ def render_book(request):
         if context.mode == 'book':
             book.make_book_pdf()
         elif context.mode in ('web', 'newspaper'):
-            book.make_simple_pdf(context.mode)
+            book.make_simple_pdf(context.mode, cover_url = args.get("cover_url"))
 
         if args.get("rotate"):
             book.rotate180()

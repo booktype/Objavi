@@ -258,19 +258,18 @@ class PageSettings(object):
         import lulu
         return lulu.calculate_cover_size(api_key, booksize, page_count)
 
-    def make_cover_pdf(self, pdf, spine_width):
+    def make_cover_pdf(self, html_path, pdf_path):
         width = self.width * POINT_2_MM
         height = self.height * POINT_2_MM
-        spine_width = spine_width * POINT_2_MM
-
-        # XXX for now makes a blank cover
-        cmd = [config.WKHTMLTOPDF,
-               "-q",
-               "--page-width", str(2 * width + spine_width),
-               "--page-height", str(height),
-               "--load-error-handling", "ignore",
-               "/dev/zero", pdf
-               ]
+        args = [
+            "-T", "0",
+            "-B", "0",
+            "-L", "0",
+            "-R", "0",
+            "--page-width",  repr(width),
+            "--page-height", repr(height),
+        ]
+        cmd = [config.WKHTMLTOPDF] + args + [html_path, pdf_path]
         run(cmd)
 
 
@@ -290,6 +289,15 @@ def concat_pdfs(destination, *pdfs):
     cmd.extend(x for x in pdfs if x is not None)
     cmd += ['cat', 'output', destination]
     run(cmd)
+
+def concat_pdfs_gs(destination, *pdfs):
+    """Concatenate all the named PDFs."""
+    cmd  = ['gs']
+    cmd += ['-dBATCH', '-dNOPAUSE', '-sDEVICE=pdfwrite']
+    cmd += ['-sOutputFile=%s' % destination, '-f']
+    cmd.extend(x for x in pdfs if x is not None)
+    run(cmd)
+
 
 def rotate_pdf(pdfin, pdfout):
     """Turn the PDF on its head"""
