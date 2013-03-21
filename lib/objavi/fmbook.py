@@ -47,13 +47,14 @@ from objavi import config, epub_utils
 from objavi.book_utils import log, run, make_book_name, guess_lang, guess_text_dir, url_fetch, url_fetch2
 from objavi.book_utils import ObjaviError, log_types, guess_page_number_style, get_number_localiser
 from objavi.book_utils import get_server_defaults
-from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, rotate_pdf
+from objavi.pdf import PageSettings, count_pdf_pages, concat_pdfs, concat_pdfs_gs, rotate_pdf
 from objavi.pdf import parse_outline, parse_extracted_outline, embed_all_fonts
 from objavi.epub import add_guts, _find_tag
 from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree
 from objavi.xhtml_utils import utf8_html_parser, localise_local_links
 from objavi.cgi_utils import path2url, try_to_kill
 from objavi.constants import DC, DCNS, FM, OPF, OPFNS
+from objavi import cover
 
 from booki.bookizip import get_metadata, add_metadata
 
@@ -256,6 +257,7 @@ class Book(object):
         self.pdf_file = self.filepath('final.pdf')
         self.body_odt_file = self.filepath('body.odt')
         self.outline_file = self.filepath('outline.txt')
+        self.cover_html_file = self.filepath('cover.html')
         self.cover_pdf_file = self.filepath('cover.pdf')
         self.epub_cover = None
         self.publish_file = os.path.abspath(os.path.join(config.PUBLISH_DIR, bookname))
@@ -476,12 +478,11 @@ class Book(object):
 
         self.notify_watcher('concatenated_pdfs')
 
-    def make_cover_pdf(self, api_key, booksize):
-        n_pages = count_pdf_pages(self.publish_file)
 
-        (_w, _h, spine_width) = self.maker.calculate_cover_size(api_key, booksize, n_pages)
-
-        self.maker.make_cover_pdf(self.cover_pdf_file, spine_width)
+    def make_cover_pdf(self, cover_url):
+        cover_html_text = cover.make_cover_html(self.maker.width, self.maker.height, cover_url)
+        save_data(self.cover_html_file, cover_html_text)
+        self.maker.make_cover_pdf(self.cover_html_file, self.cover_pdf_file)
 
 
     def make_bookjs_zip(self, custom_css = ""):
@@ -648,7 +649,7 @@ class Book(object):
         self.notify_watcher()
 
 
-    def make_simple_pdf(self, mode):
+    def make_simple_pdf(self, mode, cover_url = None):
         """Make a simple pdf document without contents or separate
         title page.  This is used for multicolumn newspapers and for
         web-destined pdfs."""
@@ -669,12 +670,17 @@ class Book(object):
         html_text = etree.tostring(self.tree, method="html", encoding="UTF-8")
         save_data(self.body_html_file, html_text)
 
-        #2. Make a pdf of it (direct to to final pdf)
-        self.maker.make_raw_pdf(self.body_html_file, self.pdf_file, outline=True,
+        #2. Make a pdf of it
+        self.maker.make_raw_pdf(self.body_html_file, self.body_pdf_file, outline=True,
                                 outline_file=self.outline_file,
                                 page_num=self.page_number_style)
         self.notify_watcher('generate_pdf')
-        n_pages = count_pdf_pages(self.pdf_file)
+
+        if cover_url:
+            self.make_cover_pdf(cover_url)
+            concat_pdfs_gs(self.pdf_file, self.cover_pdf_file, self.body_pdf_file)
+        else:
+            os.rename(self.body_pdf_file, self.pdf_file)
 
         if mode != 'web':
             #3. resize pages and shift gutters.
