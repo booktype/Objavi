@@ -18,6 +18,7 @@
 #
 
 import os
+import re
 import sys
 import optparse
 
@@ -40,6 +41,8 @@ def dirname(path, rep=0):
     else:
         return path
 
+
+VALID_PROJECT_NAME_REGEXP = re.compile("^[a-zA-Z_][a-zA-Z0-9_]*$")
 
 
 verbose = 0
@@ -109,6 +112,12 @@ def check_versions():
 
 
 def create_destination(destination):
+    project_name = get_project_name(destination)
+    if project_name in ("objavi", "booktype", "booki"):
+        raise MajorError("destination directory name is not valid: %s" % destination)
+    if not VALID_PROJECT_NAME_REGEXP.match(project_name):
+        raise MajorError("destination directory name is not valid: %s" % destination)
+
     if not os.path.exists(destination):
         try:
             os.mkdir(destination)
