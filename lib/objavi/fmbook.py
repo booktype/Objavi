@@ -319,12 +319,21 @@ class Book(object):
         save_data(fn, data)
         return fn
 
-    def make_oo_doc(self):
+    def make_oo_doc(self, cover_url = None):
         """Make an openoffice document, using the html2odt script."""
         self.wait_for_xvfb()
+
+        if cover_url:
+            cover_data, cover_type = url_fetch2(cover_url)
+            cover_name = "cover" + mimetypes.guess_extension(cover_type)
+            self.save_tempfile(cover_name, cover_data)
+            body = list(self.tree.cssselect('body'))[0]
+            cover.add_cover_image(body, cover_url, cover_name)
+
         html_text = etree.tostring(self.tree, method="html", encoding="UTF-8")
         save_data(self.body_html_file, html_text)
         run([config.HTML2ODT, self.workdir, self.body_html_file, self.body_odt_file])
+
         log("Publishing %r as %r" % (self.body_odt_file, self.publish_file))
         os.rename(self.body_odt_file, self.publish_file)
         self.notify_watcher()

@@ -81,3 +81,15 @@ body {
    }
 
    return html_text % params
+
+
+def add_cover_image(parent_element, image_url, image_path = None):
+   """Adds cover image to element.
+   """
+   image_attrs = {
+      "src"    : image_path or image_url,
+      "width"  : "100%",
+      "height" : "100%",
+   }
+   image_element = parent_element.makeelement("img", image_attrs)
+   parent_element.insert(0, image_element)
