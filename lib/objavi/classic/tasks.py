@@ -257,7 +257,7 @@ def render_openoffice(request):
         book.load_book()
         book.add_css(args.get('css'), 'openoffice')
         book.add_section_titles()
-        book.make_oo_doc()
+        book.make_oo_doc(cover_url = args.get("cover_url"))
         context.finish(book)
 
     return make_response(context)
