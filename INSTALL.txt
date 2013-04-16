@@ -84,6 +84,16 @@ Package names might vary depending on the operating system you are using.
 
     $ sudo apt-get install supervisor
 
+To use the beta PDF renderer you need to have its binary somewhere in the PATH,
+e.g. in /usr/local/bin. The source code for the Objavi Renderer is on github,
+and can be obtained by cloning the github.com/bjandras/Renderer repository.
+Binaries for x86 and AMD-64 architectures are available from sourceforge:
+
+  http://sourceforge.net/projects/booktype/files/Renderer
+
+If you're getting a binary version make sure you download the package for your
+architecture.  An INSTALL.txt file is included, just follow the instructions.
+
 To create ODF output, you also need a whole lot of OpenOffice or LibreOffice 3.
 
 
