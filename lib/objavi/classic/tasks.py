@@ -162,10 +162,15 @@ def make_response(context):
 # Task functions.
 #
 
+class Task(celery.Task):
+    def __init__(self):
+        celery.Task.__init__(self)
+        os.putenv("LANG", "en_US.UTF-8")
+
 def task(func):
     """Default decorator for all task functions.
     """
-    @celery.task(name = func.__name__)
+    @celery.task(base = Task, name = func.__name__)
     def decorated_func(request, *args, **kwargs):
         return func(request, *args, **kwargs)
     return decorated_func
