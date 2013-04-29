@@ -159,14 +159,16 @@ class Epub(object):
         self.zipfile.writestr(zinfo, blob)
 
     def add_file(self, ID, filename, mediatype, content, properties=None):
-        filename = filename.encode('utf-8')
         self.write_blob(filename, content)
-        self.manifest[ID] = {'media-type': mediatype.encode('utf-8'),
-                           'id': ID.encode('utf-8'),
-                           'href': filename,
-                           }
+
+        self.manifest[ID] = {
+            'id': ID,
+            'href': unicode(filename, 'utf-8'),
+            'media-type': mediatype,
+            }
+
         if properties:
-            self.manifest[ID]['properties'] = properties.encode('utf-8')
+            self.manifest[ID]['properties']
 
     def add_ncx(self, toc, filemap, ID, title):
         ncx = make_ncx(toc, filemap, ID, title)
