@@ -310,7 +310,8 @@ class Book(object):
         return tree
 
     def filepath(self, fn):
-        return self.workdir + "/" + fn.decode("utf-8")
+        path = self.workdir + "/" + fn.decode("utf-8")
+        return path.encode("utf-8")
 
     def save_tempfile(self, fn, data):
         """Save the data in a temporary directory that will be cleaned
