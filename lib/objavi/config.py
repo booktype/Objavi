@@ -143,7 +143,7 @@ TEMPLATING_BOOK_TITLE_ELEMENT = 'book-title-goes-here'
 TEMPLATING_CHAPTER_TITLE_ELEMENT = 'chapter-title-goes-here'
 TEMPLATING_DOWNLOAD_LINK_ELEMENT = 'download-link-goes-here'
 TEMPLATING_CONTENTS_ID = 'main-content'
-TEMPLATING_DEFAULT_TEMPLATE = os.path.join(OBJAVI_SOURCE_DIR, 'templates/templating_template_flossmanuals.html')
+TEMPLATING_DEFAULT_TEMPLATE = os.path.join(TEMPLATE_ROOT, 'templating_template_flossmanuals.html')
 TEMPLATING_INDEX_FIRST = 'first'
 TEMPLATING_INDEX_CONTENTS = 'contents'
 TEMPLATING_INDEX_MODES = {  # contents file, first file
@@ -344,12 +344,12 @@ ENGINES = {
     #'gecko' : [],
 }
 
-INSIDE_FRONT_COVER_TEMPLATE = os.path.join(OBJAVI_SOURCE_DIR, 'templates/inside-front-cover.%s.html')
-END_MATTER_TEMPLATE = os.path.join(OBJAVI_SOURCE_DIR, 'templates/end_matter.%s.html')
+INSIDE_FRONT_COVER_TEMPLATE = os.path.join(TEMPLATE_ROOT, 'inside-front-cover.%s.html')
+END_MATTER_TEMPLATE = os.path.join(TEMPLATE_ROOT, 'end_matter.%s.html')
 
 FONT_LIST_URL = '%s/fontlist' % OBJAVI_URL
 FONT_LIST_INCLUDE = os.path.join(CACHE_DIR, 'font-list.inc')
-FONT_EXAMPLE_SCRIPT_DIR = os.path.join(OBJAVI_SOURCE_DIR, 'templates/font-list')
+FONT_EXAMPLE_SCRIPT_DIR = os.path.join(TEMPLATE_ROOT, 'font-list')
 
 # for the license field, with a view to making it a drop down.
 LICENSES = {
@@ -376,12 +376,12 @@ LICENSES = {
 
 DEFAULT_LICENSE = 'GPLv2+'
 
-FORM_TEMPLATE           = os.path.join(OBJAVI_SOURCE_DIR, 'templates/form.html')
-PROGRESS_ASYNC_TEMPLATE = os.path.join(OBJAVI_SOURCE_DIR, 'templates/progress-async.html')
-PROGRESS_TEMPLATE       = os.path.join(OBJAVI_SOURCE_DIR, 'templates/progress.html')
-ASYNC_TEMPLATE          = os.path.join(OBJAVI_SOURCE_DIR, 'templates/async.txt')
-ARCHIVE_TEMPLATE        = os.path.join(OBJAVI_SOURCE_DIR, 'templates/archive.txt')
-NOWHERE_TEMPLATE        = os.path.join(OBJAVI_SOURCE_DIR, 'templates/nowhere.txt')
+FORM_TEMPLATE           = os.path.join(TEMPLATE_ROOT, 'form.html')
+PROGRESS_ASYNC_TEMPLATE = os.path.join(TEMPLATE_ROOT, 'progress-async.html')
+PROGRESS_TEMPLATE       = os.path.join(TEMPLATE_ROOT, 'progress.html')
+ASYNC_TEMPLATE          = os.path.join(TEMPLATE_ROOT, 'async.txt')
+ARCHIVE_TEMPLATE        = os.path.join(TEMPLATE_ROOT, 'archive.txt')
+NOWHERE_TEMPLATE        = os.path.join(TEMPLATE_ROOT, 'nowhere.txt')
 
 FINISHED_MESSAGE = 'FINISHED'
 
