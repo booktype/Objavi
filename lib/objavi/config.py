@@ -18,21 +18,9 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-"""This module contains constant values used to produce books.
-"""
-#XXX eventually, read in a real config file.
-#XXX Some of these values should be editable via an admin cgi script
-
 import os
 
-# Module containing Django project settings, or None if not running
-# as a Django application.
-#
 from django.conf import settings
-try:
-    settings.OBJAVI_DIR
-except:
-    settings = None
 
 
 def dirname(path, rep=0):
@@ -46,34 +34,17 @@ def dirname(path, rep=0):
 # Location of the Objavi source tree.
 OBJAVI_SOURCE_DIR = os.path.abspath(dirname(__file__, 2))
 
-# Location of the Objavi site.
-#
-if settings:
-    OBJAVI_DIR = settings.OBJAVI_DIR
-else:
-    OBJAVI_DIR = OBJAVI_SOURCE_DIR
-
-SERVER_NAME   = os.environ.get('SERVER_NAME', 'localhost')
-SERVER_PORT   = os.environ.get('SERVER_PORT', '80')
-OBJAVI_URL    = "http://%s:%s" % (SERVER_NAME, SERVER_PORT)
-
-if settings:
-    STATIC_ROOT = settings.STATIC_ROOT
-    STATIC_URL  = settings.STATIC_URL
-    DATA_ROOT   = settings.DATA_ROOT
-    DATA_URL    = settings.DATA_URL
-else:
-    STATIC_ROOT = os.path.join(OBJAVI_DIR, "static")
-    STATIC_URL  = "%s/%s" % (OBJAVI_URL, "static")
-    DATA_ROOT   = os.path.join(OBJAVI_DIR, "data")
-    DATA_URL    = "%s/%s" % (OBJAVI_URL, "data")
+STATIC_ROOT = settings.STATIC_ROOT
+STATIC_URL  = settings.STATIC_URL
+DATA_ROOT   = settings.DATA_ROOT
+DATA_URL    = settings.DATA_URL
 
 TOOL_DIR      = os.path.join(OBJAVI_SOURCE_DIR, "bin")
 SCRIPT_DIR    = os.path.join(OBJAVI_SOURCE_DIR, "scripts")
 TEMPLATE_ROOT = os.path.join(OBJAVI_SOURCE_DIR, "templates")
 
-CACHE_DIR = os.path.join(OBJAVI_DIR, "cache")
-LOG_DIR   = os.path.join(OBJAVI_DIR, 'logs')
+CACHE_DIR = os.path.join(settings.OBJAVI_DIR, "cache")
+LOG_DIR   = os.path.join(settings.OBJAVI_DIR, 'logs')
 TMP_DIR   = "/tmp"
 
 KEEP_TEMP_FILES = True
@@ -158,7 +129,7 @@ POLL_NOTIFY_PATH = 'htdocs/progress/%s.txt'
 ZIP_URLS = {
     'TWiki':   'http://objavi.booki.cc/booki-twiki-gateway.cgi?server=%(server)s&book=%(book)s&mode=zip',
     'Booki':   'http://%(server)s/export/%(book)s/export',
-    'Archive':  OBJAVI_URL + '/espri.cgi?mode=zip&book=%(book)s',
+    'Archive':  settings.OBJAVI_URL + '/espri.cgi?mode=zip&book=%(book)s',
 }
 
 DEFAULT_DIR = 'LTR'
@@ -347,7 +318,7 @@ ENGINES = {
 INSIDE_FRONT_COVER_TEMPLATE = os.path.join(TEMPLATE_ROOT, 'inside-front-cover.%s.html')
 END_MATTER_TEMPLATE = os.path.join(TEMPLATE_ROOT, 'end_matter.%s.html')
 
-FONT_LIST_URL = '%s/fontlist' % OBJAVI_URL
+FONT_LIST_URL = '%s/fontlist' % settings.OBJAVI_URL
 FONT_LIST_INCLUDE = os.path.join(CACHE_DIR, 'font-list.inc')
 FONT_EXAMPLE_SCRIPT_DIR = os.path.join(TEMPLATE_ROOT, 'font-list')
 

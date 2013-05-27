@@ -21,8 +21,11 @@ import cgi, re
 import urllib
 from getopt import gnu_getopt
 
+from django.conf import settings
+
 from objavi.book_utils import log, get_server_defaults
 from objavi import config
+
 
 def parse_args(arg_validators):
     """Read and validate CGI or commandline arguments, putting the
@@ -102,7 +105,7 @@ def path2url(path, default='/missing_path?%(path)s'):
         return "%s/%s" % (config.DATA_URL, path[len(config.DATA_ROOT):])
     else:
         path = default % {'path': urllib.quote(path)}
-        return '%s/%s' % (config.OBJAVI_URL, path)
+        return '%s/%s' % (settings.OBJAVI_URL, path)
 
 
 def get_default_css(server=config.DEFAULT_SERVER, mode='book'):
