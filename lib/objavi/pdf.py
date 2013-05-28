@@ -254,10 +254,6 @@ class PageSettings(object):
         log('ran:\n%s | %s' % (' '.join(cmd1), ' '.join(cmd2)))
         log("return: %s and %s \nstdout:%s \nstderr:%s" % (p1.poll(), p2.poll(), out, err))
 
-    def calculate_cover_size(self, api_key, booksize, page_count):
-        import lulu
-        return lulu.calculate_cover_size(api_key, booksize, page_count)
-
     def make_cover_pdf(self, html_path, pdf_path):
         width = self.width * POINT_2_MM
         height = self.height * POINT_2_MM
