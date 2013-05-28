@@ -18,23 +18,17 @@
 
 import os
 import time
-import tempfile
 from urllib import unquote
 from urllib2 import urlopen
 from urlparse import urlsplit
-from subprocess import check_call, CalledProcessError
 
 from objavi import epub
 from objavi.book_utils import log
-from objavi.cgi_utils import super_bleach, path2url
+from objavi.cgi_utils import super_bleach
 from objavi import config
 
 
 IA_EPUB_URL = "http://www.archive.org/download/%s/%s.epub"
-
-
-class TimeoutError(Exception):
-    pass
 
 
 def espri(epuburl, bookid, src_id=None):
@@ -72,40 +66,4 @@ def inet_espri(epuburl):
         filename = filename[:-5]
     bookid = '%s-%s' % (filename, time.strftime('%F_%T'))
     espri(epuburl, bookid, src_id='URI')
-    return '%s.zip' % bookid
-
-
-def wikibooks_espri(wiki_url):
-    """Wikibooks import using the wikibooks2epub script by Jan Gerber
-    to first convert the wikibook to an epub, which can then be turned
-    into a bookizip via the espri function.
-    """
-    os.environ['oxCACHE'] = os.path.abspath(config.WIKIBOOKS_CACHE)
-    os.environ['LANG'] = 'en_NZ.UTF-8'
-    tainted_name = unquote(os.path.basename(urlsplit(wiki_url).path))
-    bookid = "%s-%s" % (super_bleach(tainted_name),
-                        time.strftime('%Y.%m.%d-%H.%M.%S'))
-    workdir = tempfile.mkdtemp(prefix=bookid, dir=os.path.join(config.DATA_ROOT, "tmp"))
-    os.chmod(workdir, 0755)
-    epub_file = os.path.join(workdir, bookid + '.epub')
-    epub_url = path2url(epub_file)
-
-    #the wikibooks importer is a separate process, so run that, then collect the epub.
-    cmd = [config.TIMEOUT_CMD, config.WIKIBOOKS_TIMEOUT,
-           config.WIKIBOOKS_CMD,
-           '-i', wiki_url,
-           '-o', epub_file
-           ]
-    log(cmd)
-    log(os.environ)
-    log(os.getcwd())
-
-    try:
-        check_call(cmd)
-    except CalledProcessError, e:
-        if e.returncode == 137:
-            raise TimeoutError('Wikibooks took too long (over %s seconds)' % WIKIBOOKS_TIMEOUT)
-        raise
-
-    espri(epub_url, bookid, src_id='wikibooks')
     return '%s.zip' % bookid

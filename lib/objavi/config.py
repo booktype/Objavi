@@ -73,9 +73,6 @@ BOOKI_SHARED_LONELY_USER_PREFIX = 'lonely-user-'
 #
 
 TIMEOUT_CMD = 'timeout'
-WIKIBOOKS_TIMEOUT = '600'
-WIKIBOOKS_CACHE = '%s/wikibooks' % CACHE_DIR
-WIKIBOOKS_CMD = '%s/wikibooks2epub' % TOOL_DIR
 
 PDFNUP   = '%s/pdfnup'   % TOOL_DIR
 HTML2ODT = '%s/html2odt' % TOOL_DIR

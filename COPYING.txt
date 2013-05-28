@@ -11,13 +11,7 @@ inside Objavi's source tree and also online at:
 Objavi also contains third-party tools and libraries that are copyright
 of their respectful owners:
 
-  - wikibooks2epub
-
-    Copyright Jan Gerber, licensed under the GPLv3 (not GPLv2 or later,
-    see file doc/LICENSE-GPL3.txt for full text of the license).
-    Objavi does not directly link to any of wikibooks2epub's files.
-
-  - bookland
+  * bookland
 
     Copyright Judah Milgram, licensed under the GPLv2 (see file
     doc/LICENSE-GPL2.txt for full text of the license).
