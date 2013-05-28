@@ -34,15 +34,15 @@ SERVER_PORT = os.environ.get('SERVER_PORT', '80')
 OBJAVI_URL  = "http://%s:%s" % (SERVER_NAME, SERVER_PORT)
 OBJAVI_DIR  = '##DESTINATION##'
 
-# static
+# static files
 #
-STATIC_ROOT = '%s/static' % OBJAVI_DIR
-STATIC_URL  = '%s/static' % OBJAVI_URL
+STATIC_ROOT = '%s/static/' % OBJAVI_DIR
+STATIC_URL  = '%s/static/' % OBJAVI_URL
 
-# data
+# media files
 #
-DATA_ROOT = '%s/data' % OBJAVI_DIR
-DATA_URL  = '%s/data' % OBJAVI_URL
+MEDIA_ROOT = '%s/data/' % OBJAVI_DIR
+MEDIA_URL  = '%s/data/' % OBJAVI_URL
 
 
 ##

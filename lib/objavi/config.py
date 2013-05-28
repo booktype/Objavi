@@ -36,8 +36,8 @@ OBJAVI_SOURCE_DIR = os.path.abspath(dirname(__file__, 2))
 
 STATIC_ROOT = settings.STATIC_ROOT
 STATIC_URL  = settings.STATIC_URL
-DATA_ROOT   = settings.DATA_ROOT
-DATA_URL    = settings.DATA_URL
+DATA_ROOT   = settings.MEDIA_ROOT
+DATA_URL    = settings.MEDIA_URL
 
 TOOL_DIR      = os.path.join(OBJAVI_SOURCE_DIR, "bin")
 SCRIPT_DIR    = os.path.join(OBJAVI_SOURCE_DIR, "scripts")
