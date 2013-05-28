@@ -27,7 +27,6 @@ from objavi import fontlist
 from objavi import book_utils
 from objavi import cgi_utils
 from objavi import booki_wrapper
-from objavi import twiki_wrapper
 
 import tasks
 import forms
@@ -53,7 +52,7 @@ def fetch_booklist(request):
     if interface == "Booki":
         books = booki_wrapper.get_book_list(server)
     else:
-        books = twiki_wrapper.get_book_list(server)
+        books = []
     context = {
         "books" : books,
         "default" : book,

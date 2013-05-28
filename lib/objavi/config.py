@@ -102,10 +102,6 @@ OBJAVI_CGI_MEMORY_LIMIT = 1600 * 1024 * 1024
 #keep book lists around for this time without refetching
 BOOK_LIST_CACHE = 3600 * 2
 
-#for twiki import
-TOC_URL = "http://%s/pub/%s/_index/TOC.txt"
-CHAPTER_URL = "http://%s/bin/view/%s/%s?skin=text"
-
 # templated html
 #
 TEMPLATING_REPLACED_ELEMENT = 'content-goes-here'
@@ -127,7 +123,6 @@ POLL_NOTIFY_PATH = 'htdocs/progress/%s.txt'
 #POLL_NOTIFY_URL = 'http://%(HTTP_HOST)s/progress/%(bookname)s.txt'
 
 ZIP_URLS = {
-    'TWiki':   'http://objavi.booki.cc/booki-twiki-gateway.cgi?server=%(server)s&book=%(book)s&mode=zip',
     'Booki':   'http://%(server)s/export/%(book)s/export',
     'Archive':  settings.OBJAVI_URL + '/espri.cgi?mode=zip&book=%(book)s',
 }
@@ -366,9 +361,6 @@ NAVPOINT_ID_TEMPLATE = 'chapter%s'
 CLAIM_UNAUTHORED = False
 
 IMG_CACHE = '%s/images/' % CACHE_DIR
-
-IGNORABLE_TWIKI_BOOKS = ('Main', 'TWiki', 'PR', 'Trash', 'Sandbox',
-                         'Floss', 'Publish', 'Remix', 'Snippets')
 
 WHITESPACE_AND_NULL = ''.join(chr(_x) for _x in range(33))
 
