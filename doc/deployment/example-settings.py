@@ -33,7 +33,6 @@ SERVER_PORT = os.environ.get('SERVER_PORT', '80')
 #
 OBJAVI_URL  = "http://%s:%s" % (SERVER_NAME, SERVER_PORT)
 OBJAVI_DIR  = '##DESTINATION##'
-OBJAVI_SOURCE_DIR = '##SOURCE_PATH##'
 
 # static
 #
@@ -86,10 +85,6 @@ LOCALE_PATHS = (
     '%s/locale' % os.path.dirname(objavi.__file__),
 )
 
-STATICFILES_DIRS = (
-    os.path.join(OBJAVI_SOURCE_DIR, 'static'),
-)
-
 TEMPLATE_DIRS = (
     os.path.join(OBJAVI_DIR, 'templates'),
 )
@@ -118,6 +113,7 @@ INSTALLED_APPS = (
 
     'djcelery',
 
+    'objavi',
     'objavi.classic',
 )
 
