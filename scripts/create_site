@@ -153,7 +153,7 @@ def make_directory_structure(destination):
             os.mkdir(path)
             logln("[OK]")
     try:
-        for d in ['static', 'templates', 'lib', 'locale', 'logs', 'cache', 'data']:
+        for d in ['static', 'lib', 'logs', 'cache', 'data']:
             mkdir(d)
         for d in ['books', 'booki-books', 'shared', 'tmp']:
             mkdir('data/%s' % d)
@@ -443,8 +443,6 @@ The following files and directories have been generated:
     settings.py      --  Django settings module
     wsgi.py          --  WSGI script for Apache
     static           --  static web files (HTML, CSS, javascript)
-    templates        --  local template files
-    locale           --  local translation files
     lib              --  local Python libraries
     logs             --  log files
     cache            --  temporary cache files
