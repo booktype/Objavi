@@ -41,7 +41,7 @@ DATA_URL    = settings.MEDIA_URL
 
 TOOL_DIR      = os.path.join(OBJAVI_SOURCE_DIR, "bin")
 SCRIPT_DIR    = os.path.join(OBJAVI_SOURCE_DIR, "scripts")
-TEMPLATE_ROOT = os.path.join(OBJAVI_SOURCE_DIR, "templates")
+TEMPLATE_ROOT = os.path.join(dirname(__file__), "templates")
 
 CACHE_DIR = os.path.join(settings.OBJAVI_DIR, "cache")
 LOG_DIR   = os.path.join(settings.OBJAVI_DIR, 'logs')
