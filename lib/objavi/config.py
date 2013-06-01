@@ -108,7 +108,6 @@ WIKIBOOKS_CMD = '%s/wikibooks2epub' % TOOL_DIR
 
 PDFNUP   = '%s/pdfnup'   % TOOL_DIR
 HTML2ODT = '%s/html2odt' % TOOL_DIR
-BOOKLAND = '%s/bookland' % TOOL_DIR
 
 WKHTMLTOPDF = 'wkhtmltopdf'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
