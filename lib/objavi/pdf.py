@@ -24,6 +24,8 @@ import re
 from subprocess import Popen, PIPE
 import urllib
 
+import bookland
+
 from objavi import config
 from objavi.book_utils import log, run
 from objavi.cgi_utils import path2url
@@ -237,22 +239,27 @@ class PageSettings(object):
     def make_barcode_pdf(self, isbn, pdf, corner='br'):
         """Put an ISBN barcode in a corner of a single blank page."""
 
-        position = '%s,%s,%s,%s,%s' % (corner, self.width, self.height, self.side_margin, self.bottom_margin)
-        cmd1 = [config.BOOKLAND,
-                '--position', position,
-                str(isbn)]
+        product_code = bookland.makeProductCode(str(isbn))
+
+        if product_code.type in ("ISBN10", "ISBN13", "ISMN"):
+            b = bookland.Bookland(product_code)
+        elif product_code.type in ("EAN13", ):
+            b = bookland.EAN13Symbol(product_code)
+        else:
+            raise bookland.ProductCodeError("what kind of product code is this?")
+
+        position = (corner, float(self.width), float(self.height), float(self.side_margin), float(self.bottom_margin))
+        epslines = b.eps(position=position)
+
         cmd2 = ['ps2pdf',
                 '-dFIXEDMEDIA',
                 '-dDEVICEWIDTHPOINTS=%s' % self.width,
                 '-dDEVICEHEIGHTPOINTS=%s' % self.height,
                 '-', pdf]
 
-        p1 = Popen(cmd1, stdout=PIPE)
-        p2 = Popen(cmd2, stdin=p1.stdout, stdout=PIPE, stderr=PIPE)
-        out, err = p2.communicate()
+        p2 = Popen(cmd2, stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        out, err = p2.communicate(epslines)
 
-        log('ran:\n%s | %s' % (' '.join(cmd1), ' '.join(cmd2)))
-        log("return: %s and %s \nstdout:%s \nstderr:%s" % (p1.poll(), p2.poll(), out, err))
 
     def calculate_cover_size(self, api_key, booksize, page_count):
         import lulu
