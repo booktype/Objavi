@@ -76,7 +76,6 @@ TIMEOUT_CMD = 'timeout'
 
 PDFNUP   = '%s/pdfnup'   % TOOL_DIR
 HTML2ODT = '%s/html2odt' % TOOL_DIR
-BOOKLAND = '%s/bookland' % TOOL_DIR
 
 WKHTMLTOPDF = 'wkhtmltopdf'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
