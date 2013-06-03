@@ -5,7 +5,7 @@ html2odt source.html destination.odt
 """
 
 from __future__ import with_statement
-import sys, os, subprocess, time
+import sys, os, subprocess, multiprocessing, time
 
 import uno
 from com.sun.star.beans import PropertyValue
@@ -134,10 +134,22 @@ def set_env(workdir):
     os.chdir(workdir)
     print >> sys.stderr, os.environ
 
-if __name__ == '__main__':
-    workdir, src, dest = sys.argv[1:4]
-    set_env(workdir)
 
+def run(workdir, src, dest):
+    """Runs the conversion."""
+    set_env(workdir)
     with Oo() as oo:
         oo.convert(src, dest)
+
+
+def run_subprocess(workdir, src, dest):
+    """Runs the conversion in a subprocess."""
+    p = multiprocessing.Process(target = run, args = (workdir, src, dest))
+    p.start()
+    p.join()
+
+
+if __name__ == '__main__':
+    workdir, src, dest = sys.argv[1:4]
+    run(workdir, src, dest)
 

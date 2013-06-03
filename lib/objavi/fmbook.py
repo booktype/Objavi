@@ -54,6 +54,7 @@ from objavi.xhtml_utils import EpubChapter, split_tree, empty_html_tree
 from objavi.xhtml_utils import utf8_html_parser, localise_local_links
 from objavi.cgi_utils import path2url, try_to_kill
 from objavi.constants import DC, DCNS, FM, OPF, OPFNS
+from objavi.misc import html2odt
 from objavi import cover
 
 from booki.bookizip import get_metadata, add_metadata
@@ -333,7 +334,8 @@ class Book(object):
 
         html_text = etree.tostring(self.tree, method="html", encoding="UTF-8")
         save_data(self.body_html_file, html_text)
-        run([config.HTML2ODT, self.workdir, self.body_html_file, self.body_odt_file])
+
+        html2odt.run_subprocess(self.workdir, self.body_html_file, self.body_odt_file)
 
         log("Publishing %r as %r" % (self.body_odt_file, self.publish_file))
         os.rename(self.body_odt_file, self.publish_file)
@@ -1375,7 +1377,6 @@ class Book(object):
         been running for a long time."""
         log("running kill_old_processes")
         killable_names = ' '.join(['Xvfb', 'soffice', 'soffice.bin', 'ooffice',
-                                   os.path.basename(config.HTML2ODT),
                                    os.path.basename(config.WKHTMLTOPDF),
                                    ])
         p = Popen(['ps', '-C', killable_names,

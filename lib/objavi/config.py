@@ -75,7 +75,6 @@ BOOKI_SHARED_LONELY_USER_PREFIX = 'lonely-user-'
 TIMEOUT_CMD = 'timeout'
 
 PDFNUP   = '%s/pdfnup'   % TOOL_DIR
-HTML2ODT = '%s/html2odt' % TOOL_DIR
 
 WKHTMLTOPDF = 'wkhtmltopdf'
 WKHTMLTOPDF_EXTRA_COMMANDS = []
