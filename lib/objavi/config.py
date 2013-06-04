@@ -39,8 +39,7 @@ STATIC_URL  = settings.STATIC_URL
 DATA_ROOT   = settings.MEDIA_ROOT
 DATA_URL    = settings.MEDIA_URL
 
-TOOL_DIR      = os.path.join(OBJAVI_SOURCE_DIR, "bin")
-SCRIPT_DIR    = os.path.join(OBJAVI_SOURCE_DIR, "scripts")
+TOOLS_DIR     = os.path.join(dirname(__file__), "tools")
 TEMPLATE_ROOT = os.path.join(dirname(__file__), "templates")
 
 CACHE_DIR = os.path.join(settings.OBJAVI_DIR, "cache")
@@ -74,7 +73,7 @@ BOOKI_SHARED_LONELY_USER_PREFIX = 'lonely-user-'
 
 TIMEOUT_CMD = 'timeout'
 
-PDFNUP   = '%s/pdfnup'   % TOOL_DIR
+PDFNUP   = '%s/pdfnup'   % TOOLS_DIR
 
 WKHTMLTOPDF = 'wkhtmltopdf'
 WKHTMLTOPDF_EXTRA_COMMANDS = []

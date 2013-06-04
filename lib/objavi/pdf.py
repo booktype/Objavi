@@ -220,9 +220,9 @@ class PageSettings(object):
         if not ops:
             return
 
-        os.putenv("OBJAVI_SCRIPT_DIR", config.SCRIPT_DIR)
+        os.putenv("OBJAVI_TOOLS_DIR", config.TOOLS_DIR)
 
-        cmd = ['pdfedit', '-s', '%s/wk_objavi.qs' % config.SCRIPT_DIR,
+        cmd = ['pdfedit', '-s', '%s/wk_objavi.qs' % config.TOOLS_DIR,
                'dir=%s' % dir,
                'filename=%s' % pdf,
                'output_filename=%s' % pdf,
