@@ -62,7 +62,7 @@ def fetch_booklist(request):
 
 def fetch_css(request):
     server = request.REQUEST.get("server", config.DEFAULT_SERVER)
-    mode   = request.REQUEST.get("pdf_type", form_config.DEFAULT_PDF_TYPE)
+    mode   = request.REQUEST.get("mode", form_config.DEFAULT_MODE)
     path   = book_utils.get_server_defaults(server)['css-%s' % mode]
     path   = os.path.join(config.STATIC_ROOT, path)
     return HttpResponse(file(path, "r").read())
@@ -80,12 +80,6 @@ def show_form(request):
 
 def default(request):
     mode = request.REQUEST.get("mode")
-
-    if mode == "css":
-        return fetch_css(request)
-    elif mode == "booklist":
-        return fetch_booklist(request)
-
     book = request.REQUEST.get("book")
 
     if book and not mode:

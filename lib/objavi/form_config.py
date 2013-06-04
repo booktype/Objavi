@@ -47,20 +47,17 @@ CGI_MODES = { # arguments are: (publication, extension, mimetype)
     'templated_html':  (True, '.tar.gz', 'application/x-gzip'),
 }
 
-PUBLIC_CGI_MODES = tuple(k for k, v in CGI_MODES.items() if v[0])
-
 DEFAULT_MODE = 'book'
-DEFAULT_PDF_TYPE = 'book'
 DEFAULT_MAX_AGE = -1 #negative number means server default
 
 
 FORM_INPUTS = (
     # input, name, input type, contents key/input value, CSS classes, extra text, validator, default
-    ("server", "FLOSS Manuals server", "select", "server_options", "", "",
+    ("server", "Booktype server", "select", "server_options", "", "",
      lambda x: get_server_defaults(x) is not None, config.DEFAULT_SERVER,
      ),
     # book name can be: BlahBlah/Blah_Blah
-    ("book", "Manual", "input[type=text]", "book_options", "", "",
+    ("book", "Book", "input[type=text]", "book_options", "", "",
      lambda x: len(x) < 999 and is_utf8(x), None,
      ),
     ("title", "Book title", "input[type=text]", None, "", "leave blank for default",
@@ -162,9 +159,5 @@ FORM_INPUTS = (
     ("allow-breaks", "no page break control",
      "input[type=checkbox]", 'yes', "advanced", "Let page breaks occur immediately after headings",
      u"yes".__eq__, None,
-     ),
-
-    ("pdf_type", "", None, '', "", '',             #for css mode
-     lambda x: CGI_MODES.get(x, [False])[0], DEFAULT_PDF_TYPE,
      ),
 )
