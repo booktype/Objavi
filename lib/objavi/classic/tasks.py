@@ -65,10 +65,7 @@ class ObjaviRequest(object):
         self.booki_user = args.get('booki_user')
 
     def finish(self, book):
-        #book.publish_shared(self.booki_group, self.booki_user)
         self.publish_file = book.publish_file
-        if self.destination == 'archive.org':
-            book.publish_s3()
 
     def log_notifier(self, message):
         print('*** MESSAGE: "%s"' % message)

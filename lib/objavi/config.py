@@ -61,11 +61,6 @@ BOOKI_BOOK_URL = '%s/booki-books' % DATA_URL
 PUBLISH_DIR = '%s/books' % DATA_ROOT
 PUBLISH_URL = '%s/books' % DATA_URL
 
-HTML_PUBLISH_DIR = '%s/published' % DATA_ROOT
-
-BOOKI_SHARED_DIRECTORY = '%s/shared' % DATA_ROOT
-BOOKI_SHARED_LONELY_USER_PREFIX = 'lonely-user-'
-
 
 ##
 # external tools
@@ -345,9 +340,6 @@ NOWHERE_TEMPLATE        = os.path.join(TEMPLATE_ROOT, 'nowhere.txt')
 
 FINISHED_MESSAGE = 'FINISHED'
 
-
-S3_SECRET = '/home/luka/s3.archive.org-secret'
-S3_ACCESSKEY = '/home/luka/s3.archive.org-accesskey'
 
 #When it is necessary to creat a navpoint ID, use this string.
 NAVPOINT_ID_TEMPLATE = 'chapter%s'
