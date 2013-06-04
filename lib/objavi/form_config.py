@@ -27,8 +27,9 @@ from objavi.book_utils import get_server_defaults
 
 import re
 
-DEFAULT_CGI_DESTINATION = 'html'
 
+DESTINATIONS = ('download', 'nowhere')
+DEFAULT_DESTINATION = 'download'
 
 CGI_MODES = { # arguments are: (publication, extension, mimetype)
     'bookjs/pdf': (True, '.pdf', "application/pdf"),
@@ -48,36 +49,10 @@ CGI_MODES = { # arguments are: (publication, extension, mimetype)
 
 PUBLIC_CGI_MODES = tuple(k for k, v in CGI_MODES.items() if v[0])
 
-
-CGI_METHODS = ('sync', 'async', 'poll')
-
-#used by objavi-async
-CGI_DESTINATIONS = {
-    'archive.org': {'sync': (config.ARCHIVE_TEMPLATE, 'text/plain; charset=utf-8'),
-                    'async': (config.ARCHIVE_TEMPLATE, 'text/plain; charset=utf-8'),
-                    'poll': (None, None),
-                    'default': 'sync',
-                    },
-    'download': {'sync': (None, None),
-                 'async': (config.ASYNC_TEMPLATE, 'text/plain; charset=utf-8'),
-                 'poll': (None, None),
-                 'default': 'sync',
-                 },
-    'html': {'sync': (config.PROGRESS_TEMPLATE, 'text/html; charset=utf-8'),
-             'async': (config.ASYNC_TEMPLATE, 'text/plain; charset=utf-8'),
-             'poll': (config.PROGRESS_ASYNC_TEMPLATE, 'text/html; charset=utf-8'),
-             'default': 'sync',
-             },
-    'nowhere': {'sync': (config.NOWHERE_TEMPLATE, 'text/plain; charset=utf-8'),
-                'async': (config.NOWHERE_TEMPLATE, 'text/plain; charset=utf-8'),
-                'poll': (config.ASYNC_TEMPLATE, 'text/plain; charset=utf-8'),
-                'default': 'sync',
-                },
-}
-
 DEFAULT_MODE = 'book'
 DEFAULT_PDF_TYPE = 'book'
 DEFAULT_MAX_AGE = -1 #negative number means server default
+
 
 FORM_INPUTS = (
     # input, name, input type, contents key/input value, CSS classes, extra text, validator, default
@@ -191,16 +166,5 @@ FORM_INPUTS = (
 
     ("pdf_type", "", None, '', "", '',             #for css mode
      lambda x: CGI_MODES.get(x, [False])[0], DEFAULT_PDF_TYPE,
-     ),
-    ("method", '', None, '', "", '',
-     CGI_METHODS.__contains__, None,
-     ),
-    ("callback", '', None, '', "", '',
-     is_url, None,
-     ),
-    ("engine", "", None, "", "", "", config.ENGINES.__contains__, config.DEFAULT_ENGINE,
-     ),
-    ("destination", "", None, None, "", "",
-    CGI_DESTINATIONS.__contains__, DEFAULT_CGI_DESTINATION,
      ),
 )

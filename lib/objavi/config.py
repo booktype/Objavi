@@ -331,12 +331,6 @@ LICENSES = {
 
 DEFAULT_LICENSE = 'GPLv2+'
 
-FORM_TEMPLATE           = os.path.join(TEMPLATE_ROOT, 'form.html')
-PROGRESS_ASYNC_TEMPLATE = os.path.join(TEMPLATE_ROOT, 'progress-async.html')
-PROGRESS_TEMPLATE       = os.path.join(TEMPLATE_ROOT, 'progress.html')
-ASYNC_TEMPLATE          = os.path.join(TEMPLATE_ROOT, 'async.txt')
-ARCHIVE_TEMPLATE        = os.path.join(TEMPLATE_ROOT, 'archive.txt')
-NOWHERE_TEMPLATE        = os.path.join(TEMPLATE_ROOT, 'nowhere.txt')
 
 FINISHED_MESSAGE = 'FINISHED'
 

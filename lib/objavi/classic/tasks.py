@@ -52,15 +52,11 @@ class ObjaviRequest(object):
         extension = form_config.CGI_MODES.get(self.mode)[1]
         self.bookname = book_utils.make_book_name(self.bookid, self.server, extension)
         self.destination = args.get('destination')
-        self.callback = args.get('callback')
-        self.method = args.get('method', form_config.CGI_DESTINATIONS[self.destination]['default'])
-        self.template, self.mimetype = form_config.CGI_DESTINATIONS[self.destination][self.method]
         self.bookurl = "%s/%s" % (config.PUBLISH_URL, self.bookname,)
 
         if args.get('output_format') and args.get('output_profile'):
             self.bookurl = self.bookurl.rsplit(".", 1)[0]+"."+args.get('output_format')
 
-        self.details_url, self.s3url = fmbook.find_archive_urls(self.bookid, self.bookname)
         self.booki_group = args.get('booki_group')
         self.booki_user = args.get('booki_user')
 
@@ -106,8 +102,8 @@ def parse_request(request):
     else:
         raise RequestError(form.errors)
 
-    destination = request.get("destination", form_config.DEFAULT_CGI_DESTINATION)
-    if destination in form_config.CGI_DESTINATIONS.keys():
+    destination = request.get("destination", form_config.DEFAULT_DESTINATION)
+    if destination in form_config.DESTINATIONS:
         args["destination"] = destination
 
     engine = request.get("engine", config.DEFAULT_ENGINE)

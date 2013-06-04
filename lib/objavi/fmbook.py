@@ -61,11 +61,6 @@ from booki.bookizip import get_metadata, add_metadata
 
 
 
-def find_archive_urls(bookid, bookname):
-    s3url = 'http://s3.us.archive.org/booki-%s/%s' % (bookid, bookname)
-    detailsurl = 'http://archive.org/details/booki-%s' % (bookid,)
-    return (s3url, detailsurl)
-
 def _get_best_title(tocpoint):
     if 'html_title' in tocpoint:
         return tocpoint['html_title']
