@@ -566,7 +566,7 @@ post installation instructions.  It is very important!
 
 def main():
     usage = """\
-usage: %prog [options] install_path\n  e.g. create_site /var/www/objavi/  \
+usage: %prog [options] install_path\n  e.g. create_site /var/www/objavi_site/  \
 """
 
     parser = optparse.OptionParser(usage)
