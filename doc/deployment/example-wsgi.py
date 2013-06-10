@@ -16,7 +16,7 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'objavi.settings'
 # Add Objavi libraries to PYTHONPATH.
 #
 sys.path.insert(0, '/var/www/')
-sys.path.insert(1, '/var/www/objavi/')
+sys.path.insert(1, '/var/www/objavi_site/')
 
 # If you are using some Python libraries which are not installed to a standard
 # location, add path to them here, e.g.
