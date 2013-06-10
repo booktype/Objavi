@@ -16,47 +16,15 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import os, sys
-import cgi, re
+import os
+import re
 import urllib
-from getopt import gnu_getopt
 
 from django.conf import settings
 
-from objavi.book_utils import log, get_server_defaults
+from objavi.book_utils import log
 from objavi import config
 
-
-def parse_args(arg_validators):
-    """Read and validate CGI or commandline arguments, putting the
-    good ones into the returned dictionary.  Command line arguments
-    should be in the form --title='A Book'.
-
-    arg_validators is a dictionary mapping keys to either 1) functions
-    that validate their values; or 2) tuples of such functions and
-    default values.  The default value will itself be validated and
-    used in the case that no relevant argument is given.
-    """
-    query = cgi.FieldStorage()
-    options, args = gnu_getopt(sys.argv[1:], '', [x + '=' for x in arg_validators])
-    options = dict(options)
-    log("Starting request for %s" % (os.environ.get('REQUEST_URI'),))
-    log(query, debug='STARTUP')
-    data = {}
-    for key, validator in arg_validators.items():
-        if isinstance(validator, tuple):
-            validator, default = validator
-        else:
-            default = None
-        value = query.getfirst(key, options.get('--' + key, default))
-        log('%s: %s' % (key, value), debug='STARTUP')
-        if value is not None:
-            if validator is not None and not validator(value):
-                log("argument '%s' is not valid ('%s')" % (key, value))
-                continue
-            data[key] = value
-    log("effective query is:", data)
-    return data
 
 def super_bleach(dirty_name):
     """Replace potentially nasty characters with safe ones."""
@@ -68,9 +36,6 @@ def super_bleach(dirty_name):
 
 
 ## common between different versions of objavi
-
-def get_server_list():
-    return sorted(k for k, v in config.SERVER_DEFAULTS.items() if v['display'])
 
 def get_size_list():
     #order by increasing areal size.
@@ -106,12 +71,6 @@ def path2url(path, default='/missing_path?%(path)s'):
     else:
         path = default % {'path': urllib.quote(path)}
         return '%s/%s' % (settings.OBJAVI_URL, path)
-
-
-def get_default_css(server=config.DEFAULT_SERVER, mode='book'):
-    """Get the default CSS text for the selected server"""
-    css_file_path = os.path.join(config.STATIC_ROOT, get_server_defaults(server)['css-%s' % mode])
-    return open(css_file_path, "r").read()
 
 
 def font_links():
@@ -192,78 +151,7 @@ def is_utf8(s):
 def never_ok(s):
     return False
 
-## Formatting of lists
 
-def optionise(items, default=None):
-    """Make a list of strings into an html option string, as would fit
-    inside <select> tags."""
-    options = []
-    for x in items:
-        if isinstance(x, str):
-            x = (x, x)
-        if len(x) == 2:
-            # couple: value, name
-            if x[0] == default:
-                options.append('<option selected="selected" value="%s">%s</option>' % x)
-            else:
-                options.append('<option value="%s">%s</option>' % x)
-        else:
-            # triple: value, class, name
-            if x[0] == default:
-                options.append('<option selected="selected" value="%s" class="%s">%s</option>' % x)
-            else:
-                options.append('<option value="%s" class="%s">%s</option>' % x)
-
-    return '\n'.join(options)
-
-
-def listify(items):
-    """Make a list of strings into html <li> items, to fit in a <ul>
-    or <ol> element."""
-    return '\n'.join('<li>%s</li>' % x for x in items)
-
-#output functions
-
-def output_blob_and_exit(blob, content_type="application/octet-stream", filename=None):
-    print 'Content-type: %s\nContent-length: %s' % (content_type, len(blob))
-    if filename is not None:
-        print 'Content-Disposition: attachment; filename="%s"' % filename
-    print
-    print blob
-    sys.exit()
-
-def output_blob_and_shut_up(blob, content_type="application/octet-stream", filename=None):
-    print 'Content-type: %s\nContent-length: %s' % (content_type, len(blob))
-    if filename is not None:
-        print 'Content-Disposition: attachment; filename="%s"' % filename
-    print
-    print blob
-    sys.stdout.flush()
-    devnull = open('/dev/null', 'w')
-    os.dup2(devnull.fileno(), sys.stdout.fileno())
-    log(sys.stdout)
-
-##Decorator function for output
-def output_and_exit(f, content_type="text/html; charset=utf-8"):
-    """Decorator: prefix function output with http headers and exit
-    immediately after."""
-    def output(*args, **kwargs):
-        content = f(*args, **kwargs)
-        if isinstance(content, unicode): #XXX assumes content_type charset is not changed
-            content = content.encode('UTF-8')
-        print "Content-type: %s" % content_type
-        print "Content-length: %s" % len(content)
-        print
-        print content
-        sys.exit()
-    return output
-
-@output_and_exit
-def print_template_and_exit(template, mapping):
-    f = open(template)
-    string = f.read()
-    f.close()
-    return string % mapping
 
 def try_to_kill(pid, signal=15):
     log('kill -%s %s ' % (signal, pid))
@@ -271,14 +159,3 @@ def try_to_kill(pid, signal=15):
         os.kill(int(pid), signal)
     except OSError, e:
         log('PID %s seems dead (kill -%s gives %s)' % (pid, signal, e))
-
-
-def set_memory_limit(limit, hard_limit=None):
-    """Prevent this process and its children using more than <limit>
-    bytes.  If hard_limit is set, the process may get some grace
-    between the two limits (but in practice probably won't)."""
-    from resource import setrlimit, RLIMIT_AS
-    if hard_limit is None:
-        hard_limit = limit
-    setrlimit(RLIMIT_AS, (limit, hard_limit))
-
