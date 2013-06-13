@@ -168,7 +168,7 @@ class Epub(object):
             }
 
         if properties:
-            self.manifest[ID]['properties']
+            self.manifest[ID]['properties'] = properties
 
     def add_ncx(self, toc, filemap, ID, title):
         ncx = make_ncx(toc, filemap, ID, title)
