@@ -20,6 +20,8 @@ from objavi import config
 from objavi import form_config
 from objavi import book_utils
 
+import bookland
+
 
 def get_size_list():
     def calc_size(name, pointsize, klass):
@@ -124,6 +126,22 @@ class ObjaviForm(forms.Form):
     page_numbers        = forms.ChoiceField(choices = get_page_number_choices(), initial = config.DEFAULT_PAGE_NUMBER_OPTION)
     embed_fonts         = BooleanField(required = False)
     allow_breaks        = BooleanField(required = False)
+
+
+    def clean_isbn(self):
+        isbn = self.cleaned_data["isbn"]
+
+        if isbn:
+            try:
+                product_code = bookland.makeProductCode(str(isbn))
+            except bookland.ProductCodeError:
+                product_code = None
+            msg = u"Invalid ISBN."
+            if not product_code or product_code.type not in ("ISBN10", "ISBN13", "ISMN"):
+                raise forms.ValidationError(msg)
+
+        return isbn
+
 
     def clean(self):
         cleaned_data = self.cleaned_data
