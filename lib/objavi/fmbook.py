@@ -35,6 +35,8 @@ from string import ascii_letters
 from pprint import pformat
 import mimetypes
 
+from django.utils.encoding import smart_unicode
+
 try:
     import json
 except ImportError:
@@ -266,7 +268,7 @@ class Book(object):
             self.maker = PageSettings(self.workdir, **page_settings)
 
         if title is not None:
-            self.title = title
+            self.title = smart_unicode(title)
         else:
             titles = get_metadata(self.metadata, 'title')
             if titles:
@@ -560,9 +562,9 @@ class Book(object):
         contents = etree.Element('div', Class=config.TEMPLATING_REPLACED_ELEMENT)
         booktitle = etree.Element('div', Class=config.TEMPLATING_BOOK_TITLE_ELEMENT)
         log(self.title)
-        booktitle.text = self.title.decode('utf-8')
+        booktitle.text = self.title
 
-        etree.SubElement(contents, 'h1').text = self.title.decode('utf-8')
+        etree.SubElement(contents, 'h1').text = self.title
 
         savename = first_name
         for ID in self.spine:
@@ -667,7 +669,7 @@ class Book(object):
         #0. Add heading to begining of html
         body = list(self.tree.cssselect('body'))[0]
         e = body.makeelement('h1', {'id': 'book-title'})
-        e.text = self.title.decode('utf-8')
+        e.text = self.title
         body.insert(0, e)
         intro = lxml.html.fragment_fromstring(self.compose_inside_cover())
         e.addnext(intro)
