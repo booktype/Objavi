@@ -318,7 +318,7 @@ class Book(object):
     def save_tempfile(self, fn, data):
         """Save the data in a temporary directory that will be cleaned
         up when all is done.  Return the absolute file path."""
-        fn = self.filepath(fn)
+        #fn = self.filepath(fn)
         save_data(fn, data)
         return fn
 
@@ -539,7 +539,8 @@ class Book(object):
         """Make a templated html version of the book."""
         #set up the directory and static files
         self.unpack_static()
-        destdir = self.filepath(os.path.basename(self.publish_file))
+        #destdir = self.filepath(os.path.basename(self.publish_file))
+        destdir = self.publish_file
         os.mkdir(destdir)
 
         src = self.filepath('static')
